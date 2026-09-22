@@ -11,7 +11,71 @@
     }
   ],
   "fallbackEmoji": "Cat",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/ae8ea8e0e6defa7b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 58294,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cat_November_2010-1a.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Alvesgaspar",
+      "title": "Cat November 2010-1a.jpg",
+      "rank": "article",
+      "caption": "Một con mèo nhà",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:24:49.163Z"
+    },
+    {
+      "src": "media/img/29da667b15ddbe9a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 57724,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cat_watching_on_floor.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Ivan Radic",
+      "title": "Cat watching on floor.jpg",
+      "rank": "article",
+      "caption": "Mắt mèo.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:24:49.255Z"
+    },
+    {
+      "src": "media/img/779bd6f0ad5d3710.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 62565,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gillie_Backlit_(5646498382).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Dwight Sipler from Stow, MA, USA",
+      "title": "Gillie Backlit (5646498382).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:24:49.336Z"
+    },
+    {
+      "src": "media/img/8715e86f4819c57f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 94569,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_cat_crossing_the_ditch_in_Nara.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "takato marui from Osaka, Japan",
+      "title": "A cat crossing the ditch in Nara.jpg",
+      "rank": "article",
+      "caption": "Một con mèo ở Nara",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:24:49.419Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/078a2e8e9525ab03.mp3",
@@ -39,6 +103,11 @@
     "assetConcept": "cat",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-22T19:24:49.420Z"
+    }
   }
 }

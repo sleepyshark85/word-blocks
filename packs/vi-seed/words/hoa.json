@@ -11,7 +11,56 @@
     }
   ],
   "fallbackEmoji": "Hibiscus",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/c01be1222b09be14.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 52850,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Flowers_of_Iran_%DA%AF%D9%84%D9%87%D8%A7%DB%8C_%D8%A7%DB%8C%D8%B1%D8%A7%D9%86_27.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Mostafameraji",
+      "title": "Flowers of Iran گلهای ایران 27.jpg",
+      "rank": "article",
+      "caption": "Ong đang lấy nhuỵ hoa",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:25:19.566Z"
+    },
+    {
+      "src": "media/img/ff2bb312a41b1997.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 30497,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:White_and_yellow_flower.JPG",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Two+two=4",
+      "title": "White and yellow flower.JPG",
+      "rank": "article",
+      "caption": "Hoa của Loa kèn sông Nin (Zantedeschia aethiopica) không phải là một bông hoa riêng lẻ. Trên thực tế nó là một cụm hoa gồm nhiều hoa nhỏ ép sát cùng nhau trên một trục trung tâm, được bao quanh bằng một lá bắc (lá mo) lớn trông giống như cánh hoa.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:25:19.657Z"
+    },
+    {
+      "src": "media/img/bc728b3605799f4c.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 80331,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tamperefloral.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "Tamperetunnetuksiry",
+      "title": "Tamperefloral.jpg",
+      "rank": "article",
+      "caption": "Quảng trường Trung tâm Tampere trong Lệ hội Hoa Tampere vào tháng 7 năm 2007.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:25:19.747Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/9e607e2ed958b42e.mp3",
@@ -32,6 +81,11 @@
       "PHOTO"
     ],
     "note": "PHOTO — hoa is flower generally; several varied photos is the right answer here",
-    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-22T19:25:19.747Z"
+    }
   }
 }

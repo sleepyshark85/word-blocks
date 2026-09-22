@@ -11,7 +11,71 @@
     }
   ],
   "fallbackEmoji": "Automobile",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/a481dab8c3c49121.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 70296,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Toyota_Fortuner_4x4_Legender_(LTD)_2-Tone_White_Pearl-Black.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Captainmorlypogi1959",
+      "title": "Toyota Fortuner 4x4 Legender (LTD) 2-Tone White Pearl-Black.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:04.372Z"
+    },
+    {
+      "src": "media/img/6267372c228f8c25.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 59683,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Toyota_C-HR_Hybrid_001.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "JustAnotherCarDesigner",
+      "title": "Toyota C-HR Hybrid 001.jpg",
+      "rank": "article",
+      "caption": "Một chiếc xe Toyota C-HR Hybrid của Nhật Bản",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:04.466Z"
+    },
+    {
+      "src": "media/img/123e5238d197a9d7.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 50707,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Volkswagen_Polo_Sedan.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Milhouse35",
+      "title": "Volkswagen Polo Sedan.JPG",
+      "rank": "article",
+      "caption": "Volkswagen Polo phiên bản Sedan",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:04.544Z"
+    },
+    {
+      "src": "media/img/37eeaf001dd40710.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 54498,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:TOYOTA_FCHV_01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Photo by Gnsin",
+      "title": "TOYOTA FCHV 01.jpg",
+      "rank": "article",
+      "caption": "Xe hơi chạy pin nhiên liệu (Fuel Cell Hybrid Vehicle) của Toyota. xe hơi pin nhiên liệu chạy bằng hydro do Toyota Motor phát triển,. 2005",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:04.631Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/fe3d50a9cbfc0863.mp3",
@@ -32,6 +96,11 @@
       "AMBIG"
     ],
     "note": "AMBIG — xe is \"vehicle\" generally",
-    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 7,
+      "at": "2026-09-22T19:26:04.631Z"
+    }
   }
 }

@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Rabbit",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/e181cdf1a18bc81e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 66921,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oryctolagus_cuniculus_Rcdo.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "JM Ligero Loarte",
+      "title": "Oryctolagus cuniculus Rcdo.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:57.443Z"
+    },
+    {
+      "src": "media/img/e4c08ab82561fa2b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 41865,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oryctolagus_cuniculus_Tasmania_2.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "JJ Harrison (https://www.jjharrison.com.au/)",
+      "title": "Oryctolagus cuniculus Tasmania 2.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:57.534Z"
+    },
+    {
+      "src": "media/img/44d328a5454ba1ee.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 71389,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sylvilagus_bachmani_01035t.JPG",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+      "creator": null,
+      "title": "Sylvilagus bachmani 01035t.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:57.623Z"
+    },
+    {
+      "src": "media/img/98be31709e8e510e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 85300,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:What%27s_Up_Doc.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Jessie Eastland",
+      "title": "What's Up Doc.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:57.709Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/f75bbd7586436a14.mp3",
@@ -39,6 +100,11 @@
     "assetConcept": "rabbit",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-22T19:26:57.709Z"
+    }
   }
 }

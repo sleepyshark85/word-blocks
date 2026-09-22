@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Duck",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/ae51797437d52645.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 42946,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_domesticus_001.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Luis García (Zaqarbal)",
+      "title": "Anas platyrhynchos domesticus 001.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:03.986Z"
+    },
+    {
+      "src": "media/img/b1e40cd59b899235.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 56805,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mandarin.duck.arp.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Adrian Pingstone",
+      "title": "Mandarin.duck.arp.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:04.092Z"
+    },
+    {
+      "src": "media/img/4742f5fec3bdb58c.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 66570,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_male_female_quadrat.jpg",
+      "license": "CC BY-SA 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+      "creator": "This picture was realized by Richard Bartz by using a Canon EF 70-300mm f/4-5.6 ",
+      "title": "Anas platyrhynchos male female quadrat.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:04.176Z"
+    },
+    {
+      "src": "media/img/52148c8500740545.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 64267,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Park_Pekins.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "SaltySemanticSchmuck",
+      "title": "Park Pekins.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:04.259Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/4e685ff3da9c3bb2.mp3",
@@ -39,6 +100,11 @@
     "assetConcept": "duck",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-22T19:26:04.259Z"
+    }
   }
 }

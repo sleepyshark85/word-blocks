@@ -11,7 +11,53 @@
     }
   ],
   "fallbackEmoji": "House",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/562238b8f95221c4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 71939,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:248_Ashley_Ave_-_2017.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "ProfReader",
+      "title": "248 Ashley Ave - 2017.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:25:19.861Z"
+    },
+    {
+      "src": "media/img/3474c3146db5c934.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 67650,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Deras-TreeHouse.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Guguly18",
+      "title": "Deras-TreeHouse.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:25:19.957Z"
+    },
+    {
+      "src": "media/img/a4789897886ba25a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 83375,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:103_Hanover.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "ProfReader",
+      "title": "103 Hanover.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:25:20.045Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/4daeb63de00b9890.mp3",
@@ -39,6 +85,11 @@
     "assetConcept": "house",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-22T19:25:20.045Z"
+    }
   }
 }

@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Monkey",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/6185d1e16ba468d7.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 56653,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_hunch_(2628229806).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Karunakar Rayker from India",
+      "title": "The hunch (2628229806).jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:57.827Z"
+    },
+    {
+      "src": "media/img/f59e728cb1298fbc.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 65750,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Beating_the_Heat.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Tarun802",
+      "title": "Beating the Heat.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:57.918Z"
+    },
+    {
+      "src": "media/img/41cac9d3c491b389.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 45450,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Twosome_Monkeys.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Tanuja R Y",
+      "title": "Twosome Monkeys.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:58.000Z"
+    },
+    {
+      "src": "media/img/6f516d9d74e85874.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 54368,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fabian_Blank_2016_(Unsplash).jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Fabian Blank blankerwahnsinn",
+      "title": "Fabian Blank 2016 (Unsplash).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:26:58.082Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/41c102a26cf1e69d.mp3",
@@ -39,6 +100,11 @@
     "assetConcept": "monkey",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 8,
+      "at": "2026-09-22T19:26:58.082Z"
+    }
   }
 }
