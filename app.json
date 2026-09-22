@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Ghép Chữ",
+    "slug": "word-blocks",
+    "version": "0.1.0",
+    "orientation": "default",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#E9FBF2",
+    "assetBundlePatterns": ["assets/**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "infoPlist": {
+        "UIBackgroundModes": []
+      }
+    },
+    "android": {
+      "package": "com.sleepyshark85.wordblocks"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-audio",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#E9FBF2",
+          "resizeMode": "contain"
+        }
+      ]
+    ],
+    "extra": {}
+  }
+}

@@ -101,6 +101,32 @@ export function checkInvariants(pack, state, context = {}) {
     else if (inst.role !== c.role) fail('cellRoleMismatch', `${c.instanceId}`);
   }
 
+  /* ---- a seated tone is a tone the seated rime can actually take ---------------
+     `literacy-vi.md` §5.2's checked-syllable rule is hard and exceptionless, and the
+     tone tile *is* the rime wearing a mark (§5.4), so a tone seated against a rime that
+     has no stored form for it is a board state with no spelling. Found by the Slice 2
+     tester as a reachable state on `quạt`; the reducer now refuses it, and this is the
+     assertion that says so after every action rather than at the one call site. */
+  if (round.palette.kind === 'vi') {
+    const rimeCell = round.cells.find((c) => c.role === 'rime');
+    const toneCell = round.cells.find((c) => c.role === 'tone');
+    if (toneCell && toneCell.tileId !== null) {
+      if (!rimeCell || rimeCell.tileId === null) {
+        fail('toneWithoutRime', toneCell.tileId);
+      } else {
+        const rimeTile = pack.tileById.rime[rimeCell.tileId];
+        if (!rimeTile || !rimeTile.legalTones.includes(toneCell.tileId)
+            || rimeTile.toned[toneCell.tileId] == null) {
+          fail('illegalToneSeated', `${rimeCell.tileId}+${toneCell.tileId}`);
+        }
+        const toneInst = instances.find((i) => i.id === toneCell.instanceId);
+        if (toneInst && toneInst.rimeId !== rimeCell.tileId) {
+          fail('toneFromAnotherRimeRow', `${toneInst.id} on ${rimeCell.tileId}`);
+        }
+      }
+    }
+  }
+
   /* ------------------ every round is solvable with the palette offered (E10) ---- */
   if (!isSolvable(pack, round)) fail('unsolvable', round.targetId);
 

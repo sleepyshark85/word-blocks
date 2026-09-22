@@ -353,10 +353,27 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     ? resolveViTiles(m ?? {}, hasMedia, issues)
     : resolveEnTiles(m ?? {}, hasMedia, issues);
 
+  /**
+   * Two tiles with the same id would share one instance id in a palette, so seating one
+   * would remove both — the Slice 2 tester measured it on 333 of 400 generated rounds.
+   * The first wins, the rest are dropped with an error his mother can act on, and
+   * `tiles[group]` is filtered to match `tileById` so nothing downstream can pick the
+   * shadowed copy out of the array.
+   */
   const tileById = {};
   for (const group of TILE_GROUPS[language]) {
     tileById[group] = Object.create(null);
-    for (const t of tiles[group] ?? []) tileById[group][t.id] = t;
+    const kept = [];
+    for (const t of tiles[group] ?? []) {
+      if (tileById[group][t.id]) {
+        issues.push(issue('error', `tiles.${group}[${t.id}]`, 'duplicateTileId',
+          `there is more than one "${t.id}" tile; only the first was used`));
+        continue;
+      }
+      tileById[group][t.id] = t;
+      kept.push(t);
+    }
+    tiles[group] = kept;
   }
 
   // The never-together sets are read from the manifest as data (`content-pipeline.md`
@@ -382,8 +399,22 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
   const catalogue = [];
   const playable = [];
   const index = new Map();
+  const seenIds = new Set();
 
-  for (const raw of words) {
+  /**
+   * Sorted **here**, before anything reads it, because two resolutions of the same words
+   * in a different order must produce the same pack: the duplicate-parts rule below
+   * keeps the first word it meets, and "first" has to mean something stable. The Slice 2
+   * tester found this was true only by accident — the seed builder happened to sort
+   * filenames — and this layer is about to be read by a directory listing instead.
+   */
+  const ordered = [...words].sort((a, b) => {
+    const x = a && typeof a.id === 'string' ? a.id : '';
+    const y = b && typeof b.id === 'string' ? b.id : '';
+    return x < y ? -1 : x > y ? 1 : 0;
+  });
+
+  for (const raw of ordered) {
     const shell = checkWordShell(raw, language);
     if (shell) {
       catalogue.push({
@@ -400,6 +431,17 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     const text = nfc(raw.text);
     const stage = Number.isInteger(raw.stage) ? raw.stage : null;
     const entry = { id, text, stage, playable: false, reason: null };
+
+    // Two word files claiming the same id: `wordById` would answer with the first and
+    // the second would be listed as playable while never being dealt, so his mother
+    // would be told a dead word was fine. One id, one word.
+    if (seenIds.has(id)) {
+      entry.reason = reason('duplicateId', `there is already a word with the id "${id}"`);
+      catalogue.push(entry);
+      issues.push(issue('error', `words/${id}`, 'duplicateId', entry.reason.message));
+      continue;
+    }
+    seenIds.add(id);
 
     const decomp = language === 'vi'
       ? resolveViDecomposition(raw, tileById)

@@ -206,12 +206,18 @@ test('three auto-places send the word back into the front third (G10)', () => {
 
     // `gameplay.md` §6.3: a uniformly random position in the FRONT THIRD. The bag it
     // landed in is the one before the next round was dealt, so add the drawn word back.
+    //
+    // Written with `includes` rather than `indexOf(...) + 1`: the arithmetic form scored
+    // a word that never came back as `-1 + 1 = 0` and read it as "came back first", so
+    // deleting the re-insertion left the whole suite green. Caught by the Slice 2
+    // tester; the fix was re-checked by deleting `reinsertFront` for the assist case and
+    // watching this test go red.
     const bagLen = after.bag.length + (after.round ? 1 : 0);
     const third = Math.max(1, Math.ceil(bagLen / 3));
-    const idx = after.round && after.round.targetId === targetId
-      ? 0
-      : after.bag.indexOf(targetId) + (after.round ? 1 : 0);
-    assert.ok(idx >= 0, `${targetId} did not come back at all`);
+    const dealtNext = Boolean(after.round && after.round.targetId === targetId);
+    const cameBack = dealtNext || after.bag.includes(targetId);
+    assert.ok(cameBack, `${targetId} did not come back at all`);
+    const idx = dealtNext ? 0 : after.bag.indexOf(targetId) + (after.round ? 1 : 0);
     assert.ok(idx < third,
       `${targetId} came back at ${idx} of ${bagLen}, outside the front third (${third})`);
     checked += 1;
@@ -308,4 +314,61 @@ test('the language on the session is the pack’s, and no action changes it', ()
       assert.equal(reduce(pack, s, action).language, pack.language);
     }
   }
+});
+
+test('the bag is actually shuffled — two seeds deal different orders (gameplay.md §6.3)', () => {
+  // Replacing `shuffled(state.rng, …)` in `refill` with the unshuffled list left the
+  // Slice 2 suite 178/179 green: every seed would have dealt the identical order for
+  // ever, which is the regression that makes the app boring and which nothing saw.
+  // Caught by the Slice 2 tester by deleting the shuffle; this is the test that goes red.
+  for (const pack of [viPack(), enPack()]) {
+    const sorted = pack.words.map((w) => w.id); // `resolvePack` sorts playable by id
+    const orders = new Set();
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
+      const s = createSession(pack, { seed });
+      const order = [s.round.targetId, ...s.bag].join(',');
+      assert.notEqual(order, sorted.join(','),
+        `seed ${seed} dealt the pack in its stored order — the bag is not being shuffled`);
+      orders.add(order);
+    }
+    assert.ok(orders.size >= 7,
+      `${orders.size} distinct bag orders across 8 seeds — the shuffle is not using the seed`);
+  }
+});
+
+test('a tile that is not on screen cannot be placed by id (the quạt case)', () => {
+  // The Slice 2 tester reached an illegal board through `tapTile` with an instance id
+  // from a tone row that was not the seated rime's: `quạt`'s on-screen tone row is
+  // `sắc`/`nặng` only (C6), yet `tone:ô:huyen` was accepted and the plate then showed
+  // the unmarked rime. The reducer now refuses anything outside the active row.
+  const pack = viPack();
+  const lang = langFor(pack.language);
+  let s = createSession(pack, { seed: 'offscreen' });
+  let checked = 0;
+
+  for (let round = 0; round < 60 && checked < 5; round += 1) {
+    if (s.phase === 'album') s = reduce(pack, s, { type: 'nextPage' });
+    if (s.phase !== 'playing') break;
+
+    // Seat onset and rime so the band is showing a tone row.
+    let t = s;
+    for (const role of ['onset', 'rime']) {
+      const cell = t.round.cells.find((c) => c.role === role);
+      if (!cell) continue;
+      const inst = lang.activeRow(t.round).instances.find((i) => i.tileId === cell.expect);
+      t = reduce(pack, t, { type: 'tapTile', instanceId: inst.id });
+    }
+    if (t.round && t.round.status === 'building') {
+      const onScreen = new Set(lang.activeRow(t.round).instances.map((i) => i.id));
+      const offScreen = lang.paletteInstances(t.round.palette)
+        .filter((i) => i.role === 'tone' && !onScreen.has(i.id));
+      for (const inst of offScreen) {
+        assert.equal(reduce(pack, t, { type: 'tapTile', instanceId: inst.id }), t,
+          `${inst.id} was placeable while off screen`);
+        checked += 1;
+      }
+    }
+    s = reduce(pack, solve(pack, s), { type: 'advance' });
+  }
+  assert.ok(checked >= 5, `only exercised ${checked} off-screen tone tiles`);
 });

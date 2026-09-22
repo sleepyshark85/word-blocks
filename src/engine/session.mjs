@@ -283,6 +283,25 @@ export function reduce(pack, state, action) {
       const seatedAt = round.cells.find((c) => c.instanceId === inst.id);
       if (seatedAt) return reduce(pack, state, { type: 'tapCell', cellIndex: seatedAt.index });
 
+      /**
+       * **Only a tile that is on screen can be placed.**
+       *
+       * `gameplay.md` §2.1: exactly one row exists at a time, and the band only ever
+       * offers tiles for the cell that is next. Accepting any instance from the whole
+       * palette made a tile the child cannot see placeable by id — found by the Slice 2
+       * tester with target `quạt`, whose on-screen tone row is `sắc`/`nặng` only
+       * (`literacy-vi.md` §5.2, `acceptance-criteria.md` C6): `tone:ô:huyen` was
+       * accepted, the plate then read the *unmarked* rime because no toned form exists
+       * for `at`+`huyền`, and the read-back spoke a tone over a checked syllable.
+       *
+       * It was unreachable from the rendered band only because nothing rendered yet.
+       * The 280 ms band cross-fade of C3/C4 leaves the outgoing row on screen and
+       * touchable, and T1 taps six tiles in 400 ms, so the presentation layer makes it
+       * reachable. The fix belongs here rather than in a `pointerEvents` prop, because
+       * the rule — a tap is a tap on something he can see — is a rule of the game.
+       */
+      if (!lang.activeRow(round).instances.some((i) => i.id === inst.id)) return state;
+
       const cellIndex = lang.targetCellFor(round, inst);
       if (cellIndex < 0) return state;
       const seated = seat(round, cellIndex, inst, lang);

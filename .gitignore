@@ -10,6 +10,11 @@ venv/
 __pycache__/
 *.pyc
 
+# Curation scratch. `content-pipeline.md` §2 calls it disposable, and it is: contact
+# sheets, raw downloads and candidate metadata for pictures nobody has chosen yet. What
+# survives curation is copied into the pack's own media/ by pack-import-media.
+packs/*/.candidates/
+
 # Spike and pipeline OUTPUT — regenerable, large, and third-party media under mixed
 # licences. `docs/design/` records what was measured from it; the bytes stay local.
 samples/
@@ -17,3 +22,7 @@ samples/
 # os / editor
 .DS_Store
 *.log
+
+# test artefacts and the font build cache
+test/.out/
+.fontcache/

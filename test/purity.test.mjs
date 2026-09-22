@@ -19,7 +19,10 @@ function sources(dir) {
   for (const name of readdirSync(dir)) {
     const p = path.join(dir, name);
     if (statSync(p).isDirectory()) out.push(...sources(p));
-    else if (name.endsWith('.mjs')) out.push(p);
+    // Slice 3 added `.js` to `src/` — the React layer. The engine is still all `.mjs`,
+    // so `FILES` below is unchanged, but the manifest audit has to see the React layer
+    // or every dependency the app actually uses would read as unimported.
+    else if (/\.(mjs|jsx?)$/.test(name)) out.push(p);
   }
   return out.sort();
 }
@@ -151,14 +154,53 @@ test('the manifest carries neither Reanimated nor gesture-handler (acceptance-cr
 test('every dependency in the manifest is imported by something (hygiene)', () => {
   const pkg = JSON.parse(readFileSync(path.join(REPO, 'package.json'), 'utf8'));
   const declared = Object.keys({ ...(pkg.dependencies ?? {}), ...(pkg.devDependencies ?? {}) });
+
   const all = [...sources(path.join(REPO, 'src')), ...sources(path.join(REPO, 'test'))];
+  // The toolchain configs name packages as bare strings rather than importing them —
+  // `babel.config.js` lists a preset, `metro.config.js` requires one — so they are read
+  // with a looser extractor: any quoted token that resolves in `node_modules` counts.
+  const configs = ['babel.config.js', 'metro.config.js', 'index.js']
+    .map((f) => path.join(REPO, f))
+    .filter((f) => { try { readFileSync(f); return true; } catch { return false; } });
+
   const imported = new Set();
+  const note = (raw) => {
+    if (!raw || raw.startsWith('.') || raw.startsWith('/')) return;
+    imported.add(raw.startsWith('@') ? raw.split('/').slice(0, 2).join('/') : raw.split('/')[0]);
+  };
   for (const f of all) {
-    for (const m of readFileSync(f, 'utf8').matchAll(/from\s+['"]([^'".][^'"]*)['"]/g)) {
-      imported.add(m[1].startsWith('@') ? m[1].split('/').slice(0, 2).join('/') : m[1].split('/')[0]);
+    const src = readFileSync(f, 'utf8');
+    for (const m of src.matchAll(/from\s+['"]([^'"]+)['"]/g)) note(m[1]);
+    for (const m of src.matchAll(/(?:^|[^.\w])import\s+['"]([^'"]+)['"]/g)) note(m[1]);
+    for (const m of src.matchAll(/require\(\s*['"]([^'"]+)['"]\s*\)/g)) note(m[1]);
+  }
+  for (const f of configs) {
+    for (const m of readFileSync(f, 'utf8').matchAll(/['"]([@\w][^'"\n]*)['"]/g)) {
+      const name = m[1].startsWith('@') ? m[1].split('/').slice(0, 2).join('/') : m[1].split('/')[0];
+      try {
+        statSync(path.join(REPO, 'node_modules', name, 'package.json'));
+        imported.add(name);
+      } catch { /* not a package name, just a string */ }
     }
   }
-  for (const d of declared) assert.ok(imported.has(d), `${d} is declared but nothing imports it`);
+
+  // The other real exception: a **peer dependency of something we do import**, which the
+  // bundler resolves by name and no source file names. `react-dom` is a peer of
+  // `@expo/metro-runtime` and `react-native-web` a peer of `expo-system-ui`; dropping
+  // either breaks `expo start --web` even though no `import` mentions them. The exemption
+  // is derived from the installed manifests, so a package that stops being a peer stops
+  // being exempt.
+  const peers = new Set();
+  for (const name of imported) {
+    try {
+      const meta = JSON.parse(readFileSync(path.join(REPO, 'node_modules', name, 'package.json'), 'utf8'));
+      for (const p of Object.keys(meta.peerDependencies ?? {})) peers.add(p);
+    } catch { /* not an installed package — a relative path or a node builtin */ }
+  }
+
+  for (const d of declared) {
+    assert.ok(imported.has(d) || peers.has(d), `${d} is declared but nothing imports it`);
+  }
 });
 
 test('no engine export is dead — each is re-exported by index.mjs or used by a sibling', async () => {
