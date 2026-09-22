@@ -97,7 +97,7 @@ export function viHomophoneSets(dialect) {
 export const EN_VOWELS = ['a', 'e', 'i', 'o', 'u'];
 
 /** `literacy-en.md` §3.3, §7 — tiles that can never start a word. */
-export const EN_FINAL_ONLY = ['ck', 'll', 'ss', 'ff', 'zz', 'ng', 'x'];
+export const EN_FINAL_ONLY = ['ck', 'll', 'ss', 'ff', 'zz', 'gg', 'ng', 'x'];
 
 /** `literacy-en.md` §3.1 — `y` is /j/ and initial-only in v1. */
 export const EN_INITIAL_ONLY = ['y'];
