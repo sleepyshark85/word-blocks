@@ -145,6 +145,32 @@ do not average it.
 
 ---
 
+## 6a. One source, not two kept in sync
+
+**Correction, 2026-09-23.** A brief from the orchestrator cited "§6.3" for this rule. This
+document had no §6.3 — the citation was to *wildlife-shuffle's* numbering, carried over
+without checking. The app-developer noticed and asked rather than guessing, which is the
+behaviour the rule itself is about. The rule is real and is written down here now.
+
+Wildlife-shuffle accumulated run statistics in seven local variables *and* derivably from
+its event stream. The two agreed, which is the bug shape rather than its absence. The fix
+was not to sync them; it was to remove the second source so there was no number left to
+increment.
+
+The same rule governs this project's pack format, which has two readers by nature — the
+validator in `tools/` and the engine in `src/`. They are not allowed to disagree:
+
+- `test/helpers/load.mjs` does all pack I/O through `tools/lib/pack.mjs` rather than
+  parsing the format a second time.
+- `src/engine/rules.mjs` is a deliberate **subset** of `tools/lib/rules.mjs`, and
+  `test/rules-parity.test.mjs` runs every onset × rime, every legal tone set, every dialect
+  and both English inventories through **both** implementations asserting identical
+  answers. The guarantee is executable rather than a comment.
+
+**Rule:** when a second implementation is genuinely unavoidable, make the agreement a test
+that runs the real inputs through both. A sync rule enforced by discipline is the thing
+that fails.
+
 ## 7. Git and PR workflow
 
 - **One branch per slice**, named `slice-N-<topic>`, cut from `main`.

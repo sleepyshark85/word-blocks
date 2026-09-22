@@ -11,14 +11,14 @@ squad works), `spike-results.md` (what was measured).
 
 ## Status
 
-*Last updated: 2026-09-23 — all three design agents were killed mid-work by a weekly
+*Last updated: 2026-09-23 (Slice 2 built, under independent test) — all three design agents were killed mid-work by a weekly
 rate limit. What survived is catalogued below; it was verified by execution, not trusted.*
 
 | # | Slice | State |
 |---|---|---|
 | **0** | Squad, spike, and approved design | **In progress** — `ui.md` and `acceptance-criteria.md` still missing |
 | **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
-| **2** | Engine: tile assembly, word matching, round generation | Not started |
+| **2** | Engine: tile assembly, word matching, round generation | **Built, in test.** `npm test` 179/179; ~9,400 fuzzed rounds per language, 50,000 invariant checks, 0 violations |
 | **3** | The game plays, both languages, on a real device | Not started |
 | **4** | The editor — add / edit / delete a word | Not started |
 | **5** | Polish: motion, sound, accessibility | Not started |
@@ -61,10 +61,11 @@ rate limit. What survived is catalogued below; it was verified by execution, not
 
 ### Known defects — carry these forward
 
-1. **`packs/vi-seed/words/ho.json` is linguistically wrong.** Spelling `hổ` but the
-   decomposition is `h` + `ỏ`, which composes to `hỏ`. The rime should be `ô`, not `o`.
-   Caught by the validator, which is the validator earning its place — this is exactly the
-   "content can be wrong" failure the five-agent split exists for.
+1. ~~`packs/vi-seed/words/ho.json` is linguistically wrong.~~ **FIXED.** The pack now reads
+   `h` + `ô` + `hỏi`, `word-list.md` carries the correction inline, and the toneless blend
+   audio was regenerated from "ho" to "hô". Both validators exit 0. *The status line stayed
+   stale for several commits after the fix and was caught by the app-developer reading it —
+   §7a exists precisely so that does not happen, and it happened anyway.*
 2. ~~`theme-contrast.mjs` fails with 8 pairs.~~ **Fixed.** Exit 0 across 3 themes, and all
    nine owner role hexes ship unchanged — the fix moved the colour (white tile face, ink
    glyph, bright role bars) rather than darkening the palette to satisfy arithmetic.

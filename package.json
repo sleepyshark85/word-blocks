@@ -1,0 +1,12 @@
+{
+  "name": "word-blocks",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ghép Chữ / Word Blocks — a word-building game. Slice 2: the pure engine.",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
