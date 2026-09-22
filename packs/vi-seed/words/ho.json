@@ -11,7 +11,64 @@
     }
   ],
   "fallbackEmoji": "Tiger",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/2b9f85eb65ce68dd.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 86072,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Panthera_tigris_altaica_in_Lodz_Zoo_2.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Chrumps",
+      "title": "Panthera_tigris_altaica_in_Lodz_Zoo_2.jpg (vi.wikipedia.org lead image for \"Hổ\")",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:35.783Z"
+    },
+    {
+      "src": "media/img/2bbb3fd460d60bb9.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 50390,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:HML_8946_(final).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Himel140",
+      "title": "HML 8946 (final).jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:35.883Z"
+    },
+    {
+      "src": "media/img/a89008c900a7cbf5.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 90694,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Feline_grace_by_nagarjun.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Kandukuru Nagarjun",
+      "title": "Feline grace by nagarjun.jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:35.974Z"
+    },
+    {
+      "src": "media/img/d2a8fca05aac40b4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 79981,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Contemplating_a_drink_on_a_hot_summer_day_by_nagarjun.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Kandukuru Nagarjun",
+      "title": "Contemplating a drink on a hot summer day by nagarjun.jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.062Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/fefa1f02fb007c6b.mp3",

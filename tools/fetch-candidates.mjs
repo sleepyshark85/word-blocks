@@ -190,6 +190,22 @@ async function commonsCategory(title) {
   return c ? `Category:${c}` : null;
 }
 
+/**
+ * Commons categories hold sound and video files alongside photographs, and the API hands
+ * back a `thumburl` for all of them — an .ogg's thumbnail is a generic speaker icon, which
+ * sailed through as a candidate and wasted a slot on the "chó" sheet. Scientific .tif
+ * scans are the same story with a different picture.
+ *
+ * So the filter is on the FILE, not on the thumbnail. Raster photographic formats only.
+ * SVG is excluded deliberately: on Commons it is overwhelmingly diagrams, maps and coats
+ * of arms, none of which is a picture of a thing a 4-year-old can name.
+ */
+const PHOTO_EXT = new Set(['jpg', 'jpeg', 'png', 'gif']);
+function isPhotoFile(title) {
+  const m = /\.([a-z0-9]+)$/i.exec((title ?? '').trim());
+  return m ? PHOTO_EXT.has(m[1].toLowerCase()) : false;
+}
+
 async function categoryFiles(cat, limit) {
   const p = new URLSearchParams({
     action: 'query', generator: 'categorymembers', gcmtitle: cat, gcmtype: 'file',
@@ -271,10 +287,12 @@ for (const unit of units) {
     if (lead) picks.push({ url: lead.url, title: lead.title, license: lead.license, licenseUrl: lead.licenseUrl, creator: lead.creator, page: lead.page, rank: 'lead' });
 
     const cat = await commonsCategory(title);
+    let skippedNonPhoto = 0;
     if (cat) {
       for (const pg of await categoryFiles(cat, n * 3)) {
         const ii = pg.imageinfo?.[0];
         if (!ii?.thumburl) continue;
+        if (!isPhotoFile(pg.title)) { skippedNonPhoto += 1; continue; }
         const em = ii.extmetadata ?? {};
         const lic = strip(em.LicenseShortName?.value);
         if (!licenceAcceptable(lic)) continue;

@@ -11,7 +11,64 @@
     }
   ],
   "fallbackEmoji": "Chicken",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/ef7a8ff6400238eb.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 51960,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Male_and_female_chicken_sitting_together.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Andrei Niemimäki from Turku, Finland",
+      "title": "Male_and_female_chicken_sitting_together.jpg (vi.wikipedia.org lead image for \"Gà\")",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.188Z"
+    },
+    {
+      "src": "media/img/3ebc22d53dcf914b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 80356,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2023-04-03-Leghorn_mit_Ostereiern-4250.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Superbass",
+      "title": "2023-04-03-Leghorn mit Ostereiern-4250.jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.289Z"
+    },
+    {
+      "src": "media/img/4c6da96c9ccc1232.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 87896,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ayam_putih_dan_ayam_coklat.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Erlina Susanti (ina susan)",
+      "title": "Ayam putih dan ayam coklat.jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.378Z"
+    },
+    {
+      "src": "media/img/19491bb760e452e8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 34738,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Arian_chicken_-_%D9%85%D8%B1%D8%BA_%D8%A2%D8%B1%DB%8C%D9%86.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "Unknown authorUnknown author",
+      "title": "Arian chicken - مرغ آرین.jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.467Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/f8c9b0660896ff57.mp3",

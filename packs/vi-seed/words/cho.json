@@ -11,7 +11,22 @@
     }
   ],
   "fallbackEmoji": "Dog",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/f5127af67373cb0e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 78993,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2021-07-10-vanino-dog-with-diverse-eyes-7182.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "I13Robin",
+      "title": "2021-07-10-vanino-dog-with-diverse-eyes-7182.jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.832Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/aeeed8b101d8b679.mp3",

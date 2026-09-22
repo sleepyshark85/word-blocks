@@ -1,0 +1,41 @@
+[
+  {
+    "idx": 0,
+    "file": "00.jpg",
+    "raw": "_raw0",
+    "source": "vi.wikipedia.org",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Flower_poster_2.jpg/3840px-Flower_poster_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "title": "Flower_poster_2.jpg (vi.wikipedia.org lead image for \"Hoa\")",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "creator": "Alvesgaspar",
+    "page": "https://commons.wikimedia.org/wiki/File:Flower_poster_2.jpg",
+    "rank": "lead"
+  },
+  {
+    "idx": 1,
+    "file": "01.jpg",
+    "raw": "_raw1",
+    "source": "commons.wikimedia.org",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Sujin_Lim_FACTORyAL_LANDSCAPE.jpg/1280px-Sujin_Lim_FACTORyAL_LANDSCAPE.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "title": "Sujin Lim FACTORyAL LANDSCAPE.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "creator": "Projectmanagercloudstudy",
+    "page": "https://commons.wikimedia.org/wiki/File:Sujin_Lim_FACTORyAL_LANDSCAPE.jpg",
+    "rank": "category"
+  },
+  {
+    "idx": 2,
+    "file": "02.jpg",
+    "raw": "_raw2",
+    "source": "commons.wikimedia.org",
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/07/Annette_Boots-Nellen_%26_Twan_Nellen.jpg/1280px-Annette_Boots-Nellen_%26_Twan_Nellen.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "title": "Annette Boots-Nellen & Twan Nellen.jpg",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "creator": "TwanNellenNL",
+    "page": "https://commons.wikimedia.org/wiki/File:Annette_Boots-Nellen_%26_Twan_Nellen.jpg",
+    "rank": "category"
+  }
+]

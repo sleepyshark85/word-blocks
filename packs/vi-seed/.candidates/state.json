@@ -58,7 +58,77 @@
     "chuoi": {
       "status": "done",
       "detail": "8 candidates for \"Chuối\"",
-      "at": "2026-09-22T18:03:17.530Z"
+      "at": "2026-09-22T18:07:27.856Z"
+    },
+    "cua-353b": {
+      "status": "done",
+      "detail": "8 candidates for \"Cửa\"",
+      "at": "2026-09-22T18:17:38.233Z"
+    },
+    "cua": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Crab\"",
+      "at": "2026-09-22T18:17:38.834Z"
+    },
+    "de": {
+      "status": "done",
+      "detail": "8 candidates for \"Dê\"",
+      "at": "2026-09-22T18:18:02.404Z"
+    },
+    "den": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Lamp / light\"",
+      "at": "2026-09-22T18:18:02.976Z"
+    },
+    "dua": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Coconut\"",
+      "at": "2026-09-22T18:18:04.598Z"
+    },
+    "ga": {
+      "status": "done",
+      "detail": "8 candidates for \"Gà\"",
+      "at": "2026-09-22T18:18:23.985Z"
+    },
+    "gau": {
+      "status": "done",
+      "detail": "8 candidates for \"Họ Gấu\"",
+      "at": "2026-09-22T18:29:26.235Z"
+    },
+    "ghe": {
+      "status": "done",
+      "detail": "8 candidates for \"Ghế\"",
+      "at": "2026-09-22T18:29:48.095Z"
+    },
+    "giay": {
+      "status": "done",
+      "detail": "8 candidates for \"Giày\"",
+      "at": "2026-09-22T18:40:10.881Z"
+    },
+    "ho": {
+      "status": "done",
+      "detail": "8 candidates for \"Hổ\"",
+      "at": "2026-09-22T18:40:25.987Z"
+    },
+    "hoa": {
+      "status": "done",
+      "detail": "3 candidates for \"Hoa\"",
+      "at": "2026-09-22T18:40:37.183Z"
+    },
+    "kem": {
+      "status": "done",
+      "detail": "8 candidates for \"Kem lạnh\"",
+      "at": "2026-09-22T18:41:28.621Z"
+    },
+    "khi": {
+      "status": "done",
+      "detail": "8 candidates for \"Khỉ\"",
+      "at": "2026-09-22T18:41:50.734Z"
+    },
+    "le": {
+      "status": "done",
+      "detail": "8 candidates for \"Lê (thực vật)\"",
+      "at": "2026-09-22T18:42:22.127Z"
     }
   }
 }

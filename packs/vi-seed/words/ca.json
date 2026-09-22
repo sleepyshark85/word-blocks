@@ -11,7 +11,36 @@
     }
   ],
   "fallbackEmoji": "Fish",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/a36a3cce9869f04c.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 47818,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Georgia_Aquarium_-_Giant_Grouper_edit.jpg",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+      "creator": "Taken by Diliff Edited by Fir0002.",
+      "title": "Georgia_Aquarium_-_Giant_Grouper_edit.jpg (vi.wikipedia.org lead image for \"Cá\")",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.591Z"
+    },
+    {
+      "src": "media/img/dbf92c73cc58bce5.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 36902,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ashaz_Company_Welcome_photo_123.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Ashaz18209",
+      "title": "Ashaz Company Welcome photo 123.jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T18:44:36.695Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/81cd203311a8f8f3.mp3",
