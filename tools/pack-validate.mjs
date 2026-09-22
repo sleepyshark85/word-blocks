@@ -413,6 +413,13 @@ for (const { file, word } of wordsOk) {
   // it is simply withheld from the round generator and shown to his mother as needing
   // work. It becomes an error under --strict.
   const hasPicture = liveImages > 0 || (typeof word.fallbackEmoji === 'string' && word.fallbackEmoji);
+  // NO PICTURE BY ANY ROUTE. Reported whether the word is enabled or not, because the
+  // disabled ones are exactly where it hides: `phở`, `nón` and `bún` ship disabled until
+  // a photograph exists, and `bún` has no emoji fallback either — so if photo resolution
+  // fails it has no picture by any means and nothing else in the report would say so.
+  if (liveImages === 0 && !word.fallbackEmoji) {
+    warn(rel, 'has no photograph AND no fallbackEmoji — there is no route to a picture for this word at all. It can never be shown to the child until one is curated.');
+  }
   // Counted regardless of `enabled`: a disabled word with photographs is curated work,
   // and reporting it as 0 would hide exactly the progress this number exists to show.
   if (liveImages > 0) photographed += 1;

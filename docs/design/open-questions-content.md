@@ -63,6 +63,62 @@ it.
 
 ---
 
+## C2b · Six picture concepts are descriptions, not article titles
+
+**For the literacy-designer or the curator. Not blocking; the hook exists.**
+
+Title resolution now recovers 48 of 50 Vietnamese words (`content-pipeline.md` §9.2). The
+two that fail, and several that resolve to the wrong sense, share one cause: the picture
+concept is a **description** rather than the name of an article.
+
+| Word | Concept | State |
+|---|---|---|
+| `bánh` | "Cake or bread" | **no article** |
+| `đèn` | "Lamp / light" | **no article** |
+| `tô` | "Bowl of food" | resolves to `Tô` — **a département in Burkina Faso** |
+| `trứng` | "egg" | resolves to `Trứng (sinh học)` — a zygote, not a breakfast |
+| `chân` | "Foot / leg" | resolves; worth a look |
+| `sữa` | "Glass of milk" | resolves to `Sữa` (milk) — fine |
+
+`tô` is the one that matters, because it is the failure that does not look like one: an
+exact title match, a real article, and a contact sheet of African administrative
+photographs that would look like the fetcher working.
+
+**Recommendation: `build.searchTitle`**, a per-word article title in the word's `build`
+block. Implemented and highest-priority in the resolver. It keeps `assetConcept` free to
+stay descriptive for the literacy model, and it is the same hook his mother will need for
+her own words. Someone who reads Vietnamese should set it for `bánh`, `đèn`, `tô` and
+`trứng`; I have not, because choosing which article represents a word is content, and
+content is not mine.
+
+Run `node tools/fetch-candidates.mjs --pack packs/vi-seed --resolve-only --force` to see
+all 12 flagged resolutions with their opening sentences — about a minute, no downloads.
+
+---
+
+## C2c · `bún` and `nón` have no route to a picture at all
+
+**For the curator. Not blocking; they ship disabled.**
+
+The three cultural words ship `enabled: false` until a photograph exists. Two of them also
+have `fallbackEmoji: null`, so if photo curation does not reach them they have **no
+picture by any means** — not a photograph, not an emoji. The validator now names them:
+
+```
+warn  words/bun.json: has no photograph AND no fallbackEmoji — there is no route to a
+      picture for this word at all.
+warn  words/non.json: ditto
+```
+
+`phở` was in the same state and curation solved it. No English word is affected — all 40
+have a Fluent fallback.
+
+**Recommendation:** curate `bún` and `nón` from `vi.wikipedia.org` (`Bún` and `Nón lá` both
+resolve), or accept that they stay out of v1 as `word-list.md` §4's appendix already
+allows. A photograph the mother takes of an actual bowl of bún at their table beats both.
+
+---
+
 ## C3 · Vietnamese dialect — the pack is holding a conservative default
 
 **For the owner. Already asked as `open-questions.md` Q1; this is the content-side cost.**

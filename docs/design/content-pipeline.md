@@ -813,6 +813,78 @@ separate `caption:` image appended below, because `-splice` plus `-annotate` put
 *on* the photograph (an annotate offset under `southwest` gravity positions a baseline,
 not a text block).
 
+#### Resolving a word to an article title
+
+**This was losing 12 of 50 Vietnamese words — 24% of the pack — and not one of them for
+want of a picture.** The original path went English concept → `en.wikipedia`
+`prop=langlinks` → Vietnamese title, and it is wrong twice over, both measured:
+
+- **No redirect following.** `Cow` is a redirect to `Cattle`; without `redirects=1` the
+  query returns nothing.
+- **`prop=langlinks` is largely empty now.** Wikipedia migrated interlanguage links to
+  Wikidata. `Coconut` with `redirects=1` and `lllimit=max` returns
+  `{"pages":{"51346":{"title":"Coconut"}}}` — no `langlinks` key at all. Coconut, Crab and
+  Hat all come back empty and all three plainly have Vietnamese articles. The mechanism
+  is wrong, not the data.
+
+The order now, cheapest and most direct first:
+
+| | Route | |
+|---|---|---|
+| 0 | `build.searchTitle` | a human said so; nothing overrides it |
+| 1 | **the Vietnamese word itself** | this is Vietnamese mode — the word *is* the search term |
+| 2 | Wikidata sitelinks | how interlanguage links actually work now |
+| 3 | `langlinks` + `redirects=1` | last resort |
+
+**Step 1 should have been first all along.** `Dừa`, `Cua`, `Mũ`, `Cam`, `Bánh`, `Sữa` and
+`Chân` are all live articles under the Vietnamese word, needing no English round-trip.
+Measured over the whole pack: **48 of 50 resolve, up from 38.** Wikidata picks up the four
+the word misses (`Quạt điện`, `Nón lá`, `Kem lạnh`, `Lê (thực vật)`).
+
+**But a title can match exactly and still be the wrong thing.** Vietnamese homographs make
+step 1 powerful and risky: `bóng` is a ball *and* a shadow, `mây` is a cloud *and* rattan,
+`xe` is any vehicle. The article may be a real article about the wrong sense, which
+produces a sheet full of plausible, wrong pictures.
+
+So every resolution reports Wikidata's one-line description, and **a resolution with no
+description is flagged**, because the good ones nearly all have one (`cam` → "trái cây",
+`ong` → "côn trùng", `mây` → "dạng aerosol gồm các giọt chất lỏng nhỏ…"). That heuristic
+earned itself immediately:
+
+> `tô` — picture concept "bowl of food" — resolved to the article `Tô`, which begins
+> *"Tô là một tổng của tỉnh Sissili ở phía nam Burkina Faso."* A real article, an exact
+> title match, and a **département in West Africa**. It would have produced a contact
+> sheet of African administrative photographs that looked like a fetch working correctly.
+
+12 of the 48 have no description and are listed at the end of the run with their opening
+sentence, so each can be judged in seconds. The repair is `build.searchTitle`.
+
+#### `build.searchTitle`
+
+```jsonc
+"build": { "assetConcept": "bowl of food", "searchTitle": "Tô (đồ dùng)" }
+```
+
+A human-supplied article title, overriding every other route. It exists because several
+picture concepts are **descriptions, not article names** — "Cake or bread", "Foot / leg",
+"Bowl of food", "Glass of milk", "Electric fan" — and no encyclopaedia has an article
+called "Bowl of food". Keeping the concept string descriptive serves the literacy model;
+`searchTitle` serves the fetcher; neither has to compromise.
+
+It is content data, and it is exactly the hook his mother needs when she adds a word whose
+picture the fetcher cannot find on its own.
+
+#### `--resolve-only`
+
+```
+node tools/fetch-candidates.mjs --pack packs/vi-seed --resolve-only --force
+```
+
+Resolves every title and reports, downloading no pictures — about 60 requests and a
+minute for the whole pack. Title resolution is where a quarter of the pack was being lost,
+and discovering that after a forty-minute image run is the expensive way to learn it.
+Exits non-zero if any word has no article.
+
 **Other filters.** `isPhotoFile` keeps raster formats only — SVGs are diagrams, and `.ogg`
 files were arriving with a generic speaker-icon thumbnail and consuming a candidate slot.
 A minimum of 512 px on the shorter side, because anything smaller would be upscaled into
@@ -1152,6 +1224,9 @@ node tools/pack-attributions.mjs packs/vi-seed
 | Captions render in Vietnamese | default font drops diacritics ("V  trí c a các"); DejaVu Sans renders correctly — checked by rendering and looking |
 | Yield reporting is right | lead 4/5 = 80%, category 10/33 = 30% on the curator's real first five words — independently reproduces `image-sourcing.md` |
 | Yield survives the scratch being cleared | imported, reported, deleted `.candidates` entirely, reported again — byte-identical |
+| Title resolution | **48 of 50 Vietnamese words resolve, up from 38.** `--resolve-only` over the whole pack, 59 requests, 0 × 429 |
+| A wrong-sense resolution is caught | `tô` → an article about a département in Burkina Faso; flagged by the missing-description heuristic |
+| A word with no picture route is named | `bún` and `nón` have neither a photograph nor a `fallbackEmoji` |
 | Every final-only English tile is enforced | the test iterates `EN_FINAL_ONLY`; `gg` was missing from the constant and nothing failed, because the pack happened to be right |
 | Backup round-trips | 1,061,171 B export → restore → identical counts, validates clean |
 | A damaged backup is refused | truncated archive → refused, nothing changed |

@@ -41,6 +41,8 @@
       "AMBIG"
     ],
     "note": "AMBIG — bánh is genuinely generic in Vietnamese too",
-    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
+    "searchTitle": "Bánh mì",
+    "searchTitleWhy": "\"Bánh\" alone is a disambiguation page; bread matches the Bread fallback"
   }
 }

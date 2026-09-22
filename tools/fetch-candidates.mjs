@@ -68,6 +68,10 @@ let useCategory = true;
 // category. Above it, do not touch the category at all. 5 = a lead plus four to choose
 // three from.
 let minArticle = 5;
+// Resolve every word's article title and report, without downloading a single picture.
+// Title resolution is where 24% of the pack was being lost, and it is cheap to check;
+// finding that out after a 40-minute image run is the expensive way to learn it.
+let resolveOnly = false;
 const words = [];
 for (let i = 0; i < argv.length; i += 1) {
   const a = argv[i];
@@ -81,6 +85,7 @@ for (let i = 0; i < argv.length; i += 1) {
   else if (a === '--min-px') minPx = Number(argv[++i]);
   else if (a === '--no-category') useCategory = false;
   else if (a === '--min-article') minArticle = Number(argv[++i]);
+  else if (a === '--resolve-only') resolveOnly = true;
   else if (a.startsWith('-')) { console.error(`unknown option ${a}`); process.exit(2); }
   else words.push(a);
 }
@@ -96,7 +101,13 @@ if (packDir) {
     if ((word.images?.length ?? 0) > 0 && !force) continue;
     const concept = word.build?.assetConcept;
     if (!concept) { console.error(`${word.id}: no build.assetConcept — skipped`); continue; }
-    units.push({ id: word.id, concept, text: word.text });
+    units.push({
+      id: word.id, concept, text: word.text,
+      // A human-supplied article title, for concepts that are descriptions rather than
+      // article names ("Bowl of food"). Content data, and exactly the hook his mother
+      // needs for her own words.
+      searchTitle: word.build?.searchTitle ?? null,
+    });
   }
 } else {
   if (!words.length) { console.error('usage: fetch-candidates.mjs [--pack DIR | <concept>...] [--lang vi|en] [--n 10]'); process.exit(2); }
@@ -227,27 +238,138 @@ async function leadFileName(title) {
 }
 
 /**
- * Concept names in the packs are ENGLISH ("cat", "tiger") because that is what
- * `word-list.md` carries. Pointing those at vi.wikipedia.org 404s every time — "Cat" is
- * not a page there, "Mèo" is. So for Vietnamese, resolve the English title through
- * en.wikipedia's langlinks first.
+ * TITLE RESOLUTION. Turning a pack word into a Wikipedia article title, which is where
+ * 12 of the 50 Vietnamese words were being lost — 24% of the pack, and not because the
+ * pictures were missing but because we were asking for them under the wrong name.
  *
- * Measured before writing this: vi.wikipedia/Cat and /Dog both 404, while langlinks gives
- * Cat -> Mèo, Dog -> Chó, Tiger -> Hổ. Returns null when no Vietnamese article exists,
- * which is a real answer — a concept with no vi article is one a human must name.
+ * The original path went English-concept -> `en.wikipedia` `prop=langlinks` -> Vietnamese
+ * title. Two things are wrong with it, both measured:
+ *
+ *   (a) No redirect following. `Cow` is a redirect to `Cattle`, and without
+ *       `redirects=1` the query returns nothing at all.
+ *   (b) **`prop=langlinks` is largely empty now.** Wikipedia migrated interlanguage
+ *       links to Wikidata. `Coconut` with `redirects=1` and `lllimit=max` returns
+ *       `{"pages":{"51346":{"title":"Coconut"}}}` — no `langlinks` key whatsoever.
+ *       Coconut, Crab and Hat all come back empty, and all three plainly have Vietnamese
+ *       articles. The mechanism is wrong, not the data.
+ *
+ * So the order below, cheapest and most direct first:
+ *
+ *   0. `build.searchTitle`          a human said so. Nothing overrides it.
+ *   1. THE VIETNAMESE WORD ITSELF   this is Vietnamese mode; the word IS the search term
+ *   2. Wikidata sitelinks           how interlanguage links actually work now
+ *   3. langlinks + redirects=1      kept last, for anything the first three miss
+ *
+ * Step 1 is the one that should have been first all along. Checked directly against
+ * `vi.wikipedia.org`: `Dừa` 200, `Cua` 200, `Mũ` 200, `Cam` 200, `Bánh` 200, `Sữa` 200,
+ * `Chân` 200. Eight of the nine tried resolve with no English round-trip at all.
  */
-async function localiseTitle(enTitle) {
-  if (lang !== 'vi') return enTitle;
-  const u = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(enTitle)}`
-    + `&prop=langlinks&lllang=vi&format=json&origin=*`;
+
+/**
+ * Does `vi.wikipedia.org` have a usable article under this exact title?
+ *
+ * Returns the canonical title AND Wikidata's one-line description, because trying the
+ * Vietnamese word directly is powerful and carries a homograph risk that nothing else in
+ * this pipeline can catch: `bóng` is both a ball and a shadow, `mây` is both a cloud and
+ * rattan, `xe` is any vehicle. The article may be a real article about the wrong sense,
+ * and a wrong sense produces a sheet full of plausible, wrong pictures.
+ *
+ * The description is printed next to every resolution, so the curator sees "sự che khuất
+ * ánh sáng" before spending time on a sheet of shadows. The fix, when it is wrong, is
+ * `build.searchTitle`.
+ */
+async function articleExists(title) {
+  try {
+    const { data, status } = await http.json(`https://${WIKI}/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+    if (status === 404 || !data) return null;
+    if (data.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') return null;
+    // A disambiguation page has no pictures of the thing, only links to things.
+    if (data.type === 'disambiguation') return null;
+    return {
+      title: data.titles?.canonical ?? data.title ?? title,
+      description: strip(data.description ?? '') || null,
+      // The opening sentence, kept because a missing Wikidata description is the signal
+      // that a word-based resolution went somewhere unexpected — and the sentence is
+      // what says where. `tô` ("bowl of food") resolved to an article beginning "Tô là
+      // một tổng của tỉnh Sissili ở phía nam Burkina Faso": a real article, a real
+      // title match, and a département in West Africa.
+      extract: strip(data.extract ?? '').slice(0, 120) || null,
+    };
+  } catch { return null; }
+}
+
+/**
+ * en title -> Wikidata item -> `viwiki` sitelink. This is how interlanguage links are
+ * stored now, and the fetcher already talks to Wikidata for `P373`, so it is a mechanism
+ * we know works rather than a new dependency.
+ */
+async function wikidataSitelink(enTitle) {
+  const u = `https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki`
+    + `&titles=${encodeURIComponent(enTitle)}&props=sitelinks&sitefilter=${WIKISITE}`
+    + `&normalize=1&format=json&origin=*`;
   try {
     const { data } = await http.json(u);
-    const pages = data?.query?.pages ?? {};
-    for (const pg of Object.values(pages)) {
+    for (const ent of Object.values(data?.entities ?? {})) {
+      const t = ent?.sitelinks?.[WIKISITE]?.title;
+      if (t) return t;
+    }
+  } catch { /* fall through */ }
+  return null;
+}
+
+/** The old path, with the missing `redirects=1`. Kept as a last resort. */
+async function langlinkTitle(enTitle) {
+  const u = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(enTitle)}`
+    + `&prop=langlinks&lllang=vi&lllimit=max&redirects=1&format=json&origin=*`;
+  try {
+    const { data } = await http.json(u);
+    for (const pg of Object.values(data?.query?.pages ?? {})) {
       const vi = pg?.langlinks?.[0]?.['*'];
       if (vi) return vi;
     }
-  } catch { /* fall through - the caller reports the miss */ }
+  } catch { /* fall through */ }
+  return null;
+}
+
+/**
+ * Returns `{ title, via }` or null. `via` is reported per word so that when resolution
+ * fails it is obvious whether every route was tried or one of them threw.
+ */
+async function resolveTitle(unit) {
+  const enTitle = toTitle(unit.concept);
+
+  // 0. A human already answered this. `build.searchTitle` is content data the mother can
+  //    set for her own words too, and it is the only thing that can rescue a concept
+  //    written as a description ("Bowl of food") rather than as an article title.
+  if (unit.searchTitle) {
+    const t = await articleExists(unit.searchTitle);
+    return t
+      ? { ...t, via: 'searchTitle' }
+      : { title: unit.searchTitle, description: null, via: 'searchTitle (no such article)' };
+  }
+
+  if (lang !== 'vi') return { title: enTitle, description: null, via: 'concept' };
+
+  // 1. The word itself. This is Vietnamese mode and the word is the search term.
+  if (unit.text) {
+    const direct = await articleExists(unit.text);
+    if (direct) return { ...direct, via: 'word' };
+  }
+
+  // 2. Wikidata sitelinks.
+  const wd = await wikidataSitelink(enTitle);
+  if (wd) {
+    const v = await articleExists(wd);
+    return v ? { ...v, via: 'wikidata' } : { title: wd, description: null, via: 'wikidata' };
+  }
+
+  // 3. langlinks, now with redirects followed.
+  const ll = await langlinkTitle(enTitle);
+  if (ll) {
+    const v = await articleExists(ll);
+    return v ? { ...v, via: 'langlinks' } : { title: ll, description: null, via: 'langlinks' };
+  }
+
   return null;
 }
 
@@ -375,15 +497,32 @@ function contactSheet(dir, meta, label) {
 
 let done = 0;
 let skipped = 0;
+let resolvedOk = 0;
+let resolvedFail = 0;
+const suspicious = [];
 for (const unit of units) {
-  if (state.done(unit.id) && !force) { skipped += 1; continue; }
+  if (!resolveOnly && state.done(unit.id) && !force) { skipped += 1; continue; }
   const dir = path.join(out, unit.id);
   mkdirSync(dir, { recursive: true });
   const enTitle = toTitle(unit.concept);
-  const title = await localiseTitle(enTitle);
-  if (!title) {
-    state.set(unit.id, 'empty', `no vi.wikipedia article for "${enTitle}"`);
-    console.log(`${unit.id} "${enTitle}": no Vietnamese article — needs a human-supplied title`);
+  const resolved = await resolveTitle(unit);
+  if (!resolved) {
+    state.set(unit.id, 'no-title', `no ${WIKI} article for "${enTitle}" (tried the word, Wikidata and langlinks)`);
+    console.log(`${unit.id} "${unit.text ?? enTitle}": NO ARTICLE for "${enTitle}" — tried the word itself, Wikidata sitelinks and langlinks.`);
+    console.log(`    fix: set build.searchTitle on words/${unit.id}.json to a real ${WIKI} article title, then re-run`);
+    resolvedFail += 1;
+    continue;
+  }
+  const title = resolved.title;
+  if (resolveOnly) {
+    // A resolution with no Wikidata description is the one to look at: the good ones
+    // nearly all have one ("trái cây", "côn trùng"), and the article that turned out to
+    // be in Burkina Faso had none.
+    const sure = resolved.description ? ' ' : '?';
+    console.log(`${sure} ${String(unit.id).padEnd(10)} ${String(unit.text ?? '').padEnd(8)} ${String(unit.concept).padEnd(22)} -> ${String(title).padEnd(22)} [${resolved.via}]`);
+    console.log(`     ${resolved.description ?? resolved.extract ?? '(no description and no extract — check this one)'}`);
+    if (!resolved.description) suspicious.push(`${unit.id} "${unit.text}" -> ${title}`);
+    resolvedOk += 1;
     continue;
   }
 
@@ -507,12 +646,24 @@ for (const unit of units) {
     skippedNonPhoto ? `${skippedNonPhoto} not a photo` : null,
     skippedLicence ? `${skippedLicence} nc/nd` : null,
   ].filter(Boolean).join(', ');
-  console.log(`${unit.id} "${title}": ${kept} candidate(s) [${Object.entries(byRank).map(([r, c]) => `${c} ${r}`).join(', ') || 'none'}]`
+  console.log(`${unit.id} "${title}"${resolved.description ? ` — ${resolved.description}` : ''} (via ${resolved.via}): ${kept} candidate(s) [${Object.entries(byRank).map(([r, c]) => `${c} ${r}`).join(', ') || 'none'}]`
     + `${dropped ? ` — dropped ${dropped}` : ''}`
     + `${sheet ? '' : ' — NOTHING FOUND, needs a human-supplied title or a photograph'}`);
   for (const m of meta) if (m.caption) console.log(`    ${m.idx}  ${m.caption}`);
 }
 
+if (resolveOnly) {
+  console.log(`\n${resolvedOk} resolved, ${resolvedFail} with no article.`);
+  if (suspicious.length) {
+    console.log(`\n${suspicious.length} resolution(s) with NO Wikidata description — read the line under each before trusting it.`);
+    console.log('A title can match exactly and still be the wrong thing: `tô` ("bowl of food")');
+    console.log('resolves to an article about a département in Burkina Faso. Set build.searchTitle');
+    console.log('on any that are wrong.');
+    for (const x of suspicious) console.log(`    ${x}`);
+  }
+  console.log(http.report());
+  process.exit(resolvedFail ? 1 : 0);
+}
 console.log(`\n${done} fetched, ${skipped} already done (re-run to resume; --force to redo).`);
 console.log(http.report());
 console.log('state:', JSON.stringify(state.counts()));

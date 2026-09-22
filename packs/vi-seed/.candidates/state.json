@@ -5,40 +5,15 @@
       "detail": "10 candidates for \"Áo (trang phục)\"",
       "at": "2026-09-22T19:09:33.500Z"
     },
-    "banh": {
-      "status": "no-title",
-      "detail": "no vi.wikipedia.org article for \"Cake or bread\" (tried the word, Wikidata and langlinks)",
-      "at": "2026-09-22T19:28:00.626Z"
-    },
     "bo-0cd1": {
       "status": "done",
       "detail": "10 candidates for \"Bơ (thực vật)\"",
       "at": "2026-09-22T19:09:58.224Z"
     },
-    "bo": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Cow\"",
-      "at": "2026-09-22T19:22:44.880Z"
-    },
     "bong": {
       "status": "done",
       "detail": "10 candidates for \"Bóng\"",
       "at": "2026-09-22T19:10:21.771Z"
-    },
-    "bun": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Bowl of bún\"",
-      "at": "2026-09-22T19:22:44.882Z"
-    },
-    "cam": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Orange\"",
-      "at": "2026-09-22T19:22:44.882Z"
-    },
-    "chan": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Foot / leg\"",
-      "at": "2026-09-22T19:22:44.883Z"
     },
     "chim": {
       "status": "done",
@@ -55,25 +30,10 @@
       "detail": "10 candidates for \"Cửa\"",
       "at": "2026-09-22T19:11:34.470Z"
     },
-    "cua": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Crab\"",
-      "at": "2026-09-22T19:22:44.883Z"
-    },
     "de": {
       "status": "done",
       "detail": "10 candidates for \"Dê\"",
       "at": "2026-09-22T19:12:02.838Z"
-    },
-    "den": {
-      "status": "no-title",
-      "detail": "no vi.wikipedia.org article for \"Lamp / light\" (tried the word, Wikidata and langlinks)",
-      "at": "2026-09-22T19:28:00.881Z"
-    },
-    "dua": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Coconut\"",
-      "at": "2026-09-22T19:22:44.883Z"
     },
     "gau": {
       "status": "done",
@@ -125,11 +85,6 @@
       "detail": "10 candidates for \"Mèo\"",
       "at": "2026-09-22T19:15:54.116Z"
     },
-    "mu": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Hat\"",
-      "at": "2026-09-22T19:22:44.883Z"
-    },
     "mua": {
       "status": "done",
       "detail": "2 candidates for \"Mưa\"",
@@ -160,11 +115,6 @@
       "detail": "10 candidates for \"Ong\"",
       "at": "2026-09-22T19:18:01.424Z"
     },
-    "quat": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Electric fan\"",
-      "at": "2026-09-22T19:22:44.883Z"
-    },
     "rang": {
       "status": "done",
       "detail": "1 candidates for \"Răng\"",
@@ -179,11 +129,6 @@
       "status": "done",
       "detail": "10 candidates for \"Sao\"",
       "at": "2026-09-22T19:18:51.411Z"
-    },
-    "sua": {
-      "status": "empty",
-      "detail": "no vi.wikipedia article for \"Glass of milk\"",
-      "at": "2026-09-22T19:22:44.883Z"
     },
     "tai": {
       "status": "done",
@@ -224,6 +169,16 @@
       "status": "done",
       "detail": "8 candidates for \"Xe hơi\"",
       "at": "2026-09-22T19:22:01.501Z"
+    },
+    "banh": {
+      "status": "done",
+      "detail": "7 candidates for \"Bánh_mì\"",
+      "at": "2026-09-22T19:32:09.973Z"
+    },
+    "bo": {
+      "status": "done",
+      "detail": "6 candidates for \"Bò\"",
+      "at": "2026-09-22T19:32:27.274Z"
     }
   }
 }
