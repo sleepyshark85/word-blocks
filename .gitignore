@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+.expo/
+dist/
+web-build/
+
+# python tooling for the asset pipeline
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Spike and pipeline OUTPUT — regenerable, large, and third-party media under mixed
+# licences. `docs/design/` records what was measured from it; the bytes stay local.
+samples/
+
+# os / editor
+.DS_Store
+*.log
