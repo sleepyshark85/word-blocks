@@ -36,6 +36,7 @@ cheap to correct if it is wrong.
 | Tile palette | Constrained per round — target word's tiles plus a few distractors | settled |
 | Seed list size | ~45 Vietnamese, ~40 English. Ceiling ~60 | literacy-designer |
 | Runtime network | **None.** No ads, no analytics, no IAP | owner intent |
+| **Devices** | **iPhone, Android phone, iPad** (and Android tablet by implication) | owner |
 | Content | Editable data. Mother adds/edits/deletes without a developer | owner, explicit |
 
 ## Audio — closed
@@ -66,6 +67,51 @@ a provider's fixed speeds. Resampling was rejected — it would drop the pitch w
 | Override | Any word's picture can be replaced — best of all is the mother's own photo of the real object |
 | Vietnamese mode | Source from **vi.wikipedia.org** — a Vietnamese child should see a Vietnamese bus |
 
+## Stack — decided
+
+**Expo / React Native / React, JavaScript (not TypeScript)** — the wildlife-shuffle stack.
+The reasons are about the owner rather than the technology: the toolchain works, the EAS
+account exists, a build has already been through TestFlight, and the process doc, hygiene
+rules and all five agent definitions assume it. Nothing this app needs is outside React
+Native's reach.
+
+**Deliberate subtraction: no `react-native-reanimated`, and no `react-native-gesture-handler`.**
+
+Reanimated's worklet serialization caused the defect that crashed wildlife-shuffle's first
+TestFlight build on the very first row clear — a crash that 375 tests and every browser run
+were *structurally incapable* of catching (that project's `docs/development-process.md`
+§6.9). This app needs far less motion than a falling-block puzzle: tiles that press, a word
+that assembles, a picture that reveals. React Native's built-in `Animated` covers that, and
+dropping the dependency removes the entire defect class rather than defending against it.
+Gesture-handler goes too — this app is taps, not drags. The game-designer may argue for
+Reanimated if its motion spec genuinely requires it, as a cost to justify rather than a
+default.
+
+### Manifest changes from wildlife-shuffle
+
+| Add | For |
+|---|---|
+| `expo-file-system` | content packs on disk — the editable-data requirement itself |
+| `expo-image-picker` | the mother choosing or taking a photo |
+| `expo-audio` | playback **and** her voice recordings |
+| `expo-localization` | a sensible default language at first launch |
+
+**Keep:** `expo`, `expo-splash-screen`, `expo-status-bar`, `expo-system-ui`,
+`react-native-safe-area-context`, `react-native-web` (Tier 3), `async-storage` — settings
+only; **content goes to the filesystem, never to AsyncStorage**.
+
+**Drop:** `react-native-reanimated`, `react-native-gesture-handler`. `expo-haptics` is the
+game-designer's call.
+
+### Two constraints the device list creates
+
+1. **A Vietnamese-capable font must be bundled, not inherited.** iOS renders Vietnamese
+   diacritics well; Android varies by OEM. A dropped or misrendered tone mark is a
+   **correctness** failure here — `mả` and `mã` differ only by that mark, and an OEM font
+   that renders them alike would silently teach the child the wrong thing.
+2. **Android fragmentation is the real layout constraint, not iPhone.** Fit must be a
+   testable rule across a continuous range, not three named devices.
+
 ## Still open
 
 | # | Question | Blocking? |
@@ -73,7 +119,7 @@ a provider's fixed speeds. Resampling was rejected — it would drop the pitch w
 | 1 | A free **Pexels/Unsplash key** — better photos, less curation | no |
 | 2 | Should Vietnamese tiles adopt the English `"mờ, mèo"` sound+word form? | no |
 | 3 | Anchor words are curriculum — `igloo` is meaningless to this child | no |
-| 4 | **Stack not explicitly approved.** Assumed Expo / React Native / JavaScript, matching wildlife-shuffle, because the owner has that toolchain working and the process doc transfers | **flag** |
+| 4 | Tablet vs phone: which is the *primary* form factor, and orientation policy | designer to decide |
 | 5 | Publish to a store, or stay private? Changes licensing and attribution obligations | no, but decide before Slice 6 |
 
 ---

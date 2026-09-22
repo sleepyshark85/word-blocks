@@ -159,8 +159,42 @@ do not average it.
 
 ---
 
+## 7a. The session can be killed at any moment
+
+This project is built across sessions that end without warning — killed, compacted, or
+simply closed. **Nothing that exists only in a conversation exists.** A decision the owner
+made by ear, a claim an agent retracted, a blocker that turned out not to be one: if it is
+not in a file, the next session will re-derive it wrongly or ask the owner again.
+
+Two files carry the state, and **both are updated at every gate rather than at the end**:
+
+| File | Carries |
+|---|---|
+| `docs/slices.md` | The status table, what each slice contains, and how to resume cold |
+| `CLAUDE.md` | What the project is, where it stands, the repo map, the standing rules |
+
+**A gate is:** an agent reporting back, an owner decision, a slice changing state, a claim
+being verified or overturned, or any discovery that would change what someone does next.
+Updating is part of the work, not reporting on it — if `docs/slices.md` still says
+"in flight" after an agent has landed, the project's state is wrong for everyone who reads
+it next.
+
+`docs/design/decisions.md` carries owner decisions with their source, and exists so nobody
+re-asks a question he has already answered. He reviewed the audio three times; a fourth
+round of the same question is a process failure, not diligence.
+
+**The test for these documents is not "is it accurate", it is "could a session with no
+history act correctly on it".** That is why `docs/slices.md` ends with the exact commands to
+run, the environment to rebuild, and an explicit note that `samples/` is gitignored and may
+simply be absent.
+
+---
+
 ## 8. Working agreements
 
+- **Keep `docs/slices.md` and `CLAUDE.md` current at every gate** (§7a). This outranks
+  finishing the task in progress — a correct status with unfinished work beats finished work
+  nobody can find.
 - **Ground everything in the real files.** Cite `path:line`.
 - **Measure, don't assert.** "The assets will be huge" is an instinct; "8 MB at 150 words"
   is a finding. The owner's instinct was wrong by more than an order of magnitude, and only
