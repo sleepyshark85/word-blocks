@@ -138,7 +138,7 @@ also a pair that must **not** appear together as answer options below stage 3.
 |---|---|---|---|---|
 | thỏ | `th` \| `o` \| hỏi | rabbit | `Rabbit` | |
 | khỉ | `kh` \| `i` \| hỏi | monkey | `Monkey` | |
-| hổ | `h` \| `o` \| hỏi | tiger | `Tiger` | |
+| hổ | `h` \| `ô` \| hỏi | tiger | `Tiger` | |
 | cửa | `c` \| `ưa` \| hỏi | door | `Door` | |
 | mắt | `m` \| `ăt` \| sắc | eye | `Eye` | |
 | vịt | `v` \| `it` \| nặng | duck | `Duck` | |
@@ -146,7 +146,19 @@ also a pair that must **not** appear together as answer options below stage 3.
 | trứng | `tr` \| `ưng` \| sắc | egg | `Egg` | |
 
 `mắt`, `vịt` and `sách` have stop finals, so their tone rows are 2 tiles, not 6
-(`literacy-vi.md` §5.2). `thỏ` and `hổ` differ only by onset on the same rime and tone.
+(`literacy-vi.md` §5.2).
+
+> **Correction (orchestrator, 2026-09-23).** This paragraph originally read *"`thỏ` and `hổ`
+> differ only by onset on the same rime and tone."* **That is false, and the error had
+> propagated into the built pack**, where `hổ` carried the rime `o` and therefore composed
+> to `hỏ`. The rimes are different: `thỏ` = `th` + `o`, `hổ` = `h` + `ô`. The row above is
+> corrected and `packs/vi-seed/words/ho.json` is patched; its toneless blend audio had also
+> been generated as *"ho"* rather than *"hô"* and is marked stale for regeneration.
+>
+> `tools/pack-validate.mjs` caught this by composing the decomposition and comparing it to
+> the spelling — a check that exists precisely because a plausible-looking pedagogical claim
+> is not evidence. The near-miss pairing was attractive and wrong, which is the shape of
+> error most likely to reach a child.
 
 ### Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)
 

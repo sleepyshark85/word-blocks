@@ -194,7 +194,19 @@ const takesRef = (ref, at, where) => {
   if (bad) { err(where, `${at} ${JSON.stringify(ref)} is not a safe media reference: ${bad}`); return false; }
   referenced.add(ref);
   const abs = path.join(packDir, ref);
-  if (!existsSync(abs)) return false;
+  if (!existsSync(abs)) {
+    // A DANGLING REFERENCE IS AN ERROR, not an absence.
+    //
+    // `images: []` is a word that has not been curated yet — incomplete, and a warning.
+    // `images: [{src: "…/9f3a.jpg"}]` where that file is gone is a pack that disagrees
+    // with its own filesystem: something deleted a blob, a restore was partial, or a
+    // write was interrupted at exactly the wrong moment. The runtime survives it (see
+    // `media.onMissing*` and content-pipeline.md §"When a file is missing") precisely so
+    // the child never sees it — but surviving it is not the same as it being acceptable,
+    // and the editor must be able to tell her which picture vanished.
+    err(where, `${at} points at ${ref}, which is not in the pack. The runtime degrades (the word falls back or is withheld) but this pack is inconsistent with its own media directory — a blob was deleted, a restore was partial, or a write was interrupted.`);
+    return false;
+  }
   const st = statSync(abs);
   if (!st.isFile() || st.size === 0) { err(where, `${at} points at an empty or non-file ${ref}`); return false; }
   const ext = path.extname(ref).toLowerCase();
@@ -323,16 +335,36 @@ for (const { file, word } of wordsOk) {
     warn(rel, `${images.length} images; the pack's stated maximum is ${lim.max}`);
   }
 
-  // Attribution obligation, per image (image-sourcing.md §Licensing).
+  // The images[] contract. See content-pipeline.md §"The images array".
   images.forEach((im, i) => {
-    if (!im || typeof im !== 'object') { err(rel, `images[${i}] must be an object with a src`); return; }
-    const src = im.source ?? '';
-    const ownWork = src === 'camera' || src === 'own-work' || src === 'generated';
-    if (!ownWork && (!im.license || !im.sourceUrl)) {
-      warn(rel, `images[${i}] came from ${JSON.stringify(src || '(unstated)')} with no licence/sourceUrl. Attribution cannot be generated for it, and a CC BY image without attribution is a licence breach.`);
+    const at = `images[${i}]`;
+    if (!im || typeof im !== 'object' || Array.isArray(im)) { err(rel, `${at} must be an object`); return; }
+    if (typeof im.src !== 'string' || !im.src) {
+      err(rel, `${at} has no src. Every entry is an object; a bare path string is not accepted, because the licence fields have nowhere to live and an image whose licence is unknown cannot be published.`);
+      return;
+    }
+    if (typeof im.source !== 'string' || !im.source) {
+      err(rel, `${at} has no "source". It must say where the picture came from — "camera" (hers), "own-work", "generated", "vi.wikipedia.org", "commons.wikimedia.org", … Attribution is generated from this field and nothing else.`);
+      return;
+    }
+    // `own-work` and `camera` are the mother's own photographs, `generated` is ours.
+    // Everything else is somebody else's work and carries an attribution obligation.
+    const ours = ['camera', 'own-work', 'generated'].includes(im.source);
+    if (!ours) {
+      for (const k of ['license', 'sourceUrl', 'creator']) {
+        if (!im[k]) {
+          err(rel, `${at} came from ${JSON.stringify(im.source)} and has no "${k}". A CC BY or CC BY-SA image shipped without author, licence and a link back is a licence breach, and the attributions screen is generated from the pack — there is nowhere else for this to come from.`);
+        }
+      }
+      if (!im.modified) {
+        warn(rel, `${at} does not record what was changed. CC BY and CC BY-SA both require that modifications be indicated, and this pipeline always crops and re-encodes.`);
+      }
     }
     if (/\bnd\b|NoDeriv/i.test(im.license ?? '')) {
-      err(rel, `images[${i}] is licensed ${im.license}. The pipeline crops and resizes, which a NoDerivatives term forbids (image-sourcing.md §Licensing).`);
+      err(rel, `${at} is licensed ${im.license}. The pipeline crops and resizes, which a NoDerivatives term forbids (image-sourcing.md §Licensing).`);
+    }
+    if (/\bnc\b|noncommercial|non-commercial/i.test(im.license ?? '')) {
+      warn(rel, `${at} is licensed ${im.license}. Publishing to a store is still open (decisions.md "Still open" #5) and a NonCommercial term would have to be unpicked first.`);
     }
   });
 

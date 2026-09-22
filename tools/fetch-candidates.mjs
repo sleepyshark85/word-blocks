@@ -95,6 +95,31 @@ async function leadImage(title) {
   return url ? { url, title: `${data.title} (${WIKI} lead image)`, page: data.content_urls?.desktop?.page ?? null } : null;
 }
 
+/**
+ * Concept names in the packs are ENGLISH ("cat", "tiger") because that is what
+ * `word-list.md` carries. Pointing those at vi.wikipedia.org 404s every time — "Cat" is
+ * not a page there, "Mèo" is. So for Vietnamese, resolve the English title through
+ * en.wikipedia's langlinks first.
+ *
+ * Measured before writing this: vi.wikipedia/Cat and /Dog both 404, while langlinks gives
+ * Cat -> Mèo, Dog -> Chó, Tiger -> Hổ. Returns null when no Vietnamese article exists,
+ * which is a real answer — a concept with no vi article is one a human must name.
+ */
+async function localiseTitle(enTitle) {
+  if (lang !== 'vi') return enTitle;
+  const u = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(enTitle)}`
+    + `&prop=langlinks&lllang=vi&format=json&origin=*`;
+  try {
+    const { data } = await http.json(u);
+    const pages = data?.query?.pages ?? {};
+    for (const pg of Object.values(pages)) {
+      const vi = pg?.langlinks?.[0]?.['*'];
+      if (vi) return vi;
+    }
+  } catch { /* fall through - the caller reports the miss */ }
+  return null;
+}
+
 /** The Commons category for a concept, via Wikidata P373. */
 async function commonsCategory(title) {
   const u = `https://www.wikidata.org/w/api.php?action=wbgetentities&sites=${WIKISITE}&titles=${encodeURIComponent(title)}&props=claims&format=json&origin=*`;
@@ -171,7 +196,13 @@ for (const unit of units) {
   if (state.done(unit.id) && !force) { skipped += 1; continue; }
   const dir = path.join(out, unit.id);
   mkdirSync(dir, { recursive: true });
-  const title = toTitle(unit.concept);
+  const enTitle = toTitle(unit.concept);
+  const title = await localiseTitle(enTitle);
+  if (!title) {
+    state.set(unit.id, 'empty', `no vi.wikipedia article for "${enTitle}"`);
+    console.log(`${unit.id} "${enTitle}": no Vietnamese article — needs a human-supplied title`);
+    continue;
+  }
 
   let picks = [];
   try {

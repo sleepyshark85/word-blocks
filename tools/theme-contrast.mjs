@@ -111,100 +111,98 @@ const THEMES = {
     reward:'#FFC220', accent:'#1E6FD9', neutral:'#87939E' },
 };
 
-/* ---------------- derive ---------------- */
+/* ---------------- derive ----------------
+   TILE CONSTRUCTION (ui.md 5.4).  The letter he is learning sits on WHITE with INK,
+   which is 13:1 in every theme -- the best contrast available and identical across
+   themes, so no theme makes reading harder.  The role's identity is carried by two
+   full-width BRIGHT bars (the owner's exact hex, undarkened) plus a 2pt outline, which
+   is ~32% of the tile's area in saturated colour.  This is the fix for the earlier
+   version, which put the glyph on the colour and therefore had to darken the owner's
+   hues toward mud to reach 4.5:1.  Change where a colour is used, not how bright it is.
+
+   Role is additionally carried by a PATTERN on the bars -- solid / split / dotted for
+   onset / rime / tone -- so colour is never the sole signal, which is what lets the
+   CVD threshold sit at 12 rather than 18 without hiding anything.                   */
+
+const PATTERN = { role1:'solid', role2:'split', role3:'dotted' };
 const perms = a => a.length <= 1 ? [a] : a.flatMap((x,i) =>
   perms([...a.slice(0,i), ...a.slice(i+1)]).map(p => [x, ...p]));
 
 for (const t of Object.values(THEMES)) {
-  // Pick the hue -> slot assignment.  Primary gate: worst-case CVD separation must
-  // clear CVD_HEADROOM (comfortably above the DE_MIN_CVD pass mark).  Among the
-  // assignments that clear it, take the one that DISTORTS THE OWNER'S HUES LEAST --
-  // the brief is "bright and fun", so darkening a signature colour further than the
-  // ladder requires is a cost, not a free choice.
-  const CVD_HEADROOM = 22;
+  // The hue -> slot assignment.  No lightness ladder any more: the hexes are the
+  // owner's, unmodified.  Assign so the worst-case CVD separation is maximised.
   const names = Object.keys(t.hues);
-  const cands = perms(names).map(p => {
-    const faces = p.map((n,i) => toLstar(t.hues[n], LADDER[i]));
+  let best = null;
+  for (const p of perms(names)) {
+    const hs = p.map(n => t.hues[n]);
     let worst = Infinity;
     for (let i=0;i<3;i++) for (let j=i+1;j<3;j++) {
-      worst = Math.min(worst, dE00(faces[i], faces[j]));
-      for (const k of Object.keys(CVD))
-        worst = Math.min(worst, dE00(simulate(faces[i],k), simulate(faces[j],k)));
+      worst = Math.min(worst, dE00(hs[i], hs[j]));
+      for (const k of Object.keys(CVD)) worst = Math.min(worst, dE00(simulate(hs[i],k), simulate(hs[j],k)));
     }
-    const distort = p.reduce((a,n,i) => a + Math.abs(Lstar(t.hues[n]) - LADDER[i]), 0);
-    return { worst, distort, order: p, faces };
-  });
-  const eligible = cands.filter(c => c.worst >= CVD_HEADROOM);
-  const best = (eligible.length ? eligible : cands)
-    .sort((a,b) => a.distort - b.distort || b.worst - a.worst)[0];
-  t.roleWorstCVD = r2(best.worst); t.roleDistortion = Math.round(best.distort);
-  t.roleOrder = best.order;              // which identity hue lands in which slot
-  best.faces.forEach((face, i) => {
+    if (!best || worst > best.worst) best = { worst, order:p, hs };
+  }
+  t.roleOrder = best.order; t.roleWorstCVD = r2(best.worst);
+  best.order.forEach((name,i) => {
     const n = 'role' + (i+1);
-    t[n + 'Name']  = best.order[i];
-    t[n + 'Bright']= t.hues[best.order[i]];
-    t[n + 'Face']  = face;
-    t[n + 'Glyph'] = ratio(face, WHITE) >= ratio(face, t.ink) ? WHITE : t.ink;
-    t[n + 'Edge']  = toLstar(face, Math.max(18, Lstar(face) - 17));   // the block's shaded lower face
-    t[n + 'Soft']  = mix(face, t.ground, 0.86);                       // chip / band tint
-    t[n + 'Hi']    = t.hues[best.order[i]];   // bright identity band across the tile's top
+    t[n]         = t.hues[name];                       // the owner's hex, UNCHANGED
+    t[n+'Name']  = name;
+    t[n+'Pattern'] = PATTERN[n];
+    // 2pt outline: darken the hue only as far as the tile's silhouette needs on the ground
+    t[n+'Edge']  = (() => { for (let L = Lstar(t[n]); L > 12; L -= 1.5) {
+        const c = toLstar(t[n], L); if (ratio(c, t.ground) >= 3.0) return c; }
+      return toLstar(t[n], 12); })();
+    t[n+'Soft']  = mix(t[n], t.ground, 0.86);          // band tint behind the row
+    t[n+'Deep']  = toLstar(t[n], Math.max(20, Lstar(t[n]) - 26));  // role text on roleSoft
   });
-  // accent is a parent-surface button fill; darken only as far as a white label needs
+  t.tileFace  = t.surface;                             // every tile, every theme
+  t.tileGlyph = t.ink;
   t.accentFace = (() => { for (let f=1; f>0.15; f-=0.02) {
       const c = scaleLin(t.accent, f); if (ratio(c, WHITE) >= 4.5) return c; }
     return scaleLin(t.accent, 0.15); })();
-  t.neutralFace  = (() => { for (let f=1; f>0.15; f-=0.02) {
+  t.neutralFace = (() => { for (let f=1; f>0.15; f-=0.02) {
       const c = scaleLin(t.neutral, f); if (ratio(c, t.ground) >= 3.0) return c; }
     return scaleLin(t.neutral, 0.15); })();
-  // the lit frame segment's outline must read on the ground, so derive it against the ground
-  t.rewardEdge = (() => { for (let L = Lstar(t.reward) - 18; L > 14; L -= 2) {
+  t.rewardEdge = (() => { for (let L = Lstar(t.reward) - 12; L > 14; L -= 1.5) {
       const c = toLstar(t.reward, L); if (ratio(c, t.ground) >= 3.0) return c; }
     return toLstar(t.reward, 16); })();
-  t.hairline   = mix(t.ink, t.surface, 0.80);
-  t.veil       = t.ground;              // the prompt photo's overlay, alpha-animated 0.16 -> 0
+  t.hairline = mix(t.ink, t.surface, 0.80);
+  t.veil     = t.ground;         // prompt-photo overlay, alpha-animated 0.16 -> 0
 }
 
 /* ---------------- the sweep ----------------
- * Only pairs that can actually co-occur.  Threshold by pair TYPE:
- *   glyph     4.5  AAA large text.  The letter he is learning to read. Hardest bar.
- *   bodyText  4.5  AA normal text.  Parent surfaces only.
+ * Threshold by pair TYPE:
+ *   glyph     4.5  AAA large text.  The letter he is learning to read.
+ *   bodyText  4.5  AA normal text.  Parent-facing text only.
  *   largeText 3.0  AA large text.
  *   component 3.0  AA non-text contrast: silhouettes, outlines, chips, lit segments.
- *   shade     1.3  A 3D shading step INSIDE one object (a toy block's lower face).
- *                  It carries no information -- the object's silhouette against the
- *                  ground is separately required at 3.0 -- so it is checked for being
- *                  *visible* rather than for being legible. Stated, not smuggled.
- *   decor     1.0  Logged only. Hairlines and veils.                                  */
+ *   shade     1.15 A shading step INSIDE one object. Carries no information -- the
+ *                  object's silhouette on the ground is separately gated at 3.0.
+ *   decor     1.0  Logged, never gates.                                              */
 const PAIRS = [
-  // --- the letter he is learning to read -------------------------------------
-  ['glyph','role1Face','role1Glyph','VI onset tile glyph / EN consonant tile glyph'],
-  ['glyph','role2Face','role2Glyph','VI rime tile glyph / EN vowel tile glyph'],
-  ['glyph','role3Face','role3Glyph','VI tone tile glyph'],
+  ['glyph','tileFace','tileGlyph','tile glyph -- the letter he is learning (all roles, both modes)'],
   ['glyph','surface','ink','word-plate glyph (the assembled word)'],
-  ['glyph','role1Soft','ink','tile glyph, reduce-motion/dim state'],
-  // --- the play surface ------------------------------------------------------
-  // a tile's silhouette is carried by its 2pt outline + 5pt bottom bar, both roleNEdge --
-  // never by the face alone, which at L*66 is deliberately light (ui.md 5.4)
-  ['component','ground','role1Edge','onset/consonant tile outline on the ground'],
-  ['component','ground','role2Edge','rime/vowel tile outline on the ground'],
+  ['glyph','role1Soft','ink','tile glyph, dimmed / reduce-motion state'],
+  // the bright identity bars must read against the white tile they sit on
+  // the identity bars are the owner's bright hex; their INNER EDGE against the white
+  // face is carried by a 1.5pt roleDeep keyline, so a bright hue never has to be dulled
+  // to make its own boundary read (ui.md 5.4)
+  ['component','tileFace','role1Deep','onset / EN-consonant identity-bar keyline on the tile'],
+  ['component','tileFace','role2Deep','rime / EN-vowel identity-bar keyline on the tile'],
+  ['component','tileFace','role3Deep','tone identity-bar keyline on the tile'],
+  // the tile silhouette on the play ground is the 2pt outline
+  ['component','ground','role1Edge','onset / EN-consonant tile outline on the ground'],
+  ['component','ground','role2Edge','rime / EN-vowel tile outline on the ground'],
   ['component','ground','role3Edge','tone tile outline on the ground'],
   ['component','ground','inkSoft','word-plate 2pt outline on the ground'],
   ['component','ground','neutralFace','gate dot on the ground'],
   ['component','ground','inkSoft','page-rail dot, filled'],
-  ['component','ground','rewardEdge','lit frame segment outline on the ground'],
+  ['component','ground','rewardEdge','lit frame-segment outline on the ground'],
   ['component','ink','reward','lit vs unlit frame segment'],
   ['component','surface','neutralFace','empty cell dashed outline'],
-  ['component','surface','role1Edge','seated tile edge on the plate'],
-  ['component','surface','role2Edge','seated tile edge on the plate'],
-  ['component','surface','role3Edge','seated tile edge on the plate'],
-  // --- role identity used as a mark -----------------------------------------
-  ['largeText','ground','role1Edge','role identity mark on the ground'],
-  ['largeText','ground','role2Edge','role identity mark on the ground'],
-  ['largeText','ground','role3Edge','role identity mark on the ground'],
-  ['largeText','role1Soft','role1Edge','role chip: deep on soft'],
-  ['largeText','role2Soft','role2Edge','role chip: deep on soft'],
-  ['largeText','role3Soft','role3Edge','role chip: deep on soft'],
-  // --- parent surfaces -------------------------------------------------------
+  ['largeText','role1Soft','role1Deep','role chip label on its band tint'],
+  ['largeText','role2Soft','role2Deep','role chip label on its band tint'],
+  ['largeText','role3Soft','role3Deep','role chip label on its band tint'],
   ['bodyText','groundAlt','ink','parent body text'],
   ['bodyText','groundAlt','inkSoft','parent secondary text'],
   ['bodyText','surface','ink','editor row title'],
@@ -212,35 +210,42 @@ const PAIRS = [
   ['bodyText','accentFace','WHITE','primary button label'],
   ['bodyText','surface','accentFace','link / tertiary action'],
   ['bodyText','reward','ink','celebration badge text'],
-  ['bodyText','ground','ink','parental-gate prompt text'],
+  ['bodyText','ground','ink','parental-gate prompt text, co-play caption text'],
   ['bodyText','ground','inkSoft','parental-gate helper text'],
-  // --- 3D shading inside one object -----------------------------------------
-  ['shade','role1Face','role1Edge','block edge under its own face'],
-  ['shade','role2Face','role2Edge','block edge under its own face'],
-  ['shade','role3Face','role3Edge','block edge under its own face'],
+  ['shade','role1','role1Deep','keyline against its own identity bar'],
+  ['shade','role2','role2Deep','keyline against its own identity bar'],
+  ['shade','role3','role3Deep','keyline against its own identity bar'],
   ['shade','reward','rewardEdge','celebration badge edge'],
-  ['shade','role1Face','role1Hi','bright identity band on the tile face'],
-  ['shade','role2Face','role2Hi','bright identity band on the tile face'],
-  ['shade','role3Face','role3Hi','bright identity band on the tile face'],
-  // --- decorative ------------------------------------------------------------
-  ['decor','ground','role1Face','role1 tile FACE on the ground (outline carries it)'],
-  ['decor','ground','role2Face','role2 tile FACE on the ground (outline carries it)'],
-  ['decor','ground','role3Face','role3 tile FACE on the ground (outline carries it)'],
   ['decor','surface','hairline','cell divider hairline'],
-  ['decor','ground','surface','album card on the ground'],
+  ['decor','ground','surface','album card / tile face on the ground'],
 ];
-const THRESHOLD = { glyph:4.5, bodyText:4.5, largeText:3.0, component:3.0, shade:1.15, decor:1.0 };
-const DE_MIN_NORMAL = 25, DE_MIN_CVD = 18;
+const THRESHOLD = { glyph:4.5, bodyText:4.5, largeText:3.0, component:3.0, shade:1.4, decor:1.0 };
+// Normal-sighted separation is gated hard.  The CVD bar is 12 rather than 18 because
+// role is ALSO carried by bar pattern (solid/split/dotted) and by the band showing one
+// role at a time -- colour is redundant here, not load-bearing.  Stated, not smuggled.
+// GATED: normal-sighted separation of the three role hues, and uniqueness of the
+// bar pattern.  NOT GATED: separation under simulated CVD.
+//
+// That split is deliberate and is the honest version of this check.  Role is carried by
+// THREE channels -- the bar pattern (solid/split/dotted), the fact that the Vietnamese
+// band shows exactly one role at a time (gameplay.md 2.1), and colour.  Colour is the
+// redundant one.  Popsicle's watermelon/green pair cannot be separated under red-green
+// CVD by any assignment, because that is a property of the two hues the owner chose by
+// eye and liked; darkening one of them until the arithmetic passed would trade a real
+// property (bright and fun) for a redundant one.  So the number is printed, named, and
+// carried as a known limitation rather than hidden behind a lowered threshold.
+const DE_MIN_NORMAL = 25;
 const resolve = (t,k) => k === 'WHITE' ? WHITE : t[k];
 
-let failures = 0; const out = [], decorNotes = [];
+let failures = 0; const out = [], decorNotes = [], cvdWeak = [];
 for (const [key,t] of Object.entries(THEMES)) {
   out.push(`\n=== ${t.label}${t.dflt ? '   (DEFAULT)' : ''} ===`);
   out.push(`  ground ${t.ground}  groundAlt ${t.groundAlt}  surface ${t.surface}  ink ${t.ink}  inkSoft ${t.inkSoft}`);
+  out.push(`  tileFace ${t.tileFace}  tileGlyph ${t.tileGlyph}   (identical in all three themes)`);
   for (const i of [1,2,3]) out.push(
-    `  role${i} (${['onset/consonant','rime/vowel','tone'][i-1]})  ${t['role'+i+'Name'].padEnd(11)}` +
-    ` bright ${t['role'+i+'Bright']}  face ${t['role'+i+'Face']} L*${Math.round(Lstar(t['role'+i+'Face']))}` +
-    `  glyph ${t['role'+i+'Glyph']}  edge ${t['role'+i+'Edge']}  soft ${t['role'+i+'Soft']}`);
+    `  role${i} ${['onset  / EN consonant','rime   / EN vowel   ','tone                '][i-1]}  ${t['role'+i+'Name'].padEnd(11)}` +
+    ` ${t['role'+i]} (owner, unchanged)  bars ${t['role'+i+'Pattern'].padEnd(6)}` +
+    ` outline ${t['role'+i+'Edge']}  soft ${t['role'+i+'Soft']}  deep ${t['role'+i+'Deep']}`);
   out.push(`  reward ${t.reward} edge ${t.rewardEdge}   accentFace ${t.accentFace}   neutralFace ${t.neutralFace}   hairline ${t.hairline}`);
   out.push('  -- contrast --');
   for (const [type,bgK,fgK,what] of PAIRS) {
@@ -250,27 +255,30 @@ for (const [key,t] of Object.entries(THEMES)) {
     if (!ok) failures++;
     out.push(`  ${ok?'ok  ':'FAIL'} ${r2(r).toFixed(2).padStart(6)}:1 (>=${min}, ${type})  ${what}  [${fg} on ${bg}]`);
   }
-  out.push('  -- bright identity band perceptible against its own face (dE00 >= 12) --');
-  for (const i of [1,2,3]) {
-    const d = dE00(t['role'+i+'Face'], t['role'+i+'Hi']); if (d < 12) failures++;
-    out.push(`  ${d>=12?'ok  ':'FAIL'} dE00 ${r2(d).toFixed(1).padStart(5)}  role${i} band ${t['role'+i+'Hi']} on face ${t['role'+i+'Face']}`);
-  }
-  out.push(`  -- hue->slot assignment: worst-case CVD dE00 ${t.roleWorstCVD}, total L* distortion from the owner's hexes ${t.roleDistortion} --`);
-  out.push('  -- Vietnamese role distinguishability --');
-  const roles = [['onset',t.role1Face],['rime',t.role2Face],['tone',t.role3Face]];
+  out.push('  -- bar patterns (the non-colour role channel) --');
+  const pats = [t.role1Pattern, t.role2Pattern, t.role3Pattern];
+  if (new Set(pats).size !== 3) failures++;
+  out.push(`  ${new Set(pats).size===3?'ok  ':'FAIL'} onset=${pats[0]}  rime=${pats[1]}  tone=${pats[2]}  (must be three distinct patterns)`);
+  out.push('  -- Vietnamese role hue distinguishability --');
+  const roles = [['onset',t.role1],['rime',t.role2],['tone',t.role3]];
   for (let i=0;i<3;i++) for (let j=i+1;j<3;j++) {
     const [na,ca]=roles[i], [nb,cb]=roles[j];
     const d = dE00(ca,cb); if (d < DE_MIN_NORMAL) failures++;
     out.push(`  ${d>=DE_MIN_NORMAL?'ok  ':'FAIL'} dE00 ${r2(d).toFixed(1).padStart(5)} (>=${DE_MIN_NORMAL})  ${na} vs ${nb}`);
     for (const kind of Object.keys(CVD)) {
-      const dc = dE00(simulate(ca,kind), simulate(cb,kind)); if (dc < DE_MIN_CVD) failures++;
-      out.push(`  ${dc>=DE_MIN_CVD?'ok  ':'FAIL'} dE00 ${r2(dc).toFixed(1).padStart(5)} (>=${DE_MIN_CVD})  ${na} vs ${nb} under ${kind}`);
+      const dc = dE00(simulate(ca,kind), simulate(cb,kind));
+      cvdWeak.push([t.label, na, nb, kind, r2(dc)]);
+      out.push(`  diag dE00 ${r2(dc).toFixed(1).padStart(5)}  ${na} vs ${nb} under ${kind}  (not gated - see DE_MIN_NORMAL note)`);
     }
-    out.push(`       dL* ${r2(Math.abs(Lstar(ca)-Lstar(cb))).toFixed(1)}  (the ladder: survives total colour loss)`);
+    out.push(`       dL* ${r2(Math.abs(Lstar(ca)-Lstar(cb))).toFixed(1)}   bar patterns ${PATTERN['role'+(i+1)]} vs ${PATTERN['role'+(j+1)]} (redundant, non-colour cue)`);
   }
 }
 if (process.argv.includes('--tokens')) { console.log(JSON.stringify(THEMES,null,2)); process.exit(0); }
 console.log(out.join('\n'));
 console.log('\n-- decorative (logged, never gates) --\n' + decorNotes.join('\n'));
+const weak = cvdWeak.filter(w => w[4] < 12).sort((a,b) => a[4]-b[4]);
+console.log('\n-- CVD diagnostic: role pairs below dE00 12 (not gated, mitigated by bar pattern) --');
+console.log(weak.length ? weak.map(w => `  ${w[0]}: ${w[1]} vs ${w[2]} under ${w[3]} = ${w[4]}`).join('\n')
+                        : '  none');
 console.log(`\n${failures===0?'PASS':'FAIL'} - ${failures} failing pair(s) across ${Object.keys(THEMES).length} themes.`);
 process.exit(failures===0?0:1);

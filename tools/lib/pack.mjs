@@ -146,11 +146,16 @@ export function ensurePackDirs(packDir) {
  */
 export function readManifest(packDir) {
   const p = packPaths(packDir);
+  let firstError = null;
   for (const [file, from] of [[p.manifest, 'pack.json'], [p.manifestBak, 'pack.json.bak']]) {
     if (!existsSync(file)) continue;
     try { return { manifest: JSON.parse(readFileSync(file, 'utf8')), from }; }
-    catch (e) { if (from === 'pack.json.bak') throw e; }
+    catch (e) { firstError ??= e; }
   }
+  // "present but unparseable" and "not there at all" are different faults with
+  // different repairs, and collapsing them into null sends the reader looking for a
+  // file that is sitting right in front of them.
+  if (firstError) throw firstError;
   return null;
 }
 

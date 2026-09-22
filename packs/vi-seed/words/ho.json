@@ -6,7 +6,7 @@
   "syllables": [
     {
       "onset": "h",
-      "rime": "o",
+      "rime": "ô",
       "tone": "hoi"
     }
   ],
@@ -24,21 +24,21 @@
       "addedAt": "2026-09-22T17:21:35.614Z"
     },
     "blend": {
-      "src": "media/aud/465e94476720f872.mp3",
-      "bytes": 6720,
-      "ms": 840,
+      "src": "media/aud/b1c9d5a9f035b1a3.mp3",
+      "bytes": 6528,
+      "ms": 816,
       "engine": "gtts:vi",
       "voice": null,
-      "text": "ho",
+      "text": "hô",
       "by": null,
-      "addedAt": "2026-09-22T17:21:36.027Z"
+      "addedAt": "2026-09-22T17:48:26.381Z"
     },
     "sentence": null
   },
   "build": {
     "assetConcept": "tiger",
     "flags": [],
-    "note": "",
+    "note": "FIX: rime was `o`, composing to \"hỏ\" not \"hổ\". word-list.md also claimed hổ and thỏ share a rime — they do not (thỏ = th+o, hổ = h+ô).",
     "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
   }
 }

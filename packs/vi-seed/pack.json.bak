@@ -11,7 +11,11 @@
     "sources": [
       "docs/design/word-list.md",
       "docs/design/literacy-vi.md"
-    ]
+    ],
+    "audio": {
+      "engine": "gtts:vi",
+      "generatedAt": "2026-09-22T17:21:51.757Z"
+    }
   },
   "media": {
     "onMissingImage": "fallbackEmoji-then-withhold",
@@ -86,7 +90,16 @@
         "glyph": "b",
         "label": "bờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/3e8388b855e77ac6.mp3",
+            "bytes": 6912,
+            "ms": 864,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "bờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:57.963Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -95,7 +108,16 @@
         "glyph": "c",
         "label": "cờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/404f8a0e826e8677.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "cờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:58.361Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -104,7 +126,16 @@
         "glyph": "k",
         "label": "cờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/404f8a0e826e8677.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "cờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:58.730Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -113,7 +144,16 @@
         "glyph": "qu",
         "label": "quờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/d6901540d82cd85e.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "quờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:59.098Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -122,7 +162,16 @@
         "glyph": "ch",
         "label": "chờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/39a1088b75cc26ba.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "chờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:59.478Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -131,7 +180,16 @@
         "glyph": "d",
         "label": "dờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/51354f9f52b362d6.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "dờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:59.849Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -140,7 +198,16 @@
         "glyph": "đ",
         "label": "đờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/2aef6f11842c2742.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "đờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:00.205Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -149,7 +216,16 @@
         "glyph": "g",
         "label": "gờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/b2006fc12af95470.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "gờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:00.553Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -158,7 +234,16 @@
         "glyph": "gh",
         "label": "gờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/42f0d99fc0dd70eb.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "gờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:00.914Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -167,7 +252,16 @@
         "glyph": "gi",
         "label": "giờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/b6a5d2cd7c61ed8d.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "giờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:01.310Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -176,7 +270,16 @@
         "glyph": "h",
         "label": "hờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/01d85628152d5bc1.mp3",
+            "bytes": 7104,
+            "ms": 888,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "hờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:01.673Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -185,7 +288,16 @@
         "glyph": "kh",
         "label": "khờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/55ef2c35474539fc.mp3",
+            "bytes": 6912,
+            "ms": 864,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "khờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:02.022Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -194,7 +306,16 @@
         "glyph": "l",
         "label": "lờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/5762f7f6af4cbda0.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "lờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:02.397Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -203,7 +324,16 @@
         "glyph": "m",
         "label": "mờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/0a6770f4211c8014.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "mờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:02.748Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -212,7 +342,16 @@
         "glyph": "n",
         "label": "nờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/ef2fc10a6d29d015.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "nờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:03.087Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -221,7 +360,16 @@
         "glyph": "ng",
         "label": "ngờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/337b34db997930d1.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ngờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:03.445Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -230,7 +378,16 @@
         "glyph": "ngh",
         "label": "ngờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/f02b9c96ccee9ce3.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ngờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:03.827Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -239,7 +396,16 @@
         "glyph": "nh",
         "label": "nhờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/7632071f6f2cfadc.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "nhờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:04.225Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -248,7 +414,16 @@
         "glyph": "ph",
         "label": "phờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/9c880d624c8bf527.mp3",
+            "bytes": 6912,
+            "ms": 864,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "phờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:04.571Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -257,7 +432,16 @@
         "glyph": "r",
         "label": "rờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/ffd896c79c1f0952.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "rờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:04.931Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -266,7 +450,16 @@
         "glyph": "s",
         "label": "sờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/e4572a0d55c87ced.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "sờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:05.333Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -275,7 +468,16 @@
         "glyph": "t",
         "label": "tờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/f347ef9649b7fd3a.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "tờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:05.753Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -284,7 +486,16 @@
         "glyph": "th",
         "label": "thờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/5e114e83a9c5a0b4.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "thờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:06.128Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -293,7 +504,16 @@
         "glyph": "tr",
         "label": "trờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/d6c3b348f7c995d7.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "trờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:06.500Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -302,7 +522,16 @@
         "glyph": "v",
         "label": "vờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/8fca8ecff213d6e9.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "vờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:06.873Z"
+          }
         },
         "source": "literacy-vi.md §2"
       },
@@ -311,7 +540,16 @@
         "glyph": "x",
         "label": "xờ",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/abcd897ba0e5c4e9.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "xờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:07.229Z"
+          }
         },
         "source": "literacy-vi.md §2"
       }
@@ -337,7 +575,16 @@
           "nang": "ạ"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/f971ec7c53e0bbd3.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "a",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:07.570Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -357,7 +604,16 @@
           "nang": "ạch"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/dbd9d0b0903da556.mp3",
+            "bytes": 4800,
+            "ms": 600,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ach",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:07.894Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -381,7 +637,16 @@
           "nang": "ại"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/9d8acfc66171c851.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ai",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:08.262Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -405,7 +670,16 @@
           "nang": "ạm"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/e4bc134df025a8d6.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "am",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:08.639Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -429,7 +703,16 @@
           "nang": "ạnh"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/acd8222caa72738f.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "anh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:09.002Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -453,7 +736,16 @@
           "nang": "ạo"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/8993f37f3bc50566.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ao",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:09.388Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -473,7 +765,16 @@
           "nang": "ạt"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/000419b3da64d660.mp3",
+            "bytes": 5184,
+            "ms": 648,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "at",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:09.779Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -497,7 +798,16 @@
           "nang": "ạy"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/4758ddaddc2dc4bf.mp3",
+            "bytes": 5568,
+            "ms": 696,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ay",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:10.203Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -521,7 +831,16 @@
           "nang": "ẹ"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/face159413254572.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "e",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:10.554Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -545,7 +864,16 @@
           "nang": "ẹm"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/8277839daf2e1c45.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "em",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:10.916Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -569,7 +897,16 @@
           "nang": "ẹn"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/9e3fb79ff3c81deb.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "en",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:11.293Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -593,7 +930,16 @@
           "nang": "ẹo"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/73f01c1b33e6340c.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "eo",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:11.629Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -617,7 +963,16 @@
           "nang": "ị"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/e8842b8a0125a824.mp3",
+            "bytes": 7488,
+            "ms": 936,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "i",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:11.978Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -641,7 +996,16 @@
           "nang": "ịm"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/0bd1ac026ee14cd2.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "im",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:12.322Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -661,7 +1025,16 @@
           "nang": "ịt"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/5ef4d4ae854fd7f5.mp3",
+            "bytes": 4800,
+            "ms": 600,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "it",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:12.666Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -685,7 +1058,16 @@
           "nang": "ọ"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/b69a9c4138906de8.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "o",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:13.029Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -709,7 +1091,16 @@
           "nang": "ọa"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/e0d9e5d0ba28ebb4.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "oa",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:13.351Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -733,7 +1124,16 @@
           "nang": "ọi"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/aa01096b590bbedc.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "oi",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:13.676Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -757,7 +1157,16 @@
           "nang": "ọn"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/d82de16aa7c87203.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "on",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:14.090Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -781,7 +1190,16 @@
           "nang": "ọng"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/26b9588b929658b7.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ong",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:14.476Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -805,7 +1223,16 @@
           "nang": "ụ"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/4b98ce192ff4f930.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "u",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:14.839Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -829,7 +1256,16 @@
           "nang": "ụa"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/e859af61182800e4.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ua",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:15.227Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -853,7 +1289,16 @@
           "nang": "ụi"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/d2c17eafee9bc03b.mp3",
+            "bytes": 5568,
+            "ms": 696,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ui",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:15.571Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -877,7 +1322,16 @@
           "nang": "ụn"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/7c857f8e740c96b1.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "un",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:15.917Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -901,7 +1355,16 @@
           "nang": "uội"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/312f25939d35a409.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "uôi",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:16.265Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -925,7 +1388,16 @@
           "nang": "ận"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/2480e7814c0b820f.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ân",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:16.643Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -949,7 +1421,16 @@
           "nang": "ậu"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/3504db0737289ac7.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "âu",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:17.039Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -973,7 +1454,16 @@
           "nang": "ậy"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/e095d4af12890355.mp3",
+            "bytes": 5568,
+            "ms": 696,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ây",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:17.408Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -997,7 +1487,16 @@
           "nang": "ệ"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/bbfa5c853bb69789.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ê",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:17.828Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -1021,7 +1520,16 @@
           "nang": "ộ"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/84ad6ff0dc47e3a7.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ô",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:18.192Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -1045,7 +1553,16 @@
           "nang": "ặng"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/04f4dc3d248cb827.mp3",
+            "bytes": 5376,
+            "ms": 672,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ăng",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:18.553Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -1065,7 +1582,16 @@
           "nang": "ặt"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/e24e449ecd63f102.mp3",
+            "bytes": 4992,
+            "ms": 624,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ăt",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:18.942Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -1089,7 +1615,16 @@
           "nang": "ợ"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/17409c58430dd4fa.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ơ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:19.321Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -1113,7 +1648,16 @@
           "nang": "ựa"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/5e40c8171d49860b.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ưa",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:19.673Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
@@ -1137,7 +1681,16 @@
           "nang": "ựng"
         },
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/8fc0facc06345ae4.mp3",
+            "bytes": 5568,
+            "ms": 696,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ưng",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:20.035Z"
+          }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       }
@@ -1149,7 +1702,16 @@
         "label": "ngang",
         "mark": null,
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/a6e9451732635454.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ngang",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:20.392Z"
+          }
         },
         "source": "literacy-vi.md §5.1"
       },
@@ -1159,7 +1721,16 @@
         "label": "huyền",
         "mark": "̀",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/00db080609380205.mp3",
+            "bytes": 6528,
+            "ms": 816,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "huyền",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:20.713Z"
+          }
         },
         "source": "literacy-vi.md §5.1"
       },
@@ -1169,7 +1740,16 @@
         "label": "sắc",
         "mark": "́",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/a992fea50ea6d232.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "sắc",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:21.038Z"
+          }
         },
         "source": "literacy-vi.md §5.1"
       },
@@ -1179,7 +1759,16 @@
         "label": "hỏi",
         "mark": "̉",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/df14d0cba8288f24.mp3",
+            "bytes": 7104,
+            "ms": 888,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "hỏi",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:21.411Z"
+          }
         },
         "source": "literacy-vi.md §5.1"
       },
@@ -1189,7 +1778,16 @@
         "label": "ngã",
         "mark": "̃",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/95e58595db141c1b.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ngã",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:21.791Z"
+          }
         },
         "source": "literacy-vi.md §5.1"
       },
@@ -1199,7 +1797,16 @@
         "label": "nặng",
         "mark": "̣",
         "audio": {
-          "name": null
+          "name": {
+            "src": "media/aud/50710083effbe462.mp3",
+            "bytes": 5184,
+            "ms": 648,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "nặng",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:22.192Z"
+          }
         },
         "source": "literacy-vi.md §5.1"
       }
