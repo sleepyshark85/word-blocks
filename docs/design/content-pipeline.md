@@ -105,6 +105,15 @@ Measured, by execution: a copy of `packs/en-seed` with a trailing comma injected
 (`tools/pack-validate.test.mjs`, "the stray-comma case"). The other 39 are intact and
 playable.
 
+### `--strict` counts photographs, not fallbacks
+
+A word with no photograph but a Fluent Emoji fallback *is* playable, and the validator
+counts it so. It is not *curated*, and `--strict` means "ready for a child", so each such
+word raises a warning and the summary reports `N photographed` alongside `N playable`.
+Without that, a pack where nobody had looked at a single picture passed `--strict` clean
+— because `decisions.md` made photographs primary and the emoji the thing you fall back
+to, a pack running entirely on fallbacks is a pack where the work has not started.
+
 The cost is 50 file opens on launch instead of one, and 875 B/word of JSON in Vietnamese
 (measured; 648 B in English). Both are noise next to one 51 KB photograph.
 

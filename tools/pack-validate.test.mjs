@@ -107,7 +107,7 @@ describe('a filesystem or an interrupted write', () => {
     // The whole point, and the reason there is one file per word: the pack still has 40
     // words and 39 of them are intact and playable. A single `words.json` array would
     // have lost all 40 to the same comma.
-    assert.match(out, /words\s+40 \(39 enabled, 39 playable, 1 UNREADABLE\)/);
+    assert.match(out, /words\s+40 \(39 enabled, 39 playable, 0 photographed, 1 UNREADABLE\)/);
   });
 
   test('a word file truncated mid-write', () => {

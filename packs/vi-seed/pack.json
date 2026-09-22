@@ -7,15 +7,11 @@
   "origin": "seed",
   "generator": {
     "tool": "tools/build-seed-pack.mjs",
-    "builtAt": "2026-09-22T17:13:19.022Z",
+    "builtAt": "2026-09-22T18:02:25.682Z",
     "sources": [
       "docs/design/word-list.md",
       "docs/design/literacy-vi.md"
-    ],
-    "audio": {
-      "engine": "gtts:vi",
-      "generatedAt": "2026-09-22T17:48:26.384Z"
-    }
+    ]
   },
   "media": {
     "onMissingImage": "fallbackEmoji-then-withhold",

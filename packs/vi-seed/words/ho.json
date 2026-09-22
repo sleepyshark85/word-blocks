@@ -38,7 +38,7 @@
   "build": {
     "assetConcept": "tiger",
     "flags": [],
-    "note": "FIX: rime was `o`, composing to \"hỏ\" not \"hổ\". word-list.md also claimed hổ and thỏ share a rime — they do not (thỏ = th+o, hổ = h+ô).",
+    "note": "",
     "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
   }
 }

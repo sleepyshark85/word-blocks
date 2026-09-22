@@ -41,7 +41,9 @@ rate limit. What survived is catalogued below; it was verified by execution, not
 | `gameplay.md` (571), `ui.md` (1208) | game-designer | **Done** — line counts verified |
 | `acceptance-criteria.md` | game-designer | **Done** — 223 unique AC ids, count verified |
 | `tools/theme-contrast.mjs`, `tools/layout-sweep.mjs` | game-designer | **Done** — both exit 0 when re-run by the orchestrator |
-| `content-pipeline.md` | content-engineer | **MISSING — agent killed before writing it** |
+| `content-pipeline.md` (1044), `open-questions-content.md` (228) | content-engineer | **Done** |
+| `tools/pack-validate.test.mjs` | content-engineer | **Done** — 50 tests, 50 pass, verified by the orchestrator |
+| `pack-import-media`, `pack-attributions`, `pack-backup` | content-engineer | **Done** |
 | **Owner approval of the full design** | owner | **Delegated to the orchestrator.** The owner is AFK and has said not to wait on him unless totally blocked |
 
 ### What the killed agents left behind — verified by execution
@@ -71,10 +73,19 @@ rate limit. What survived is catalogued below; it was verified by execution, not
    requirement exists to prevent. Replacements confirmed to carry a `vietnamese` subset:
    Baloo 2, Nunito, Quicksand, Comfortaa. The game-designer is choosing.
 
-4. **The validator under-reports a dangling image.** A word pointing at a missing file is
-   reported only as an *attribution* warning, not as a missing-asset error. What the child
-   sees when a file is gone is a first-order question and must be an error.
-5. **No images anywhere.** `images: []` in every word. This is the long pole.
+4. ~~The validator under-reports a dangling image.~~ **Fixed.** A missing file is an error,
+   with `DANGLING IMAGE` / `DANGLING AUDIO` tests. Resolution happens once at pack load, so
+   the child never sees the failure and his mother always does: survivors are used, then the
+   bundled emoji, and a word with nothing left is withheld from the round generator.
+5. **No images curated yet.** Both packs deliberately fail `--strict`, which now counts
+   *photographs* rather than fallbacks. Candidate fetch is re-running with the licence fix.
+
+6. **PUBLISHING BLOCKER (not for private use):** neither edge-tts nor gTTS grants the right
+   to redistribute generated audio inside a product. Cheap to close, because a recording and
+   a generated clip are the same object in the schema — but it must be closed *before* any
+   store submission. `open-questions-content.md` C4.
+
+7. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
 
 **Nothing is built. No `src/` exists.** Slice 0 ends when the owner approves the design.
 

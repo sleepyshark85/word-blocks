@@ -403,6 +403,9 @@ for (const { file, word } of wordsOk) {
   // it is simply withheld from the round generator and shown to his mother as needing
   // work. It becomes an error under --strict.
   const hasPicture = liveImages > 0 || (typeof word.fallbackEmoji === 'string' && word.fallbackEmoji);
+  // Counted regardless of `enabled`: a disabled word with photographs is curated work,
+  // and reporting it as 0 would hide exactly the progress this number exists to show.
+  if (liveImages > 0) photographed += 1;
   if (enabled) {
     if (liveImages === 0 && word.fallbackEmoji) {
       // Playable, but on the FALLBACK. decisions.md made real photographs primary and
@@ -411,7 +414,6 @@ for (const { file, word } of wordsOk) {
       // means "ready for a child") must say so rather than count it as finished.
       warn(rel, `has no photograph and is falling back to the "${word.fallbackEmoji}" emoji. Playable, but decisions.md makes real photographs primary — this word has not been curated.`);
     }
-    if (liveImages > 0) photographed += 1;
     if (hasPicture && hasWordAudio) playable += 1;
     else if (!hasPicture) warn(rel, 'enabled but has no surviving image and no fallbackEmoji — the round generator must withhold it. The child sees a different word; he never sees a broken picture.');
     else warn(rel, 'enabled but has no word audio — the chant has no final step, so the round generator must withhold it.');

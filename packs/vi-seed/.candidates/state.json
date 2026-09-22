@@ -3,32 +3,62 @@
     "ao": {
       "status": "done",
       "detail": "8 candidates for \"Áo (trang phục)\"",
-      "at": "2026-09-22T17:51:01.797Z"
+      "at": "2026-09-22T18:07:08.826Z"
     },
     "banh": {
       "status": "empty",
       "detail": "no vi.wikipedia article for \"Cake or bread\"",
-      "at": "2026-09-22T17:51:02.311Z"
+      "at": "2026-09-22T18:07:08.826Z"
     },
     "bo-0cd1": {
       "status": "done",
       "detail": "8 candidates for \"Bơ (thực vật)\"",
-      "at": "2026-09-22T17:51:23.917Z"
+      "at": "2026-09-22T18:07:12.265Z"
     },
     "bo": {
       "status": "empty",
       "detail": "no vi.wikipedia article for \"Cow\"",
-      "at": "2026-09-22T17:51:24.431Z"
+      "at": "2026-09-22T18:07:12.265Z"
     },
     "bong": {
       "status": "done",
       "detail": "8 candidates for \"Bóng\"",
-      "at": "2026-09-22T17:51:40.956Z"
+      "at": "2026-09-22T18:07:15.656Z"
     },
     "bun": {
       "status": "empty",
       "detail": "no vi.wikipedia article for \"Bowl of bún\"",
-      "at": "2026-09-22T17:52:00.958Z"
+      "at": "2026-09-22T18:07:15.657Z"
+    },
+    "ca": {
+      "status": "done",
+      "detail": "8 candidates for \"Cá\"",
+      "at": "2026-09-22T18:07:19.234Z"
+    },
+    "cam": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Orange\"",
+      "at": "2026-09-22T18:07:19.235Z"
+    },
+    "chan": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Foot / leg\"",
+      "at": "2026-09-22T18:07:19.235Z"
+    },
+    "chim": {
+      "status": "done",
+      "detail": "1 candidates for \"Chim\"",
+      "at": "2026-09-22T18:07:20.187Z"
+    },
+    "cho": {
+      "status": "done",
+      "detail": "8 candidates for \"Chó\"",
+      "at": "2026-09-22T18:07:24.391Z"
+    },
+    "chuoi": {
+      "status": "done",
+      "detail": "8 candidates for \"Chuối\"",
+      "at": "2026-09-22T18:03:17.530Z"
     }
   }
 }

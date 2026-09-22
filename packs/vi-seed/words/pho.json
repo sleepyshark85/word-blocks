@@ -19,13 +19,13 @@
       "h": 512,
       "bytes": 34437,
       "source": "vi.wikipedia.org",
-      "sourceUrl": "https://vi.wikipedia.org/wiki/Ph%E1%BB%9F",
-      "license": null,
-      "licenseUrl": null,
-      "creator": null,
-      "title": "Phở (vi.wikipedia.org lead image)",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ph%E1%BB%9F_b%C3%B2,_C%E1%BA%A7u_Gi%E1%BA%A5y,_H%C3%A0_N%E1%BB%99i.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Codename5281",
+      "title": "Phở bò, Cầu Giấy, Hà Nội.jpg (vi.wikipedia.org lead image)",
       "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
-      "addedAt": "2026-09-22T17:52:54.814Z"
+      "addedAt": "2026-09-22T17:54:14.803Z"
     },
     {
       "src": "media/img/76ecf04f13289eae.jpg",
@@ -39,7 +39,7 @@
       "creator": "Phương Huy",
       "title": "Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (1).jpg",
       "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
-      "addedAt": "2026-09-22T17:52:54.933Z"
+      "addedAt": "2026-09-22T17:54:14.921Z"
     },
     {
       "src": "media/img/1ac735e3329c530a.jpg",
@@ -53,7 +53,7 @@
       "creator": "Phương Huy",
       "title": "Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (2).jpg",
       "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
-      "addedAt": "2026-09-22T17:52:55.036Z"
+      "addedAt": "2026-09-22T17:54:15.012Z"
     }
   ],
   "audio": {
