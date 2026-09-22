@@ -88,12 +88,20 @@ rate limit. What survived is catalogued below; it was verified by execution, not
 5. **No images curated yet.** Both packs deliberately fail `--strict`, which now counts
    *photographs* rather than fallbacks. Candidate fetch is re-running with the licence fix.
 
-6. **PUBLISHING BLOCKER (not for private use):** neither edge-tts nor gTTS grants the right
+6. **The curation-yield report can exceed 100%.** `pack-validate.mjs` joins images kept
+   (from the pack) against candidates offered (from the on-disk `.candidates/` directory).
+   Delete a candidate directory and the join breaks: it printed
+   `TOTAL 14 kept / 6 offered 233%` with an `unrecorded 11 kept / 0 offered` line, without
+   complaint. **A statistic that can exceed its own maximum is not validated.** Two sources
+   again (`development-process.md` §6a) — the honest fix is for the pack to carry what it
+   needs rather than re-deriving it from a directory that is explicitly disposable.
+
+7. **PUBLISHING BLOCKER (not for private use):** neither edge-tts nor gTTS grants the right
    to redistribute generated audio inside a product. Cheap to close, because a recording and
    a generated clip are the same object in the schema — but it must be closed *before* any
    store submission. `open-questions-content.md` C4.
 
-7. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
+8. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
 
 **Nothing is built. No `src/` exists.** Slice 0 ends when the owner approves the design.
 

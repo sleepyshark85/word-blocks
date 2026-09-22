@@ -64,6 +64,12 @@ export function importImage(packDir, srcFile, meta = {}) {
       licenseUrl: meta.licenseUrl ?? null,
       creator: meta.creator ?? null,
       title: meta.title ?? null,
+      // Provenance only. `rank` is which fetcher stream offered it (lead / article /
+      // category) and `caption` is the source article's own words. Both exist so that a
+      // change to the sourcing strategy can be MEASURED after curation rather than
+      // argued about; neither is read at runtime.
+      ...(meta.rank ? { rank: meta.rank } : {}),
+      ...(meta.caption ? { caption: meta.caption } : {}),
       // CC BY and CC BY-SA both require that changes be indicated. We always change the
       // image, so the statement is always true and is recorded rather than remembered.
       modified: `cropped to square, resized to ${IMAGE.size}px, re-encoded JPEG q${IMAGE.quality}`,

@@ -146,6 +146,19 @@ non-Wikipedia sources are Commons.
 screen, which exists. The share-alike term reaches the cropped photographs, not the app's
 code (`content-pipeline.md` §11), so it does not constrain anything else.
 
+**GFDL is the one to watch, and it is not on that table because it does not announce
+itself.** A `chó` candidate came back `GFDL 1.2` while the licence filter and the
+attribution table treated it as just another free licence. It is the heaviest obligation
+the pipeline can pick up: the **full GNU Free Documentation Licence text must ship with
+the work**, and a 1.2-only file cannot be relicensed as CC BY-SA. The validator now warns
+on it by name and the attributions file calls it out separately.
+
+Harmless while this is a private family app. **Recommendation: do not filter it at fetch
+time** — the curator should still get to see the picture — but treat a GFDL image as a
+placeholder. If the owner publishes, replace those few pictures rather than ship a copy of
+the GFDL; and for most of them the honest replacement is a photograph the mother takes
+herself, which is better content anyway.
+
 ---
 
 ## C6 · A Pexels or Unsplash key — still the highest-value five minutes

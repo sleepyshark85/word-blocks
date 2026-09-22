@@ -169,8 +169,13 @@ export const EN_VOWELS = ['a', 'e', 'i', 'o', 'u'];
 /**
  * `literacy-en.md` §3.3 and §7 — tiles that can never start a word. Offering one where
  * the child might place it is the trap that document names.
+ *
+ * `gg` was missing from this list and nothing failed, because `packs/en-seed/pack.json`
+ * declares `position: "final"` for it and the engine trusts the pack. That is the worst
+ * shape a defect can take: correct today, silently wrong the first time a pack is built
+ * without that field. Found by the app-developer in Slice 2.
  */
-export const EN_FINAL_ONLY = ['ck', 'll', 'ss', 'ff', 'zz', 'ng', 'x'];
+export const EN_FINAL_ONLY = ['ck', 'll', 'ss', 'ff', 'zz', 'gg', 'ng', 'x'];
 /** §3.1 — `y` is /j/ and initial-only in v1. */
 export const EN_INITIAL_ONLY = ['y'];
 /** §3.1, §3.5 — no picturable CVC word; excluded from the v1 inventory. */

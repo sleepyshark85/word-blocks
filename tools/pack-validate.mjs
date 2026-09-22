@@ -203,6 +203,8 @@ const seenText = new Map();
 const referenced = new Set();
 let playable = 0;
 let photographed = 0;
+const keptByRank = new Map();
+const keptImages = new Map();
 let enabledCount = 0;
 const imagesMissing = [];
 
@@ -394,6 +396,14 @@ for (const { file, word } of wordsOk) {
     if (/\bnc\b|noncommercial|non-commercial/i.test(im.license ?? '')) {
       warn(rel, `${at} is licensed ${im.license}. Publishing to a store is still open (decisions.md "Still open" #5) and a NonCommercial term would have to be unpicked first.`);
     }
+    // GFDL is a heavier obligation than CC BY-SA and arrives looking like just another
+    // free licence on Commons. GFDL 1.2 *without* "or later" cannot be relicensed under
+    // CC BY-SA, and the licence requires the FULL licence text to travel with the work —
+    // which for an app means shipping the GFDL itself, not a line in a credits table.
+    // Harmless for a private family app; a real decision before publishing.
+    if (/\bGFDL\b|GNU Free Documentation/i.test(im.license ?? '')) {
+      warn(rel, `${at} is licensed ${im.license}. GFDL requires the full licence text to ship with the work, and 1.2-only cannot be relicensed as CC BY-SA. Fine privately; replace it before publishing (open-questions-content.md C5).`);
+    }
   });
 
   const wordAudio = word.audio?.word;
@@ -406,6 +416,7 @@ for (const { file, word } of wordsOk) {
   // Counted regardless of `enabled`: a disabled word with photographs is curated work,
   // and reporting it as 0 would hide exactly the progress this number exists to show.
   if (liveImages > 0) photographed += 1;
+  keptImages.set(word.id, images);
   if (enabled) {
     if (liveImages === 0 && word.fallbackEmoji) {
       // Playable, but on the FALLBACK. decisions.md made real photographs primary and
@@ -430,6 +441,69 @@ for (const g of Object.keys(tileById)) {
       if (takesRef(m.ref, m.at, 'pack.json')) any = true;
     }
     if (!any) warn(`tiles.${g}[${id}]`, 'no audio — the tile is silent when pressed. The round still works; the chant loses a step.');
+  }
+}
+
+/* --- yield ---------------------------------------------------------------------- */
+
+/**
+ * CURATION YIELD. How many candidates were offered against how many a human kept, split
+ * by which stream offered them.
+ *
+ * Without this the fetcher reports "8 candidates" whether they are eight tigers or seven
+ * engravings and a museum diorama of a mammoth, and a change to where the variety images
+ * come from can only be judged by looking at sheets and guessing. With it, the effect of
+ * a sourcing change is a number.
+ *
+ * The offered count lives on the word (`build.fetched`), written at curation time, and
+ * falls back to the candidate sheet. That ordering was learned the hard way: reading it
+ * only from `.candidates/` meant clearing the scratch between fetch runs silently erased
+ * the denominator for every word already curated.
+ */
+const fetchedByRank = new Map();
+let candidateWords = 0;
+const candDir = path.join(packDir, '.candidates');
+
+for (const { word } of wordsOk) {
+  const kept = keptImages.get(word.id) ?? [];
+  // ONLY COUNT WORDS A HUMAN HAS ACTUALLY REVIEWED. Curation runs for weeks, and
+  // counting a fetched-but-unreviewed word as "0 kept" would drag every percentage
+  // towards zero and make the table say more about how far the curator has got than
+  // about how good the source is. The first version did exactly that and reported the
+  // lead image at 16% when the curator's own count was four good leads out of four.
+  if (!kept.length) continue;
+
+  // The sheet, if the scratch directory still has it. Needed for the title-matching
+  // backfill below, and nothing else.
+  let sheet = null;
+  const f = path.join(candDir, word.id, 'candidates.json');
+  if (existsSync(f)) {
+    try { const j = JSON.parse(readFileSync(f, 'utf8')); if (Array.isArray(j)) sheet = j; } catch { sheet = null; }
+  }
+
+  // How many were OFFERED, by stream. `build.fetched` is written into the word at
+  // curation time and survives the scratch being cleared — which is what actually
+  // happens between fetch runs, and it took the denominator for five already-curated
+  // words with it. The sheet is only the fallback.
+  let offered = null;
+  if (word.build?.fetched) {
+    offered = Object.fromEntries(Object.entries(word.build.fetched).filter(([k]) => k !== 'at'));
+  } else if (sheet) {
+    offered = sheet.reduce((a, c) => { const r = c?.rank ?? 'unrecorded'; a[r] = (a[r] ?? 0) + 1; return a; }, {});
+  }
+  if (!offered) continue;
+
+  candidateWords += 1;
+  for (const [r, c] of Object.entries(offered)) fetchedByRank.set(r, (fetchedByRank.get(r) ?? 0) + c);
+
+  for (const im of kept) {
+    // Images imported before `rank` existed carry none. Match them back to the sheet by
+    // title, which is what the curator actually picked from.
+    let r = im?.rank ?? null;
+    if (!r && sheet && im?.title) {
+      r = sheet.find((c) => c?.title && (c.title === im.title || im.title.startsWith(c.title)))?.rank ?? null;
+    }
+    keptByRank.set(r ?? 'unrecorded', (keptByRank.get(r ?? 'unrecorded') ?? 0) + 1);
   }
 }
 
@@ -469,6 +543,7 @@ const summary = {
   imagesMissing: imagesMissing.length,
   orphanFiles: orphans.length,
   bytes: { json: jsonBytes, images: imgBytes, audio: audBytes, total: jsonBytes + imgBytes + audBytes },
+  yield: { fetched: Object.fromEntries(fetchedByRank), kept: Object.fromEntries(keptByRank) },
   errors: errors.length,
   warnings: warnings.length,
 };
@@ -481,6 +556,20 @@ if (asJson) {
   for (const w of warnings) console.log(`warn  ${w.where}: ${w.msg}`);
   for (const e of errors) console.log(`ERROR ${e.where}: ${e.msg}`);
   const kb = (n) => `${(n / 1024).toFixed(1)} KiB`;
+  if (fetchedByRank.size) {
+    const totalFetched = [...fetchedByRank.values()].reduce((a, b) => a + b, 0);
+    const totalKept = [...keptByRank.values()].reduce((a, b) => a + b, 0);
+    const pct = (k, f) => (f ? `${Math.round((100 * k) / f)}%` : '—');
+    console.log(`
+  curation yield across ${candidateWords} reviewed word(s) — offered by the fetcher vs kept by a human`);
+    for (const r of ['lead', 'article', 'category', 'unrecorded']) {
+      const f = fetchedByRank.get(r) ?? 0;
+      const k = keptByRank.get(r) ?? 0;
+      if (!f && !k) continue;
+      console.log(`    ${r.padEnd(11)} ${String(k).padStart(3)} kept / ${String(f).padStart(3)} offered   ${pct(k, f)}`);
+    }
+    console.log(`    ${'TOTAL'.padEnd(11)} ${String(totalKept).padStart(3)} kept / ${String(totalFetched).padStart(3)} offered   ${pct(totalKept, totalFetched)}`);
+  }
   console.log(`
 ${summary.pack}  [${summary.language}, schema ${summary.schema}]
   words       ${summary.words} (${summary.enabled} enabled, ${summary.playable} playable, ${summary.photographed} photographed${summary.drafts ? `, ${summary.drafts} draft` : ''}${summary.unreadable ? `, ${summary.unreadable} UNREADABLE` : ''})

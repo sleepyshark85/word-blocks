@@ -15,6 +15,7 @@ _No third-party photographs in this pack yet._
 | CC0 / Public domain | none |
 | CC BY | name the author, name the licence, link to it, say that the image was changed |
 | **CC BY-SA** | all of CC BY, **and the adapted image must itself be offered under the same licence** |
+| **GFDL** | attribution, **the full licence text must ship with the work**, and 1.2-only cannot be relicensed as CC BY-SA |
 
 _No share-alike photographs in this pack._
 

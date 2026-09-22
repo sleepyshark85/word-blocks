@@ -25,7 +25,7 @@ shown.
 | Media naming | **Content-addressed**: `media/img/<16 hex>.jpg` | A word can never see a file's bytes change under it |
 | Media reference | A **pack-relative path** under `media/` | One resolution path; a dropped-in file works too |
 | Images per word | **1 min, 3 target, 6 max**; `images[0]` is the prototype | Exemplar variety teaches the category; curation is the cost |
-| Which image is shown | `images[0]` first, then rotate by encounter count | Deterministic; no RNG; replayable by the tester |
+| Which image is shown | prompt always `images[0]`; reveal cycles `images[1..n-1]` | A *different* photo on the reveal is what makes several images load-bearing |
 | Missing image | fallback emoji → else **withhold the word** | The child meets a different word; he never sees a hole |
 | Missing word audio | **withhold the word** | The chant has no final step, and the final step is the payoff |
 | Missing tile audio | **silent tile**, round proceeds | Tile clips are shared; withholding would empty the game |
@@ -320,6 +320,15 @@ is unknown cannot be published.
     "creator": "Codename5281",
     "title": "Phở bò, Cầu Giấy, Hà Nội.jpg (vi.wikipedia.org lead image)",
 
+    "rank": "article",                         // which fetcher stream offered it:
+                                               // "lead" | "article" | "category".
+                                               // Provenance only — never read at runtime.
+                                               // The validator joins it against the
+                                               // candidate sheet to report yield per
+                                               // source, which is how a change to where
+                                               // pictures come from gets measured.
+    "caption": "Một giống chó lai",             // the source article's own words, if any
+
     "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
                                                // CC BY and CC BY-SA both require that
                                                // changes be indicated. We always change
@@ -514,10 +523,23 @@ was silent. It is now an error with a named case in the harness (`DANGLING IMAGE
 
 ### Choosing among several images
 
+**Corrected.** An earlier draft of this section had `images[0]` serve both the prompt and
+the resolution reveal. That was wrong, it contradicted `gameplay.md` §3.2 and ACs B9/F2,
+and the app-developer flagged the conflict in Slice 2 rather than reinterpreting it. The
+acceptance criteria are the contract and they are also right on the merits, so the formula
+below is theirs:
+
 ```
-images[0]                                     first encounter, and the resolution reveal
-images[encounterIndex % survivingImages]      thereafter
+prompt   images[0]                                     always — the prototype
+reveal   images[1 + (encounterIndex % (n - 1))]        n = surviving images, n > 1
+         images[0]                                     when n === 1
 ```
+
+**The reveal showing a *different* photograph is the entire point of storing several.**
+`image-sourcing.md`: one photo teaches *that cat*, several varied photos teach *cat*. If
+the reveal repeated the prompt, the extra images would be decoration and the owner's
+explicit "several per word" instruction would buy nothing. Prompt stable, reveal varying,
+is what turns the array into the pedagogy.
 
 `encounterIndex` is a per-word counter the engine already carries — `literacy-vi.md` §8.3
 wants per-word escalation anyway. **No RNG.** `development-process.md` §3 makes
@@ -525,16 +547,29 @@ determinism load-bearing: same seed plus same taps must produce the same rounds,
 randomly chosen picture would make a tester's replay diverge on the screen even when the
 state matched.
 
-Indexing the **surviving** list, not the stored one, is what stops a deleted file turning
-into an intermittent blank every third encounter.
+Both formulas index the **surviving** list, not the stored one — which is what stops a
+deleted file turning into an intermittent blank every third encounter. The engine resolves
+that list once at pack load through an injected `hasMedia(ref)`, which is how a pure module
+learns about a filesystem without importing one. **Every row of the degradation table
+above is now implemented in code**, so a wrong row is a wrong behaviour, not just a wrong
+sentence.
 
 **Why 3 and not 6.** `image-sourcing.md`: one photo teaches *that cat*, four varied photos
-teach *cat*. But the yields are ~77% for the lead image and ~30% for Commons members, so
-three acceptable photos costs roughly one lead plus seven category members reviewed by
-eye; six would cost seventeen. Curation is the binding constraint, not bytes
+teach *cat*. Measured yields are ~80% for the lead image and ~30% for Commons category
+members (§9.2), so under the old sourcing three acceptable photos cost roughly one lead
+plus seven category members reviewed by eye, and six would have cost seventeen. Sourcing
+the variety from the article body improves that, but a human still looks at every
+candidate. Curation is the binding constraint, not bytes
 (`word-list.md` §2). Three is where variety is achieved and a day's careful work still
 covers the seed list. `max: 6` exists because *her* photographs are free — she can add six
 pictures of their own cat and that is strictly better than anything downloaded.
+
+With the reveal formula above, three images means one prompt and **two** rotating reveals,
+so he meets the same word illustrated three different ways. **One image is the degenerate
+case**: prompt and reveal become the same picture and the mechanism does nothing. That is
+why `min` is 1 rather than 0 — a word with one photo still plays — but a word with one
+photo is a word that is only half curated, and the validator's `N photographed` count
+should be read with that in mind.
 
 ---
 
@@ -659,7 +694,9 @@ generators call out, on the owner's Linux machine.
 ```
    word-list.md ──► build-seed-pack.mjs ──► packs/<lang>-seed/   (words + tiles, no media)
                                                    │
-   Wikipedia / Commons ──► fetch-candidates.mjs ──► .candidates/<id>/ + SHEET-<id>.png
+   article images ──────► fetch-candidates.mjs ──► .candidates/<id>/ + SHEET-<id>.png
+   (+ lead, + category                                  captioned, ranked, de-duplicated
+    only if thin)
                                                    │
                                           A HUMAN LOOKS ◄── the step that cannot be automated
                                                    │
@@ -718,29 +755,92 @@ against known spellings.
 
 ### 9.2 Images
 
-`fetch-candidates.mjs` assembles; it never chooses. Wikipedia lead image first (~77%
-usable, human-curated), then Commons category members (~30%). `--lang vi` sources from
-`vi.wikipedia.org` — a Vietnamese child should see a Vietnamese bus.
+`fetch-candidates.mjs` assembles; it never chooses.
 
-Three things it does that the prototype did not:
+```
+1.  Wikipedia LEAD image        the prototype          measured 80% kept
+2.  The ARTICLE's own images    the variety            replaces the category
+3.  Commons category members    fallback only          measured 30% kept
+4.  The mother's own photograph strictly better than any of them
+```
 
-**Licence resolution for the lead image.** The REST `page/summary` endpoint returns the
-image URL and nothing about its terms, so the source chosen as primary was also the one
-source whose output could not be attributed. Caught by importing three curated `phở`
-photographs and having the validator reject the first one — one word into curation instead
-of ninety. The fix is one extra Commons `imageinfo` lookup per word. Verified: the phở
-lead image resolves to `CC BY-SA 3.0`, Codename5281, with a description URL.
+**The variety images come from the article body, not the Commons category.** This changed
+after the curator reviewed four words by eye and counted:
 
-**Perceptual de-duplication.** Fetching four `phở` candidates returned the lead image plus
-**three shots of the same stone pot** from slightly different angles. That is not four
-candidates, it is two. A 64-bit average hash drops anything within 6 bits of something
-already kept. Re-fetching with de-duplication gave six genuinely different pictures — of
-which a human still had to reject a bánh mì and two men at a table. Dropping a duplicate
-is the one judgement safe to automate: it never decides which picture is good, it only
-stops the same picture being offered twice.
+| Word | Concept | Usable, lead + category |
+|---|---|---|
+| hổ | tiger | 4 of 8 |
+| gà | chicken | 4 of 8 |
+| cá | fish | 2 of 8 |
+| chó | dog | **1 of 8** |
 
-**`nc` and `nd` excluded at fetch time.** `nd` because the pipeline crops and resizes;
-`nc` because publishing is still open.
+The lead image was good in all four. Everything under it came from the category, and the
+rejects were not near-misses: two 19th-century engravings and a sepia archival card
+reading "ALASKA TASK FORCE" for `cá`; a nine-breed collage, a police dog with a handler
+and an oil painting for `chó`; a **museum diorama of a mammoth** filed under tiger; and
+for `gà`, a panel of histology microscopy slides and a photograph of butchered carcasses.
+
+**A Commons category is an archive, not a selection.** It holds everything anyone ever
+filed under the concept, and relevance ranking does not apply to an archive. What makes
+the lead image good is that a person chose it to show a reader what the thing *is* — and
+the same editor chose the rest of the article's images for the same reason. So the article
+body is the variety source: `GET /api/rest_v1/page/media-list/<title>`, filtered to
+`type: "image"` and `showInGallery !== false`, in reading order.
+
+**The category is a fallback, not a top-up, and the distinction is the fix.** The first
+cut of this change still filled the sheet up to `--n` from the category once the article
+ran out — and the three it added for `chó` were the landscape, the police dog and the oil
+painting, while the two it added for `cá` were the two engravings the curator had already
+named. Topping up from an archive is how the archive's failure rate gets back in. The
+category is now consulted only when the article yields fewer than `--min-article`
+(default 5: a lead plus four to choose three from). **A short sheet of good candidates
+beats a full sheet padded with rejects.**
+
+Verified on the two worst words, from cache: `chó` went from 8 candidates (1 usable) to
+**5 candidates, 0 from the category**, of which the spaniel and the dog-by-a-doorway are
+plainly good; `cá` went to **6 candidates, 0 from the category**.
+
+**Captions.** The article supplies them, and they go under each tile on the contact sheet.
+"Vị trí của các răng cắt thịt của chó" identifies a dental diagram before the reviewer has
+to study the thumbnail. Two things had to be got right: the default ImageMagick font
+silently drops Vietnamese diacritics — "Vị trí của các" renders as "V  trí c a các" —
+so the sheet uses DejaVu Sans, checked by rendering it and looking; and the band is a
+separate `caption:` image appended below, because `-splice` plus `-annotate` put the text
+*on* the photograph (an annotate offset under `southwest` gravity positions a baseline,
+not a text block).
+
+**Other filters.** `isPhotoFile` keeps raster formats only — SVGs are diagrams, and `.ogg`
+files were arriving with a generic speaker-icon thumbnail and consuming a candidate slot.
+A minimum of 512 px on the shorter side, because anything smaller would be upscaled into
+the 512 px master and look soft on a phone where the picture fills most of the screen;
+this dropped 2 of `chó`'s article images and is reported. `nc` and `nd` are excluded at
+fetch time — `nd` because the pipeline crops, `nc` because publishing is still open.
+
+**Licence resolution.** The REST `page/summary` endpoint returns the lead image's URL and
+nothing about its terms, so the source chosen as primary was also the one source whose
+output could not be attributed. Caught by importing three curated `phở` photographs and
+having the validator reject the first — one word into curation instead of ninety. Licences
+for every candidate are now resolved in **one batched `imageinfo` call** (up to 50 titles),
+Commons first and the local wiki for anything Commons does not have.
+
+**Yield is reported, so a sourcing change can be measured instead of argued about.** The
+fetcher used to say "8 candidates" whether they were eight tigers or seven engravings and
+a mammoth. Each candidate now records which stream offered it (`rank`), the importer
+carries that onto the kept image, and `pack-validate.mjs` joins the two:
+
+```
+  curation yield across 5 reviewed word(s) — offered by the fetcher vs kept by a human
+    lead          4 kept /   5 offered   80%
+    category     10 kept /  33 offered   30%
+    TOTAL        14 kept /  38 offered   37%
+```
+
+Those are the real numbers from the curator's first five words, and they independently
+reproduce `image-sourcing.md`'s measurements (~77% lead, ~30% category) from a completely
+different direction. **Only reviewed words count** — a fetched-but-unreviewed word counted
+as "0 kept" would drag every percentage towards zero and make the table say more about how
+far the curator had got than about how good the source is. The first version did exactly
+that and reported the lead image at 16%.
 
 Normalisation: `-auto-orient`, square centre-crop, 512×512, `-strip`, progressive, 4:2:0,
 q82. Measured on nine true 1024 px originals: **mean 51,196 B, max 98,520 B**. On the
@@ -915,6 +1015,15 @@ CC BY requires: name the author, name the licence, link to it, and indicate that
 was changed. CC BY-SA requires all of that **and** that the adapted image itself be
 offered under the same licence.
 
+**GFDL does not announce itself, and it is heavier than both.** It arrives on Commons
+looking like any other free licence — a `chó` candidate came back `GFDL 1.2` and was being
+counted as ordinary share-alike. GFDL requires the **full licence text to ship with the
+work**, and a 1.2-only file cannot be relicensed as CC BY-SA. The validator now warns on
+it by name and `ATTRIBUTION.md` lists it separately. It is deliberately *not* filtered at
+fetch time, because the curator should still get to see the picture; it is a placeholder,
+and the honest replacement for most of them is a photograph the mother takes herself. See
+`open-questions-content.md` C5.
+
 The pipeline always crops and resizes, so every third-party image here is an adaptation
 and the "indicate changes" requirement always applies. Each entry records its own
 `modified` string rather than relying on anyone remembering.
@@ -963,7 +1072,7 @@ already says a parent's voice beats any synthesised voice for this child.
 | Tool | Does |
 |---|---|
 | `tools/build-seed-pack.mjs` | builds both seed packs from the literacy documents |
-| `tools/fetch-candidates.mjs` | assembles photo candidates + contact sheets; throttled, cached, resumable |
+| `tools/fetch-candidates.mjs` | assembles photo candidates + captioned contact sheets from the article body; throttled, cached, resumable |
 | `tools/pack-import-media.mjs` | one door for every picture and sound: `--pick`, `--image`, `--audio`, `--order` |
 | `tools/gen-audio.mjs` | generates every clip a pack needs; resumable; reuses approved clips |
 | `tools/tts.py` | one clip; measures what it wrote |
@@ -1025,6 +1134,10 @@ node tools/pack-attributions.mjs packs/vi-seed
 | Resume works | re-run: 0 network calls. Forced re-run: 7/7 cache hits, 1.4 s vs 25 s |
 | The lead-image licence gap is closed | phở lead resolves to CC BY-SA 3.0, Codename5281, with a source URL |
 | De-duplication works | 4 phở candidates → 3 identical; with de-dup, 6 distinct |
+| Article images beat the category | `chó`: 8 candidates (1 usable, curator's count) → 5 candidates, 0 from the category, 2 plainly good. `cá`: → 6, 0 from the category |
+| Captions render in Vietnamese | default font drops diacritics ("V  trí c a các"); DejaVu Sans renders correctly — checked by rendering and looking |
+| Yield reporting is right | lead 4/5 = 80%, category 10/33 = 30% on the curator's real first five words — independently reproduces `image-sourcing.md` |
+| Every final-only English tile is enforced | the test iterates `EN_FINAL_ONLY`; `gg` was missing from the constant and nothing failed, because the pack happened to be right |
 | Backup round-trips | 1,061,171 B export → restore → identical counts, validates clean |
 | A damaged backup is refused | truncated archive → refused, nothing changed |
 | mp3 write works without ffmpeg | libsndfile 1.2.2 read + re-encoded, 13,248 B |

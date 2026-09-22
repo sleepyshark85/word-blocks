@@ -85,7 +85,10 @@ if (asJson) {
   process.exit(0);
 }
 
+// CC BY-SA and GFDL are both copyleft; GFDL is the heavier of the two and arrives on
+// Commons looking like any other free licence.
 const shareAlike = list.filter((e) => /by-sa/i.test(e.license ?? ''));
+const gfdl = list.filter((e) => /\bGFDL\b|GNU Free Documentation/i.test(e.license ?? ''));
 
 const md = `# Attributions — ${manifest.name} (\`${manifest.id}\`)
 
@@ -112,8 +115,15 @@ indication, and each entry records its own \`modified\` string in the pack.`}
 | CC0 / Public domain | none |
 | CC BY | name the author, name the licence, link to it, say that the image was changed |
 | **CC BY-SA** | all of CC BY, **and the adapted image must itself be offered under the same licence** |
+| **GFDL** | attribution, **the full licence text must ship with the work**, and 1.2-only cannot be relicensed as CC BY-SA |
 
-${shareAlike.length ? `**${shareAlike.length} of the ${list.length} photographs here are share-alike.** Because the pipeline crops and
+${gfdl.length ? `**${gfdl.length} photograph(s) here are GFDL** (${gfdl.map((e) => e.words.join('/')).join(', ')}). That is the
+heaviest obligation in this pack: the full GNU Free Documentation Licence text would have
+to ship with the app, and a GFDL-1.2-only file cannot be relicensed as CC BY-SA. Harmless
+while this stays a private family app. Before publishing, the cheap answer is to replace
+those pictures — they are the mother's to retake anyway.
+
+` : ''}${shareAlike.length ? `**${shareAlike.length} of the ${list.length} photographs here are share-alike.** Because the pipeline crops and
 resizes, each of those cropped JPEGs is an adaptation and must itself be available under
 CC BY-SA. That obligation attaches to **the image files, not to the app**: the photographs
 are separate works collected alongside the code, not a derivative of it, so share-alike

@@ -78,6 +78,7 @@ const word = entry.word;
 /* -------------------------------------------------------------- pick from a sheet */
 
 const picked = [];
+let offered = null;
 if (pick !== null) {
   const dir = candDir ?? path.join(packDir, '.candidates', wordId);
   const meta = path.join(dir, 'candidates.json');
@@ -86,6 +87,15 @@ if (pick !== null) {
     process.exit(2);
   }
   const cands = JSON.parse(readFileSync(meta, 'utf8'));
+
+  // Record how many candidates were OFFERED, by stream, at the moment a human chose from
+  // them. The yield report used to read this back out of `.candidates/`, which is scratch
+  // — and scratch gets cleared between fetch runs, which took the denominator with it and
+  // made five curated words uncountable. Curation is the only moment both numbers are
+  // known, so it is the moment to write them down. Lives under `build`, so it is
+  // build-time data the runtime never sees (word-list.md §1).
+  offered = cands.reduce((a, c) => { const r = c?.rank ?? 'unrecorded'; a[r] = (a[r] ?? 0) + 1; return a; }, {});
+
   for (const raw of pick.split(',').map((s) => s.trim()).filter(Boolean)) {
     const idx = Number(raw);
     const c = cands.find((x) => x.idx === idx);
@@ -99,6 +109,12 @@ if (pick !== null) {
         licenseUrl: c.licenseUrl ?? null,
         creator: c.creator ?? null,
         title: c.title ?? null,
+        // Which stream of the fetcher offered this picture: lead / article / category.
+        // Carried so the validator can report YIELD PER SOURCE — how many of each kind
+        // were offered against how many a human kept. Without it, changing where the
+        // variety images come from can only be judged by looking at sheets and guessing.
+        rank: c.rank ?? null,
+        caption: c.caption ?? null,
       },
     });
   }
@@ -147,6 +163,10 @@ if (order !== null) {
   }
   word.images = idx.map((i) => word.images[i]);
   console.log(`reordered; images[0] (the prototype) is now ${word.images[0].src}`);
+}
+
+if (offered) {
+  word.build = { ...word.build, fetched: { ...offered, at: new Date().toISOString() } };
 }
 
 // The word file is written LAST and atomically. Every blob above is already durable and

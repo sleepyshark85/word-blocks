@@ -6,12 +6,23 @@ way, from the live pack, so pictures added on the phone appear there too.
 
 ## Photographs
 
-3 third-party photograph(s).
+14 third-party photograph(s).
 
 | Picture | Author | Licence | Source | Used for |
 |---|---|---|---|---|
+| 2021-07-10-vanino-dog-with-diverse-eyes-7182.jpg | I13Robin | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:2021-07-10-vanino-dog-with-diverse-eyes-7182.jpg) | chó |
+| 2023-04-03-Leghorn mit Ostereiern-4250.jpg | Superbass | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:2023-04-03-Leghorn_mit_Ostereiern-4250.jpg) | gà |
+| Arian chicken - مرغ آرین.jpg | Unknown authorUnknown author | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Arian_chicken_-_%D9%85%D8%B1%D8%BA_%D8%A2%D8%B1%DB%8C%D9%86.jpg) | gà |
+| Ashaz Company Welcome photo 123.jpg | Ashaz18209 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Ashaz_Company_Welcome_photo_123.jpg) | cá |
+| Ayam putih dan ayam coklat.jpg | Erlina Susanti (ina susan) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Ayam_putih_dan_ayam_coklat.jpg) | gà |
+| Contemplating a drink on a hot summer day by nagarjun.jpg | Kandukuru Nagarjun | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Contemplating_a_drink_on_a_hot_summer_day_by_nagarjun.jpg) | hổ |
+| Feline grace by nagarjun.jpg | Kandukuru Nagarjun | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Feline_grace_by_nagarjun.jpg) | hổ |
+| Georgia_Aquarium_-_Giant_Grouper_edit.jpg (vi.wikipedia.org lead image for "Cá") | Taken by Diliff Edited by Fir0002. | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5) | [link](https://commons.wikimedia.org/wiki/File:Georgia_Aquarium_-_Giant_Grouper_edit.jpg) | cá |
+| HML 8946 (final).jpg | Himel140 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:HML_8946_(final).jpg) | hổ |
 | Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (1).jpg | Phương Huy | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Khe_Sanh_th%E1%BB%8B_tr%E1%BA%A5n,_th5n2023_(b%E1%BB%AFa_s%C3%A1ng,_t%C3%B4_ph%E1%BB%9F_b%C3%B2_t%C3%A1i)_(1).jpg) | phở |
 | Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (2).jpg | Phương Huy | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Khe_Sanh_th%E1%BB%8B_tr%E1%BA%A5n,_th5n2023_(b%E1%BB%AFa_s%C3%A1ng,_t%C3%B4_ph%E1%BB%9F_b%C3%B2_t%C3%A1i)_(2).jpg) | phở |
+| Male_and_female_chicken_sitting_together.jpg (vi.wikipedia.org lead image for "Gà") | Andrei Niemimäki from Turku, Finland | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Male_and_female_chicken_sitting_together.jpg) | gà |
+| Panthera_tigris_altaica_in_Lodz_Zoo_2.jpg (vi.wikipedia.org lead image for "Hổ") | Chrumps | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Panthera_tigris_altaica_in_Lodz_Zoo_2.jpg) | hổ |
 | Phở bò, Cầu Giấy, Hà Nội.jpg (vi.wikipedia.org lead image) | Codename5281 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Ph%E1%BB%9F_b%C3%B2,_C%E1%BA%A7u_Gi%E1%BA%A5y,_H%C3%A0_N%E1%BB%99i.jpg) | phở |
 
 All photographs above were **cropped to square, resized to 512 px and re-encoded as JPEG**.
@@ -25,8 +36,9 @@ indication, and each entry records its own `modified` string in the pack.
 | CC0 / Public domain | none |
 | CC BY | name the author, name the licence, link to it, say that the image was changed |
 | **CC BY-SA** | all of CC BY, **and the adapted image must itself be offered under the same licence** |
+| **GFDL** | attribution, **the full licence text must ship with the work**, and 1.2-only cannot be relicensed as CC BY-SA |
 
-**3 of the 3 photographs here are share-alike.** Because the pipeline crops and
+**9 of the 14 photographs here are share-alike.** Because the pipeline crops and
 resizes, each of those cropped JPEGs is an adaptation and must itself be available under
 CC BY-SA. That obligation attaches to **the image files, not to the app**: the photographs
 are separate works collected alongside the code, not a derivative of it, so share-alike

@@ -24,6 +24,27 @@
 //   - Wikipedia lead images are Anglo-centric ("bus" gives a London double-decker), so
 //     `--lang vi` sources from vi.wikipedia.org. A Vietnamese child should see a
 //     Vietnamese bus.
+//
+// THE VARIETY IMAGES COME FROM THE ARTICLE, NOT THE CATEGORY. This changed after four
+// words were curated by eye and counted:
+//
+//     hổ  4/8      gà  4/8      cá  2/8      chó  1/8
+//
+// The lead image was good every time; everything under it came from the Commons category
+// and the rejects were not near-misses. `cá` returned two 19th-century engravings and a
+// sepia archival card reading "ALASKA TASK FORCE". `hổ` returned a museum diorama OF A
+// MAMMOTH. `gà` returned a panel of histology microscopy slides and a photograph of
+// butchered carcasses.
+//
+// **A Commons category is an archive, not a selection.** It holds everything anyone ever
+// filed under the concept. What makes the lead image good is that a person chose it to
+// show a reader what the thing is — and that same person chose the rest of the article's
+// images for the same reason. So the article body is the variety source, and the category
+// is only a fallback when the article is too thin.
+//
+// The article also supplies CAPTIONS, which the contact sheet prints under each picture.
+// "Vị trí của các răng cắt thịt của chó" identifies a dental diagram before the reviewer
+// has to squint at it.
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -38,6 +59,15 @@ let lang = 'en';
 let packDir = null;
 let gapMs = 1200;
 let force = false;
+// An image narrower than the 512 px master would be upscaled and look soft on a phone,
+// where the picture fills most of the screen. Rejecting it is a mechanical quality test,
+// not a judgement about what it shows.
+let minPx = 512;
+let useCategory = true;
+// Below this many article pictures (including the lead), fall back to the Commons
+// category. Above it, do not touch the category at all. 5 = a lead plus four to choose
+// three from.
+let minArticle = 5;
 const words = [];
 for (let i = 0; i < argv.length; i += 1) {
   const a = argv[i];
@@ -48,6 +78,9 @@ for (let i = 0; i < argv.length; i += 1) {
   else if (a === '--gap') gapMs = Number(argv[++i]);
   else if (a === '--force') force = true;
   else if (a === '--resume') force = false; // the default; accepted so the intent can be written down
+  else if (a === '--min-px') minPx = Number(argv[++i]);
+  else if (a === '--no-category') useCategory = false;
+  else if (a === '--min-article') minArticle = Number(argv[++i]);
   else if (a.startsWith('-')) { console.error(`unknown option ${a}`); process.exit(2); }
   else words.push(a);
 }
@@ -89,18 +122,6 @@ function toTitle(concept) {
 }
 
 /**
- * The file name inside an upload.wikimedia.org URL.
- *   .../commons/a/ab/Pho.jpg            -> Pho.jpg
- *   .../commons/thumb/a/ab/Pho.jpg/800px-Pho.jpg -> Pho.jpg
- */
-function fileNameFromUpload(url) {
-  const segs = new URL(url).pathname.split('/').filter(Boolean);
-  const i = segs.indexOf('thumb');
-  const name = i >= 0 ? segs[segs.length - 2] : segs[segs.length - 1];
-  try { return decodeURIComponent(name); } catch { return name; }
-}
-
-/**
  * THE LEAD IMAGE ARRIVES WITHOUT A LICENCE, and that was nearly a hole in the whole
  * pipeline. The REST `page/summary` endpoint returns the image URL and nothing about its
  * terms — so the source measured at ~77% usable, the one `image-sourcing.md` chose as
@@ -109,51 +130,100 @@ function fileNameFromUpload(url) {
  * this, which is the check doing its job before ninety words had been curated instead of
  * one.
  *
- * The fix is one extra request per word: look the file up on Commons by name and read
- * its `extmetadata`. Files hosted locally on a wiki rather than on Commons fall back to
- * that wiki. If both come back empty the candidate is still offered — the curator can
- * still look at it — but it carries `license: null`, and the validator will refuse to
- * let it ship. Unattributable is not the same as unusable; it is the same as unshippable.
+ * Licences are now resolved for every candidate in ONE batched `imageinfo` call
+ * (`batchImageInfo`), Commons first and the local wiki for anything Commons does not
+ * have. A file whose terms cannot be found is still offered — the curator can still look
+ * at it — but it carries `license: null` and the validator will refuse to let it ship.
+ * Unattributable is not the same as unusable; it is the same as unshippable.
  */
-async function fileLicence(fileUrl) {
-  const name = fileNameFromUpload(fileUrl);
-  for (const host of ['commons.wikimedia.org', WIKI]) {
-    const p = new URLSearchParams({
-      action: 'query', titles: `File:${name}`, prop: 'imageinfo',
-      iiprop: 'extmetadata|url', format: 'json', origin: '*',
-    });
-    let data;
-    try { ({ data } = await http.json(`https://${host}/w/api.php?${p}`)); } catch { continue; }
-    const page = Object.values(data?.query?.pages ?? {})[0];
-    if (!page || page.missing !== undefined) continue;
-    const em = page.imageinfo?.[0]?.extmetadata ?? {};
-    const lic = strip(em.LicenseShortName?.value);
-    if (!lic && !em.Artist?.value) continue;
-    return {
-      license: lic || null,
-      licenseUrl: strip(em.LicenseUrl?.value) || null,
-      creator: strip(em.Artist?.value).slice(0, 80) || null,
-      page: page.imageinfo?.[0]?.descriptionurl ?? `https://${host}/wiki/File:${encodeURIComponent(name)}`,
-      fileTitle: name,
-    };
-  }
-  return null;
+
+/** The file name inside an upload.wikimedia.org URL. */
+function fileNameFromUpload(url) {
+  const segs = new URL(url).pathname.split('/').filter(Boolean);
+  const i = segs.indexOf('thumb');
+  const name = i >= 0 ? segs[segs.length - 2] : segs[segs.length - 1];
+  try { return decodeURIComponent(name); } catch { return name; }
 }
 
-async function leadImage(title) {
+/** `Tập_tin:Foo.jpg` / `File:Foo.jpg` / `Foo.jpg` -> `Foo.jpg`. */
+function bareFileName(title) {
+  const t = (title ?? '').replace(/_/g, ' ').trim();
+  const c = t.indexOf(':');
+  return (c >= 0 ? t.slice(c + 1) : t).trim();
+}
+
+/**
+ * THE VARIETY SOURCE. The images the vi.wikipedia article actually uses, in the order a
+ * reader meets them, with their captions.
+ *
+ * This is the whole point of the change. A Commons category is everything anyone filed;
+ * an article's images are what an editor chose to show a reader what the thing is. That
+ * is the same property that makes the lead image good (~77% usable) applied to the rest
+ * of the page, and it is measurably better than the category (1/8 for `chó`).
+ *
+ * `showInGallery: false` drops the icons, maps and audio players that MediaWiki counts as
+ * page media but no reader thinks of as a picture of the thing.
+ */
+async function articleMedia(title) {
+  const { data } = await http.json(`https://${WIKI}/api/rest_v1/page/media-list/${encodeURIComponent(title)}`);
+  const items = data?.items ?? [];
+  const out = [];
+  for (const it of items) {
+    if (it.type !== 'image') continue;          // excludes video and audio outright
+    if (it.showInGallery === false) continue;   // icons, flags, edit chrome
+    const name = bareFileName(it.title);
+    if (!name || !isPhotoFile(name)) continue;  // SVG diagrams, PDFs
+    out.push({ name, caption: strip(it.caption?.text ?? '') || null });
+  }
+  return out;
+}
+
+/**
+ * Resolve URL, dimensions and licence for many files in ONE request. MediaWiki accepts
+ * up to 50 titles per query, which makes a whole article's images one round trip instead
+ * of one each — the difference between a polite run and a throttled one.
+ */
+async function batchImageInfo(names) {
+  const found = new Map();
+  let todo = [...new Set(names)];
+  for (const host of ['commons.wikimedia.org', WIKI]) {
+    if (!todo.length) break;
+    for (let i = 0; i < todo.length; i += 50) {
+      const chunk = todo.slice(i, i + 50);
+      const p = new URLSearchParams({
+        action: 'query', titles: chunk.map((f) => `File:${f}`).join('|'),
+        prop: 'imageinfo', iiprop: 'url|extmetadata|size', iiurlwidth: '1024',
+        format: 'json', origin: '*',
+      });
+      let data;
+      try { ({ data } = await http.json(`https://${host}/w/api.php?${p}`)); } catch { continue; }
+      for (const pg of Object.values(data?.query?.pages ?? {})) {
+        if (pg.missing !== undefined) continue;
+        const ii = pg.imageinfo?.[0];
+        if (!ii?.thumburl) continue;
+        const em = ii.extmetadata ?? {};
+        found.set(bareFileName(pg.title), {
+          url: ii.thumburl,
+          width: ii.width ?? 0,
+          height: ii.height ?? 0,
+          license: strip(em.LicenseShortName?.value) || null,
+          licenseUrl: strip(em.LicenseUrl?.value) || null,
+          creator: strip(em.Artist?.value).slice(0, 80) || null,
+          page: ii.descriptionurl ?? `https://${host}/wiki/File:${encodeURIComponent(pg.title.replace(/^[^:]*:/, ''))}`,
+        });
+      }
+    }
+    todo = todo.filter((f) => !found.has(f));
+  }
+  return found;
+}
+
+/** The article's lead image, as a bare file name. */
+async function leadFileName(title) {
   const { data } = await http.json(`https://${WIKI}/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
   if (!data || data.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') return null;
   const url = data.originalimage?.source ?? data.thumbnail?.source ?? null;
-  if (!url) return null;
-  const lic = await fileLicence(url);
-  return {
-    url,
-    title: lic?.fileTitle ? `${lic.fileTitle} (${WIKI} lead image for "${data.title}")` : `${data.title} (${WIKI} lead image)`,
-    page: lic?.page ?? data.content_urls?.desktop?.page ?? null,
-    license: lic?.license ?? null,
-    licenseUrl: lic?.licenseUrl ?? null,
-    creator: lic?.creator ?? null,
-  };
+  return url ? bareFileName(fileNameFromUpload(url)) : null;
 }
 
 /**
@@ -250,20 +320,56 @@ function licenceAcceptable(short) {
   return !/\bnc\b|noncommercial|non-commercial|\bnd\b|noderiv/.test(s);
 }
 
+/**
+ * DejaVu Sans, because the default ImageMagick font silently drops Vietnamese
+ * diacritics — "Vị trí của các răng cắt thịt" renders as "V  trí c a các r ng c t th t",
+ * which is worse than no caption at all. Checked by rendering it and looking.
+ */
+const SHEET_FONT = existsSync('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')
+  ? '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf' : null;
+
+/**
+ * A numbered contact sheet: index, source rank, and the article's own caption under each
+ * picture. The caption is the cheapest curation aid there is — the reviewer rejects a
+ * dental diagram by reading three words instead of studying a thumbnail, and the first
+ * sheet built this way had "Vị trí của các răng cắt thịt của chó" sitting under exactly
+ * that diagram.
+ *
+ * The caption band is rendered as its own image and appended, rather than spliced and
+ * annotated. The first attempt used `-splice` plus `-annotate` and the text landed ON the
+ * photograph, because an annotate offset under `southwest` gravity positions a baseline
+ * and not a text block. `caption:` wraps to a given width and clips to a given height,
+ * which is the behaviour actually wanted.
+ */
+function labelTile(dir, m, i) {
+  const o = path.join(dir, `_lab${i}.png`);
+  const top = path.join(dir, `_top${i}.png`);
+  const cap = path.join(dir, `_cap${i}.png`);
+  const head = `${i}  [${m.rank}]`;
+
+  const headArgs = [path.join(dir, m.file), '-resize', '256x256',
+    '-background', 'white', '-splice', '0x26', '-gravity', 'northwest'];
+  if (SHEET_FONT) headArgs.push('-font', SHEET_FONT);
+  headArgs.push('-pointsize', '20', '-fill', 'black', '-annotate', '+6+2', head, top);
+  execFileSync('magick', headArgs, { stdio: 'pipe' });
+
+  const capArgs = ['-background', '#f2f2f2', '-fill', '#333333',
+    '-size', '250x40', '-gravity', 'northwest'];
+  if (SHEET_FONT) capArgs.push('-font', SHEET_FONT);
+  capArgs.push('-pointsize', '13', `caption:${m.caption ?? ''}`,
+    '-bordercolor', '#f2f2f2', '-border', '3x2', cap);
+  execFileSync('magick', capArgs, { stdio: 'pipe' });
+
+  execFileSync('magick', [top, cap, '-background', 'white', '-append', o], { stdio: 'pipe' });
+  return o;
+}
+
 function contactSheet(dir, meta, label) {
   if (!meta.length) return null;
-  const labelled = meta.map((m, i) => {
-    const o = path.join(dir, `_lab${i}.png`);
-    execFileSync('magick', [
-      path.join(dir, m.file), '-resize', '256x256',
-      '-background', 'white', '-splice', '0x28', '-gravity', 'northwest',
-      '-pointsize', '22', '-fill', 'black', '-annotate', '+6+2', String(i), o,
-    ], { stdio: 'pipe' });
-    return o;
-  });
+  const labelled = meta.map((m, i) => labelTile(dir, m, i));
   const sheet = path.join(out, `SHEET-${label}.png`);
   execFileSync('magick', ['montage', '-background', 'white', '-tile', '5x',
-    '-geometry', '256x284+4+4', ...labelled, sheet], { stdio: 'pipe' });
+    '-geometry', '256x326+4+4', ...labelled, sheet], { stdio: 'pipe' });
   return sheet;
 }
 
@@ -282,29 +388,77 @@ for (const unit of units) {
   }
 
   let picks = [];
+  let skippedNonPhoto = 0;
+  let skippedSmall = 0;
+  let skippedLicence = 0;
   try {
-    const lead = await leadImage(title);
-    if (lead) picks.push({ url: lead.url, title: lead.title, license: lead.license, licenseUrl: lead.licenseUrl, creator: lead.creator, page: lead.page, rank: 'lead' });
+    // 1. The lead image — a person chose it to be the single most representative
+    //    picture of the concept. ~77% usable, measured, and good in all four words the
+    //    curator has reviewed by eye.
+    const leadName = await leadFileName(title);
 
-    const cat = await commonsCategory(title);
-    let skippedNonPhoto = 0;
-    if (cat) {
-      for (const pg of await categoryFiles(cat, n * 3)) {
-        const ii = pg.imageinfo?.[0];
-        if (!ii?.thumburl) continue;
-        if (!isPhotoFile(pg.title)) { skippedNonPhoto += 1; continue; }
-        const em = ii.extmetadata ?? {};
-        const lic = strip(em.LicenseShortName?.value);
-        if (!licenceAcceptable(lic)) continue;
-        picks.push({
-          url: ii.thumburl,
-          title: pg.title.replace(/^File:/, ''),
-          license: lic || null,
-          licenseUrl: strip(em.LicenseUrl?.value) || null,
-          creator: strip(em.Artist?.value).slice(0, 80) || null,
-          page: ii.descriptionurl ?? null,
-          rank: 'category',
-        });
+    // 2. The rest of the article, in reading order. Same property as the lead, applied
+    //    to the whole page: an editor chose each one to show a reader what the thing is.
+    const media = await articleMedia(title);
+
+    const names = [];
+    const captions = new Map();
+    if (leadName) names.push(leadName);
+    for (const m of media) {
+      if (!names.includes(m.name)) names.push(m.name);
+      if (m.caption && !captions.has(m.name)) captions.set(m.name, m.caption);
+    }
+
+    // One batched request for every file's URL, size and licence.
+    const info = await batchImageInfo(names);
+    for (const name of names) {
+      const i = info.get(name);
+      if (!i) continue;
+      if (!licenceAcceptable(i.license)) { skippedLicence += 1; continue; }
+      if (Math.min(i.width, i.height) < minPx) { skippedSmall += 1; continue; }
+      picks.push({
+        url: i.url, title: name, caption: captions.get(name) ?? null,
+        license: i.license, licenseUrl: i.licenseUrl, creator: i.creator, page: i.page,
+        width: i.width, height: i.height,
+        rank: name === leadName ? 'lead' : 'article',
+      });
+    }
+
+    // 3. The Commons category — a FALLBACK, not a top-up, and the distinction is the
+    //    whole fix. The first version of this change still filled the sheet up to `--n`
+    //    from the category once the article ran out, and the three category images it
+    //    added for `chó` were a distant landscape, a police dog with a handler and an oil
+    //    painting; the two it added for `cá` were the two 19th-century engravings the
+    //    curator had already named. Topping up with an archive is how the archive's
+    //    failure rate gets back in.
+    //
+    //    So the category is consulted only when the article is genuinely thin — fewer
+    //    than `minArticle` pictures, i.e. not enough for a curator to choose three from.
+    //    A short sheet of good candidates beats a full sheet padded with rejects.
+    if (useCategory && picks.length < minArticle) {
+      const cat = await commonsCategory(title);
+      if (cat) {
+        const have = new Set(picks.map((p) => p.title));
+        for (const pg of await categoryFiles(cat, n * 3)) {
+          const ii = pg.imageinfo?.[0];
+          if (!ii?.thumburl) continue;
+          if (!isPhotoFile(pg.title)) { skippedNonPhoto += 1; continue; }
+          const name = bareFileName(pg.title);
+          if (have.has(name)) continue;
+          const em = ii.extmetadata ?? {};
+          const lic = strip(em.LicenseShortName?.value);
+          if (!licenceAcceptable(lic)) { skippedLicence += 1; continue; }
+          if (Math.min(ii.width ?? 0, ii.height ?? 0) < minPx) { skippedSmall += 1; continue; }
+          picks.push({
+            url: ii.thumburl, title: name, caption: null,
+            license: lic || null,
+            licenseUrl: strip(em.LicenseUrl?.value) || null,
+            creator: strip(em.Artist?.value).slice(0, 80) || null,
+            page: ii.descriptionurl ?? null,
+            width: ii.width ?? 0, height: ii.height ?? 0,
+            rank: 'category',
+          });
+        }
       }
     }
   } catch (e) {
@@ -331,7 +485,8 @@ for (const unit of units) {
       const h = aHash(path.join(dir, jpg));
       if (h && hashes.some((prev) => hamming(prev, h) <= DUP_BITS)) { dupes += 1; continue; }
       if (h) hashes.push(h);
-      meta.push({ idx: kept, file: jpg, raw: path.basename(raw), source: WIKI.includes('wikipedia') && p.rank === 'lead' ? WIKI : 'commons.wikimedia.org', ...p });
+      meta.push({ idx: kept, file: jpg, raw: path.basename(raw),
+        source: p.rank === 'category' ? 'commons.wikimedia.org' : WIKI, ...p });
       kept += 1;
     } catch (e) {
       failed = true;
@@ -345,7 +500,17 @@ for (const unit of units) {
   if (failed && !kept) { state.set(unit.id, 'deferred', 'download failed'); continue; }
   state.set(unit.id, kept ? 'done' : 'empty', `${kept} candidates for "${title}"`);
   done += 1;
-  console.log(`${unit.id} "${title}": ${kept} candidate(s)${sheet ? ` -> ${sheet}` : ' — NOTHING FOUND, needs a human-supplied title or a photograph'}${dupes ? ` (${dupes} near-duplicate(s) dropped)` : ''}`);
+  const byRank = meta.reduce((a, m) => { a[m.rank] = (a[m.rank] ?? 0) + 1; return a; }, {});
+  const dropped = [
+    dupes ? `${dupes} duplicate` : null,
+    skippedSmall ? `${skippedSmall} under ${minPx}px` : null,
+    skippedNonPhoto ? `${skippedNonPhoto} not a photo` : null,
+    skippedLicence ? `${skippedLicence} nc/nd` : null,
+  ].filter(Boolean).join(', ');
+  console.log(`${unit.id} "${title}": ${kept} candidate(s) [${Object.entries(byRank).map(([r, c]) => `${c} ${r}`).join(', ') || 'none'}]`
+    + `${dropped ? ` — dropped ${dropped}` : ''}`
+    + `${sheet ? '' : ' — NOTHING FOUND, needs a human-supplied title or a photograph'}`);
+  for (const m of meta) if (m.caption) console.log(`    ${m.idx}  ${m.caption}`);
 }
 
 console.log(`\n${done} fetched, ${skipped} already done (re-run to resume; --force to redo).`);

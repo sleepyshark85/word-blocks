@@ -18,6 +18,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import * as R from './lib/rules.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const VALIDATE = path.join(ROOT, 'tools', 'pack-validate.mjs');
@@ -395,6 +396,22 @@ describe('English orthography (literacy-en.md)', () => {
     const d = copy(SRC_EN, 'enpos');
     breakManifest(d, (m) => { m.tiles.letter.find((t) => t.id === 'ck').position = 'any'; return m; });
     rejects(d, /must be position "final"/);
+  });
+
+  test('§3.3 EVERY final-only tile is rejected word-initially, `gg` included', () => {
+    // `gg` was missing from EN_FINAL_ONLY and nothing failed, because the pack happened
+    // to declare it correctly. Iterating the constant is what stops the next omission
+    // being invisible too.
+    for (const id of R.EN_FINAL_ONLY) {
+      const d = copy(SRC_EN, `enfinal-${id}`);
+      breakManifest(d, (m) => {
+        const t = m.tiles.letter.find((x) => x.id === id);
+        assert.ok(t, `${id} should be a tile in the English pack`);
+        t.position = 'any';
+        return m;
+      });
+      rejects(d, /must be position "final"/);
+    }
   });
 });
 
