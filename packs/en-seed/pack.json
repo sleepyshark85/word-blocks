@@ -14,7 +14,7 @@
     ],
     "audio": {
       "engine": "edge-tts:en-US-JennyNeural@-35%",
-      "generatedAt": "2026-09-22T17:22:34.357Z"
+      "generatedAt": "2026-09-22T17:52:41.019Z"
     }
   },
   "media": {
@@ -839,140 +839,350 @@
         "glyph": "sh",
         "kind": "digraph",
         "position": "any",
-        "sound": null,
-        "anchor": null,
+        "sound": "shh",
+        "anchor": "ship",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/e289aa87f9e8abdd.mp3",
+            "bytes": 17712,
+            "ms": 2952,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "shh, ship",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:24.052Z"
+          },
+          "short": {
+            "src": "media/aud/448f646b62c990ca.mp3",
+            "bytes": 11952,
+            "ms": 1992,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "shh",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:25.102Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "ship, fish"
+        "keyWord": "ship, fish",
+        "anchorInSeedList": true,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "ch",
         "glyph": "ch",
         "kind": "digraph",
         "position": "any",
-        "sound": null,
-        "anchor": null,
+        "sound": "chuh",
+        "anchor": "chick",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/325cb6963ab26c24.mp3",
+            "bytes": 17712,
+            "ms": 2952,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "chuh, chick",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:26.165Z"
+          },
+          "short": {
+            "src": "media/aud/0bd7f4f739e6a492.mp3",
+            "bytes": 12384,
+            "ms": 2064,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "chuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:27.255Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "chin, chick"
+        "keyWord": "chin, chick",
+        "anchorInSeedList": false,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "th",
         "glyph": "th",
         "kind": "digraph",
         "position": "any",
-        "sound": null,
-        "anchor": null,
+        "sound": "thuh",
+        "anchor": "thumb",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/c3788abf1fc04636.mp3",
+            "bytes": 17280,
+            "ms": 2880,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "thuh, thumb",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:28.175Z"
+          },
+          "short": {
+            "src": "media/aud/b58880ae79e61209.mp3",
+            "bytes": 11376,
+            "ms": 1896,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "thuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:28.990Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bath, this"
+        "keyWord": "bath, this",
+        "anchorInSeedList": false,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "ck",
         "glyph": "ck",
         "kind": "digraph",
         "position": "final",
-        "sound": null,
-        "anchor": null,
+        "sound": "kuh",
+        "anchor": "duck",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/f44a21e1ea0070cd.mp3",
+            "bytes": 18720,
+            "ms": 3120,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kuh, duck",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:29.855Z"
+          },
+          "short": {
+            "src": "media/aud/b912ff4f775101cc.mp3",
+            "bytes": 13104,
+            "ms": 2184,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:30.662Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "duck, sock"
+        "keyWord": "duck, sock",
+        "anchorInSeedList": true,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "ng",
         "glyph": "ng",
         "kind": "digraph",
         "position": "final",
-        "sound": null,
-        "anchor": null,
+        "sound": "ung",
+        "anchor": "ring",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/25b0c3aaeb315964.mp3",
+            "bytes": 16704,
+            "ms": 2784,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ung, ring",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:31.574Z"
+          },
+          "short": {
+            "src": "media/aud/d91b67e8fda76064.mp3",
+            "bytes": 12672,
+            "ms": 2112,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ung",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:32.466Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "ring, king"
+        "keyWord": "ring, king",
+        "anchorInSeedList": false,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "ll",
         "glyph": "ll",
         "kind": "digraph",
         "position": "final",
-        "sound": null,
-        "anchor": null,
+        "sound": "lll",
+        "anchor": "bell",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/bd759acd25efd0cc.mp3",
+            "bytes": 19728,
+            "ms": 3288,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "lll, bell",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:33.457Z"
+          },
+          "short": {
+            "src": "media/aud/46ed323a54fbc1d7.mp3",
+            "bytes": 14976,
+            "ms": 2496,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "lll",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:34.345Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg"
+        "keyWord": "bell, egg",
+        "anchorInSeedList": false,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "ss",
         "glyph": "ss",
         "kind": "digraph",
         "position": "final",
-        "sound": null,
-        "anchor": null,
+        "sound": "sss",
+        "anchor": "grass",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/8cd85da9be12e026.mp3",
+            "bytes": 21888,
+            "ms": 3648,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "sss, grass",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:35.186Z"
+          },
+          "short": {
+            "src": "media/aud/1fd2426fc534365e.mp3",
+            "bytes": 16992,
+            "ms": 2832,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "sss",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:35.966Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg"
+        "keyWord": "bell, egg",
+        "anchorInSeedList": false,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "ff",
         "glyph": "ff",
         "kind": "digraph",
         "position": "final",
-        "sound": null,
-        "anchor": null,
+        "sound": "fff",
+        "anchor": "cliff",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/0efdf46326f42a6f.mp3",
+            "bytes": 21456,
+            "ms": 3576,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "fff, cliff",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:36.848Z"
+          },
+          "short": {
+            "src": "media/aud/1cee5e8d82d60219.mp3",
+            "bytes": 16128,
+            "ms": 2688,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "fff",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:37.676Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg"
+        "keyWord": "bell, egg",
+        "anchorInSeedList": false,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "zz",
         "glyph": "zz",
         "kind": "digraph",
         "position": "final",
-        "sound": null,
-        "anchor": null,
+        "sound": "zzz",
+        "anchor": "buzz",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/cbfdd071c5411072.mp3",
+            "bytes": 22608,
+            "ms": 3768,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "zzz, buzz",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:38.474Z"
+          },
+          "short": {
+            "src": "media/aud/c3717f9e8fdc24ec.mp3",
+            "bytes": 16704,
+            "ms": 2784,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "zzz",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:39.381Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg"
+        "keyWord": "bell, egg",
+        "anchorInSeedList": false,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       },
       {
         "id": "gg",
         "glyph": "gg",
         "kind": "digraph",
         "position": "final",
-        "sound": null,
-        "anchor": null,
+        "sound": "guh",
+        "anchor": "egg",
         "audio": {
-          "long": null,
-          "short": null
+          "long": {
+            "src": "media/aud/d41a74dd00da3c65.mp3",
+            "bytes": 20304,
+            "ms": 3384,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "guh, egg",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:40.217Z"
+          },
+          "short": {
+            "src": "media/aud/46db8f15daef1917.mp3",
+            "bytes": 16704,
+            "ms": 2784,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "guh",
+            "by": null,
+            "addedAt": "2026-09-22T17:52:41.018Z"
+          }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg"
+        "keyWord": "bell, egg",
+        "anchorInSeedList": true,
+        "needsLiteracyReview": true,
+        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
       }
     ]
   }

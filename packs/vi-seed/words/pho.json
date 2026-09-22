@@ -12,7 +12,50 @@
     }
   ],
   "fallbackEmoji": null,
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/cc8b6704d613c6ae.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 34437,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://vi.wikipedia.org/wiki/Ph%E1%BB%9F",
+      "license": null,
+      "licenseUrl": null,
+      "creator": null,
+      "title": "Phở (vi.wikipedia.org lead image)",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T17:52:54.814Z"
+    },
+    {
+      "src": "media/img/76ecf04f13289eae.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 58431,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Khe_Sanh_th%E1%BB%8B_tr%E1%BA%A5n,_th5n2023_(b%E1%BB%AFa_s%C3%A1ng,_t%C3%B4_ph%E1%BB%9F_b%C3%B2_t%C3%A1i)_(1).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Phương Huy",
+      "title": "Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (1).jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T17:52:54.933Z"
+    },
+    {
+      "src": "media/img/1ac735e3329c530a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 65638,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Khe_Sanh_th%E1%BB%8B_tr%E1%BA%A5n,_th5n2023_(b%E1%BB%AFa_s%C3%A1ng,_t%C3%B4_ph%E1%BB%9F_b%C3%B2_t%C3%A1i)_(2).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Phương Huy",
+      "title": "Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (2).jpg",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T17:52:55.036Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/0777da50992cc17e.mp3",

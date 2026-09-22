@@ -449,6 +449,106 @@
       "status": "done",
       "detail": "media/aud/5e0541de18068c5d.mp3",
       "at": "2026-09-22T17:22:34.258Z"
+    },
+    "tile:letter:sh:long": {
+      "status": "done",
+      "detail": "media/aud/e289aa87f9e8abdd.mp3",
+      "at": "2026-09-22T17:52:24.053Z"
+    },
+    "tile:letter:sh:short": {
+      "status": "done",
+      "detail": "media/aud/448f646b62c990ca.mp3",
+      "at": "2026-09-22T17:52:25.102Z"
+    },
+    "tile:letter:ch:long": {
+      "status": "done",
+      "detail": "media/aud/325cb6963ab26c24.mp3",
+      "at": "2026-09-22T17:52:26.165Z"
+    },
+    "tile:letter:ch:short": {
+      "status": "done",
+      "detail": "media/aud/0bd7f4f739e6a492.mp3",
+      "at": "2026-09-22T17:52:27.255Z"
+    },
+    "tile:letter:th:long": {
+      "status": "done",
+      "detail": "media/aud/c3788abf1fc04636.mp3",
+      "at": "2026-09-22T17:52:28.175Z"
+    },
+    "tile:letter:th:short": {
+      "status": "done",
+      "detail": "media/aud/b58880ae79e61209.mp3",
+      "at": "2026-09-22T17:52:28.990Z"
+    },
+    "tile:letter:ck:long": {
+      "status": "done",
+      "detail": "media/aud/f44a21e1ea0070cd.mp3",
+      "at": "2026-09-22T17:52:29.855Z"
+    },
+    "tile:letter:ck:short": {
+      "status": "done",
+      "detail": "media/aud/b912ff4f775101cc.mp3",
+      "at": "2026-09-22T17:52:30.662Z"
+    },
+    "tile:letter:ng:long": {
+      "status": "done",
+      "detail": "media/aud/25b0c3aaeb315964.mp3",
+      "at": "2026-09-22T17:52:31.574Z"
+    },
+    "tile:letter:ng:short": {
+      "status": "done",
+      "detail": "media/aud/d91b67e8fda76064.mp3",
+      "at": "2026-09-22T17:52:32.466Z"
+    },
+    "tile:letter:ll:long": {
+      "status": "done",
+      "detail": "media/aud/bd759acd25efd0cc.mp3",
+      "at": "2026-09-22T17:52:33.457Z"
+    },
+    "tile:letter:ll:short": {
+      "status": "done",
+      "detail": "media/aud/46ed323a54fbc1d7.mp3",
+      "at": "2026-09-22T17:52:34.345Z"
+    },
+    "tile:letter:ss:long": {
+      "status": "done",
+      "detail": "media/aud/8cd85da9be12e026.mp3",
+      "at": "2026-09-22T17:52:35.186Z"
+    },
+    "tile:letter:ss:short": {
+      "status": "done",
+      "detail": "media/aud/1fd2426fc534365e.mp3",
+      "at": "2026-09-22T17:52:35.966Z"
+    },
+    "tile:letter:ff:long": {
+      "status": "done",
+      "detail": "media/aud/0efdf46326f42a6f.mp3",
+      "at": "2026-09-22T17:52:36.848Z"
+    },
+    "tile:letter:ff:short": {
+      "status": "done",
+      "detail": "media/aud/1cee5e8d82d60219.mp3",
+      "at": "2026-09-22T17:52:37.676Z"
+    },
+    "tile:letter:zz:long": {
+      "status": "done",
+      "detail": "media/aud/cbfdd071c5411072.mp3",
+      "at": "2026-09-22T17:52:38.474Z"
+    },
+    "tile:letter:zz:short": {
+      "status": "done",
+      "detail": "media/aud/c3717f9e8fdc24ec.mp3",
+      "at": "2026-09-22T17:52:39.381Z"
+    },
+    "tile:letter:gg:long": {
+      "status": "done",
+      "detail": "media/aud/d41a74dd00da3c65.mp3",
+      "at": "2026-09-22T17:52:40.217Z"
+    },
+    "tile:letter:gg:short": {
+      "status": "done",
+      "detail": "media/aud/46db8f15daef1917.mp3",
+      "at": "2026-09-22T17:52:41.018Z"
     }
   }
 }
