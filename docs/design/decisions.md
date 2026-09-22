@@ -95,10 +95,16 @@ Requirements this creates, all owned by the game-designer:
   cannot supply three distinct role hues on its ground, the theme changes, not the rule.
 - Theme choice persists in **AsyncStorage — settings only.** Content stays on the filesystem.
 
-**Typography:** *Be Vietnam Pro* for text, *Fredoka* for tiles and words. Be Vietnam Pro is
-drawn for Vietnamese, which is a correctness requirement here rather than a taste one —
-`mả` and `mã` differ only by a mark, and stacked forms (`ươ`, `ề`, `ỹ`) must render rather
-than be inherited from whatever an Android OEM ships.
+**Typography:** *Be Vietnam Pro* for text, ~~*Fredoka*~~ ***Baloo 2*** for tiles and words.
+Be Vietnam Pro is drawn for Vietnamese, which is a correctness requirement here rather than a
+taste one — `mả` and `mã` differ only by a mark, and stacked forms (`ươ`, `ề`, `ỹ`) must
+render rather than be inherited from whatever an Android OEM ships.
+
+**Fredoka was corrected out, 2026-09-23.** It has no `vietnamese` subset and covers **35 of
+90** fixture characters; `ã` exists in it and `ả` does not, so the two would have rendered in
+different typefaces. Replaced by **Baloo 2** — 90/90 coverage, single-storey `a`/`g`, 1.017 em
+ink span, 117 KB subset. Measured working in `ui.md` §6.0–6.0.1, gated by
+`acceptance-criteria.md` Q1–Q10.
 
 **Colour does work in Vietnamese mode.** A syllable is onset + rime + tone, and each part
 carries a consistent hue so the child sees the structure before he can articulate it.

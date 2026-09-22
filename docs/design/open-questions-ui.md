@@ -4,30 +4,31 @@ Owner: game-designer. Companion to `open-questions.md`, which the literacy-desig
 
 **Almost nothing is in here, on purpose.** The owner is AFK and approval is delegated, so
 everything a stated assumption could settle has been settled and recorded in `ui.md`,
-`gameplay.md` and `acceptance-criteria.md` rather than routed upward. Three items remain,
-each with the decision I have already taken and the assumption it rests on. **If nobody
-answers, what is written below is what ships.**
+`gameplay.md` and `acceptance-criteria.md` rather than routed upward. **Q1 is now closed** —
+it was the one real risk and the answer was that Fredoka is unusable. Two items remain, each
+with the decision I have already taken and the assumption it rests on. **If nobody answers,
+what is written below is what ships.**
 
 ---
 
-## Q1 · The Vietnamese tile font is unverified for Vietnamese
+## Q1 · ~~The Vietnamese tile font is unverified~~ — CLOSED, and the answer was "no"
 
-**Decided:** Fredoka for tiles and the word plate, Be Vietnam Pro for all text
-(`decisions.md`). **Bundled — the system font is never used for Vietnamese.**
+**Resolved 2026-09-23. Fredoka cannot be used for Vietnamese and has been replaced by
+Baloo 2.** Measured, not inferred: Fredoka covers **35 of 90** characters of the fixture. Its
+`latin-ext` skips `U+1EA0–U+1EF1`, so **`ã` (U+00E3) exists in it and `ả` (U+1EA3) does not** —
+`mã` would have rendered in Fredoka and `mả` in an OS substitute, two words differing only by
+a tone mark rendering in two different typefaces. `hổ`/`hô` likewise, and both are in the seed
+list.
 
-**The risk is real and it is a correctness risk, not a cosmetic one.** Fredoka declares a
-Vietnamese subset; that is a claim, not a check, and nobody on this project has rendered
-`mả` beside `mã` in it. If those two are visually identical the app teaches the child
-something false.
+Five replacements with a real `vietnamese` subset were downloaded and measured.
+**Baloo 2 chosen**: 90/90 coverage, single-storey `a` and `g` (the letterforms a child is
+taught to write — the first criterion for a letter-teaching app), the tightest vertical ink
+span of any candidate at 1.017 em, and the largest minimal-pair margin of the infant-form
+faces at 935 differing pixels on `mả`/`mã`. Subsets from 683 KB to **117 KB** with no loss.
+Full working in `ui.md` §6.0–6.0.1.
 
-**Already handled without an answer:** `ui.md` §6.1 makes it a **blocking Tier-2 build gate**
-— five checks (T1–T5) over a fixture string, including a ≥ 200-pixel difference on six
-minimal pairs — and `acceptance-criteria.md` Q1–Q9 make it testable. If Fredoka fails, the
-tile face falls back to **Be Vietnam Pro**, which is drawn for Vietnamese and is already
-bundled, and the app loses only the rounded character.
-
-**What I would want if anyone is looking:** somebody runs the gate before Slice 2 rather
-than discovering it in a build. Thirty seconds of rendering.
+**No question remains.** Be Vietnam Pro stays as the text face. The Q-series gate stays in
+place — it is what caught this, and it must run against whatever is actually bundled.
 
 ---
 
@@ -95,6 +96,7 @@ Recorded here so the shape of what was settled is visible without reading three 
 | Hint ladder at 20/40/60/80 s instead of a skip button | a skip button gets pressed constantly | `gameplay.md` §6.5 |
 | Five-round page → album page → no play control on the end screen | this *is* how a parent ends a session without a tantrum | `gameplay.md` §6.6–6.7 |
 | Gate = spelled-out multiplication, 1.2 s hold to open | needs reading and arithmetic; needs nothing remembered in three months | `gameplay.md` §7.2 |
+| Baloo 2 for tiles, Be Vietnam Pro for text | measured: coverage, span, letterform, minimal-pair margin, bundle size | `ui.md` §6.0.1 |
 | The glyph sits on white at 13.4:1; the colour is in the bars | moving the colour, rather than dulling it, is what let all nine owner hexes ship unchanged | `ui.md` §5.4 |
 | English uses `role1`/`role2` — the asymmetry is removed | `literacy-en.md` §3.2 requires vowels to be visually distinct, so English has two tile types, not one | `ui.md` §5.6 |
 | The mode title on every screen is the leak detector | colour cannot be, now that both modes share role tokens | `ui.md` §3 |

@@ -166,7 +166,7 @@ is verified twice. The child has both languages; neither is secondary.
 
 | # | Given / When / Then | Tier |
 |---|---|---|
-| J1 | **Given** the word list, **then** each row shows a 64 pt thumbnail, the word in Fredoka, its decomposition in `inkSoft`, and a completeness dot. | 3 |
+| J1 | **Given** the word list, **then** each row shows a 64 pt thumbnail, the word in Baloo 2, its decomposition in `inkSoft`, and a completeness dot. | 3 |
 | J2 | **Given** a word that cannot yet be played, **then** it appears in a named section with a one-line reason — **never hidden and never deleted**. | 3 |
 | J3 | **Given** the `+` control, **when** tapped, **then** step 1 is the **picture** step, offering Take a photo and Choose from library, and **no image-search option**. | 3 |
 | J4 | **Given** any step of the add flow, **when** the app is killed immediately after advancing, **then** on relaunch the draft is present with everything entered so far. | 2 |
@@ -272,13 +272,17 @@ is verified twice. The child has both languages; neither is secondary.
 |---|---|---|
 | Q1 | **Given** the fixture string, **when** rendered in the bundled tile font at 36 pt and 116 pt, **then** every codepoint renders with no `.notdef` and no blank. | 2 |
 | Q2 | **Given** the fixture, **then** the rendering face is the **bundled** font, not a system fallback. | 2 |
-| Q3 | **Given** `mả` and `mã` rendered side by side at 116 pt, **then** they differ by **≥ 200 non-identical pixels**. Repeated for `ả/ã`, `ẻ/ẽ`, `ỏ/õ`, `ủ/ũ`, `ỷ/ỹ`. | 2 |
-| Q4 | **Given** `ộ`, `ặ`, `ể`, `ỹ`, `ẫ`, **then** no ink falls outside the 1.55 em glyph box — nothing clips above or below. | 2 |
+| Q3 | **Given** `mả` and `mã` rendered separately in the bundled tile font and diffed, **then** they differ by **≥ 200 pixels at 116 pt** and **≥ 40 pixels at 36 pt**. Repeated for `hổ/hô`, `ả/ã`, `ẻ/ẽ`, `ỏ/õ`, `ủ/ũ`, `ỷ/ỹ`. *(Two thresholds because the count scales with render size. Baloo 2 measures 935 and 53; a font that does not draw the mark scores ~0 at both.)* | 2 |
+| Q4 | **Given** `ộ`, `ặ`, `ể`, `ỹ`, `ẫ`, `ẵ`, **then** no ink falls outside the 1.55 em glyph box — nothing clips above or below. *(Baloo 2's worst span is 1.017 em, Be Vietnam Pro's 1.189 em.)* | 2 |
 | Q5 | **Given** `ươ`, `ề`, `ộ`, `ẫ`, `ỡ`, **then** each renders as one composed glyph, not a base plus a floating mark. | 2 |
+| Q5a | **Given** the bundled tile font, **when** its `cmap` is read, **then** it covers **all 90** characters of the fixture. *(Fredoka covered 35/90 and was rejected on this criterion — `ui.md` §6.0.)* | 2 |
+| Q5b | **Given** each below-marked glyph, **then** its ink extends lower than its unmarked base (`ộ` below `ô`, `ặ` below `ă`, `ậ` below `â`, `ợ` below `ơ`, `ự` below `ư`, `ẹ` below `e`, `ị` below `i`, `ạ` below `a`), and each above-marked glyph extends higher than its base (`ế` above `ê`, `ể` above `ê`, `ỗ` above `ô`, `ữ` above `ư`, `ẵ` above `ă`, `ầ` above `â`). | 2 |
+| Q5c | **Given** the bundled tile font file, **then** it is a **subset** carrying Latin plus the Vietnamese block, not the full upstream family, and it is **≤ 150 KB**. *(Baloo 2 subsets from 683 KB to 117 KB with coverage and Q3 unchanged.)* | 2 |
 | Q6 | **Given** any tile, **then** its glyph box is `1.55 × fontSize` with the baseline at `1.19 × fontSize` from the box top. | 4 |
 | Q7 | **Given** a multi-character tile (`ngh`, `ăng`, `uôi`, `sh`, `ck`), **then** the glyph shrinks to fit 82% of the tile width, never below 24 pt, and never shrinks vertically. | 4 |
 | Q8 | **Given** the tile font fails Q1–Q5, **then** the build fails. It is a gate, not a review note. | 2 |
 | Q9 | **Given** no bundled font is present at runtime, **then** the app does not silently fall back to the system font for Vietnamese text. | 1 |
+| Q10 | **Given** the tile font, **then** its lowercase `a` and `g` are **single-storey** — the letterforms a child is taught to write. | 2 |
 
 ## R · Language isolation
 

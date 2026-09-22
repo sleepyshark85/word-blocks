@@ -23,7 +23,7 @@ Nothing in §4 or §5 is asserted. Every number came out of one of those two pro
 | User | a 4-year-old who cannot read | his mother, who can |
 | Looks like | coloured blocks, one big photograph, no chrome | an ordinary, conventional, labelled mobile app |
 | Text | present, but **never required of him** (§2) | freely |
-| Type | Fredoka, 36–83 pt | Be Vietnam Pro, 13–24 pt |
+| Type | Baloo 2, 36–83 pt | Be Vietnam Pro, 13–24 pt |
 | Ground | the theme's bright `ground` | `groundAlt` (white) |
 | Navigation | none | a back chevron and a title, everywhere |
 | Optimised for | a **10-inch tablet**, flat or propped | a **phone**, one-handed |
@@ -464,17 +464,83 @@ Persisted in **AsyncStorage — settings only.** Content goes to the filesystem,
 
 ## 6. Typography
 
-**Fredoka** for tiles, the word plate and the album. **Be Vietnam Pro** for the caption strip
+**Baloo 2** for tiles, the word plate and the album. **Be Vietnam Pro** for the caption strip
 and every parent surface. Both bundled; **the system font is never used for Vietnamese
 text.** On Android the OEM font varies, and a dropped or flattened tone mark is a
 *correctness* failure here, not a cosmetic one — `mả` and `mã` differ by nothing else.
+
+### 6.0 Fredoka was rejected, and how
+
+`decisions.md` originally named **Fredoka** for tiles. It cannot be used. Measured here with
+`fontTools` against the upstream `google/fonts` release, not inferred from a subset
+declaration:
+
+```
+font          coverage   missing
+Fredoka         35/90        55    Ăă Đđ ĩ ũ Ơơ Ưư ạ ả ấ ầ ẩ ẫ ậ ắ ằ ẳ ẵ ặ ẹ ẻ ẽ ế ề ể ễ ệ
+                                   ỉ ị ọ ỏ ố ồ ổ ỗ ộ ớ ờ ở ỡ ợ ụ ủ ứ ừ ử ữ ự ỳ ỵ ỷ ỹ
+```
+
+Its `latin-ext` covers `U+1E00–1E9F` and `U+1EF2–1EFF` and **skips `U+1EA0–U+1EF1`**, which
+is where most Vietnamese precomposed letters live. The failure lands exactly on the pair the
+gate below was written to catch: **`ã` is U+00E3 and exists in Fredoka; `ả` is U+1EA3 and does
+not.** `mã` would render in Fredoka and `mả` in whatever the OS substituted — two words that
+differ only by a tone mark, differing by *typeface*. `hổ`/`hô` is the same failure and both
+are live in the seed list.
+
+**This is the Q-series gate working, one slice early.** Recorded rather than quietly
+corrected, because the pattern is the point (`development-process.md` §6): a declared subset
+is a claim, and the claim was wrong.
+
+### 6.0.1 How Baloo 2 was chosen
+
+Five faces with a real `vietnamese` subset were downloaded from the upstream `google/fonts`
+repository and **measured**, not compared by reputation. Full script output is reproducible;
+the numbers below are what it printed.
+
+| Face | Coverage (90-char fixture) | Vertical ink span | `a` | `g` | `mả`/`mã` differing px @116 pt |
+|---|---|---|---|---|---|
+| **Baloo 2** | **90/90** | **1.017 em** (tightest) | **single-storey** | **single-storey** | **935** (largest of the infant-form faces) |
+| Quicksand | 90/90 | 1.071 em | single-storey | single-storey | 365 |
+| Nunito | 90/90 | 1.001 em | single-storey | single-storey | 456 |
+| Comfortaa | 90/90 | 1.268 em | single-storey | single-storey | 745 |
+| Be Vietnam Pro | 90/90 | 1.189 em | *double-storey* | single-storey | 663 |
+| ~~Fredoka~~ | **35/90** | — | — | binocular | **cannot render `ả`** |
+
+All five draw every below-mark and above-mark correctly (checked as ink extents: `ộ` must
+sit lower than `ô`, `ế` higher than `ê` — 8/8 and 6/6 for every candidate).
+
+**Baloo 2, on four grounds, in order of weight:**
+
+1. **Single-storey `a` and `g`.** These are the letterforms a child is taught to write and
+   the ones his first readers are set in. This is a letter-teaching app, so it is the first
+   criterion, not a preference. It rules out Be Vietnam Pro for *tiles* — which is why Be
+   Vietnam Pro stays where it is best, as the text face.
+2. **It is the heaviest of the infant-form candidates.** A tile glyph is one large lowercase
+   letter on a white face; weight is what makes it read as a *block letter* rather than a
+   thin line, and it is what makes "bright and fun" work at 36 pt. Quicksand and Nunito are
+   wispy by comparison at equivalent optical weight.
+3. **Tightest vertical span, 1.017 em** — measured. Stacked marks sit closest to the letter,
+   so less of a tile's height is spent on headroom and the letter itself is larger inside the
+   same tile. At a 72 pt tile that is real.
+4. **Largest minimal-pair margin of the three infant-form faces** — 935 differing pixels on
+   `mả`/`mã` against Quicksand's 365. Its marks are large and unambiguous, which is the whole
+   game in Vietnamese.
+
+Comfortaa was rejected for a 1.268 em span and a low x-height — the worst combination for a
+glyph that must fill a fixed square.
+
+**Bundle cost, measured.** The upstream Baloo 2 variable font is 683 KB because it carries
+Devanagari. Subset to Latin + the Vietnamese block with `pyftsubset`, it is **117 KB** and
+still scores 90/90 coverage and 935 on `mả`/`mã`. **Ship the subset, not the family.** 117 KB
+against the ~8 MB asset budget (`spike-results.md`) is nothing.
 
 ### 6.1 The render gate — verified, not assumed
 
 Before either font ships, it must pass a render test. This is a **Tier-2 blocking gate**, and
 it fails the build, not a review comment.
 
-Fixture string (lives in the repo):
+Fixture string (lives in the repo, 90 characters plus the seed-list strings):
 
 ```
 ă â đ ê ô ơ ư  Ă Â Đ Ê Ô Ơ Ư
@@ -493,36 +559,45 @@ Five checks, each at **36 pt and at 116 pt**:
 |---|---|
 | T1 | every codepoint renders — no `.notdef` box, no blank |
 | T2 | nothing is drawn by a fallback font (the rendered face is the bundled one) |
-| T3 | **the minimal pairs differ.** `mả`/`mã`, `ả`/`ã`, `ẻ`/`ẽ`, `ỏ`/`õ`, `ủ`/`ũ`, `ỷ`/`ỹ` rendered side by side must differ by **≥ 200 non-identical pixels** at 116 pt. This is the exact failure the orchestrator named. |
+| T3 | **the minimal pairs differ.** `mả`/`mã`, `hổ`/`hô`, `ả`/`ã`, `ẻ`/`ẽ`, `ỏ`/`õ`, `ủ`/`ũ`, `ỷ`/`ỹ` rendered separately and diffed must differ by **≥ 200 pixels at 116 pt** and **≥ 40 pixels at 36 pt**. Two thresholds because the count scales with render size — one number would be either vacuous at 116 pt or unpassable at 36 pt. Measured for Baloo 2: **935 and 53**. The failure this separates is "the mark is not drawn", which scores ~0 at either size. |
 | T4 | no glyph's ink exceeds the 1.55 em box (§6.3) — nothing clips, above or below |
 | T5 | stacked forms `ươ ề ộ ẫ ặ ỡ ỹ` render as single composed glyphs, not base + floating mark |
 
-**Fredoka is not verified for Vietnamese from this machine.** It is a Google Fonts family
-with a declared Vietnamese subset; that is a claim, not a check. If it fails T1–T5, the tile
-face falls back to **Be Vietnam Pro** (which is drawn for Vietnamese and is already bundled),
-losing only the rounded character. The gate decides, not a preference.
+**Baloo 2 passes T1, T2, T3 and T5 as measured in §6.0.1.** T4 is checked against the box in
+§6.3. The gate stays in place anyway: it is what caught Fredoka, it must run against whatever
+is actually bundled, and a font can change under a dependency bump. If the bundled face ever
+fails, the tile face falls back to **Be Vietnam Pro**, which is drawn for Vietnamese and is
+already bundled, losing only the single-storey letterforms.
 
-### 6.2 A known cost of Fredoka, accepted
+### 6.2 What Baloo 2 buys that Fredoka would have cost
 
-Fredoka's `a` and `g` are **double-storey**, not the single-storey "infant" forms a child is
-taught to write. Accepted: double-storey is what his picture books are set in, it is what he
-will meet in print, and the owner chose the typeface from a rendered preview. Recorded as a
-cost, not hidden.
+Fredoka's `g` is **binocular** and its `a` double-storey. The replacement is better on exactly
+the axis that matters most for this app: **Baloo 2's `a` and `g` are single-storey**, the
+letterforms a child is taught to write and the ones used in early readers. What was recorded
+as an accepted cost is now a gain. The one thing lost with Fredoka is its specific rounded
+character; Baloo 2 is rounded and chunkier, which suits a tile better.
 
 ### 6.3 Vertical metrics — marks above *and* below
 
 Vietnamese stacks diacritics both ways. `ộ` is circumflex above **plus** dot below; `ỹ` is
 tilde above **plus** a descender. Metrics that look fine in English clip both ends.
 
-| Measurement | em |
-|---|---|
-| ascender | 0.80 |
-| top of a stacked mark above (`ố`, `ẫ`, `ề`) | **1.08** |
-| baseline | 0.00 |
-| descender (`g`, `y`) | −0.22 |
-| dot below (`ọ`, `ặ`) | **−0.30** |
-| **worst vertical ink span** | **1.38** |
-| **+12% breathing → glyph box** | **1.55 em** |
+**Measured** from the bundled outlines with `fontTools`, not estimated:
+
+| | Baloo 2 (tiles) | Be Vietnam Pro (text) |
+|---|---|---|
+| highest ink, and which glyph | **+0.815 em** (`ẵ`) | +0.949 em (`ổ`) |
+| lowest ink, and which glyph | **−0.202 em** (`g`) | −0.240 em (`ộ`) |
+| **worst vertical ink span** | **1.017 em** | **1.189 em** |
+| minimum box at +12% breathing | 1.14 em | 1.33 em |
+
+**The box stays at 1.55 em anyway**, for both faces and both languages. That is 52% headroom
+over Baloo 2 and 30% over Be Vietnam Pro, and the reason to keep it is the situation this
+document is in right now: **the typeface changed after the metrics were written.** A box
+tuned to one font's outlines is a box that clips when the font is replaced. 1.55 em also
+survives an OS-level fallback, which is the case where the metrics are not ours at all.
+Tightening it to 1.40 would buy `tileFont` exactly **+1 pt** at the 72 pt floor (36 → 37,
+where `tile × 0.52` then binds) — not worth a re-run, let alone a clipping risk.
 
 **Rule, applied in both languages so a mode switch can never clip:**
 
@@ -543,8 +618,8 @@ width**, floor 24 pt (F7). They never shrink vertically — the box stays 1.55 e
 
 | Role | Face | Size | Line |
 |---|---|---|---|
-| Tile glyph | Fredoka SemiBold | `tileFont` = 36–60 | 1.55 em |
-| Word plate | Fredoka SemiBold | `plateFont` = 48–83 | 1.55 em |
+| Tile glyph | Baloo 2 SemiBold (wght 600) | `tileFont` = 36–60 | 1.55 em |
+| Word plate | Baloo 2 SemiBold (wght 600) | `plateFont` = 48–83 | 1.55 em |
 | Caption strip | Be Vietnam Pro Regular | `0.42 × tile` = 30–48 | 1.55 em |
 | Mode title (top bar) | Be Vietnam Pro Medium | 13 | 18 |
 | Parent screen title | Be Vietnam Pro SemiBold | 24 | 32 |
@@ -826,7 +901,7 @@ word and bounces 1.04×.
  ┌──────────────────────────────────────┐
  │                                      │
  │   ┌──────────────────────────────┐   │  Each panel: that mode's role1 as a
- │   │        Ghép Chữ              │   │  wide band, the title in Fredoka 32pt.
+ │   │        Ghép Chữ              │   │  wide band, the title in Baloo 2 32pt.
  │   │   Tiếng Việt                 │   │  Tap -> expands, speaks `mèo`, reveals
  │   └──────────────────────────────┘   │  a confirm button. TWO touches, seconds
  │   ┌──────────────────────────────┐   │  apart, so a toddler cannot commit by
@@ -1052,7 +1127,7 @@ at runtime. Her sources are the camera, her photo library, and her voice.
 │ │ 🔍  Tìm                            │ │
 │ └────────────────────────────────────┘ │
 │ ┌────┐                                 │
-│ │ img│  mèo                        ●   │  64pt thumb, word in Fredoka 24pt,
+│ │ img│  mèo                        ●   │  64pt thumb, word in Baloo 2 24pt,
 │ │    │  m · eo · huyền                 │  decomposition in 15pt inkSoft,
 │ └────┘                                 │  green dot = playable
 │ ┌────┐                                 │

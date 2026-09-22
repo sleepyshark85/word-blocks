@@ -44,7 +44,9 @@ rate limit. What survived is catalogued below; it was verified by execution, not
 | `content-pipeline.md` (1044), `open-questions-content.md` (228) | content-engineer | **Done** |
 | `tools/pack-validate.test.mjs` | content-engineer | **Done** — 50 tests, 50 pass, verified by the orchestrator |
 | `pack-import-media`, `pack-attributions`, `pack-backup` | content-engineer | **Done** |
-| **Owner approval of the full design** | owner | **Delegated to the orchestrator.** The owner is AFK and has said not to wait on him unless totally blocked |
+| **Owner approval of the full design** | orchestrator | **APPROVED 2026-09-23.** Delegated by the owner while AFK. Every agent claim was re-run by the orchestrator before approval: 223→227 ACs counted, `theme-contrast.mjs` and `layout-sweep.mjs` exit 0, `pack-validate.test.mjs` 50/50 |
+
+**Slice 0 is closed.** Design is complete and verified. Building has started.
 
 ### What the killed agents left behind — verified by execution
 
@@ -70,8 +72,13 @@ rate limit. What survived is catalogued below; it was verified by execution, not
    no `vietnamese` subset; its latin-ext skips `U+1EA0–U+1EF1`. Of 67 Vietnamese characters,
    **41 are missing**. Critically `ã` (U+00E3) is present and `ả` (U+1EA3) is not, so `mã`
    and `mả` would render in *different typefaces* — the exact correctness failure the font
-   requirement exists to prevent. Replacements confirmed to carry a `vietnamese` subset:
-   Baloo 2, Nunito, Quicksand, Comfortaa. The game-designer is choosing.
+   requirement exists to prevent. **Resolved: Baloo 2.** Five candidates were downloaded
+   from upstream `google/fonts` and measured — coverage, vertical ink span, letterform,
+   minimal-pair pixel margin, subset size. Baloo 2 takes it on 90/90 coverage, **single-storey
+   `a` and `g`** (the letterforms a child is taught to write, which is the first criterion in
+   a letter-teaching app), the tightest ink span at 1.017 em, and the largest `mả`/`mã` margin
+   of the infant-form faces at 935 px. It subsets 683 KB → **117 KB** with no loss. Working in
+   `ui.md` §6.0–6.0.1; gated by `acceptance-criteria.md` Q1–Q10.
 
 4. ~~The validator under-reports a dangling image.~~ **Fixed.** A missing file is an error,
    with `DANGLING IMAGE` / `DANGLING AUDIO` tests. Resolution happens once at pack load, so
