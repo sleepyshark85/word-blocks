@@ -11,16 +11,15 @@ ads, no analytics, no IAP.
 
 ## Where things stand
 
-**Slice 0 (design) and Slice 2 (the engine) are done. Slice 3 (the playable app) is being
-built.** Approval was delegated to the orchestrator by the owner and given only after every
+**The game plays.** Slices 0, 2 and 3 are done; Slice 4 (the editor) is not started. Approval was delegated to the orchestrator by the owner and given only after every
 agent claim was re-executed.
 
 | | State |
 |---|---|
 | Design | **Closed.** 227 ACs, `theme-contrast.mjs` and `layout-sweep.mjs` both exit 0 |
 | Content packs | `vi-seed` 50 words, `en-seed` 40 words, both validate exit 0 |
-| Engine (`src/engine/`) | **Built.** `npm test` 179/179; ~9,400 fuzzed rounds per language, 0 invariant violations. **Under independent test** |
-| App (`src/ui/`) | **In progress** — Slice 3 |
+| Engine (`src/engine/`) | **Done.** Independently verified; four tester findings fixed |
+| App (`src/`) | **Built and plays.** `npm test` 254/254, both languages, tablet and phone. **Never run on a real device** |
 | Photographs | **14 imported, ~45 words still to curate.** The long pole |
 | Editor (Slice 4) | Not started |
 

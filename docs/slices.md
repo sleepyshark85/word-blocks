@@ -19,7 +19,7 @@ rate limit. What survived is catalogued below; it was verified by execution, not
 | **0** | Squad, spike, and approved design | **In progress** — `ui.md` and `acceptance-criteria.md` still missing |
 | **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
 | **2** | Engine: tile assembly, word matching, round generation | **Built, in test.** `npm test` 179/179; ~9,400 fuzzed rounds per language, 50,000 invariant checks, 0 violations |
-| **3** | The game plays, both languages, on a real device | Not started |
+| **3** | The game plays, both languages, on a real device | **Built.** `npm test` 254/254; driven in Chrome at iPad portrait/landscape, iPhone and 320×560; five rounds to the album in both languages. **Not yet run on a real device — Tier 5 is owed** |
 | **4** | The editor — add / edit / delete a word | Not started |
 | **5** | Polish: motion, sound, accessibility | Not started |
 | **6** | Store readiness, iOS + Android | Not started |
@@ -85,10 +85,20 @@ rate limit. What survived is catalogued below; it was verified by execution, not
    with `DANGLING IMAGE` / `DANGLING AUDIO` tests. Resolution happens once at pack load, so
    the child never sees the failure and his mother always does: survivors are used, then the
    bundled emoji, and a word with nothing left is withheld from the round generator.
-5. **No images curated yet.** Both packs deliberately fail `--strict`, which now counts
+5. **The repository carries ~384 MB of curation scratch in its history.** Early commits
+   used `git add -A packs`, which swept `.candidates/` — contact sheets and raw downloads —
+   into history before it was gitignored. The working tree is clean and `.gitignore` now
+   covers `packs/*/.candidates/`, so it cannot recur, but every clone pays for it.
+
+   **Deliberately not fixed.** Purging it means rewriting pushed history and force-pushing,
+   which is destructive and outward-facing, and is the owner's call rather than the
+   orchestrator's. If he wants it: `git filter-repo --path-glob 'packs/*/.candidates/*'
+   --invert-paths` then a force-push, with every clone re-cloned afterwards.
+
+6. **No images curated yet.** Both packs deliberately fail `--strict`, which now counts
    *photographs* rather than fallbacks. Candidate fetch is re-running with the licence fix.
 
-6. **The curation-yield report can exceed 100%.** `pack-validate.mjs` joins images kept
+7. **The curation-yield report can exceed 100%.** `pack-validate.mjs` joins images kept
    (from the pack) against candidates offered (from the on-disk `.candidates/` directory).
    Delete a candidate directory and the join breaks: it printed
    `TOTAL 14 kept / 6 offered 233%` with an `unrecorded 11 kept / 0 offered` line, without
@@ -96,12 +106,12 @@ rate limit. What survived is catalogued below; it was verified by execution, not
    again (`development-process.md` §6a) — the honest fix is for the pack to carry what it
    needs rather than re-deriving it from a directory that is explicitly disposable.
 
-7. **PUBLISHING BLOCKER (not for private use):** neither edge-tts nor gTTS grants the right
+8. **PUBLISHING BLOCKER (not for private use):** neither edge-tts nor gTTS grants the right
    to redistribute generated audio inside a product. Cheap to close, because a recording and
    a generated clip are the same object in the schema — but it must be closed *before* any
    store submission. `open-questions-content.md` C4.
 
-8. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
+9. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
 
 **Nothing is built. No `src/` exists.** Slice 0 ends when the owner approves the design.
 
