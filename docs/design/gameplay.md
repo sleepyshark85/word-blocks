@@ -17,7 +17,10 @@ gesture-handler.
 
 ## 0. The four sentences this design has to satisfy
 
-1. **He cannot read.** Every instruction is a picture, a position, a motion or a voice.
+1. **He cannot read** — but **his mother plays with him.** So the rule is not "no text": it
+   is **nothing he needs is text-only, and nothing on screen asks *him* to read.** Every
+   instruction he depends on is a picture, a position, a motion or a voice. Text exists, and
+   it is aimed at her (§2.5).
 2. **There is no way to lose.** Not softened — *absent*. No timer, no score, no lives, no
    buzzer, no "try again", and no state he can enter that he cannot leave.
 3. **The languages never mix.** Chosen at launch. A leak must be structurally hard, not
@@ -25,6 +28,8 @@ gesture-handler.
    no title (`ui.md` §3).
 4. **It must fit every screen it lands on.** Not three test devices — a continuous range,
    with a fit rule that either passes or fails (`ui.md` §4).
+5. **Neither language is secondary.** He has both. Both modes ship complete, with the same
+   ritual, the same states and the same acceptance criteria.
 
 ---
 
@@ -85,6 +90,49 @@ itself (§5), or a parent setting behind the gate (§7).
 | Tile shape | 22% corner radius, warm | 32% corner radius, cool |
 
 These are genuinely different screens. `ui.md` §6 and §7 give both at real dimensions.
+
+### 2.5 Decision: what co-play changes, and what it deliberately does not
+
+His mother plays with him. That is the highest-value mode for early literacy, and it is worth
+designing *for* rather than around. Five changes, and a list of things that stay put.
+
+**What changes**
+
+1. **A caption strip, for her.** One line of `inkSoft` text under the word plate, showing the
+   target word — then each part as the chant speaks it, then the whole word and the sentence.
+   She can say the word before the audio does, prompt him, and point at a letter. He cannot
+   read it and never needs to. Parent setting `Show the word`, default **on**; off replaces
+   the word with one dot per cell so the strip still shows how long the answer is.
+   (`ui.md` §2.1.)
+2. **A hint an adult knows to use.** Holding the picture frame for 800 ms speaks the target's
+   *parts* — the đánh vần, or the letter sounds — rather than the word. It is the
+   pedagogically correct hint: say the pieces, let him find them. It does not reveal, does
+   not place anything, does not reset the idle ladder and does not count as an assist.
+3. **A say-it-together beat.** The reveal holds the word large and **silent from 1400 ms to
+   2200 ms**, then speaks it once more. Long enough for her to say it with him; solo it
+   simply reads as a beat of rest.
+4. **Capture the word he just asked for.** *Add a word* is the **first row of the parent
+   menu**, reachable from anywhere via the gate dot, including mid-round. Entering the editor
+   from play remembers the round and returns to it untouched. The moment he says *"where's
+   the digger?"* is the best moment to add the digger, and it is two taps away.
+5. **The editor and the game stop being two worlds** — still separated by the gate, but one
+   step apart rather than a trip through settings.
+
+**What deliberately does not change**
+
+- **No two-player mode, no turn-taking, no pass-the-device.** The ask was warmth, not
+  mechanics.
+- **Solo play is complete.** Co-play is the best case, never the required case. The hint
+  ladder still guarantees every round finishes (§6.5), the audio still carries the whole
+  game, and no round needs an adult in the room.
+- **Nothing moves in front of the gate.** The editor, the language and the settings stay
+  behind it, because the child is holding the device most of the time.
+- **No progress dashboard, no parent report, no streak.** There is still no score in this app
+  for anybody, including her.
+- **No information is caption-only.** Cover the caption strip and every round is still
+  winnable. That is an acceptance criterion (`acceptance-criteria.md` M4), not a hope.
+
+---
 
 ### 2.1 Decision: Vietnamese shows one palette row at a time, not three
 
@@ -417,10 +465,17 @@ to look at and no way to restart. Restarting requires the gate, which requires a
 **First launch** shows the language chooser — the only screen that is neither play nor behind
 the gate, and it is shown exactly once.
 
-Two full-height panels, terracotta (**Ghép Chữ**) and teal (**Word Blocks**). Touching a panel
-expands it, speaks a sample word in that language (`mèo` / `cat`) and reveals a confirm
-control. **Two deliberate touches, seconds apart.** A toddler who grabs the device on first
-launch cannot commit by accident, and if he does, a parent changes it in twenty seconds.
+Two full-height panels, **Ghép Chữ** and **Word Blocks**. Touching a panel expands it, speaks
+a sample word in that language (`mèo` / `cat`) and reveals a confirm control. **Two deliberate
+touches, seconds apart.** A toddler who grabs the device on first launch cannot commit by
+accident, and if he does, a parent changes it in twenty seconds.
+
+**Three unlabelled colour buttons sit below the panels** — the theme picker. Each shows that
+theme's ground with its three role hues as solid / split / dotted bars, so the button *is* a
+sample of what it selects. No text, non-destructive, instantly reversible, and the same three
+buttons reappear on the album page at 44 pt so he can change his mind without an adult.
+Letting a 4-year-old choose his own colours is a real piece of ownership over his app.
+Default **Popsicle**. Persisted in AsyncStorage — settings only (`ui.md` §5.7).
 
 No "device language", no "auto", no third option. Changing language later is behind the gate,
 takes the same two-touch confirm, and **tears the game down and rebuilds it**: the pack is
@@ -471,11 +526,12 @@ Behind the gate. Six rows, never nested deeper than two levels.
 
 | Row | What |
 |---|---|
-| **Words** | the content editor (`ui.md` §11) |
+| **Add a word** | straight into the editor's add flow, camera step first (§2.5) |
+| **Words** | the content editor (`ui.md` §13) |
 | **Finish session** | §6.7 |
 | **Language** | §7.1, two-touch confirm, with "this restarts the game" stated |
-| **Voice & pace** | playback rate 0.8× / 1.0×; "say the sentence after the word" on/off; volume |
-| **Motion & sound** | reduce motion (defaults to the OS setting, overridable); mute |
+| **Voice & pace** | playback rate 0.8× / 1.0×; "say the sentence after the word" on/off; **`Show the word`** (§2.5), default on; volume |
+| **Motion & sound** | reduce motion (defaults to the OS setting, overridable); mute; theme |
 | **About** | version, and the per-image attribution list generated from the pack (`image-sourcing.md`) |
 
 No analytics, no account, no sync, no "rate this app", **and no network call anywhere in the
@@ -510,3 +566,6 @@ app, including the editor** (`decisions.md`: runtime network — none).
 | Gate = spelled-out multiplication, 1.2 s hold to open | Needs reading and arithmetic; needs nothing remembered in three months. |
 | Language chooser needs two touches seconds apart | A toddler cannot commit by accident, and this is the setting with the worst blast radius. |
 | Parent surfaces look nothing like the game | Two products, one binary; they must not be confusable, by anyone, including the tester. |
+| Text exists, aimed at his mother, never required of him | She is in the room by design. A word she can read aloud is worth more than a rule that forbids it — but cover the caption and every round still wins. |
+| Theme picker on the chooser *and* the album page | The chooser is shown once; without the album buttons he could never change his mind. The album page is a rest moment, so nothing is interrupted. |
+| No two-player mechanic | The ask was warmth, not a mode. A turn indicator would make her a player the app manages rather than a parent in the room. |

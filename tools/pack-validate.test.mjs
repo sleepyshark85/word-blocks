@@ -447,3 +447,77 @@ describe('incomplete is not corrupt', () => {
     assert.match(out, /orphan\s+media\/img\/orphan\.jpg/);
   });
 });
+
+/* ============================================================ drafts =========== */
+
+describe('drafts — a word captured mid-play', () => {
+  test('a draft with a picture and a recording but no decomposition is VALID', () => {
+    const d = copy(SRC_VI, 'draft');
+    const src = readJson(path.join(d, 'words', 'meo.json'));
+    writeJson(path.join(d, 'words', 'conchim.json'), {
+      id: 'conchim',
+      text: 'con chim',
+      draft: true,
+      enabled: false,
+      syllables: [],
+      images: [],
+      audio: { word: src.audio.word, blend: null, sentence: null },
+    });
+    const { code, out } = validate(d);
+    assert.equal(code, 0, `a draft is incomplete, not wrong. Output:\n${out}`);
+    assert.match(out, /1 draft/);
+  });
+
+  test('a draft that is still enabled is an ERROR — the child must not meet it', () => {
+    const d = copy(SRC_VI, 'draftenabled');
+    writeJson(path.join(d, 'words', 'conchim.json'), {
+      id: 'conchim', text: 'con chim', draft: true, enabled: true, syllables: [], images: [], audio: {},
+    });
+    rejects(d, /is a draft but is not disabled/);
+  });
+
+  test('a draft with an unsafe media path is STILL an error', () => {
+    const d = copy(SRC_VI, 'draftunsafe');
+    writeJson(path.join(d, 'words', 'conchim.json'), {
+      id: 'conchim', text: 'con chim', draft: true, enabled: false, syllables: [],
+      images: [{ src: '../../escape.jpg', source: 'camera' }], audio: {},
+    });
+    rejects(d, /not a safe media reference/);
+  });
+});
+
+/* ================================================= rebuilding must not destroy ==== */
+
+describe('build-seed-pack preserves curation', () => {
+  test('a rebuild keeps images, word audio and hand-supplied tile curriculum', () => {
+    // This is the regression test for a real defect: the first builder deleted every
+    // word file and wrote fresh ones with `images: []`, so fixing a typo in
+    // `word-list.md` would have wiped every curated photograph in the pack.
+    // The builder always writes to <out>/vi-seed, so the fixture must live at that path.
+    const parent = path.join(work, `rebuild-${Math.random().toString(36).slice(2, 8)}`);
+    mkdirSync(parent, { recursive: true });
+    const d = path.join(parent, 'vi-seed');
+    cpSync(SRC_VI, d, { recursive: true });
+    const before = readJson(path.join(d, 'words', 'pho.json'));
+    assert.ok(before.images.length > 0, 'fixture needs a word with images');
+    assert.ok(before.audio.word?.src, 'fixture needs a word with audio');
+
+    // A hand-edited tile label, which literacy-vi.md §5.3 says must be editable.
+    const man = readJson(path.join(d, 'pack.json'));
+    man.tiles.tone.find((t) => t.id === 'ngang').label = 'không dấu';
+    writeJson(path.join(d, 'pack.json'), man);
+
+    const r = spawnSync(process.execPath,
+      [path.join(ROOT, 'tools', 'build-seed-pack.mjs'), '--lang', 'vi', '--out', parent],
+      { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    assert.match(r.stdout, /preserved media on 50\/50 word\(s\)/);
+
+    const after = readJson(path.join(d, 'words', 'pho.json'));
+    assert.equal(after.images.length, before.images.length, 'images were destroyed by a rebuild');
+    assert.equal(after.audio.word.src, before.audio.word.src, 'audio was destroyed by a rebuild');
+    assert.equal(readJson(path.join(d, 'pack.json')).tiles.tone.find((t) => t.id === 'ngang').label,
+      'không dấu', 'an edited tile label was destroyed by a rebuild');
+    assert.equal(validate(d).code, 0);
+  });
+});

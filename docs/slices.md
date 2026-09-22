@@ -38,8 +38,9 @@ rate limit. What survived is catalogued below; it was verified by execution, not
 | Visual direction — 3 themes, Popsicle default | orchestrator + owner | **Done** — see `decisions.md` |
 | `gameplay.md`, `ui.md`, `acceptance-criteria.md` | game-designer | **In flight** |
 | `content-pipeline.md`, pack validator | content-engineer | **In flight** |
-| `gameplay.md` | game-designer | **Done** — 28 KB, not yet reviewed |
-| `ui.md`, `acceptance-criteria.md` | game-designer | **MISSING — agent killed before writing them** |
+| `gameplay.md` (571), `ui.md` (1208) | game-designer | **Done** — line counts verified |
+| `acceptance-criteria.md` | game-designer | **Done** — 223 unique AC ids, count verified |
+| `tools/theme-contrast.mjs`, `tools/layout-sweep.mjs` | game-designer | **Done** — both exit 0 when re-run by the orchestrator |
 | `content-pipeline.md` | content-engineer | **MISSING — agent killed before writing it** |
 | **Owner approval of the full design** | owner | **Delegated to the orchestrator.** The owner is AFK and has said not to wait on him unless totally blocked |
 
@@ -60,12 +61,20 @@ rate limit. What survived is catalogued below; it was verified by execution, not
    decomposition is `h` + `ỏ`, which composes to `hỏ`. The rime should be `ô`, not `o`.
    Caught by the validator, which is the validator earning its place — this is exactly the
    "content can be wrong" failure the five-agent split exists for.
-2. **`theme-contrast.mjs` fails with 8 pairs.** The three-theme decision tripled this work
-   and the sweep has not been satisfied yet. Do not ship a theme that has not passed it.
-3. **The validator under-reports a dangling image.** A word pointing at a missing file is
+2. ~~`theme-contrast.mjs` fails with 8 pairs.~~ **Fixed.** Exit 0 across 3 themes, and all
+   nine owner role hexes ship unchanged — the fix moved the colour (white tile face, ink
+   glyph, bright role bars) rather than darkening the palette to satisfy arithmetic.
+3. **`Fredoka` cannot render Vietnamese — verified, blocking.** Google Fonts serves it with
+   no `vietnamese` subset; its latin-ext skips `U+1EA0–U+1EF1`. Of 67 Vietnamese characters,
+   **41 are missing**. Critically `ã` (U+00E3) is present and `ả` (U+1EA3) is not, so `mã`
+   and `mả` would render in *different typefaces* — the exact correctness failure the font
+   requirement exists to prevent. Replacements confirmed to carry a `vietnamese` subset:
+   Baloo 2, Nunito, Quicksand, Comfortaa. The game-designer is choosing.
+
+4. **The validator under-reports a dangling image.** A word pointing at a missing file is
    reported only as an *attribution* warning, not as a missing-asset error. What the child
    sees when a file is gone is a first-order question and must be an error.
-4. **No images anywhere.** `images: []` in every word. This is the long pole.
+5. **No images anywhere.** `images: []` in every word. This is the long pole.
 
 **Nothing is built. No `src/` exists.** Slice 0 ends when the owner approves the design.
 

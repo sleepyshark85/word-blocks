@@ -65,6 +65,22 @@ const warnings = [];
 const err = (where, msg) => errors.push({ where, msg });
 const warn = (where, msg) => warnings.push({ where, msg });
 
+/**
+ * DRAFTS. His mother plays with him, and the best time to capture a word is the moment
+ * it happens — he points at their cat, she photographs it and records herself saying
+ * `mèo`, and that has to be savable *there*, in five seconds, without her stopping to
+ * decide that the rime is `eo` and the tone is huyền.
+ *
+ * So a word may be saved `draft: true`, which means: the picture and the sound are real
+ * and hers, the decomposition is not filled in yet. A draft is never shown to the child
+ * (`enabled` must be false) and its decomposition rules are relaxed to warnings.
+ *
+ * Nothing else is relaxed. A draft's media references are checked exactly as strictly as
+ * a finished word's, because an unsafe path is unsafe whoever typed it and whenever.
+ */
+const isDraft = (w) => w.draft === true;
+let draftCount = 0;
+
 /* --------------------------------------------------------------------- manifest */
 
 let manifest = null;
@@ -186,6 +202,7 @@ const seenId = new Set();
 const seenText = new Map();
 const referenced = new Set();
 let playable = 0;
+let photographed = 0;
 let enabledCount = 0;
 const imagesMissing = [];
 
@@ -250,29 +267,40 @@ for (const { file, word } of wordsOk) {
   if (lang === 'vi' && 'tiles' in word) err(rel, 'a Vietnamese word must not carry English `tiles`; it decomposes into `syllables` (literacy-vi.md §1.1)');
   if (lang === 'en' && 'syllables' in word) err(rel, 'an English word must not carry Vietnamese `syllables`; it decomposes into `tiles` (literacy-en.md §1)');
 
+  const draft = isDraft(word);
+  if (draft) {
+    draftCount += 1;
+    if (word.enabled !== false) {
+      err(rel, 'is a draft but is not disabled. A draft has no decomposition yet, so it cannot be played; set enabled = false. The child must never meet a half-entered word.');
+    }
+  }
+  // Decomposition faults on a draft are things she has not done yet, not things she got
+  // wrong. They are reported, and they do not fail the pack.
+  const dErr = draft ? warn : err;
+
   const enabled = word.enabled !== false;
   if (enabled) enabledCount += 1;
 
   /* --- Vietnamese decomposition ------------------------------------------- */
   if (lang === 'vi') {
     if (!Array.isArray(word.syllables) || word.syllables.length === 0) {
-      err(rel, 'syllables must be a non-empty array of {onset, rime, tone} (literacy-vi.md §1.1 — an array from day one so that two-syllable words are not a migration)');
+      dErr(rel, 'syllables must be a non-empty array of {onset, rime, tone} (literacy-vi.md §1.1 — an array from day one so that two-syllable words are not a migration)');
     } else {
       word.syllables.forEach((s, i) => {
         const at = `${rel} syllables[${i}]`;
-        if (!s || typeof s !== 'object') { err(at, 'must be an object'); return; }
+        if (!s || typeof s !== 'object') { dErr(at, 'must be an object'); return; }
         const { onset, rime, tone } = s;
         if (onset !== null && (typeof onset !== 'string' || !tileIds.onset?.has(onset))) {
-          err(at, `onset ${JSON.stringify(onset)} is not a tile in this pack (use null for the zero onset)`);
+          dErr(at, `onset ${JSON.stringify(onset)} is not a tile in this pack (use null for the zero onset)`);
         }
-        if (typeof rime !== 'string' || !tileIds.rime?.has(rime)) { err(at, `rime ${JSON.stringify(rime)} is not a tile in this pack`); return; }
-        if (typeof tone !== 'string' || !tileIds.tone?.has(tone)) { err(at, `tone ${JSON.stringify(tone)} is not a tile in this pack`); return; }
+        if (typeof rime !== 'string' || !tileIds.rime?.has(rime)) { dErr(at, `rime ${JSON.stringify(rime)} is not a tile in this pack`); return; }
+        if (typeof tone !== 'string' || !tileIds.tone?.has(tone)) { dErr(at, `tone ${JSON.stringify(tone)} is not a tile in this pack`); return; }
         if (!R.viLegalTones(rime).includes(tone)) {
-          err(at, `tone "${tone}" is illegal on rime "${rime}" — a rime ending in p/t/c/ch carries only sắc or nặng (literacy-vi.md §5.2)`);
+          dErr(at, `tone "${tone}" is illegal on rime "${rime}" — a rime ending in p/t/c/ch carries only sắc or nặng (literacy-vi.md §5.2)`);
         }
         if (typeof onset === 'string') {
           const bad = R.viCheckSpellingRule(onset, rime);
-          if (bad) err(at, bad);
+          if (bad) dErr(at, bad);
         }
       });
 
@@ -287,7 +315,7 @@ for (const { file, word } of wordsOk) {
         if (typeof toned === 'string') {
           const composed = `${s.onset ?? ''}${toned}`.normalize('NFC');
           if (composed !== textKey && word.build?.spellingException !== true) {
-            err(rel, `spelling disagrees with the decomposition: "${word.text}" but ${JSON.stringify(s.onset ?? '')} + "${toned}" composes to "${composed}". Either the decomposition or the spelling is wrong. If both are right and this is a genuine orthographic exception (literacy-vi.md §1.2), set build.spellingException = true.`);
+            dErr(rel, `spelling disagrees with the decomposition: "${word.text}" but ${JSON.stringify(s.onset ?? '')} + "${toned}" composes to "${composed}". Either the decomposition or the spelling is wrong. If both are right and this is a genuine orthographic exception (literacy-vi.md §1.2), set build.spellingException = true.`);
           }
         }
       }
@@ -297,12 +325,12 @@ for (const { file, word } of wordsOk) {
   /* --- English decomposition ---------------------------------------------- */
   if (lang === 'en') {
     if (!Array.isArray(word.tiles) || word.tiles.length === 0) {
-      err(rel, 'tiles must be a non-empty array of tile ids (literacy-en.md §1)');
+      dErr(rel, 'tiles must be a non-empty array of tile ids (literacy-en.md §1)');
     } else {
       let anyVowel = false;
       word.tiles.forEach((t, i) => {
         const at = `${rel} tiles[${i}]`;
-        if (typeof t !== 'string' || !tileIds.letter?.has(t)) { err(at, `${JSON.stringify(t)} is not a tile in this pack`); return; }
+        if (typeof t !== 'string' || !tileIds.letter?.has(t)) { dErr(at, `${JSON.stringify(t)} is not a tile in this pack`); return; }
         const tile = tileById.letter.get(t);
         if (tile.kind === 'vowel') anyVowel = true;
         if (i === 0 && R.EN_FINAL_ONLY.includes(t)) {
@@ -312,10 +340,10 @@ for (const { file, word } of wordsOk) {
           err(at, `"${t}" is initial-only in v1 (literacy-en.md §3.1)`);
         }
       });
-      if (!anyVowel) err(rel, 'no vowel tile — every English word needs one (literacy-en.md §3.2)');
+      if (!anyVowel) dErr(rel, 'no vowel tile — every English word needs one (literacy-en.md §3.2)');
       // English IS letter-by-letter (literacy-en.md §1), so this is exact, not advisory.
       const joined = word.tiles.join('');
-      if (joined !== word.text) err(rel, `tiles spell "${joined}" but text is "${word.text}"`);
+      if (joined !== word.text) dErr(rel, `tiles spell "${joined}" but text is "${word.text}"`);
     }
   }
 
@@ -376,6 +404,14 @@ for (const { file, word } of wordsOk) {
   // work. It becomes an error under --strict.
   const hasPicture = liveImages > 0 || (typeof word.fallbackEmoji === 'string' && word.fallbackEmoji);
   if (enabled) {
+    if (liveImages === 0 && word.fallbackEmoji) {
+      // Playable, but on the FALLBACK. decisions.md made real photographs primary and
+      // Fluent Emoji the thing you use when no acceptable photo was found — so a word
+      // running on the emoji is a word nobody has curated yet, and `--strict` (which
+      // means "ready for a child") must say so rather than count it as finished.
+      warn(rel, `has no photograph and is falling back to the "${word.fallbackEmoji}" emoji. Playable, but decisions.md makes real photographs primary — this word has not been curated.`);
+    }
+    if (liveImages > 0) photographed += 1;
     if (hasPicture && hasWordAudio) playable += 1;
     else if (!hasPicture) warn(rel, 'enabled but has no surviving image and no fallbackEmoji — the round generator must withhold it. The child sees a different word; he never sees a broken picture.');
     else warn(rel, 'enabled but has no word audio — the chant has no final step, so the round generator must withhold it.');
@@ -425,7 +461,9 @@ const summary = {
   words: wordsOk.length + wordsBad.length,
   unreadable: wordsBad.length,
   enabled: enabledCount,
+  drafts: draftCount,
   playable,
+  photographed,
   imagesMissing: imagesMissing.length,
   orphanFiles: orphans.length,
   bytes: { json: jsonBytes, images: imgBytes, audio: audBytes, total: jsonBytes + imgBytes + audBytes },
@@ -443,7 +481,7 @@ if (asJson) {
   const kb = (n) => `${(n / 1024).toFixed(1)} KiB`;
   console.log(`
 ${summary.pack}  [${summary.language}, schema ${summary.schema}]
-  words       ${summary.words} (${summary.enabled} enabled, ${summary.playable} playable${summary.unreadable ? `, ${summary.unreadable} UNREADABLE` : ''})
+  words       ${summary.words} (${summary.enabled} enabled, ${summary.playable} playable, ${summary.photographed} photographed${summary.drafts ? `, ${summary.drafts} draft` : ''}${summary.unreadable ? `, ${summary.unreadable} UNREADABLE` : ''})
   media       ${kb(imgBytes)} images + ${kb(audBytes)} audio + ${kb(jsonBytes)} json = ${kb(summary.bytes.total)}${summary.words ? `  (${Math.round(summary.bytes.total / summary.words).toLocaleString()} B/word)` : ''}
   findings    ${errors.length} error(s), ${warnings.length} warning(s)${strict ? ' [--strict: warnings count as failure]' : ''}
   ${failed ? 'FAIL' : 'OK'}`);

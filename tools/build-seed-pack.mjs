@@ -257,13 +257,72 @@ function enWords() {
 
 /* ------------------------------------------------------------------------- build */
 
+/**
+ * A REBUILD MUST NOT DESTROY CURATION.
+ *
+ * This function regenerates the pack from the literacy documents, and the first version
+ * of it deleted every word file and wrote fresh ones with `images: []` and
+ * `audio: { word: null }`. That is correct for the parts the documents own — the
+ * spelling, the decomposition, the stage — and catastrophic for the parts they do not:
+ * a `word-list.md` typo fix would have wiped every curated photograph and every
+ * generated clip in the pack, and the only sign would have been the pack getting
+ * smaller.
+ *
+ * So the rebuild MERGES. The documents win on what the documents decide; everything a
+ * human or a generator put there survives.
+ *
+ *   from the documents   text, stage, syllables/tiles, fallbackEmoji, build.*
+ *   preserved            images, audio, enabled, draft, notes, any unknown key
+ *
+ * `enabled` is preserved for a word that already exists, because after creation it
+ * belongs to whoever is maintaining the pack — a rebuild must not re-disable `phở` the
+ * day after somebody finally found it a picture.
+ */
+function mergeWord(fresh, existing) {
+  if (!existing) return fresh;
+  const { text, stage, syllables, tiles, fallbackEmoji, build } = fresh;
+  return {
+    ...existing,                       // carries images, audio, draft, and unknown keys
+    text,
+    stage,
+    ...(syllables ? { syllables } : {}),
+    ...(tiles ? { tiles } : {}),
+    fallbackEmoji,
+    build: { ...existing.build, ...build },
+  };
+}
+
+/** Tile curriculum and clips are not in the literacy documents; keep whatever is there. */
+function mergeTile(fresh, existing) {
+  if (!existing) return fresh;
+  return {
+    ...fresh,
+    // §5.3: a tone tile's label is editable data ("không dấu" for "ngang").
+    label: existing.label ?? fresh.label,
+    // decisions.md "Still open" #3: sound and anchor are curriculum, supplied by hand.
+    ...(existing.sound != null ? { sound: existing.sound } : {}),
+    ...(existing.anchor != null ? { anchor: existing.anchor } : {}),
+    audio: { ...fresh.audio, ...(existing.audio ?? {}) },
+  };
+}
+
 function build(lang) {
   const dir = path.join(out, `${lang}-seed`);
-  // A rebuild is a rebuild: wipe the generated words so a word deleted from the document
-  // disappears from the pack. Media is content-addressed and is deliberately NOT wiped,
-  // so curated pictures survive a word-list edit.
-  for (const f of listWordFiles(dir)) rmSync(f);
   ensurePackDirs(dir);
+
+  // Read what is already there BEFORE writing anything.
+  const prior = new Map();
+  for (const f of listWordFiles(dir)) {
+    try { const w = JSON.parse(readFileSync(f, 'utf8')); if (w?.id) prior.set(w.id, w); }
+    catch { /* an unreadable word file is the validator's problem, not the builder's */ }
+  }
+  let priorTiles = new Map();
+  try {
+    const m = JSON.parse(readFileSync(path.join(dir, 'pack.json'), 'utf8'));
+    for (const [g, list] of Object.entries(m.tiles ?? {})) {
+      for (const t of list) priorTiles.set(`${g}:${t.id}`, t);
+    }
+  } catch { /* first build, or a broken manifest the validator will report */ }
 
   let tiles;
   let words;
@@ -320,12 +379,32 @@ function build(lang) {
     tiles,
   };
 
-  writeManifest(dir, manifest);
-  for (const w of words) writeWord(dir, w);
+  // Merge before writing: documents win on what they own, curation survives.
+  for (const g of Object.keys(manifest.tiles)) {
+    manifest.tiles[g] = manifest.tiles[g].map((t) => mergeTile(t, priorTiles.get(`${g}:${t.id}`)));
+  }
+  const merged = words.map((w) => mergeWord(w, prior.get(w.id)));
 
-  const tileCount = Object.values(tiles).reduce((n, g) => n + g.length, 0);
-  console.log(`${lang}: ${words.length} words (${words.filter((w) => w.enabled).length} enabled), ${tileCount} tiles -> ${path.relative(ROOT, dir)}`);
-  return { dir, words, tiles };
+  // A word removed from the document is removed from the pack — that is what a rebuild
+  // is for — but it is named out loud, because it may be somebody's curated work and its
+  // media is left behind as orphans rather than deleted.
+  const live = new Set(merged.map((w) => w.id));
+  const dropped = [...prior.keys()].filter((id) => !live.has(id));
+  for (const id of dropped) rmSync(path.join(dir, 'words', `${id}.json`));
+
+  writeManifest(dir, manifest);
+  for (const w of merged) writeWord(dir, w);
+
+  const kept = merged.filter((w) => (w.images?.length ?? 0) > 0 || w.audio?.word).length;
+  if (kept) console.log(`  preserved media on ${kept}/${merged.length} word(s)`);
+  if (dropped.length) {
+    console.log(`  REMOVED ${dropped.length} word(s) no longer in the document: ${dropped.join(', ')}`);
+    console.log('  their media is now orphaned; sweep with: pack-validate.mjs --delete-orphans');
+  }
+
+  const tileCount = Object.values(manifest.tiles).reduce((n, g) => n + g.length, 0);
+  console.log(`${lang}: ${merged.length} words (${merged.filter((w) => w.enabled).length} enabled), ${tileCount} tiles -> ${path.relative(ROOT, dir)}`);
+  return { dir, words: merged, tiles: manifest.tiles };
 }
 
 for (const lang of ['vi', 'en']) {

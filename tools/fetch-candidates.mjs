@@ -88,11 +88,72 @@ function toTitle(concept) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+/**
+ * The file name inside an upload.wikimedia.org URL.
+ *   .../commons/a/ab/Pho.jpg            -> Pho.jpg
+ *   .../commons/thumb/a/ab/Pho.jpg/800px-Pho.jpg -> Pho.jpg
+ */
+function fileNameFromUpload(url) {
+  const segs = new URL(url).pathname.split('/').filter(Boolean);
+  const i = segs.indexOf('thumb');
+  const name = i >= 0 ? segs[segs.length - 2] : segs[segs.length - 1];
+  try { return decodeURIComponent(name); } catch { return name; }
+}
+
+/**
+ * THE LEAD IMAGE ARRIVES WITHOUT A LICENCE, and that was nearly a hole in the whole
+ * pipeline. The REST `page/summary` endpoint returns the image URL and nothing about its
+ * terms — so the source measured at ~77% usable, the one `image-sourcing.md` chose as
+ * primary, is also the one source whose output could not be attributed. Three curated
+ * photos of `phở` went into a pack and the validator rejected the first one for exactly
+ * this, which is the check doing its job before ninety words had been curated instead of
+ * one.
+ *
+ * The fix is one extra request per word: look the file up on Commons by name and read
+ * its `extmetadata`. Files hosted locally on a wiki rather than on Commons fall back to
+ * that wiki. If both come back empty the candidate is still offered — the curator can
+ * still look at it — but it carries `license: null`, and the validator will refuse to
+ * let it ship. Unattributable is not the same as unusable; it is the same as unshippable.
+ */
+async function fileLicence(fileUrl) {
+  const name = fileNameFromUpload(fileUrl);
+  for (const host of ['commons.wikimedia.org', WIKI]) {
+    const p = new URLSearchParams({
+      action: 'query', titles: `File:${name}`, prop: 'imageinfo',
+      iiprop: 'extmetadata|url', format: 'json', origin: '*',
+    });
+    let data;
+    try { ({ data } = await http.json(`https://${host}/w/api.php?${p}`)); } catch { continue; }
+    const page = Object.values(data?.query?.pages ?? {})[0];
+    if (!page || page.missing !== undefined) continue;
+    const em = page.imageinfo?.[0]?.extmetadata ?? {};
+    const lic = strip(em.LicenseShortName?.value);
+    if (!lic && !em.Artist?.value) continue;
+    return {
+      license: lic || null,
+      licenseUrl: strip(em.LicenseUrl?.value) || null,
+      creator: strip(em.Artist?.value).slice(0, 80) || null,
+      page: page.imageinfo?.[0]?.descriptionurl ?? `https://${host}/wiki/File:${encodeURIComponent(name)}`,
+      fileTitle: name,
+    };
+  }
+  return null;
+}
+
 async function leadImage(title) {
   const { data } = await http.json(`https://${WIKI}/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
   if (!data || data.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') return null;
   const url = data.originalimage?.source ?? data.thumbnail?.source ?? null;
-  return url ? { url, title: `${data.title} (${WIKI} lead image)`, page: data.content_urls?.desktop?.page ?? null } : null;
+  if (!url) return null;
+  const lic = await fileLicence(url);
+  return {
+    url,
+    title: lic?.fileTitle ? `${lic.fileTitle} (${WIKI} lead image for "${data.title}")` : `${data.title} (${WIKI} lead image)`,
+    page: lic?.page ?? data.content_urls?.desktop?.page ?? null,
+    license: lic?.license ?? null,
+    licenseUrl: lic?.licenseUrl ?? null,
+    creator: lic?.creator ?? null,
+  };
 }
 
 /**
@@ -207,7 +268,7 @@ for (const unit of units) {
   let picks = [];
   try {
     const lead = await leadImage(title);
-    if (lead) picks.push({ url: lead.url, title: lead.title, license: null, licenseUrl: null, creator: null, page: lead.page, rank: 'lead' });
+    if (lead) picks.push({ url: lead.url, title: lead.title, license: lead.license, licenseUrl: lead.licenseUrl, creator: lead.creator, page: lead.page, rank: 'lead' });
 
     const cat = await commonsCategory(title);
     if (cat) {
