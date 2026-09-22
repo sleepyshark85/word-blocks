@@ -67,6 +67,44 @@ a provider's fixed speeds. Resampling was rejected — it would drop the pitch w
 | Override | Any word's picture can be replaced — best of all is the mother's own photo of the real object |
 | Vietnamese mode | Source from **vi.wikipedia.org** — a Vietnamese child should see a Vietnamese bus |
 
+## Visual system — decided
+
+Owner brief, verbatim: **"bright and fun. Don't use depressing color/design."** Nothing
+carries over from wildlife-shuffle, which shipped a dark theme on `#16212C`.
+
+Three palettes were pitched as a visual preview rather than described in hex
+(https://claude.ai/artifact/RFy3M24jV2GbwCvqTwWhYL). The owner chose **all three**.
+
+| Theme | Ground | Character |
+|---|---|---|
+| **Popsicle** — **default** | `#E9FBF2` mint | Ice-lolly brights. Most contemporary |
+| Sunshine | `#FFF7EA` cream | Sunset hues, warmest, picture-book |
+| Playground | `#E6F3FF` sky | True primaries, highest energy |
+
+Requirements this creates, all owned by the game-designer:
+
+- **Token sets, nothing hardcoded.** A colour literal in a component is a bug — right in
+  one theme, wrong in two.
+- **An automated contrast sweep over every (theme × surface × foreground) pair.** Three
+  themes triples this work and it is exactly the work that silently does not get done.
+  wildlife-shuffle shipped a cosmetic whose colour table had never been checked against the
+  ground it rendered on, and had to write a sweep after the fact.
+- **Vietnamese role-colour semantics must hold in all three.** Onset, rime and tone each
+  carry a hue that *means* something; in every theme those three must be mutually
+  distinguishable, with the role→slot mapping constant even as the hex changes. If a theme
+  cannot supply three distinct role hues on its ground, the theme changes, not the rule.
+- Theme choice persists in **AsyncStorage — settings only.** Content stays on the filesystem.
+
+**Typography:** *Be Vietnam Pro* for text, *Fredoka* for tiles and words. Be Vietnam Pro is
+drawn for Vietnamese, which is a correctness requirement here rather than a taste one —
+`mả` and `mã` differ only by a mark, and stacked forms (`ươ`, `ề`, `ỹ`) must render rather
+than be inherited from whatever an Android OEM ships.
+
+**Colour does work in Vietnamese mode.** A syllable is onset + rime + tone, and each part
+carries a consistent hue so the child sees the structure before he can articulate it.
+English has one tile type, so colour there plays rather than labels — an asymmetry the
+game-designer must justify or remove in `ui.md`.
+
 ## Stack — decided
 
 **Expo / React Native / React, JavaScript (not TypeScript)** — the wildlife-shuffle stack.

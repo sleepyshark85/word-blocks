@@ -34,6 +34,7 @@ squad works), `spike-results.md` (what was measured).
 | Images decided | orchestrator + owner | **Done** — photo pipeline proven, Pexels key still optional |
 | `literacy-vi.md`, `literacy-en.md`, `word-list.md` | literacy-designer | **Done** — verified by orchestrator |
 | Stack, name, devices | orchestrator + owner | **Done** |
+| Visual direction — 3 themes, Popsicle default | orchestrator + owner | **Done** — see `decisions.md` |
 | `gameplay.md`, `ui.md`, `acceptance-criteria.md` | game-designer | **In flight** |
 | `content-pipeline.md`, pack validator | content-engineer | **In flight** |
 | **Owner approval of the full design** | owner | **Not yet requested** |
