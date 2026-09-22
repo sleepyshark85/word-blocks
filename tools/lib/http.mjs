@@ -20,7 +20,10 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
-export const UA = 'ghep-chu/0.1 (personal educational project; offline word game for one child)';
+// Wikimedia's User-Agent policy asks for a contact, not just a name, and throttles
+// harder without one. The repository URL is the contact -- deliberately NOT the
+// owner's email address, which has no business in an outbound request header.
+export const UA = 'ghep-chu/0.1 (+https://github.com/sleepyshark85/word-blocks) offline word game for one child';
 
 /** Minimum gap between requests to the same host, in ms. */
 const DEFAULT_GAP_MS = 1200;

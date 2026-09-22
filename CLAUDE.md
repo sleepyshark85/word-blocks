@@ -11,16 +11,27 @@ ads, no analytics, no IAP.
 
 ## Where things stand
 
-**Nothing is built. There is no `src/`.** The project is in Slice 0 — design.
+**Slice 0 (design) and Slice 2 (the engine) are done. Slice 3 (the playable app) is being
+built.** Approval was delegated to the orchestrator by the owner and given only after every
+agent claim was re-executed.
 
-**Read `docs/slices.md` first.** It carries the status table, what each slice contains, and
-— in *Resuming this project in a fresh session* — exactly what to read and run when picking
-this up with no conversation history. It is updated at every gate.
+| | State |
+|---|---|
+| Design | **Closed.** 227 ACs, `theme-contrast.mjs` and `layout-sweep.mjs` both exit 0 |
+| Content packs | `vi-seed` 50 words, `en-seed` 40 words, both validate exit 0 |
+| Engine (`src/engine/`) | **Built.** `npm test` 179/179; ~9,400 fuzzed rounds per language, 0 invariant violations. **Under independent test** |
+| App (`src/ui/`) | **In progress** — Slice 3 |
+| Photographs | **14 imported, ~45 words still to curate.** The long pole |
+| Editor (Slice 4) | Not started |
 
-Design is largely settled. The language models, the word list, the stack, the name, the
-devices and **both audio engines** are decided and recorded in `docs/design/decisions.md`.
-The UI and the content-pack format were in flight at the last update. The owner has **not
-yet approved the full design**, which is the gate that ends Slice 0.
+**Read `docs/slices.md`** for the status table, the gates, the known defects, and — in
+*Resuming this project in a fresh session* — exactly what to read and run with no history.
+
+**Curation is the bottleneck and it cannot be automated.** Every photograph is looked at by
+an eye before it enters a pack. `tools/fetch-candidates.mjs` assembles candidates into
+numbered contact sheets; a human picks; `tools/pack-import-media.mjs --pick` imports them
+with licence and author carried across. Wikimedia throttles this work — the User-Agent
+carries a contact URL because their policy asks for one and they rate-limit harder without.
 
 ## The two things this project keeps learning
 
@@ -34,8 +45,16 @@ sooner.
 **Relevance ranking is not judgement.** Openverse's top photo for "cat" was a catfish; for
 "car" it returned an F1 car, a train, a dealership sign and a pin-up advertisement captioned
 "BOMBS!" — 0 of 12 usable. Wikipedia *lead* images measure ~77% because a human chose each
-one. Every image that reaches the pack is looked at. The tools assemble candidates; they do
-not choose.
+one, and article-body images inherit that property; a Commons **category** does not — it is
+an archive of everything ever filed under a concept, and it returned a museum diorama of a
+mammoth under "tiger" and butchered carcasses under "chicken". Every image that reaches the
+pack is looked at. The tools assemble candidates; they do not choose.
+
+**A green check you have not seen fail is not a check.** This project has caught four: a
+validator that passed a pack with zero photographs because every word had an emoji
+fallback; three engine tests that passed with their own rule deleted; a yield statistic
+that printed 233%; and a font requirement that no one had rendered. Inject the fault
+first.
 
 ## Repo map
 

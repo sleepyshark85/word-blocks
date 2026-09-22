@@ -268,7 +268,11 @@ Real, from `packs/vi-seed/words/pho.json`, images abbreviated to one.
     "assetConcept": "a bowl of phở",
     "flags": ["PHOTO"],
     "note": "PHOTO — vi.wikipedia.org/wiki/Phở",
-    "from": "word-list.md §4 Cultural vocabulary (appendix)"
+    "from": "word-list.md §4 Cultural vocabulary (appendix)",
+    // How many candidates each stream OFFERED, written at the moment a human chose from
+    // them. The denominator of the yield report (§9.2). It lives here rather than in the
+    // candidate sheet because the sheet is scratch and scratch gets cleared.
+    "fetched": { "lead": 1, "article": 4, "at": "2026-09-23T…" }
   }
 }
 ```
@@ -842,6 +846,16 @@ as "0 kept" would drag every percentage towards zero and make the table say more
 far the curator had got than about how good the source is. The first version did exactly
 that and reported the lead image at 16%.
 
+**The denominator lives in the pack, not in the scratch.** The first version read the
+offered counts back out of `.candidates/<word>/candidates.json`, and then the curator
+cleared the scratch before a fresh fetch run — which is the normal thing to do — and the
+yield report silently vanished for five already-curated words. Curation is the only moment
+at which both numbers are known, so `pack-import-media.mjs` now writes the offered counts
+into `build.fetched` as it imports. Verified by importing, reporting, **deleting the entire
+`.candidates` directory**, and reporting again: byte-identical output. The sheet is still
+read when present, because it is what lets images imported before `rank` existed be
+matched back by title.
+
 Normalisation: `-auto-orient`, square centre-crop, 512×512, `-strip`, progressive, 4:2:0,
 q82. Measured on nine true 1024 px originals: **mean 51,196 B, max 98,520 B**. On the
 three real phở imports: 34,437 / 58,431 / 65,638 B.
@@ -1137,6 +1151,7 @@ node tools/pack-attributions.mjs packs/vi-seed
 | Article images beat the category | `chó`: 8 candidates (1 usable, curator's count) → 5 candidates, 0 from the category, 2 plainly good. `cá`: → 6, 0 from the category |
 | Captions render in Vietnamese | default font drops diacritics ("V  trí c a các"); DejaVu Sans renders correctly — checked by rendering and looking |
 | Yield reporting is right | lead 4/5 = 80%, category 10/33 = 30% on the curator's real first five words — independently reproduces `image-sourcing.md` |
+| Yield survives the scratch being cleared | imported, reported, deleted `.candidates` entirely, reported again — byte-identical |
 | Every final-only English tile is enforced | the test iterates `EN_FINAL_ONLY`; `gg` was missing from the constant and nothing failed, because the pack happened to be right |
 | Backup round-trips | 1,061,171 B export → restore → identical counts, validates clean |
 | A damaged backup is refused | truncated archive → refused, nothing changed |
