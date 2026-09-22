@@ -25,7 +25,7 @@
       "title": "Oryctolagus cuniculus Rcdo.jpg",
       "rank": "lead",
       "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
-      "addedAt": "2026-09-22T19:26:57.443Z"
+      "addedAt": "2026-09-22T19:28:27.633Z"
     },
     {
       "src": "media/img/e4c08ab82561fa2b.jpg",
@@ -41,21 +41,6 @@
       "rank": "article",
       "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
       "addedAt": "2026-09-22T19:26:57.534Z"
-    },
-    {
-      "src": "media/img/44d328a5454ba1ee.jpg",
-      "w": 512,
-      "h": 512,
-      "bytes": 71389,
-      "source": "vi.wikipedia.org",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sylvilagus_bachmani_01035t.JPG",
-      "license": "CC BY 2.5",
-      "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
-      "creator": null,
-      "title": "Sylvilagus bachmani 01035t.JPG",
-      "rank": "article",
-      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
-      "addedAt": "2026-09-22T19:26:57.623Z"
     },
     {
       "src": "media/img/98be31709e8e510e.jpg",
@@ -104,7 +89,7 @@
     "fetched": {
       "lead": 1,
       "article": 9,
-      "at": "2026-09-22T19:26:57.709Z"
+      "at": "2026-09-22T19:28:27.803Z"
     }
   }
 }
