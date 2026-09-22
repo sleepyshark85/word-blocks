@@ -1,0 +1,35 @@
+{
+  "id": "ant",
+  "text": "ant",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "a",
+    "n",
+    "t"
+  ],
+  "fallbackEmoji": "Ant",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/3d7b628ead2112d2.mp3",
+      "bytes": 13104,
+      "ms": 2184,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "ant",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:58.338Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "ant",
+    "family": null,
+    "flags": [
+      "VCC"
+    ],
+    "note": "VCC — no onset tile, same shape as Vietnamese ong",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

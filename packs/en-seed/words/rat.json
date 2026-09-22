@@ -1,0 +1,33 @@
+{
+  "id": "rat",
+  "text": "rat",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "r",
+    "a",
+    "t"
+  ],
+  "fallbackEmoji": "Rat",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/1318fb03a38f4e5a.mp3",
+      "bytes": 13824,
+      "ms": 2304,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "rat",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:29.816Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "rat",
+    "family": "-at",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

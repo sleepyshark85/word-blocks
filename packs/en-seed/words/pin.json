@@ -1,0 +1,33 @@
+{
+  "id": "pin",
+  "text": "pin",
+  "stage": 3,
+  "enabled": true,
+  "tiles": [
+    "p",
+    "i",
+    "n"
+  ],
+  "fallbackEmoji": "Pushpin",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/630725dfcf73cabd.mp3",
+      "bytes": 12960,
+      "ms": 2160,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "pin",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:27.941Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "pin",
+    "family": "-in",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 3 — + short `i` (3)"
+  }
+}

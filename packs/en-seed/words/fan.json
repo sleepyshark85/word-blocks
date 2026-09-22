@@ -1,0 +1,35 @@
+{
+  "id": "fan",
+  "text": "fan",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "f",
+    "a",
+    "n"
+  ],
+  "fallbackEmoji": "Folding hand fan",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/003ed3ddc47a8cd2.mp3",
+      "bytes": 13824,
+      "ms": 2304,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "fan",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:12.912Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "electric fan",
+    "family": "-an",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — a 4-year-old means an electric fan",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

@@ -11,12 +11,13 @@ squad works), `spike-results.md` (what was measured).
 
 ## Status
 
-*Last updated: 2026-09-23*
+*Last updated: 2026-09-23 — all three design agents were killed mid-work by a weekly
+rate limit. What survived is catalogued below; it was verified by execution, not trusted.*
 
 | # | Slice | State |
 |---|---|---|
-| **0** | Squad, spike, and approved design | **In progress** — literacy done; UI and content pipeline in flight |
-| **1** | Content pack: format, validator, seed pack with real assets | Not started |
+| **0** | Squad, spike, and approved design | **In progress** — `ui.md` and `acceptance-criteria.md` still missing |
+| **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
 | **2** | Engine: tile assembly, word matching, round generation | Not started |
 | **3** | The game plays, both languages, on a real device | Not started |
 | **4** | The editor — add / edit / delete a word | Not started |
@@ -37,7 +38,34 @@ squad works), `spike-results.md` (what was measured).
 | Visual direction — 3 themes, Popsicle default | orchestrator + owner | **Done** — see `decisions.md` |
 | `gameplay.md`, `ui.md`, `acceptance-criteria.md` | game-designer | **In flight** |
 | `content-pipeline.md`, pack validator | content-engineer | **In flight** |
-| **Owner approval of the full design** | owner | **Not yet requested** |
+| `gameplay.md` | game-designer | **Done** — 28 KB, not yet reviewed |
+| `ui.md`, `acceptance-criteria.md` | game-designer | **MISSING — agent killed before writing them** |
+| `content-pipeline.md` | content-engineer | **MISSING — agent killed before writing it** |
+| **Owner approval of the full design** | owner | **Delegated to the orchestrator.** The owner is AFK and has said not to wait on him unless totally blocked |
+
+### What the killed agents left behind — verified by execution
+
+| Artefact | State |
+|---|---|
+| `tools/pack-validate.mjs` | **Works.** Exit 1 on error, 0 on clean. Proven to fail on a pack broken on purpose (corrupt JSON → quarantine message) |
+| `tools/build-seed-pack.mjs`, `gen-audio.mjs`, `tts.py`, `lib/media.mjs` | Present, produced real output |
+| `tools/theme-contrast.mjs` | **Runs and FAILS: 8 failing pairs across 3 themes.** The agent died mid-tuning |
+| `tools/fetch-candidates.mjs` | Absorbed `fetch-wiki-candidates.mjs`, which is why that file shows as deleted. `--lang vi` sources from vi.wikipedia.org as decided. **Not a loss** |
+| `packs/vi-seed` | 50 words, 47 playable, 891 KiB audio, **0 images**. 1 content ERROR (below) |
+| `packs/en-seed` | 40 words, 1.3 MiB audio, **0 images**, 20 warnings (silent tiles `zz`, `gg`) |
+
+### Known defects — carry these forward
+
+1. **`packs/vi-seed/words/ho.json` is linguistically wrong.** Spelling `hổ` but the
+   decomposition is `h` + `ỏ`, which composes to `hỏ`. The rime should be `ô`, not `o`.
+   Caught by the validator, which is the validator earning its place — this is exactly the
+   "content can be wrong" failure the five-agent split exists for.
+2. **`theme-contrast.mjs` fails with 8 pairs.** The three-theme decision tripled this work
+   and the sweep has not been satisfied yet. Do not ship a theme that has not passed it.
+3. **The validator under-reports a dangling image.** A word pointing at a missing file is
+   reported only as an *attribution* warning, not as a missing-asset error. What the child
+   sees when a file is gone is a first-order question and must be an error.
+4. **No images anywhere.** `images: []` in every word. This is the long pole.
 
 **Nothing is built. No `src/` exists.** Slice 0 ends when the owner approves the design.
 

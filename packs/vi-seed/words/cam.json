@@ -1,0 +1,37 @@
+{
+  "id": "cam",
+  "text": "cam",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "c",
+      "rime": "am",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Tangerine",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/94e378dfd6ace4c8.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "cam",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:27.221Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "orange (fruit)",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG — tangerine ≠ orange",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

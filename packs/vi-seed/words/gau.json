@@ -1,0 +1,44 @@
+{
+  "id": "gau",
+  "text": "gấu",
+  "stage": 2,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "g",
+      "rime": "âu",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Bear",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/5a552c3731754221.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "gấu",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:33.396Z"
+    },
+    "blend": {
+      "src": "media/aud/916c139d4a91cf9d.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "gâu",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:33.803Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bear",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+  }
+}

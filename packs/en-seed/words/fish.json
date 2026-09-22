@@ -1,0 +1,33 @@
+{
+  "id": "fish",
+  "text": "fish",
+  "stage": 6,
+  "enabled": true,
+  "tiles": [
+    "f",
+    "i",
+    "sh"
+  ],
+  "fallbackEmoji": "Fish",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/53e693698a6638d5.mp3",
+      "bytes": 13824,
+      "ms": 2304,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "fish",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:13.905Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "fish",
+    "family": null,
+    "flags": [],
+    "note": "sh in final position",
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+  }
+}

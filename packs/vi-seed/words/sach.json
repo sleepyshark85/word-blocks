@@ -1,0 +1,44 @@
+{
+  "id": "sach",
+  "text": "sách",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "s",
+      "rime": "ach",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Open book",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/de39bc2c9daf8332.mp3",
+      "bytes": 5760,
+      "ms": 720,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "sách",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:46.280Z"
+    },
+    "blend": {
+      "src": "media/aud/60f86dfda6e31bc0.mp3",
+      "bytes": 5376,
+      "ms": 672,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "sach",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:46.682Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "book",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

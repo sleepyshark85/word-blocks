@@ -1,0 +1,44 @@
+{
+  "id": "ghe",
+  "text": "ghế",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "gh",
+      "rime": "ê",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Chair",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/7ef531c3001e8043.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ghế",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:34.187Z"
+    },
+    "blend": {
+      "src": "media/aud/ecd9318fcb008e2f.mp3",
+      "bytes": 5952,
+      "ms": 744,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ghê",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:34.520Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "chair",
+    "flags": [],
+    "note": "teaches gh before ê",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

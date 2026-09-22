@@ -1,0 +1,35 @@
+{
+  "id": "chim",
+  "text": "chim",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "ch",
+      "rime": "im",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Bird",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/3c736d25b9b8b650.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "chim",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:27.979Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bird",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

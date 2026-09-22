@@ -1,0 +1,33 @@
+{
+  "id": "fox",
+  "text": "fox",
+  "stage": 4,
+  "enabled": true,
+  "tiles": [
+    "f",
+    "o",
+    "x"
+  ],
+  "fallbackEmoji": "Fox",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/54932076e3afaf67.mp3",
+      "bytes": 14832,
+      "ms": 2472,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "fox",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:14.979Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "fox",
+    "family": "-ox",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "id": "mu",
+  "text": "mũ",
+  "stage": 2,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "m",
+      "rime": "u",
+      "tone": "nga"
+    }
+  ],
+  "fallbackEmoji": "Womans hat",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/a433493ad2c2f8a0.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "mũ",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:39.986Z"
+    },
+    "blend": {
+      "src": "media/aud/1b68615bd214de82.mp3",
+      "bytes": 7488,
+      "ms": 936,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "mu",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:40.359Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "hat",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — asset is an adult woman's hat; also ngã, so stage 5 unless the owner is northern",
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "nut",
+  "text": "nut",
+  "stage": 5,
+  "enabled": true,
+  "tiles": [
+    "n",
+    "u",
+    "t"
+  ],
+  "fallbackEmoji": "Peanuts",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/7235583c18ad7792.mp3",
+      "bytes": 13392,
+      "ms": 2232,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "nut",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:24.136Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "nut (to eat)",
+    "family": "-ut",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG mild — plural; Fluent Nut and bolt is the wrong sense, do not use it",
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+  }
+}

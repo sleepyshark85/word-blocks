@@ -1,0 +1,35 @@
+{
+  "id": "sao",
+  "text": "sao",
+  "stage": 2,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "s",
+      "rime": "ao",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Star",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/6b2b1bc36eed6744.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "sao",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:47.042Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "star",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+  }
+}

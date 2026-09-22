@@ -1,0 +1,47 @@
+{
+  "id": "pho",
+  "text": "phở",
+  "stage": null,
+  "enabled": false,
+  "disabledReason": "no picture yet (word-list.md §4 appendix)",
+  "syllables": [
+    {
+      "onset": "ph",
+      "rime": "ơ",
+      "tone": "hoi"
+    }
+  ],
+  "fallbackEmoji": null,
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/0777da50992cc17e.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "phở",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:44.531Z"
+    },
+    "blend": {
+      "src": "media/aud/e2974ad478585fc6.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "phơ",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:44.869Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "a bowl of phở",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — vi.wikipedia.org/wiki/Phở",
+    "from": "word-list.md §4 Cultural vocabulary — photo required, no emoji exists (appendix)"
+  }
+}

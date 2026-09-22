@@ -1,0 +1,37 @@
+{
+  "id": "xe",
+  "text": "xe",
+  "stage": 1,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "x",
+      "rime": "e",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Automobile",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/fe3d50a9cbfc0863.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "xe",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:51.635Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "car",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG — xe is \"vehicle\" generally",
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+  }
+}

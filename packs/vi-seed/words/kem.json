@@ -1,0 +1,35 @@
+{
+  "id": "kem",
+  "text": "kem",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "k",
+      "rime": "em",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Ice cream",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/630c2ef52e9107d9.mp3",
+      "bytes": 5952,
+      "ms": 744,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "kem",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:36.746Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "ice cream",
+    "flags": [],
+    "note": "teaches k before e",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

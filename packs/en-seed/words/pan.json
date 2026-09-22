@@ -1,0 +1,33 @@
+{
+  "id": "pan",
+  "text": "pan",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "p",
+    "a",
+    "n"
+  ],
+  "fallbackEmoji": "Shallow pan of food",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/4f6f33888224dfad.mp3",
+      "bytes": 13248,
+      "ms": 2208,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "pan",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:25.098Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "frying pan",
+    "family": "-an",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

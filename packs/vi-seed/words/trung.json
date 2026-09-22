@@ -1,0 +1,44 @@
+{
+  "id": "trung",
+  "text": "trứng",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "tr",
+      "rime": "ưng",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Egg",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/90d1c65ad36f729e.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "trứng",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:49.858Z"
+    },
+    "blend": {
+      "src": "media/aud/69e260d56709ca5b.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "trưng",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:50.219Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "egg",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

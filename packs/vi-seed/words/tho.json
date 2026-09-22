@@ -1,0 +1,44 @@
+{
+  "id": "tho",
+  "text": "thỏ",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "th",
+      "rime": "o",
+      "tone": "hoi"
+    }
+  ],
+  "fallbackEmoji": "Rabbit",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/f75bbd7586436a14.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "thỏ",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:48.444Z"
+    },
+    "blend": {
+      "src": "media/aud/75029e14b55a9bdd.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "tho",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:48.793Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "rabbit",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "vit",
+  "text": "vịt",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "v",
+      "rime": "it",
+      "tone": "nang"
+    }
+  ],
+  "fallbackEmoji": "Duck",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/4e685ff3da9c3bb2.mp3",
+      "bytes": 5184,
+      "ms": 648,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "vịt",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:50.559Z"
+    },
+    "blend": {
+      "src": "media/aud/a6efa18ed33bbf10.mp3",
+      "bytes": 5376,
+      "ms": 672,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "vit",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:50.925Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "duck",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

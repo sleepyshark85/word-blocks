@@ -1,0 +1,46 @@
+{
+  "id": "quat",
+  "text": "quạt",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "qu",
+      "rime": "at",
+      "tone": "nang"
+    }
+  ],
+  "fallbackEmoji": "Folding hand fan",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/41f9326d40616b88.mp3",
+      "bytes": 5760,
+      "ms": 720,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "quạt",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:45.224Z"
+    },
+    "blend": {
+      "src": "media/aud/09b782a2dbd91be7.mp3",
+      "bytes": 5568,
+      "ms": 696,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "quat",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:45.572Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "electric fan",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — asset is a folding hand fan; the qu onset",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

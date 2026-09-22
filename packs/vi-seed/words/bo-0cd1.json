@@ -1,0 +1,35 @@
+{
+  "id": "bo-0cd1",
+  "text": "bơ",
+  "stage": 1,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "b",
+      "rime": "ơ",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Avocado",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/07d9af55a720693f.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bơ",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:23.971Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "avocado",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+  }
+}

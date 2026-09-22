@@ -1,0 +1,33 @@
+{
+  "id": "cat",
+  "text": "cat",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "c",
+    "a",
+    "t"
+  ],
+  "fallbackEmoji": "Cat",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/514d89c33ceaa3b1.mp3",
+      "bytes": 13536,
+      "ms": 2256,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "cat",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:06.663Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cat",
+    "family": "-at",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

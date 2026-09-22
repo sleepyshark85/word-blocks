@@ -1,0 +1,32 @@
+{
+  "id": "egg",
+  "text": "egg",
+  "stage": 6,
+  "enabled": true,
+  "tiles": [
+    "e",
+    "gg"
+  ],
+  "fallbackEmoji": "Egg",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/2c8668c5ae6aba31.mp3",
+      "bytes": 12672,
+      "ms": 2112,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "egg",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:11.894Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "egg",
+    "family": null,
+    "flags": [],
+    "note": "3 letters, 2 tiles, no onset",
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "bun",
+  "text": "bún",
+  "stage": null,
+  "enabled": false,
+  "disabledReason": "no picture yet (word-list.md §4 appendix)",
+  "syllables": [
+    {
+      "onset": "b",
+      "rime": "un",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": null,
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/763867c2e0b8aa62.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bún",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:25.753Z"
+    },
+    "blend": {
+      "src": "media/aud/21d74bebe485071a.mp3",
+      "bytes": 5760,
+      "ms": 720,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bun",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:26.115Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "a bowl of bún",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO",
+    "from": "word-list.md §4 Cultural vocabulary — photo required, no emoji exists (appendix)"
+  }
+}

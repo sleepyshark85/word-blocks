@@ -1,0 +1,44 @@
+{
+  "id": "bong",
+  "text": "bóng",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "b",
+      "rime": "ong",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Soccer ball",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/b98c401bed4c51a8.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bóng",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:25.021Z"
+    },
+    "blend": {
+      "src": "media/aud/2b6437484fd6d520.mp3",
+      "bytes": 5952,
+      "ms": 744,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bong",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:25.385Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "ball",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

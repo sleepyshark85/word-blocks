@@ -1,0 +1,33 @@
+{
+  "id": "bug",
+  "text": "bug",
+  "stage": 5,
+  "enabled": true,
+  "tiles": [
+    "b",
+    "u",
+    "g"
+  ],
+  "fallbackEmoji": "Bug",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/44ec9e3beb860699.mp3",
+      "bytes": 12960,
+      "ms": 2160,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "bug",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:03.853Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bug / beetle",
+    "family": "-ug",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+  }
+}

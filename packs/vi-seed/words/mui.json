@@ -1,0 +1,46 @@
+{
+  "id": "mui",
+  "text": "mũi",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "m",
+      "rime": "ui",
+      "tone": "nga"
+    }
+  ],
+  "fallbackEmoji": "Nose",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/e8cb4eca8647176c.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "mũi",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:41.113Z"
+    },
+    "blend": {
+      "src": "media/aud/c80b28dcc5ce61bf.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "mui",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:41.460Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "nose",
+    "flags": [
+      "TONE"
+    ],
+    "note": "TONE",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

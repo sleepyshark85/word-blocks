@@ -1,0 +1,35 @@
+{
+  "id": "van",
+  "text": "van",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "v",
+    "a",
+    "n"
+  ],
+  "fallbackEmoji": "Delivery truck",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/01921027f97071cb.mp3",
+      "bytes": 13248,
+      "ms": 2208,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "van",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:33.436Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "van",
+    "family": "-an",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — a truck is not a van",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

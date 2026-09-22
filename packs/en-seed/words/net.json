@@ -1,0 +1,35 @@
+{
+  "id": "net",
+  "text": "net",
+  "stage": 2,
+  "enabled": true,
+  "tiles": [
+    "n",
+    "e",
+    "t"
+  ],
+  "fallbackEmoji": "Goal net",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/878e70de34314d6d.mp3",
+      "bytes": 13824,
+      "ms": 2304,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "net",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:23.193Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "net",
+    "family": "-et",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — asset is a football goal",
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+  }
+}

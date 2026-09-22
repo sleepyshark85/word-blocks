@@ -1,0 +1,35 @@
+{
+  "id": "ong",
+  "text": "ong",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": null,
+      "rime": "ong",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Honeybee",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/26b9588b929658b7.mp3",
+      "bytes": 5760,
+      "ms": 720,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ong",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:44.188Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bee",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

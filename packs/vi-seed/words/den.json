@@ -1,0 +1,44 @@
+{
+  "id": "den",
+  "text": "đèn",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "đ",
+      "rime": "en",
+      "tone": "huyen"
+    }
+  ],
+  "fallbackEmoji": "Light bulb",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/deda8f584e723d53.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "đèn",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:31.241Z"
+    },
+    "blend": {
+      "src": "media/aud/1d9a8a92a4acca0d.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "đen",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:31.593Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "lamp / light",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

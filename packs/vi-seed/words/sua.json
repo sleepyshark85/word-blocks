@@ -1,0 +1,44 @@
+{
+  "id": "sua",
+  "text": "sữa",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "s",
+      "rime": "ưa",
+      "tone": "nga"
+    }
+  ],
+  "fallbackEmoji": "Glass of milk",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/92eb0d724884ef25.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "sữa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:47.418Z"
+    },
+    "blend": {
+      "src": "media/aud/cffbf3e6baee8e35.mp3",
+      "bytes": 7104,
+      "ms": 888,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "sưa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:47.756Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "glass of milk",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

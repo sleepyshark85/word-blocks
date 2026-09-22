@@ -1,0 +1,44 @@
+{
+  "id": "ga",
+  "text": "gà",
+  "stage": 1,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "g",
+      "rime": "a",
+      "tone": "huyen"
+    }
+  ],
+  "fallbackEmoji": "Chicken",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/f8c9b0660896ff57.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "gà",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:32.662Z"
+    },
+    "blend": {
+      "src": "media/aud/5e018f2e9d7ee1f5.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ga",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:33.015Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "chicken (hen)",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+  }
+}

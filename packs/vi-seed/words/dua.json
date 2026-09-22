@@ -1,0 +1,44 @@
+{
+  "id": "dua",
+  "text": "dừa",
+  "stage": 2,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "d",
+      "rime": "ưa",
+      "tone": "huyen"
+    }
+  ],
+  "fallbackEmoji": "Coconut",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/77a2e08df60a35fb.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "dừa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:31.936Z"
+    },
+    "blend": {
+      "src": "media/aud/52131219296dde1d.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "dưa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:32.295Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "coconut",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "nha",
+  "text": "nhà",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "nh",
+      "rime": "a",
+      "tone": "huyen"
+    }
+  ],
+  "fallbackEmoji": "House",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/4daeb63de00b9890.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "nhà",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:42.643Z"
+    },
+    "blend": {
+      "src": "media/aud/1e0f031eb1e9b278.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "nha",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:43.012Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "house",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

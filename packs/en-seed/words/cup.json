@@ -1,0 +1,33 @@
+{
+  "id": "cup",
+  "text": "cup",
+  "stage": 5,
+  "enabled": true,
+  "tiles": [
+    "c",
+    "u",
+    "p"
+  ],
+  "fallbackEmoji": "Cup with straw",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/43624e065ed94aef.mp3",
+      "bytes": 12672,
+      "ms": 2112,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "cup",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:08.520Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cup",
+    "family": "-up",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+  }
+}

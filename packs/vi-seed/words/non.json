@@ -1,0 +1,47 @@
+{
+  "id": "non",
+  "text": "nón",
+  "stage": null,
+  "enabled": false,
+  "disabledReason": "no picture yet (word-list.md §4 appendix)",
+  "syllables": [
+    {
+      "onset": "n",
+      "rime": "on",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": null,
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/012ad995b9af2ba6.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "nón",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:43.415Z"
+    },
+    "blend": {
+      "src": "media/aud/ffbb99241e154fdd.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "non",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:43.818Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "a nón lá (conical hat)",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO",
+    "from": "word-list.md §4 Cultural vocabulary — photo required, no emoji exists (appendix)"
+  }
+}

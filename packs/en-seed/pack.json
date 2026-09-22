@@ -1,0 +1,979 @@
+{
+  "schema": 1,
+  "id": "en-seed",
+  "language": "en",
+  "name": "Word Blocks",
+  "revision": 1,
+  "origin": "seed",
+  "generator": {
+    "tool": "tools/build-seed-pack.mjs",
+    "builtAt": "2026-09-22T17:13:19.163Z",
+    "sources": [
+      "docs/design/word-list.md",
+      "docs/design/literacy-en.md"
+    ],
+    "audio": {
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "generatedAt": "2026-09-22T17:22:34.357Z"
+    }
+  },
+  "media": {
+    "onMissingImage": "fallbackEmoji-then-withhold",
+    "onMissingWordAudio": "withhold",
+    "onMissingTileAudio": "silent",
+    "imagesPerWord": {
+      "min": 1,
+      "target": 3,
+      "max": 6
+    },
+    "image": {
+      "format": "jpeg",
+      "size": 512,
+      "quality": 82
+    },
+    "audio": {
+      "format": "mp3",
+      "sampleRate": 24000
+    }
+  },
+  "rules": {
+    "neverTogether": [
+      [
+        "c",
+        "k"
+      ]
+    ],
+    "note": "literacy-en.md §6.2 — `c` and `k` are homophones in v1"
+  },
+  "chant": {
+    "gapsMs": {
+      "tile": 200,
+      "lastTile": 350,
+      "word": 600
+    }
+  },
+  "tiles": {
+    "letter": [
+      {
+        "id": "b",
+        "glyph": "b",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "buh",
+        "anchor": "ball",
+        "audio": {
+          "long": {
+            "src": "media/aud/2a271b9c47b0e75b.mp3",
+            "bytes": 17424,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "buh, ball",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.209Z"
+          },
+          "short": {
+            "src": "media/aud/f92621baaa1dd911.mp3",
+            "bytes": 13248,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "buh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.211Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "c",
+        "glyph": "c",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "kuh",
+        "anchor": "cat",
+        "audio": {
+          "long": {
+            "src": "media/aud/db00f65cb17fc1d5.mp3",
+            "bytes": 19296,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kuh, cat",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.214Z"
+          },
+          "short": {
+            "src": "media/aud/e0cddf680fc32bfc.mp3",
+            "bytes": 13104,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.216Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "d",
+        "glyph": "d",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "duh",
+        "anchor": "dog",
+        "audio": {
+          "long": {
+            "src": "media/aud/28b3096c535bd581.mp3",
+            "bytes": 18288,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "duh, dog",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.218Z"
+          },
+          "short": {
+            "src": "media/aud/00c33f7055dd4a3a.mp3",
+            "bytes": 12240,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "duh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.221Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "f",
+        "glyph": "f",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "fff",
+        "anchor": "fish",
+        "audio": {
+          "long": {
+            "src": "media/aud/c6e7ad97fa819d4f.mp3",
+            "bytes": 20880,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "fff, fish",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.224Z"
+          },
+          "short": {
+            "src": "media/aud/b515e54b48468305.mp3",
+            "bytes": 16128,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "fff",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.226Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "g",
+        "glyph": "g",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "guh",
+        "anchor": "goat",
+        "audio": {
+          "long": {
+            "src": "media/aud/cb2ca3d191b8de94.mp3",
+            "bytes": 21024,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "guh, goat",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.231Z"
+          },
+          "short": {
+            "src": "media/aud/db9f7343f6e3493c.mp3",
+            "bytes": 16704,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "guh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.234Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "h",
+        "glyph": "h",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "huh",
+        "anchor": "hat",
+        "audio": {
+          "long": {
+            "src": "media/aud/8d8f782103baf895.mp3",
+            "bytes": 17856,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "huh, hat",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.237Z"
+          },
+          "short": {
+            "src": "media/aud/727fd732b822c59f.mp3",
+            "bytes": 12096,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "huh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.240Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "j",
+        "glyph": "j",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "juh",
+        "anchor": "jam",
+        "audio": {
+          "long": {
+            "src": "media/aud/f9a39c0465e1e935.mp3",
+            "bytes": 18288,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "juh, jam",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.243Z"
+          },
+          "short": {
+            "src": "media/aud/9671f66e04b7c616.mp3",
+            "bytes": 12240,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "juh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.246Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "k",
+        "glyph": "k",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "kuh",
+        "anchor": "kite",
+        "audio": {
+          "long": {
+            "src": "media/aud/7f6815973648f357.mp3",
+            "bytes": 19152,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kuh, kite",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.249Z"
+          },
+          "short": {
+            "src": "media/aud/099dfa4f6adc7e22.mp3",
+            "bytes": 13104,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.252Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "l",
+        "glyph": "l",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "lll",
+        "anchor": "leg",
+        "audio": {
+          "long": {
+            "src": "media/aud/5d567dff5a58dbf5.mp3",
+            "bytes": 20304,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "lll, leg",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.255Z"
+          },
+          "short": {
+            "src": "media/aud/23e2cc28ce9e92de.mp3",
+            "bytes": 14976,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "lll",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.258Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "m",
+        "glyph": "m",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "mmm",
+        "anchor": "man",
+        "audio": {
+          "long": {
+            "src": "media/aud/d48c298d6c11bd67.mp3",
+            "bytes": 19008,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "mmm, man",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.262Z"
+          },
+          "short": {
+            "src": "media/aud/01035ed1a203d616.mp3",
+            "bytes": 14112,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "mmm",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.265Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "n",
+        "glyph": "n",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "nnn",
+        "anchor": "net",
+        "audio": {
+          "long": {
+            "src": "media/aud/228533cd9951a931.mp3",
+            "bytes": 19872,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "nnn, net",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.268Z"
+          },
+          "short": {
+            "src": "media/aud/775ccfe855cb15bc.mp3",
+            "bytes": 14400,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "nnn",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.271Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "p",
+        "glyph": "p",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "puh",
+        "anchor": "pen",
+        "audio": {
+          "long": {
+            "src": "media/aud/1809319e201a1d29.mp3",
+            "bytes": 18576,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "puh, pen",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.274Z"
+          },
+          "short": {
+            "src": "media/aud/d3b989285e1a9750.mp3",
+            "bytes": 12960,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "puh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.277Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "r",
+        "glyph": "r",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "rrr",
+        "anchor": "rat",
+        "audio": {
+          "long": {
+            "src": "media/aud/937d0df9174e8336.mp3",
+            "bytes": 20016,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "rrr, rat",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.280Z"
+          },
+          "short": {
+            "src": "media/aud/4f307461ccb52599.mp3",
+            "bytes": 14544,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "rrr",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.283Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "s",
+        "glyph": "s",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "sss",
+        "anchor": "sun",
+        "audio": {
+          "long": {
+            "src": "media/aud/22a111cc4f05c7b9.mp3",
+            "bytes": 20880,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "sss, sun",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.287Z"
+          },
+          "short": {
+            "src": "media/aud/cb482de876d81807.mp3",
+            "bytes": 16992,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "sss",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.290Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "t",
+        "glyph": "t",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "tuh",
+        "anchor": "top",
+        "audio": {
+          "long": {
+            "src": "media/aud/7989fdbb92a554cc.mp3",
+            "bytes": 16992,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "tuh, top",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.294Z"
+          },
+          "short": {
+            "src": "media/aud/551484c3d96d5161.mp3",
+            "bytes": 11952,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "tuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.297Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "v",
+        "glyph": "v",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "vvv",
+        "anchor": "van",
+        "audio": {
+          "long": {
+            "src": "media/aud/c565d8afd2c3d649.mp3",
+            "bytes": 20304,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "vvv, van",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.300Z"
+          },
+          "short": {
+            "src": "media/aud/c6ba08167a1ba9a5.mp3",
+            "bytes": 14976,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "vvv",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.303Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "w",
+        "glyph": "w",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "wuh",
+        "anchor": "web",
+        "audio": {
+          "long": {
+            "src": "media/aud/b7f50bbc85b40380.mp3",
+            "bytes": 15696,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "wuh, web",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.306Z"
+          },
+          "short": {
+            "src": "media/aud/0f1d4c4b5f4e6256.mp3",
+            "bytes": 11376,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "wuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.309Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "x",
+        "glyph": "x",
+        "kind": "consonant",
+        "position": "final",
+        "sound": "ks",
+        "anchor": "box",
+        "audio": {
+          "long": {
+            "src": "media/aud/c325b3a42b9cd515.mp3",
+            "bytes": 20016,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ks, box",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.312Z"
+          },
+          "short": {
+            "src": "media/aud/3cf336f864d7eba4.mp3",
+            "bytes": 14976,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ks",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.315Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "y",
+        "glyph": "y",
+        "kind": "consonant",
+        "position": "initial",
+        "sound": "yuh",
+        "anchor": "yes",
+        "audio": {
+          "long": {
+            "src": "media/aud/5936080104be72fc.mp3",
+            "bytes": 18144,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "yuh, yes",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.318Z"
+          },
+          "short": {
+            "src": "media/aud/271239375ae452b5.mp3",
+            "bytes": 12096,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "yuh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.321Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "z",
+        "glyph": "z",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "zzz",
+        "anchor": "zip",
+        "audio": {
+          "long": {
+            "src": "media/aud/1330bf5034ec79c8.mp3",
+            "bytes": 21456,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "zzz, zip",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.324Z"
+          },
+          "short": {
+            "src": "media/aud/3cf5ee1c806e9572.mp3",
+            "bytes": 16704,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "zzz",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.327Z"
+          }
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "a",
+        "glyph": "a",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "aa",
+        "anchor": "apple",
+        "audio": {
+          "long": {
+            "src": "media/aud/c65aa04a0c71de19.mp3",
+            "bytes": 18432,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "aa, apple",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.330Z"
+          },
+          "short": {
+            "src": "media/aud/d1497355ff3167ab.mp3",
+            "bytes": 11952,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "aa",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.334Z"
+          }
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "cat"
+      },
+      {
+        "id": "e",
+        "glyph": "e",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "eh",
+        "anchor": "egg",
+        "audio": {
+          "long": {
+            "src": "media/aud/c0e22960c685eef4.mp3",
+            "bytes": 17136,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "eh, egg",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.337Z"
+          },
+          "short": {
+            "src": "media/aud/290bbbb9bae3c37c.mp3",
+            "bytes": 12096,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "eh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.340Z"
+          }
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "bed"
+      },
+      {
+        "id": "i",
+        "glyph": "i",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "ih",
+        "anchor": "igloo",
+        "audio": {
+          "long": {
+            "src": "media/aud/e0f5e5884bb18e6e.mp3",
+            "bytes": 19152,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ih, igloo",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.343Z"
+          },
+          "short": {
+            "src": "media/aud/c46f0cc83018905a.mp3",
+            "bytes": 14976,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ih",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.345Z"
+          }
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "pig"
+      },
+      {
+        "id": "o",
+        "glyph": "o",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "ah",
+        "anchor": "octopus",
+        "audio": {
+          "long": {
+            "src": "media/aud/690af8ad207d07cd.mp3",
+            "bytes": 20592,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ah, octopus",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.348Z"
+          },
+          "short": {
+            "src": "media/aud/d687d178a4c118e1.mp3",
+            "bytes": 11952,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "ah",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.351Z"
+          }
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "dog"
+      },
+      {
+        "id": "u",
+        "glyph": "u",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "uh",
+        "anchor": "umbrella",
+        "audio": {
+          "long": {
+            "src": "media/aud/6125f59f817716cd.mp3",
+            "bytes": 19440,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "uh, umbrella",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.354Z"
+          },
+          "short": {
+            "src": "media/aud/d4979e496725b522.mp3",
+            "bytes": 12528,
+            "ms": null,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "uh",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:57.357Z"
+          }
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "bus"
+      },
+      {
+        "id": "sh",
+        "glyph": "sh",
+        "kind": "digraph",
+        "position": "any",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "ship, fish"
+      },
+      {
+        "id": "ch",
+        "glyph": "ch",
+        "kind": "digraph",
+        "position": "any",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "chin, chick"
+      },
+      {
+        "id": "th",
+        "glyph": "th",
+        "kind": "digraph",
+        "position": "any",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bath, this"
+      },
+      {
+        "id": "ck",
+        "glyph": "ck",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "duck, sock"
+      },
+      {
+        "id": "ng",
+        "glyph": "ng",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "ring, king"
+      },
+      {
+        "id": "ll",
+        "glyph": "ll",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "ss",
+        "glyph": "ss",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "ff",
+        "glyph": "ff",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "zz",
+        "glyph": "zz",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "gg",
+        "glyph": "gg",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      }
+    ]
+  }
+}

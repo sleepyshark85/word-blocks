@@ -1,0 +1,33 @@
+{
+  "id": "ship",
+  "text": "ship",
+  "stage": 6,
+  "enabled": true,
+  "tiles": [
+    "sh",
+    "i",
+    "p"
+  ],
+  "fallbackEmoji": "Passenger ship",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/808c5072e5ba1b40.mp3",
+      "bytes": 13248,
+      "ms": 2208,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "ship",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:30.617Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "ship",
+    "family": null,
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+  }
+}

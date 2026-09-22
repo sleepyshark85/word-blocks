@@ -1,0 +1,33 @@
+{
+  "id": "sun",
+  "text": "sun",
+  "stage": 5,
+  "enabled": true,
+  "tiles": [
+    "s",
+    "u",
+    "n"
+  ],
+  "fallbackEmoji": "Sun",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/96063cb3f51f2fad.mp3",
+      "bytes": 13824,
+      "ms": 2304,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "sun",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:32.520Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "sun",
+    "family": "-un",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+  }
+}

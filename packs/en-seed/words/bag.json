@@ -1,0 +1,35 @@
+{
+  "id": "bag",
+  "text": "bag",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "b",
+    "a",
+    "g"
+  ],
+  "fallbackEmoji": "Backpack",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/42334f5552318ed1.mp3",
+      "bytes": 13104,
+      "ms": 2184,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "bag",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:59.295Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bag",
+    "family": "-ag",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — a backpack is not a bag",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "de",
+  "text": "dê",
+  "stage": 1,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "d",
+      "rime": "ê",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Goat",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/2af4c858adf2a9ee.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "dê",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:30.898Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "goat",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+  }
+}

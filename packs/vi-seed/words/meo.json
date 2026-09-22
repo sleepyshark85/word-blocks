@@ -1,0 +1,44 @@
+{
+  "id": "meo",
+  "text": "mèo",
+  "stage": 2,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "m",
+      "rime": "eo",
+      "tone": "huyen"
+    }
+  ],
+  "fallbackEmoji": "Cat",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/078a2e8e9525ab03.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "mèo",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:39.273Z"
+    },
+    "blend": {
+      "src": "media/aud/bfe3f47c396a8c02.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "meo",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:39.606Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cat",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+  }
+}

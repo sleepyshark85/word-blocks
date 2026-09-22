@@ -1,0 +1,33 @@
+{
+  "id": "cap",
+  "text": "cap",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "c",
+    "a",
+    "p"
+  ],
+  "fallbackEmoji": "Billed cap",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/5cc889191e323243.mp3",
+      "bytes": 12960,
+      "ms": 2160,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "cap",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:05.660Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cap",
+    "family": "-ap",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

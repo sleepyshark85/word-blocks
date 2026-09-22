@@ -1,0 +1,33 @@
+{
+  "id": "bus",
+  "text": "bus",
+  "stage": 5,
+  "enabled": true,
+  "tiles": [
+    "b",
+    "u",
+    "s"
+  ],
+  "fallbackEmoji": "Bus",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/2fcafe47086afef8.mp3",
+      "bytes": 13392,
+      "ms": 2232,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "bus",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:04.669Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bus",
+    "family": "-us",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+  }
+}

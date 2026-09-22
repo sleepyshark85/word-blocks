@@ -1,0 +1,33 @@
+{
+  "id": "hut",
+  "text": "hut",
+  "stage": 5,
+  "enabled": true,
+  "tiles": [
+    "h",
+    "u",
+    "t"
+  ],
+  "fallbackEmoji": "Hut",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/5c153acbf0830b8b.mp3",
+      "bytes": 13392,
+      "ms": 2232,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "hut",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:18.678Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "hut",
+    "family": "-ut",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+  }
+}

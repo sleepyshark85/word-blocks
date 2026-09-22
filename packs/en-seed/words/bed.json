@@ -1,0 +1,33 @@
+{
+  "id": "bed",
+  "text": "bed",
+  "stage": 2,
+  "enabled": true,
+  "tiles": [
+    "b",
+    "e",
+    "d"
+  ],
+  "fallbackEmoji": "Bed",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/542a1680582c3090.mp3",
+      "bytes": 12816,
+      "ms": 2136,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "bed",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:01.004Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bed",
+    "family": "-ed",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+  }
+}

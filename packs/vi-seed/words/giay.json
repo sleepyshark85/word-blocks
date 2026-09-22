@@ -1,0 +1,44 @@
+{
+  "id": "giay",
+  "text": "giày",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "gi",
+      "rime": "ay",
+      "tone": "huyen"
+    }
+  ],
+  "fallbackEmoji": "Running shoe",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/6d41903b79b9ed42.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "giày",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:34.896Z"
+    },
+    "blend": {
+      "src": "media/aud/94a1eb1cd2affb16.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "giay",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:35.240Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "shoe",
+    "flags": [],
+    "note": "the gi onset",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

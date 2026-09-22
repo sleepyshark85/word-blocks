@@ -1,0 +1,33 @@
+{
+  "id": "log",
+  "text": "log",
+  "stage": 4,
+  "enabled": true,
+  "tiles": [
+    "l",
+    "o",
+    "g"
+  ],
+  "fallbackEmoji": "Wood",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/6294911c808034fe.mp3",
+      "bytes": 13680,
+      "ms": 2280,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "log",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:20.339Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "log of wood",
+    "family": "-og",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+  }
+}

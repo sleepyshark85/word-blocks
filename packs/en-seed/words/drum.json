@@ -1,0 +1,34 @@
+{
+  "id": "drum",
+  "text": "drum",
+  "stage": 7,
+  "enabled": true,
+  "tiles": [
+    "d",
+    "r",
+    "u",
+    "m"
+  ],
+  "fallbackEmoji": "Drum",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/51f1a27b45117fdd.mp3",
+      "bytes": 13392,
+      "ms": 2232,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "drum",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:10.134Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "drum",
+    "family": null,
+    "flags": [],
+    "note": "4 tiles",
+    "from": "word-list.md §5 Stage 7 — initial blends, two tiles for two sounds (3)"
+  }
+}

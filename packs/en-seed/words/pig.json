@@ -1,0 +1,33 @@
+{
+  "id": "pig",
+  "text": "pig",
+  "stage": 3,
+  "enabled": true,
+  "tiles": [
+    "p",
+    "i",
+    "g"
+  ],
+  "fallbackEmoji": "Pig",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/5da1cd94aaa82353.mp3",
+      "bytes": 12672,
+      "ms": 2112,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "pig",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:27.071Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "pig",
+    "family": "-ig",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 3 — + short `i` (3)"
+  }
+}

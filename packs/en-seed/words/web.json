@@ -1,0 +1,33 @@
+{
+  "id": "web",
+  "text": "web",
+  "stage": 2,
+  "enabled": true,
+  "tiles": [
+    "w",
+    "e",
+    "b"
+  ],
+  "fallbackEmoji": "Spider web",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/5e0541de18068c5d.mp3",
+      "bytes": 12096,
+      "ms": 2016,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "web",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:34.258Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "spider web",
+    "family": "-eb",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+  }
+}

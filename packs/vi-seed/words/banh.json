@@ -1,0 +1,46 @@
+{
+  "id": "banh",
+  "text": "bánh",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "b",
+      "rime": "anh",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Bread",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/5f04c31a4f7be5b5.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bánh",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:23.234Z"
+    },
+    "blend": {
+      "src": "media/aud/771dd9ac177a30a0.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "banh",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:23.620Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cake or bread",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG — bánh is genuinely generic in Vietnamese too",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

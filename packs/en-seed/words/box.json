@@ -1,0 +1,35 @@
+{
+  "id": "box",
+  "text": "box",
+  "stage": 4,
+  "enabled": true,
+  "tiles": [
+    "b",
+    "o",
+    "x"
+  ],
+  "fallbackEmoji": "Package",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/dfca3b0d6ae48543.mp3",
+      "bytes": 14112,
+      "ms": 2352,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "box",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:02.810Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cardboard box",
+    "family": "-ox",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG mild",
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+  }
+}

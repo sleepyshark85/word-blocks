@@ -1,0 +1,35 @@
+{
+  "id": "le",
+  "text": "lê",
+  "stage": 1,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "l",
+      "rime": "ê",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Pear",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/a41494fa23897f9b.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "lê",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:37.869Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "pear",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+  }
+}

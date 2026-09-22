@@ -1,0 +1,44 @@
+{
+  "id": "cho",
+  "text": "chó",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "ch",
+      "rime": "o",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Dog",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/aeeed8b101d8b679.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "chó",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:28.343Z"
+    },
+    "blend": {
+      "src": "media/aud/dbd912c279e49c4b.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "cho",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:28.726Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "dog",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

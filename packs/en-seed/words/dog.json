@@ -1,0 +1,33 @@
+{
+  "id": "dog",
+  "text": "dog",
+  "stage": 4,
+  "enabled": true,
+  "tiles": [
+    "d",
+    "o",
+    "g"
+  ],
+  "fallbackEmoji": "Dog",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/1601b112ca8a61cf.mp3",
+      "bytes": 13248,
+      "ms": 2208,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "dog",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:09.296Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "dog",
+    "family": "-og",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+  }
+}

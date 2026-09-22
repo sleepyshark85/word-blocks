@@ -1,0 +1,37 @@
+{
+  "id": "hoa",
+  "text": "hoa",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "h",
+      "rime": "oa",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Hibiscus",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/9e607e2ed958b42e.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "hoa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:36.381Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "flower",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — hoa is flower generally; several varied photos is the right answer here",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

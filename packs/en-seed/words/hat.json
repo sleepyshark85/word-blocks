@@ -1,0 +1,33 @@
+{
+  "id": "hat",
+  "text": "hat",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "h",
+    "a",
+    "t"
+  ],
+  "fallbackEmoji": "Top hat",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/a96958e2a9008b50.mp3",
+      "bytes": 13680,
+      "ms": 2280,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "hat",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:16.785Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "hat",
+    "family": "-at",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

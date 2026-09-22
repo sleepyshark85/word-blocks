@@ -1,0 +1,35 @@
+{
+  "id": "bat",
+  "text": "bat",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "b",
+    "a",
+    "t"
+  ],
+  "fallbackEmoji": "Bat",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/6daa87bb3d101da3.mp3",
+      "bytes": 13680,
+      "ms": 2280,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "bat",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:00.165Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bat (the animal)",
+    "family": "-at",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG — English bat is also a baseball bat; the picture decides which word he learns",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

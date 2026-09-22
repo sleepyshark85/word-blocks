@@ -1,0 +1,35 @@
+{
+  "id": "may",
+  "text": "mây",
+  "stage": 2,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "m",
+      "rime": "ây",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Cloud",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/e061f6f3ab0ae399.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "mây",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:38.942Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cloud",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "to",
+  "text": "tô",
+  "stage": 1,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "t",
+      "rime": "ô",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Bowl with spoon",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/d4dbf8a5aeda2114.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "tô",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:49.171Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bowl of food",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+  }
+}

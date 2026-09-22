@@ -1,0 +1,35 @@
+{
+  "id": "bin",
+  "text": "bin",
+  "stage": 3,
+  "enabled": true,
+  "tiles": [
+    "b",
+    "i",
+    "n"
+  ],
+  "fallbackEmoji": "Wastebasket",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/a0a456d25d19dcb3.mp3",
+      "bytes": 12672,
+      "ms": 2112,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "bin",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:01.909Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "bin",
+    "family": "-in",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG mild",
+    "from": "word-list.md §5 Stage 3 — + short `i` (3)"
+  }
+}

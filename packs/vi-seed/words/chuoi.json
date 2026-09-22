@@ -1,0 +1,44 @@
+{
+  "id": "chuoi",
+  "text": "chuối",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "ch",
+      "rime": "uôi",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Banana",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/b1c09e8b1eb93e8c.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "chuối",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:29.099Z"
+    },
+    "blend": {
+      "src": "media/aud/ca2dc364fb88dbf5.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "chuôi",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:29.434Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "banana",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

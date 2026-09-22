@@ -1,0 +1,35 @@
+{
+  "id": "trang",
+  "text": "trăng",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "tr",
+      "rime": "ăng",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Crescent moon",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/f5fa0fc5cfd7cc60.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "trăng",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:49.507Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "moon",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

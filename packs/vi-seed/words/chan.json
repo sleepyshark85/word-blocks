@@ -1,0 +1,37 @@
+{
+  "id": "chan",
+  "text": "chân",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "ch",
+      "rime": "ân",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Foot",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/a91e63b40735129a.mp3",
+      "bytes": 6144,
+      "ms": 768,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "chân",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:27.619Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "foot / leg",
+    "flags": [
+      "TONE"
+    ],
+    "note": "TONE",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

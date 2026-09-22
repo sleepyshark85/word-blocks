@@ -1,0 +1,44 @@
+{
+  "id": "khi",
+  "text": "khỉ",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "kh",
+      "rime": "i",
+      "tone": "hoi"
+    }
+  ],
+  "fallbackEmoji": "Monkey",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/41c102a26cf1e69d.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "khỉ",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:37.162Z"
+    },
+    "blend": {
+      "src": "media/aud/ddd136288f8aa8a8.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "khi",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:37.522Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "monkey",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

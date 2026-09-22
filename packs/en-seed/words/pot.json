@@ -1,0 +1,33 @@
+{
+  "id": "pot",
+  "text": "pot",
+  "stage": 4,
+  "enabled": true,
+  "tiles": [
+    "p",
+    "o",
+    "t"
+  ],
+  "fallbackEmoji": "Pot of food",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/56e3c86b361907ce.mp3",
+      "bytes": 13392,
+      "ms": 2232,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "pot",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:28.987Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cooking pot",
+    "family": "-ot",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+  }
+}

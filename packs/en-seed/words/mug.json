@@ -1,0 +1,35 @@
+{
+  "id": "mug",
+  "text": "mug",
+  "stage": 5,
+  "enabled": true,
+  "tiles": [
+    "m",
+    "u",
+    "g"
+  ],
+  "fallbackEmoji": "Hot beverage",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/b74973deb8c54ec2.mp3",
+      "bytes": 13248,
+      "ms": 2208,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "mug",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:22.210Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "mug",
+    "family": "-ug",
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG mild",
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "sock",
+  "text": "sock",
+  "stage": 6,
+  "enabled": true,
+  "tiles": [
+    "s",
+    "o",
+    "ck"
+  ],
+  "fallbackEmoji": "Socks",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/fdf2ae2c51a2bd24.mp3",
+      "bytes": 14112,
+      "ms": 2352,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "sock",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:31.665Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "sock",
+    "family": null,
+    "flags": [
+      "AMBIG"
+    ],
+    "note": "AMBIG mild — plural",
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+  }
+}

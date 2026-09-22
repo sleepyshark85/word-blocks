@@ -1,0 +1,35 @@
+{
+  "id": "leg",
+  "text": "leg",
+  "stage": 2,
+  "enabled": true,
+  "tiles": [
+    "l",
+    "e",
+    "g"
+  ],
+  "fallbackEmoji": "Leg",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/5246bbe03fb94a5d.mp3",
+      "bytes": 13248,
+      "ms": 2208,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "leg",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:19.488Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "leg",
+    "family": "-eg",
+    "flags": [
+      "TONE"
+    ],
+    "note": "TONE",
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+  }
+}

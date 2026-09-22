@@ -1,0 +1,33 @@
+{
+  "id": "map",
+  "text": "map",
+  "stage": 1,
+  "enabled": true,
+  "tiles": [
+    "m",
+    "a",
+    "p"
+  ],
+  "fallbackEmoji": "World map",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/f45f5f17a14958e8.mp3",
+      "bytes": 13104,
+      "ms": 2184,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "map",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:21.275Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "map",
+    "family": "-ap",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+  }
+}

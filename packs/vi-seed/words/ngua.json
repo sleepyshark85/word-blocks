@@ -1,0 +1,44 @@
+{
+  "id": "ngua",
+  "text": "ngựa",
+  "stage": 5,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "ng",
+      "rime": "ưa",
+      "tone": "nang"
+    }
+  ],
+  "fallbackEmoji": "Horse",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/52c0daa847ee7e34.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ngựa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:41.862Z"
+    },
+    "blend": {
+      "src": "media/aud/28502830115cb504.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ngưa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:42.228Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "horse",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+  }
+}

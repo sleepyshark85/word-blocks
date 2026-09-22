@@ -1,0 +1,44 @@
+{
+  "id": "cua-353b",
+  "text": "cửa",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "c",
+      "rime": "ưa",
+      "tone": "hoi"
+    }
+  ],
+  "fallbackEmoji": "Door",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/13398d371aee1d18.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "cửa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:29.811Z"
+    },
+    "blend": {
+      "src": "media/aud/2a363a3d4ad0930c.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "cưa",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:30.199Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "door",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

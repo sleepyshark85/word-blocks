@@ -1,0 +1,44 @@
+{
+  "id": "bo",
+  "text": "bò",
+  "stage": 1,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "b",
+      "rime": "o",
+      "tone": "huyen"
+    }
+  ],
+  "fallbackEmoji": "Cow",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/506b5417f1e0d52d.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bò",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:24.309Z"
+    },
+    "blend": {
+      "src": "media/aud/af86ed84f3862793.mp3",
+      "bytes": 6528,
+      "ms": 816,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "bo",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:24.670Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "cow",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "ao",
+  "text": "áo",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": null,
+      "rime": "ao",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "T-shirt",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/d3881df8e7af6acb.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "áo",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:22.558Z"
+    },
+    "blend": {
+      "src": "media/aud/8993f37f3bc50566.mp3",
+      "bytes": 6336,
+      "ms": 792,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ao",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:22.887Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "shirt",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

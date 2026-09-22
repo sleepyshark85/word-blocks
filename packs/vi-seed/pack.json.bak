@@ -1,0 +1,1208 @@
+{
+  "schema": 1,
+  "id": "vi-seed",
+  "language": "vi",
+  "name": "Ghép Chữ",
+  "revision": 1,
+  "origin": "seed",
+  "generator": {
+    "tool": "tools/build-seed-pack.mjs",
+    "builtAt": "2026-09-22T17:13:19.022Z",
+    "sources": [
+      "docs/design/word-list.md",
+      "docs/design/literacy-vi.md"
+    ]
+  },
+  "media": {
+    "onMissingImage": "fallbackEmoji-then-withhold",
+    "onMissingWordAudio": "withhold",
+    "onMissingTileAudio": "silent",
+    "imagesPerWord": {
+      "min": 1,
+      "target": 3,
+      "max": 6
+    },
+    "image": {
+      "format": "jpeg",
+      "size": 512,
+      "quality": 82
+    },
+    "audio": {
+      "format": "mp3",
+      "sampleRate": 24000
+    }
+  },
+  "dialect": "unset",
+  "rules": {
+    "neverTogether": [
+      [
+        "c",
+        "k"
+      ],
+      [
+        "g",
+        "gh"
+      ],
+      [
+        "ng",
+        "ngh"
+      ],
+      [
+        "d",
+        "gi",
+        "r"
+      ],
+      [
+        "s",
+        "x"
+      ],
+      [
+        "ch",
+        "tr"
+      ],
+      [
+        "hoi",
+        "nga"
+      ]
+    ],
+    "note": "sets that must never appear together in one palette (literacy-vi.md §4.1, §6.1)"
+  },
+  "chant": {
+    "gapsMs": {
+      "onset": 250,
+      "rime": 250,
+      "blend": 400,
+      "tone": 250,
+      "word": 600
+    },
+    "skipToneStepFor": [
+      "ngang"
+    ]
+  },
+  "tiles": {
+    "onset": [
+      {
+        "id": "b",
+        "glyph": "b",
+        "label": "bờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "c",
+        "glyph": "c",
+        "label": "cờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "k",
+        "glyph": "k",
+        "label": "cờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "qu",
+        "glyph": "qu",
+        "label": "quờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "ch",
+        "glyph": "ch",
+        "label": "chờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "d",
+        "glyph": "d",
+        "label": "dờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "đ",
+        "glyph": "đ",
+        "label": "đờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "g",
+        "glyph": "g",
+        "label": "gờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "gh",
+        "glyph": "gh",
+        "label": "gờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "gi",
+        "glyph": "gi",
+        "label": "giờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "h",
+        "glyph": "h",
+        "label": "hờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "kh",
+        "glyph": "kh",
+        "label": "khờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "l",
+        "glyph": "l",
+        "label": "lờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "m",
+        "glyph": "m",
+        "label": "mờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "n",
+        "glyph": "n",
+        "label": "nờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "ng",
+        "glyph": "ng",
+        "label": "ngờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "ngh",
+        "glyph": "ngh",
+        "label": "ngờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "nh",
+        "glyph": "nh",
+        "label": "nhờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "ph",
+        "glyph": "ph",
+        "label": "phờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "r",
+        "glyph": "r",
+        "label": "rờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "s",
+        "glyph": "s",
+        "label": "sờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "t",
+        "glyph": "t",
+        "label": "tờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "th",
+        "glyph": "th",
+        "label": "thờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "tr",
+        "glyph": "tr",
+        "label": "trờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "v",
+        "glyph": "v",
+        "label": "vờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "x",
+        "glyph": "x",
+        "label": "xờ",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §2"
+      }
+    ],
+    "rime": [
+      {
+        "id": "a",
+        "glyph": "a",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "a",
+          "huyen": "à",
+          "sac": "á",
+          "hoi": "ả",
+          "nga": "ã",
+          "nang": "ạ"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ach",
+        "glyph": "ach",
+        "legalTones": [
+          "sac",
+          "nang"
+        ],
+        "toned": {
+          "ngang": null,
+          "huyen": null,
+          "sac": "ách",
+          "hoi": null,
+          "nga": null,
+          "nang": "ạch"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ai",
+        "glyph": "ai",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ai",
+          "huyen": "ài",
+          "sac": "ái",
+          "hoi": "ải",
+          "nga": "ãi",
+          "nang": "ại"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "am",
+        "glyph": "am",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "am",
+          "huyen": "àm",
+          "sac": "ám",
+          "hoi": "ảm",
+          "nga": "ãm",
+          "nang": "ạm"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "anh",
+        "glyph": "anh",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "anh",
+          "huyen": "ành",
+          "sac": "ánh",
+          "hoi": "ảnh",
+          "nga": "ãnh",
+          "nang": "ạnh"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ao",
+        "glyph": "ao",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ao",
+          "huyen": "ào",
+          "sac": "áo",
+          "hoi": "ảo",
+          "nga": "ão",
+          "nang": "ạo"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "at",
+        "glyph": "at",
+        "legalTones": [
+          "sac",
+          "nang"
+        ],
+        "toned": {
+          "ngang": null,
+          "huyen": null,
+          "sac": "át",
+          "hoi": null,
+          "nga": null,
+          "nang": "ạt"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ay",
+        "glyph": "ay",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ay",
+          "huyen": "ày",
+          "sac": "áy",
+          "hoi": "ảy",
+          "nga": "ãy",
+          "nang": "ạy"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "e",
+        "glyph": "e",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "e",
+          "huyen": "è",
+          "sac": "é",
+          "hoi": "ẻ",
+          "nga": "ẽ",
+          "nang": "ẹ"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "em",
+        "glyph": "em",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "em",
+          "huyen": "èm",
+          "sac": "ém",
+          "hoi": "ẻm",
+          "nga": "ẽm",
+          "nang": "ẹm"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "en",
+        "glyph": "en",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "en",
+          "huyen": "èn",
+          "sac": "én",
+          "hoi": "ẻn",
+          "nga": "ẽn",
+          "nang": "ẹn"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "eo",
+        "glyph": "eo",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "eo",
+          "huyen": "èo",
+          "sac": "éo",
+          "hoi": "ẻo",
+          "nga": "ẽo",
+          "nang": "ẹo"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "i",
+        "glyph": "i",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "i",
+          "huyen": "ì",
+          "sac": "í",
+          "hoi": "ỉ",
+          "nga": "ĩ",
+          "nang": "ị"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "im",
+        "glyph": "im",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "im",
+          "huyen": "ìm",
+          "sac": "ím",
+          "hoi": "ỉm",
+          "nga": "ĩm",
+          "nang": "ịm"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "it",
+        "glyph": "it",
+        "legalTones": [
+          "sac",
+          "nang"
+        ],
+        "toned": {
+          "ngang": null,
+          "huyen": null,
+          "sac": "ít",
+          "hoi": null,
+          "nga": null,
+          "nang": "ịt"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "o",
+        "glyph": "o",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "o",
+          "huyen": "ò",
+          "sac": "ó",
+          "hoi": "ỏ",
+          "nga": "õ",
+          "nang": "ọ"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "oa",
+        "glyph": "oa",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "oa",
+          "huyen": "òa",
+          "sac": "óa",
+          "hoi": "ỏa",
+          "nga": "õa",
+          "nang": "ọa"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "oi",
+        "glyph": "oi",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "oi",
+          "huyen": "òi",
+          "sac": "ói",
+          "hoi": "ỏi",
+          "nga": "õi",
+          "nang": "ọi"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "on",
+        "glyph": "on",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "on",
+          "huyen": "òn",
+          "sac": "ón",
+          "hoi": "ỏn",
+          "nga": "õn",
+          "nang": "ọn"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ong",
+        "glyph": "ong",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ong",
+          "huyen": "òng",
+          "sac": "óng",
+          "hoi": "ỏng",
+          "nga": "õng",
+          "nang": "ọng"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "u",
+        "glyph": "u",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "u",
+          "huyen": "ù",
+          "sac": "ú",
+          "hoi": "ủ",
+          "nga": "ũ",
+          "nang": "ụ"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ua",
+        "glyph": "ua",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ua",
+          "huyen": "ùa",
+          "sac": "úa",
+          "hoi": "ủa",
+          "nga": "ũa",
+          "nang": "ụa"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ui",
+        "glyph": "ui",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ui",
+          "huyen": "ùi",
+          "sac": "úi",
+          "hoi": "ủi",
+          "nga": "ũi",
+          "nang": "ụi"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "un",
+        "glyph": "un",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "un",
+          "huyen": "ùn",
+          "sac": "ún",
+          "hoi": "ủn",
+          "nga": "ũn",
+          "nang": "ụn"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "uôi",
+        "glyph": "uôi",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "uôi",
+          "huyen": "uồi",
+          "sac": "uối",
+          "hoi": "uổi",
+          "nga": "uỗi",
+          "nang": "uội"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ân",
+        "glyph": "ân",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ân",
+          "huyen": "ần",
+          "sac": "ấn",
+          "hoi": "ẩn",
+          "nga": "ẫn",
+          "nang": "ận"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "âu",
+        "glyph": "âu",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "âu",
+          "huyen": "ầu",
+          "sac": "ấu",
+          "hoi": "ẩu",
+          "nga": "ẫu",
+          "nang": "ậu"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ây",
+        "glyph": "ây",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ây",
+          "huyen": "ầy",
+          "sac": "ấy",
+          "hoi": "ẩy",
+          "nga": "ẫy",
+          "nang": "ậy"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ê",
+        "glyph": "ê",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ê",
+          "huyen": "ề",
+          "sac": "ế",
+          "hoi": "ể",
+          "nga": "ễ",
+          "nang": "ệ"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ô",
+        "glyph": "ô",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ô",
+          "huyen": "ồ",
+          "sac": "ố",
+          "hoi": "ổ",
+          "nga": "ỗ",
+          "nang": "ộ"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ăng",
+        "glyph": "ăng",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ăng",
+          "huyen": "ằng",
+          "sac": "ắng",
+          "hoi": "ẳng",
+          "nga": "ẵng",
+          "nang": "ặng"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ăt",
+        "glyph": "ăt",
+        "legalTones": [
+          "sac",
+          "nang"
+        ],
+        "toned": {
+          "ngang": null,
+          "huyen": null,
+          "sac": "ắt",
+          "hoi": null,
+          "nga": null,
+          "nang": "ặt"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ơ",
+        "glyph": "ơ",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ơ",
+          "huyen": "ờ",
+          "sac": "ớ",
+          "hoi": "ở",
+          "nga": "ỡ",
+          "nang": "ợ"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ưa",
+        "glyph": "ưa",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ưa",
+          "huyen": "ừa",
+          "sac": "ứa",
+          "hoi": "ửa",
+          "nga": "ữa",
+          "nang": "ựa"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ưng",
+        "glyph": "ưng",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ưng",
+          "huyen": "ừng",
+          "sac": "ứng",
+          "hoi": "ửng",
+          "nga": "ững",
+          "nang": "ựng"
+        },
+        "audio": {
+          "name": null
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      }
+    ],
+    "tone": [
+      {
+        "id": "ngang",
+        "glyph": null,
+        "label": "ngang",
+        "mark": null,
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §5.1"
+      },
+      {
+        "id": "huyen",
+        "glyph": null,
+        "label": "huyền",
+        "mark": "̀",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §5.1"
+      },
+      {
+        "id": "sac",
+        "glyph": null,
+        "label": "sắc",
+        "mark": "́",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §5.1"
+      },
+      {
+        "id": "hoi",
+        "glyph": null,
+        "label": "hỏi",
+        "mark": "̉",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §5.1"
+      },
+      {
+        "id": "nga",
+        "glyph": null,
+        "label": "ngã",
+        "mark": "̃",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §5.1"
+      },
+      {
+        "id": "nang",
+        "glyph": null,
+        "label": "nặng",
+        "mark": "̣",
+        "audio": {
+          "name": null
+        },
+        "source": "literacy-vi.md §5.1"
+      }
+    ]
+  }
+}

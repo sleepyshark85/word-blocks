@@ -1,0 +1,33 @@
+{
+  "id": "duck",
+  "text": "duck",
+  "stage": 6,
+  "enabled": true,
+  "tiles": [
+    "d",
+    "u",
+    "ck"
+  ],
+  "fallbackEmoji": "Duck",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/882852cfcb6fc2df.mp3",
+      "bytes": 13392,
+      "ms": 2232,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "duck",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:11.064Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "duck",
+    "family": null,
+    "flags": [],
+    "note": "ck — final only",
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+  }
+}

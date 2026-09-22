@@ -1,0 +1,44 @@
+{
+  "id": "ho",
+  "text": "hổ",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "h",
+      "rime": "o",
+      "tone": "hoi"
+    }
+  ],
+  "fallbackEmoji": "Tiger",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/fefa1f02fb007c6b.mp3",
+      "bytes": 6912,
+      "ms": 864,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "hổ",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:35.614Z"
+    },
+    "blend": {
+      "src": "media/aud/465e94476720f872.mp3",
+      "bytes": 6720,
+      "ms": 840,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "ho",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:36.027Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "tiger",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

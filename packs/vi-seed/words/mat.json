@@ -1,0 +1,44 @@
+{
+  "id": "mat",
+  "text": "mắt",
+  "stage": 4,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "m",
+      "rime": "ăt",
+      "tone": "sac"
+    }
+  ],
+  "fallbackEmoji": "Eye",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/d45d985ebf8b7567.mp3",
+      "bytes": 4992,
+      "ms": 624,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "mắt",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:38.216Z"
+    },
+    "blend": {
+      "src": "media/aud/48f137f9013d7fe8.mp3",
+      "bytes": 5568,
+      "ms": 696,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "măt",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:38.587Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "eye",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+  }
+}

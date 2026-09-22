@@ -1,0 +1,35 @@
+{
+  "id": "rang",
+  "text": "răng",
+  "stage": 3,
+  "enabled": true,
+  "syllables": [
+    {
+      "onset": "r",
+      "rime": "ăng",
+      "tone": "ngang"
+    }
+  ],
+  "fallbackEmoji": "Tooth",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/68d1f5fefeb65984.mp3",
+      "bytes": 5952,
+      "ms": 744,
+      "engine": "gtts:vi",
+      "voice": null,
+      "text": "răng",
+      "by": null,
+      "addedAt": "2026-09-22T17:21:45.936Z"
+    },
+    "blend": null,
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "tooth",
+    "flags": [],
+    "note": "",
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+  }
+}

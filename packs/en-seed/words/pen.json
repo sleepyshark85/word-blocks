@@ -1,0 +1,35 @@
+{
+  "id": "pen",
+  "text": "pen",
+  "stage": 2,
+  "enabled": true,
+  "tiles": [
+    "p",
+    "e",
+    "n"
+  ],
+  "fallbackEmoji": "Fountain pen",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/3e0aa8dde03a09f0.mp3",
+      "bytes": 13104,
+      "ms": 2184,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "pen",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:26.138Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "pen",
+    "family": "-en",
+    "flags": [
+      "PHOTO"
+    ],
+    "note": "PHOTO — a fountain pen is not what he has seen",
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+  }
+}

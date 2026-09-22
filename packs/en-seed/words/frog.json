@@ -1,0 +1,34 @@
+{
+  "id": "frog",
+  "text": "frog",
+  "stage": 7,
+  "enabled": true,
+  "tiles": [
+    "f",
+    "r",
+    "o",
+    "g"
+  ],
+  "fallbackEmoji": "Frog",
+  "images": [],
+  "audio": {
+    "word": {
+      "src": "media/aud/60b2a29680a3c38a.mp3",
+      "bytes": 14256,
+      "ms": 2376,
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "voice": null,
+      "text": "frog",
+      "by": null,
+      "addedAt": "2026-09-22T17:22:15.976Z"
+    },
+    "sentence": null
+  },
+  "build": {
+    "assetConcept": "frog",
+    "family": null,
+    "flags": [],
+    "note": "4 tiles",
+    "from": "word-list.md §5 Stage 7 — initial blends, two tiles for two sounds (3)"
+  }
+}

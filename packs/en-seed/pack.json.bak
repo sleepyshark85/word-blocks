@@ -1,0 +1,525 @@
+{
+  "schema": 1,
+  "id": "en-seed",
+  "language": "en",
+  "name": "Word Blocks",
+  "revision": 1,
+  "origin": "seed",
+  "generator": {
+    "tool": "tools/build-seed-pack.mjs",
+    "builtAt": "2026-09-22T17:13:19.163Z",
+    "sources": [
+      "docs/design/word-list.md",
+      "docs/design/literacy-en.md"
+    ]
+  },
+  "media": {
+    "onMissingImage": "fallbackEmoji-then-withhold",
+    "onMissingWordAudio": "withhold",
+    "onMissingTileAudio": "silent",
+    "imagesPerWord": {
+      "min": 1,
+      "target": 3,
+      "max": 6
+    },
+    "image": {
+      "format": "jpeg",
+      "size": 512,
+      "quality": 82
+    },
+    "audio": {
+      "format": "mp3",
+      "sampleRate": 24000
+    }
+  },
+  "rules": {
+    "neverTogether": [
+      [
+        "c",
+        "k"
+      ]
+    ],
+    "note": "literacy-en.md §6.2 — `c` and `k` are homophones in v1"
+  },
+  "chant": {
+    "gapsMs": {
+      "tile": 200,
+      "lastTile": 350,
+      "word": 600
+    }
+  },
+  "tiles": {
+    "letter": [
+      {
+        "id": "b",
+        "glyph": "b",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "buh",
+        "anchor": "ball",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "c",
+        "glyph": "c",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "kuh",
+        "anchor": "cat",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "d",
+        "glyph": "d",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "duh",
+        "anchor": "dog",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "f",
+        "glyph": "f",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "fff",
+        "anchor": "fish",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "g",
+        "glyph": "g",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "guh",
+        "anchor": "goat",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "h",
+        "glyph": "h",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "huh",
+        "anchor": "hat",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "j",
+        "glyph": "j",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "juh",
+        "anchor": "jam",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "k",
+        "glyph": "k",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "kuh",
+        "anchor": "kite",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "l",
+        "glyph": "l",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "lll",
+        "anchor": "leg",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "m",
+        "glyph": "m",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "mmm",
+        "anchor": "man",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "n",
+        "glyph": "n",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "nnn",
+        "anchor": "net",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "p",
+        "glyph": "p",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "puh",
+        "anchor": "pen",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "r",
+        "glyph": "r",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "rrr",
+        "anchor": "rat",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "s",
+        "glyph": "s",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "sss",
+        "anchor": "sun",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "t",
+        "glyph": "t",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "tuh",
+        "anchor": "top",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "v",
+        "glyph": "v",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "vvv",
+        "anchor": "van",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "w",
+        "glyph": "w",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "wuh",
+        "anchor": "web",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "x",
+        "glyph": "x",
+        "kind": "consonant",
+        "position": "final",
+        "sound": "ks",
+        "anchor": "box",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "y",
+        "glyph": "y",
+        "kind": "consonant",
+        "position": "initial",
+        "sound": "yuh",
+        "anchor": "yes",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "z",
+        "glyph": "z",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "zzz",
+        "anchor": "zip",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "a",
+        "glyph": "a",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "aa",
+        "anchor": "apple",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "cat"
+      },
+      {
+        "id": "e",
+        "glyph": "e",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "eh",
+        "anchor": "egg",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "bed"
+      },
+      {
+        "id": "i",
+        "glyph": "i",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "ih",
+        "anchor": "igloo",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "pig"
+      },
+      {
+        "id": "o",
+        "glyph": "o",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "ah",
+        "anchor": "octopus",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "dog"
+      },
+      {
+        "id": "u",
+        "glyph": "u",
+        "kind": "vowel",
+        "position": "any",
+        "sound": "uh",
+        "anchor": "umbrella",
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.2",
+        "keyWord": "bus"
+      },
+      {
+        "id": "sh",
+        "glyph": "sh",
+        "kind": "digraph",
+        "position": "any",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "ship, fish"
+      },
+      {
+        "id": "ch",
+        "glyph": "ch",
+        "kind": "digraph",
+        "position": "any",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "chin, chick"
+      },
+      {
+        "id": "th",
+        "glyph": "th",
+        "kind": "digraph",
+        "position": "any",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bath, this"
+      },
+      {
+        "id": "ck",
+        "glyph": "ck",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "duck, sock"
+      },
+      {
+        "id": "ng",
+        "glyph": "ng",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "ring, king"
+      },
+      {
+        "id": "ll",
+        "glyph": "ll",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "ss",
+        "glyph": "ss",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "ff",
+        "glyph": "ff",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "zz",
+        "glyph": "zz",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      },
+      {
+        "id": "gg",
+        "glyph": "gg",
+        "kind": "digraph",
+        "position": "final",
+        "sound": null,
+        "anchor": null,
+        "audio": {
+          "long": null,
+          "short": null
+        },
+        "source": "literacy-en.md §3.3",
+        "keyWord": "bell, egg"
+      }
+    ]
+  }
+}
