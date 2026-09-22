@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Banana",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/435322851c214a60.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 12709,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Banana_and_cross_section.jpg",
+      "license": "GFDL 1.2",
+      "licenseUrl": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
+      "creator": "fir0002 flagstaffotos [at] gmail.com Canon 20D + Sigma 150mm f/2.8",
+      "title": "Banana and cross section.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:16.336Z"
+    },
+    {
+      "src": "media/img/97fe8d56d6866109.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 43135,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:BaNa..._(3806777363).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Basheer Olakara",
+      "title": "BaNa... (3806777363).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:16.438Z"
+    },
+    {
+      "src": "media/img/5827e2a8d37511df.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 25925,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:4_Bananes.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "JeanLed11",
+      "title": "4 Bananes.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:16.518Z"
+    },
+    {
+      "src": "media/img/94538a90c1e0271f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 41094,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Banana_(2).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Ferdous",
+      "title": "Banana (2).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:16.596Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/b1c09e8b1eb93e8c.mp3",
@@ -39,6 +100,12 @@
     "assetConcept": "banana",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
+    "fetched": {
+      "lead": 1,
+      "article": 2,
+      "category": 7,
+      "at": "2026-09-22T19:12:16.596Z"
+    }
   }
 }

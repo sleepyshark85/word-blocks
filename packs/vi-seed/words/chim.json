@@ -11,7 +11,72 @@
     }
   ],
   "fallbackEmoji": "Bird",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/4c767cc6d39ee67a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 47464,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gouldian_Finch_(8952067299).jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Bernard Spragg. NZ from Christchurch, New Zealand",
+      "title": "Gouldian Finch (8952067299).jpg",
+      "rank": "article",
+      "caption": "Sẻ Gouldia thuộc Bộ Sẻ, bao gồm hơn một nửa tổng số loài chim trên thế giới.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:15.958Z"
+    },
+    {
+      "src": "media/img/c00fec8080caeedc.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 45925,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:House_sparrow04.jpg",
+      "license": "GFDL 1.2",
+      "licenseUrl": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
+      "creator": "Fir0002",
+      "title": "House sparrow04.jpg",
+      "rank": "article",
+      "caption": "Khu vực phân bố loài sẻ nhà (Passer domesticus) đã mở rộng đột ngột do các hoạt động của con người[35].",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:16.049Z"
+    },
+    {
+      "src": "media/img/f4cd917018067062.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 134834,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Paonroue.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Jebulon",
+      "title": "Paonroue.JPG",
+      "rank": "article",
+      "caption": "Một con công trống xòe cánh, thuộc phân họ Trĩ",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:16.140Z"
+    },
+    {
+      "src": "media/img/2a257253eac6a370.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 88371,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2016_Singapur,_Jurong_Bird_Park_(027).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Marcin Konsek",
+      "title": "2016 Singapur, Jurong Bird Park (027).jpg",
+      "rank": "article",
+      "caption": "Sếu sarus là một loài chim sếu lớn không di cư phân bố từ tiểu lục địa Ấn Độ, Đông Nam Á đến Úc. Đây là loài cao nhất trong những loài chim biết bay, khi đứng thẳng đạt chiều cao lên đến 1,8 m.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:16.222Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/3c736d25b9b8b650.mp3",
@@ -30,6 +95,11 @@
     "assetConcept": "bird",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-22T19:12:16.223Z"
+    }
   }
 }

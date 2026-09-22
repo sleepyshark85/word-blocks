@@ -11,7 +11,53 @@
     }
   ],
   "fallbackEmoji": "Avocado",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/4f7c6fc0a3b6e6c4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 41820,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Avocado_Hass_-_single_and_halved.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Ivar Leidus",
+      "title": "Avocado Hass - single and halved.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:11:37.916Z"
+    },
+    {
+      "src": "media/img/d74b3ffe9a6ea1ae.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 65039,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Persea_americana_fruit_2.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "B.navez",
+      "title": "Persea americana fruit 2.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:11:38.010Z"
+    },
+    {
+      "src": "media/img/f09b8fa5f770f3e0.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 85287,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Qu%E1%BA%A3_b%C6%A1_b%C3%A1n_t%E1%BA%A1i_ch%E1%BB%A3_%C4%90%C3%A0_L%E1%BA%A1t,_Vietnam.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Hungda",
+      "title": "Quả bơ bán tại chợ Đà Lạt, Vietnam.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:11:38.098Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/07d9af55a720693f.mp3",
@@ -30,6 +76,11 @@
     "assetConcept": "avocado",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-22T19:11:38.098Z"
+    }
   }
 }

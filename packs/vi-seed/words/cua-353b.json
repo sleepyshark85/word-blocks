@@ -11,7 +11,69 @@
     }
   ],
   "fallbackEmoji": "Door",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/a03b4b10e3c61c82.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 42671,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:720_King_-_door.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "ProfReader",
+      "title": "720 King - door.JPG",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:42.032Z"
+    },
+    {
+      "src": "media/img/3917cb7ff539b04e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 77110,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:23_1-2-Fuji_Reala_pushed_2_stops_(5826165749).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "DARREN ST0NE",
+      "title": "23 1-2-Fuji Reala pushed 2 stops (5826165749).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:42.128Z"
+    },
+    {
+      "src": "media/img/e162eb0149a3bce9.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 78573,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Porte_ouverte.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Fawzi Demmane",
+      "title": "Porte ouverte.jpg",
+      "rank": "article",
+      "caption": "Cửa đẹp",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:42.209Z"
+    },
+    {
+      "src": "media/img/3793b7016e40ec39.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 67316,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:20100807-_DSC9802_(4871423283).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Yannick Bammert",
+      "title": "20100807- DSC9802 (4871423283).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:12:42.296Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/13398d371aee1d18.mp3",
@@ -39,6 +101,12 @@
     "assetConcept": "door",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 3,
+      "category": 6,
+      "at": "2026-09-22T19:12:42.297Z"
+    }
   }
 }

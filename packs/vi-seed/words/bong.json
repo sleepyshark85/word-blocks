@@ -11,7 +11,54 @@
     }
   ],
   "fallbackEmoji": "Soccer ball",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/b1a443bba2b21f05.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 39117,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Baseball_(crop).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Tage Olsin",
+      "title": "Baseball (crop).jpg",
+      "rank": "lead",
+      "caption": "Hình ảnh của quả bóng chày",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:11:37.618Z"
+    },
+    {
+      "src": "media/img/3dff4aa3da836516.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 26621,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ball.agr.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "ArnoldReinhold",
+      "title": "Ball.agr.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:11:37.718Z"
+    },
+    {
+      "src": "media/img/0f4dc7922e7981e0.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 41539,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ball,_%E0%B4%AA%E0%B4%A8%E0%B5%8D%E0%B4%A4%E0%B5%8D.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "കാക്കര",
+      "title": "Ball, പന്ത്.JPG",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-22T19:11:37.798Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/b98c401bed4c51a8.mp3",
@@ -39,6 +86,11 @@
     "assetConcept": "ball",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
+    "fetched": {
+      "lead": 1,
+      "category": 9,
+      "at": "2026-09-22T19:11:37.798Z"
+    }
   }
 }

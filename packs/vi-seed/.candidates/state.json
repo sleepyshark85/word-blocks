@@ -1,0 +1,84 @@
+{
+  "units": {
+    "ao": {
+      "status": "done",
+      "detail": "10 candidates for \"Áo (trang phục)\"",
+      "at": "2026-09-22T19:09:33.500Z"
+    },
+    "banh": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Cake or bread\"",
+      "at": "2026-09-22T19:09:34.032Z"
+    },
+    "bo-0cd1": {
+      "status": "done",
+      "detail": "10 candidates for \"Bơ (thực vật)\"",
+      "at": "2026-09-22T19:09:58.224Z"
+    },
+    "bo": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Cow\"",
+      "at": "2026-09-22T19:09:58.735Z"
+    },
+    "bong": {
+      "status": "done",
+      "detail": "10 candidates for \"Bóng\"",
+      "at": "2026-09-22T19:10:21.771Z"
+    },
+    "bun": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Bowl of bún\"",
+      "at": "2026-09-22T19:10:22.314Z"
+    },
+    "cam": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Orange\"",
+      "at": "2026-09-22T19:10:23.911Z"
+    },
+    "chan": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Foot / leg\"",
+      "at": "2026-09-22T19:10:25.531Z"
+    },
+    "chim": {
+      "status": "done",
+      "detail": "10 candidates for \"Chim\"",
+      "at": "2026-09-22T19:10:51.465Z"
+    },
+    "chuoi": {
+      "status": "done",
+      "detail": "10 candidates for \"Chuối\"",
+      "at": "2026-09-22T19:11:12.144Z"
+    },
+    "cua-353b": {
+      "status": "done",
+      "detail": "10 candidates for \"Cửa\"",
+      "at": "2026-09-22T19:11:34.470Z"
+    },
+    "cua": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Crab\"",
+      "at": "2026-09-22T19:11:35.007Z"
+    },
+    "de": {
+      "status": "done",
+      "detail": "10 candidates for \"Dê\"",
+      "at": "2026-09-22T19:12:02.838Z"
+    },
+    "den": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Lamp / light\"",
+      "at": "2026-09-22T19:12:03.408Z"
+    },
+    "dua": {
+      "status": "empty",
+      "detail": "no vi.wikipedia article for \"Coconut\"",
+      "at": "2026-09-22T19:12:05.008Z"
+    },
+    "gau": {
+      "status": "done",
+      "detail": "5 candidates for \"Họ Gấu\"",
+      "at": "2026-09-22T19:12:18.834Z"
+    }
+  }
+}
