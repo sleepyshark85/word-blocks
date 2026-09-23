@@ -1,20 +1,25 @@
-// The properties that must hold after every single action, in every round, for ever.
+// The properties that must hold after every single action, for ever.
 //
 // This is the fuzzer's assertion set (`test/fuzz.test.mjs`), and it lives in `src/`
 // rather than in the test so that a tester — or a debug build — can call it on a live
 // session and get the same answer. It returns a list of violations rather than throwing,
 // because the caller decides whether a violation is a failed test or a logged defect.
 //
-// `docs/slices.md` names the Slice 2 gate: *thousands of fuzzed rounds violate no
-// invariant, and every round is solvable with the palette offered.*
+// Revision 2's gate (`docs/slices.md` Slice 2): *the same seed and taps replay
+// identically, thousands of fuzzed sessions violate no invariant, and **there is no
+// reachable state from which a word cannot be made**.* That last one is `gameplay.md`
+// §3.3 property 2, and it is the whole mechanic stated as an assertion.
 
 import { langFor } from './lang/index.mjs';
-import { isSolvable } from './round.mjs';
-import { VI_MAX_PER_ROW, EN_MAX_TRAY, MAX_STAGE } from './stages.mjs';
+import { nodeAt } from './tree.mjs';
+import { tableView, treeOf, effectiveCells } from './session.mjs';
+import { MAX_STAGE, SHELF_SLOTS, CELLS_BY_STAGE } from './stages.mjs';
 
-export function checkInvariants(pack, state, context = {}) {
+export function checkInvariants(game, state, context = {}) {
   const bad = [];
   const fail = (code, detail) => bad.push({ code, detail, ...context });
+  const pack = game.pack;
+  const lang = langFor(game.language);
 
   /* --- the language never changes mid-session (`acceptance-criteria.md` R4, A10) --- */
   if (state.language !== pack.language) fail('languageDrift', `${state.language} vs ${pack.language}`);
@@ -22,116 +27,80 @@ export function checkInvariants(pack, state, context = {}) {
     fail('languageDrift', `session started as ${context.language}`);
   }
 
-  if (!Number.isInteger(state.globalStage) || state.globalStage < 1
-      || state.globalStage > MAX_STAGE[pack.language]) {
-    fail('stageOutOfRange', String(state.globalStage));
+  /* --- the stage ladder (H1, H4) --------------------------------------------- */
+  if (!Number.isInteger(state.stage) || state.stage < 1 || state.stage > MAX_STAGE) {
+    fail('stageOutOfRange', String(state.stage));
+  }
+  const cells = effectiveCells(game, state.stage);
+  if (!CELLS_BY_STAGE.includes(cells) && cells !== game.maxCells) {
+    fail('cellsNotOnTheLadder', String(cells));
   }
 
-  const round = state.round;
-  if (!round) return bad;
+  const tree = treeOf(game, state);
+  if (!tree) { fail('noTree', String(cells)); return bad; }
 
-  const lang = langFor(pack.language);
-  const instances = lang.paletteInstances(round.palette);
-
-  /* ------------------------------------------------- ids are unique (`T1`) ------- */
+  /* --- the table: the right size, no duplicate cell, nothing off the inventory -- */
+  const table = tableView(game, state);
   const ids = new Set();
-  for (const i of instances) {
-    if (ids.has(i.id)) fail('duplicateInstanceId', i.id);
-    ids.add(i.id);
+  for (const cell of table.cells) {
+    if (ids.has(cell.id)) fail('duplicateTableCell', cell.id);
+    ids.add(cell.id);
+    if (!lang.tileGroups.includes(cell.role)) fail('foreignRole', `${cell.id}:${cell.role}`);
+  }
+  if (table.role !== null && table.cells.length === 0) fail('emptyTable', table.role);
+  if (table.cells.length > cells) fail('tableTooWide', String(table.cells.length));
+
+  /* --- B3: live iff the eligible set has a completion. Checked against the words,
+         not against the tree that produced it, so the tree cannot certify itself. --- */
+  for (const cell of table.cells) {
+    const wanted = [...state.prefix, cell.id];
+    const reachable = tree.eligible.some((w) => {
+      const path = lang.pathFor(w);
+      return path.length > wanted.length - 1
+        && wanted.every((s, i) => path[i] === s);
+    });
+    if (reachable !== cell.live) fail('liveSetWrong', `${cell.id} live=${cell.live} reachable=${reachable}`);
   }
 
-  /* --------------- no tile outside the language's inventory --------------------- */
-  for (const i of instances) {
-    const group = i.role;
-    if (!lang.tileGroups.includes(group)) { fail('foreignRole', `${i.id}:${group}`); continue; }
-    if (!pack.tileById[group] || !pack.tileById[group][i.tileId]) {
-      fail('tileNotInInventory', `${group}/${i.tileId}`);
-    }
+  /* --- B5/B6/E11: every reachable prefix is on the tree, and nothing is stuck ---- */
+  const node = nodeAt(tree, state.prefix);
+  if (!node) {
+    fail('prefixOffTree', state.prefix.join('+'));
+  } else if (node.wordId === null && node.live.size === 0) {
+    fail('stuck', state.prefix.join('+'));
   }
 
-  /* ----------------- the palette caps (`acceptance-criteria.md` B3) -------------- */
-  if (round.palette.kind === 'vi') {
-    if (round.palette.onsets.length > VI_MAX_PER_ROW) fail('onsetRowTooWide', String(round.palette.onsets.length));
-    if (round.palette.rimes.length > VI_MAX_PER_ROW) fail('rimeRowTooWide', String(round.palette.rimes.length));
-    for (const rid of Object.keys(round.palette.tonesByRime)) {
-      if (round.palette.tonesByRime[rid].length > VI_MAX_PER_ROW) fail('toneRowTooWide', rid);
-    }
-  } else if (round.palette.tiles.length > EN_MAX_TRAY) {
-    fail('trayTooWide', String(round.palette.tiles.length));
+  /* --- the strip agrees with the prefix ---------------------------------------- */
+  const strip = lang.stripCells(pack, state.prefix);
+  const filled = strip.filter((c) => c.filled).length;
+  if (filled !== state.prefix.length) {
+    fail('stripDisagrees', `${filled} filled vs prefix ${state.prefix.length}`);
   }
 
-  /* ------------- no never-together pair in anything on screen (B4, D11) --------- */
-  const rows = round.palette.kind === 'vi'
-    ? [round.palette.onsets, round.palette.rimes,
-      ...Object.values(round.palette.tonesByRime)]
-    : [round.palette.tiles];
-  for (const row of rows) {
-    const idsInRow = row.map((i) => i.tileId);
-    for (const set of pack.neverTogether) {
-      const hits = set.filter((m) => idsInRow.includes(m));
-      if (hits.length > 1) fail('neverTogetherViolated', hits.join('+'));
-    }
+  /* --- the announcement is armed iff the prefix is a word ---------------------- */
+  const isWord = node ? node.wordId !== null : false;
+  if (state.status === 'announcing') {
+    if (!state.pending) fail('announcingWithoutPending', '');
+    else if (!isWord) fail('announcingNotAWord', state.prefix.join('+'));
+    else if (state.pending.wordId !== node.wordId) fail('announcingWrongWord', state.pending.wordId);
   }
 
-  /* ---------- assembled state never exceeds the word's length ------------------- */
-  const target = pack.words.find((w) => w.id === round.targetId);
-  if (!target) fail('targetNotInPack', round.targetId);
-  else {
-    const expected = pack.language === 'vi'
-      ? (target.syllables[0].onset === null ? 2 : 3)
-      : target.tiles.length;
-    if (round.cells.length !== expected) fail('cellCountWrong', `${round.cells.length} vs ${expected}`);
-  }
-  const seatedCount = round.cells.filter((c) => c.tileId !== null).length;
-  if (seatedCount > round.cells.length) fail('overfilled', String(seatedCount));
-
-  /* --------- every instance is in the band or in exactly one cell (T1) ---------- */
-  const seatedInstances = round.cells.map((c) => c.instanceId).filter((x) => x !== null);
-  if (new Set(seatedInstances).size !== seatedInstances.length) {
-    fail('instanceSeatedTwice', seatedInstances.join(','));
-  }
-  for (const c of round.cells) {
-    if (c.instanceId === null) {
-      if (c.tileId !== null) fail('cellHasTileWithoutInstance', String(c.index));
-      continue;
-    }
-    const inst = instances.find((i) => i.id === c.instanceId);
-    if (!inst) fail('seatedInstanceNotInPalette', c.instanceId);
-    else if (inst.tileId !== c.tileId) fail('cellTileMismatch', `${c.instanceId}`);
-    else if (inst.role !== c.role) fail('cellRoleMismatch', `${c.instanceId}`);
+  /* --- the shelf never overruns five (H5, H7) ---------------------------------- */
+  if (state.shelf.length > SHELF_SLOTS) fail('shelfOverflow', String(state.shelf.length));
+  if (state.phase === 'playing' && state.shelf.length >= SHELF_SLOTS) {
+    fail('shelfFullWhilePlaying', String(state.shelf.length));
   }
 
-  /* ---- a seated tone is a tone the seated rime can actually take ---------------
-     `literacy-vi.md` §5.2's checked-syllable rule is hard and exceptionless, and the
-     tone tile *is* the rime wearing a mark (§5.4), so a tone seated against a rime that
-     has no stored form for it is a board state with no spelling. Found by the Slice 2
-     tester as a reachable state on `quạt`; the reducer now refuses it, and this is the
-     assertion that says so after every action rather than at the one call site. */
-  if (round.palette.kind === 'vi') {
-    const rimeCell = round.cells.find((c) => c.role === 'rime');
-    const toneCell = round.cells.find((c) => c.role === 'tone');
-    if (toneCell && toneCell.tileId !== null) {
-      if (!rimeCell || rimeCell.tileId === null) {
-        fail('toneWithoutRime', toneCell.tileId);
-      } else {
-        const rimeTile = pack.tileById.rime[rimeCell.tileId];
-        if (!rimeTile || !rimeTile.legalTones.includes(toneCell.tileId)
-            || rimeTile.toned[toneCell.tileId] == null) {
-          fail('illegalToneSeated', `${rimeCell.tileId}+${toneCell.tileId}`);
-        }
-        const toneInst = instances.find((i) => i.id === toneCell.instanceId);
-        if (toneInst && toneInst.rimeId !== rimeCell.tileId) {
-          fail('toneFromAnotherRimeRow', `${toneInst.id} on ${rimeCell.tileId}`);
-        }
-      }
-    }
+  /* --- the album is one card per discovered word, newest first (H9, T18) -------- */
+  const seen = new Set();
+  for (const entry of state.album) {
+    if (seen.has(entry.wordId)) fail('albumDuplicate', entry.wordId);
+    seen.add(entry.wordId);
+    if (!state.discovered[entry.wordId]) fail('albumUndiscovered', entry.wordId);
   }
-
-  /* ------------------ every round is solvable with the palette offered (E10) ---- */
-  if (!isSolvable(pack, round)) fail('unsolvable', round.targetId);
-
-  /* ------------------------- the page never overruns five (H1, H2) -------------- */
-  if (state.page.entries.length > 5) fail('pageOverflow', String(state.page.entries.length));
+  if (seen.size !== Object.keys(state.discovered).length) {
+    fail('albumOutOfStep', `${seen.size} cards vs ${Object.keys(state.discovered).length} discovered`);
+  }
 
   return bad;
 }

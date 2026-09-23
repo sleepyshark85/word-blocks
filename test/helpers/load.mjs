@@ -36,14 +36,14 @@ export function readPackInputs(dir) {
   };
 }
 
-export function loadPack(id, language, overrides = {}) {
+export function loadPack(id, language, overrides) {
   const dir = packDir(id);
   if (!existsSync(packPaths(dir).manifest)) throw new Error(`no pack at ${dir}`);
-  return resolvePack({ language, ...readPackInputs(dir), ...overrides });
+  return resolvePack({ language, ...readPackInputs(dir), ...(overrides ?? {}) });
 }
 
-export const viPack = () => loadPack('vi-seed', 'vi');
-export const enPack = () => loadPack('en-seed', 'en');
+export const viPack = (overrides) => loadPack('vi-seed', 'vi', overrides);
+export const enPack = (overrides) => loadPack('en-seed', 'en', overrides);
 
 /** Read one raw word file, for tests that need to corrupt it. */
 export function rawWord(id, wordId) {

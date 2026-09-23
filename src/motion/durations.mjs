@@ -1,58 +1,80 @@
-// The motion table of `ui.md` §10.3, as data.
+// The motion table of `ui.md` §10.3, as data — revision 2.
 //
 // Every duration in the app comes from here, so a timing that an acceptance criterion
-// names (§F, O7, O8) has exactly one place it can be wrong.
+// names (§F, O7, O8, O10) has exactly one place it can be wrong.
 //
 // **Nothing in this file imports React Native.** The state layer owns every timer and is
 // tested in Node with a fake clock (`test/game-controller.test.mjs`), so the numbers it
-// schedules against have to be loadable off-device
-// (`development-process.md` §5). The easing curves, which are React Native objects, live
-// next door in `easing.js` and are imported only by components.
-
+// schedules against have to be loadable off-device (`development-process.md` §5). The
+// easing curves, which are React Native objects, live next door in `easing.js` and are
+// imported only by components.
 
 export const M = {
-  pressIn: 70,          // M1 — fires on touch-down, with the sound
-  flight: 260,          // M3 — a child-initiated placement
-  cellFill: 140,        // M4
-  segmentLight: 220,    // M5 — the only "correct" signal
-  bandMorph: 280,       // M6 — C3/C4's cross-fade
-  bandRise: 8,          // M6 — the 8 pt rise that comes with it
-  rockTotal: 520,       // M7 / O7 — a slow rock, never a fast shake
-  rockAmplitude: 4,     // M7 — +-4 pt
-  flyHome: 300,         // M8
-  flyHomeStagger: 140,  // M8 / E8
-  chantLift: 320,       // M9
-  merge: 240,           // M10
-  mergeFade: 180,       // M10
-  toneDrop: 260,        // M11
-  breatheOn: 1200,      // M15 / G3
-  breatheOff: 1600,     // M15 / G3
-  autoPlaceRise: 200,   // M16
-  autoPlaceHold: 160,   // M16
-  autoPlaceFly: 420,    // M16 / O8 — measurably slower than the 260 ms of his own tap
-  albumCard: 320,       // M17
-  albumStagger: 90,     // M17
-  gateHold: 1200,       // M18 / I3
-  roundOut: 380,        // M14
-  roundIn: 320,         // M14
+  pressIn: 70, // M1 — fires on touch-down, with the sound
+  flight: 260, // M3 — a live tile flies to the strip
+  flightOvershoot: 1.06, // M3
+  cellFill: 140, // M4
+  disabledDip: 120, // M5 / O7 — the smallest motion in the app, on purpose
+  disabledDipPt: 2, // M5 / O7
+  standChange: 200, // M6 — stand up / lie down
+  standStagger: 20, // M6 / O10 — by cell index, so the board reads as a wave
+  standRisePt: 2, // M6
+  tableMorph: 280, // M7 — onset -> rime -> tone
+  tableRise: 8, // M7
+  flyHome: 300, // M8 — undo
+  flyHomeStagger: 90, // M8 / E8
+  hop: 260, // M9 — the announcement hop, per symbol
+  hopStagger: 90, // M9
+  hopLiftPt: 14, // M9
+  merge: 240, // M10 — the glyphs slide together
+  mergeFade: 180, // M10 — the hairlines dissolve
+  chantLight: 320, // M11 — a gold face, never a gold glyph (U11)
+  toneDrop: 260, // M12
+  breatheOn: 1200, // M18 / G3
+  breatheOff: 1600, // M18 / G3
+  shimmer: 900, // M17 / G2
+  autoPlaceRise: 200, // M19
+  autoPlaceHold: 160, // M19
+  autoPlaceFly: 420, // M19 / O8 — measurably slower than the 260 ms of his own tap
+  albumCard: 320, // M16
+  albumStagger: 90, // M16
+  shelfFly: 520, // M15 — the picture flies into the shelf
+  shelfTip: 380, // M16 — the shelf tips into the album
+  gateHold: 1200, // M21 / I3
 };
 
-/** `ui.md` §10.4 — the reveal, frame by frame. `acceptance-criteria.md` F1–F6. */
+/** `ui.md` §10.4 — the announcement and the reveal, frame by frame. `§F`. */
 export const REVEAL = {
-  veilOut: 220,
-  flash: 220,
-  photoSwap: 180,
+  /** M9 begins at 0 with the motif. */
+  hopAt: 0,
+  mergeAt: 300,
+  confettiAt: 350,
+  /** The motif is 440 ms; the chant starts when it ends (`ui.md` §11.4). */
+  chantAt: 440,
+  /** M13 — the picture scales from the strip's rectangle to full screen. */
   fullBleed: 420,
-  lightSprite: 520,
-  confettiFrom: 300,
-  confettiTo: 1200,
-  speak: 600,
+  /** The word is spoken ~200 ms after the picture is full screen. */
+  speak: 200,
+  /** Motion ends; the word sits large on the picture, silent. */
   motionEnds: 1400,
+  /** `ui.md` §2.3 — the say-it-together beat ends and the word is spoken again. */
   sayItTogether: 2200,
+  /** `acceptance-criteria.md` F11 — 3000 ms after the last tap, it flies to the shelf. */
   autoAdvance: 3000,
+  bounce: 120,
+  bounceBack: 180,
 };
 
-/** `ui.md` §2.2 — press and hold the picture frame for 800 ms for the parts hint. */
+/** `ui.md` §11.4 — the signature motif: three rising notes, 440 ms. */
+export const MOTIF = {
+  totalMs: 440,
+  noteMs: 180,
+  onsets: [0, 130, 260],
+  /** A fourth note an octave above the root, when the word is new to him (F4). */
+  fourthAt: 390,
+};
+
+/** `ui.md` §2.2 — press and hold the **word strip** for 800 ms for the parts hint. */
 export const PARTS_HINT_HOLD = 800;
 
 /** `ui.md` §11.2 — a placement is touch-down and touch-up within 600 ms and 24 pt. */
@@ -64,10 +86,13 @@ export const HOLD = { startMs: 600, repeatMs: 700, maxRepeats: 6 };
 /** `ui.md` §11.2 — any tile touched in the previous 900 ms forces the short clip (D9). */
 export const SHORT_CLIP_WINDOW = 900;
 
-/** `gameplay.md` §6.5 — the idle ladder, and the 4 s every touch defers it by. */
+/**
+ * `gameplay.md` §6.4 — the idle ladder. 20 s shimmer, 40 s breathe, 60 s rim, 80 s the
+ * app takes a turn; **any touch anywhere defers the next escalation by 4 s** (G9).
+ */
 export const LADDER = { step: 20000, deferMs: 4000, levels: 4 };
 
-/** `gameplay.md` §6.7 — Finish session fades the audio over 800 ms. */
+/** `gameplay.md` §6.3 — Finish session fades the audio over 800 ms. */
 export const SESSION_FADE = 800;
 
 /** `acceptance-criteria.md` I7 — three wrong answers disable the keypad for 30 s. */

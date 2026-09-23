@@ -49,7 +49,11 @@ function keyOf(source) {
 export function createAudioEngine() {
   /** @type {Map<string, {player: object, source: any}>} */
   const pool = new Map();
-  let current = { tile: null, speech: null };
+  // `ui.md` §11.2 — one channel for tile sounds, so a new tap cuts the previous clip; a
+  // second, uninterruptible channel for the announcement; and separate channels for the
+  // cheer (which layers over the motif) and for the short UI sounds (the seat click, the
+  // knock, the unclick), which must not cut the tile clip they follow.
+  let current = { tile: null, speech: null, motif: null, cheer: null, ui: null };
   let muted = false;
   let rate = 1;
   let disposed = false;
@@ -80,7 +84,7 @@ export function createAudioEngine() {
     } catch { /* a player torn down under us is already stopped */ }
   }
 
-  function start(channel, source) {
+  function start(channel, source, { volume = 1, rate: clipRate = rate } = {}) {
     if (disposed) return 0;
     stopKey(current[channel]);
     current[channel] = null;
@@ -89,14 +93,19 @@ export function createAudioEngine() {
     if (!entry) return 0;
     try {
       entry.player.seekTo(0);
-      entry.player.volume = 1;
-      entry.player.setPlaybackRate(rate, 'high');
+      entry.player.volume = volume;
+      entry.player.setPlaybackRate(clipRate, 'high');
       entry.player.play();
       current[channel] = keyOf(source);
     } catch {
       return 0;
     }
     return 1;
+  }
+
+  /** `ui.md` §11.3 — the knock is −9 dB. Decibels, because that is what the spec says. */
+  function gain(db) {
+    return Math.max(0, Math.min(1, 10 ** (db / 20)));
   }
 
   return {
@@ -117,7 +126,7 @@ export function createAudioEngine() {
       }
       for (const [key, entry] of [...pool.entries()]) {
         if (wanted.has(key)) continue;
-        if (key === current.tile || key === current.speech) continue;
+        if (Object.values(current).includes(key)) continue;
         try { entry.player.remove(); } catch { /* already gone */ }
         pool.delete(key);
       }
@@ -128,15 +137,37 @@ export function createAudioEngine() {
       return start('tile', source);
     },
 
-    /** Channel B — the chant, the word, the read-back. Tile taps never touch it (N8). */
+    /** Channel B — the chant and the word. Tile taps never touch it (N8). */
     playSpeech(source) {
       return start('speech', source);
     },
 
+    /**
+     * `ui.md` §11.4 — the announcement motif owns its own channel and cannot be
+     * interrupted by a tile tap. It plays at its recorded level, **never rate-shifted**:
+     * the parent's 0.8x speech setting is about words, and a slowed motif is a different
+     * tune (`acceptance-criteria.md` F18 — byte-identical in both modes).
+     */
+    playMotif(source) {
+      return start('motif', source, { rate: 1 });
+    },
+
+    /** `gameplay.md` §5.2 — her voice, layered over the motif at t = 0, at −3 dBFS. */
+    playCheer(source) {
+      return start('cheer', source, { volume: gain(-3), rate: 1 });
+    },
+
+    /**
+     * The seat click, the disabled knock, the undo unclick, the shelf bell. Their own
+     * channel so the knock never cuts the clip it follows (`acceptance-criteria.md` E2).
+     */
+    playUi(source, db = 0) {
+      return start('ui', source, { volume: gain(db), rate: 1 });
+    },
+
     stopAll() {
-      stopKey(current.tile);
-      stopKey(current.speech);
-      current = { tile: null, speech: null };
+      for (const key of Object.values(current)) stopKey(key);
+      current = { tile: null, speech: null, motif: null, cheer: null, ui: null };
     },
 
     /** The fade is the one timer this module owns; it is cleared here and on dispose. */
@@ -156,7 +187,7 @@ export function createAudioEngine() {
       fadeTimer = setInterval(() => {
         i += 1;
         const v = Math.max(0, 1 - i / steps);
-        for (const key of [current.tile, current.speech]) {
+        for (const key of Object.values(current)) {
           const entry = key === null ? null : pool.get(key);
           if (entry) { try { entry.player.volume = v; } catch { /* gone */ } }
         }
@@ -188,7 +219,7 @@ export function createAudioEngine() {
         try { entry.player.remove(); } catch { /* already gone */ }
       }
       pool.clear();
-      current = { tile: null, speech: null };
+      current = { tile: null, speech: null, motif: null, cheer: null, ui: null };
     },
   };
 }

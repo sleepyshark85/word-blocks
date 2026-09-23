@@ -1,10 +1,16 @@
-// The Q-series gate. `ui.md` §6.1, `acceptance-criteria.md` Q1–Q10.
+// The Q-series gate. `ui.md` §6.1, `acceptance-criteria.md` Q1–Q10a.
 //
 // "Before either font ships, it must pass a render test. This is a **Tier-2 blocking
 // gate**, and it fails the build, not a review comment." It is what caught Fredoka —
-// which covers 35 of the 90 fixture characters and has `ã` but not `ả`, so `mã` and `mả`
+// which covers 35 of the 86 fixture characters and has `ã` but not `ả`, so `mã` and `mả`
 // would have rendered in *different typefaces*. That is a correctness failure in a game
 // about tone marks, and no screenshot review would have found it.
+//
+// **The tile face is whatever `src/ui/typography.js` says it is.** It was Baloo 2; the
+// orchestrator's correction of 2026-09-23 (`decisions.md`, *Tile typeface*) makes it Be
+// Vietnam Pro, and Baloo 2 stays bundled so the reversal is one line. This file reads
+// `FONT.tile` rather than naming a file, so the whole gate re-runs against whichever face
+// is wired in — which is the only way "reversible in one line" can be true.
 //
 // Two external tools, both already required by `CLAUDE.md`: `fontTools` from
 // `tools/.venv` for the outlines, and ImageMagick for the rasterised minimal-pair diff.
@@ -14,13 +20,35 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { REPO } from './helpers/load.mjs';
 
 const FONTS = path.join(REPO, 'assets', 'fonts');
-const TILE = path.join(FONTS, 'Baloo2-SemiBold.ttf');
+
+/**
+ * The face the app actually draws tiles in, read out of the component that decides. A
+ * gate that hard-codes a file name stops gating the moment somebody changes the wiring.
+ */
+const TYPOGRAPHY = readFileSync(path.join(REPO, 'src', 'ui', 'typography.js'), 'utf8');
+const TILE_FAMILY = (TYPOGRAPHY.match(/^\s*tile:\s*'([^']+)',/m) ?? [])[1];
+assert.ok(TILE_FAMILY, 'src/ui/typography.js does not declare a tile family');
+const TILE = path.join(FONTS, `${TILE_FAMILY}.ttf`);
 const TEXT = path.join(FONTS, 'BeVietnamPro-Regular.ttf');
+
+/**
+ * `acceptance-criteria.md` Q10a and `ui.md` §6.2 — the SHA-256 of every bundled face, as
+ * eyeballed. **This is the automated half of Q10 and the one that actually protects the
+ * property**: a dependency bump, a re-subset or a swapped file changes the hash and
+ * re-opens the human check.
+ */
+const HASHES = {
+  'Baloo2-SemiBold': '241b89a416388b8970d595db2fb361665e464447d7a1526ca4fb80bfcbd532ce',
+  'BeVietnamPro-SemiBold': '0d0a638c0338c3d33787c00cd4d082bec7c030cd27b3b54e37b766fdfb82b7c1',
+  'BeVietnamPro-Medium': '9122234c1fbc0d59a96d7f4e1ff119ec54fb2e970aa78ba9914567831085f575',
+  'BeVietnamPro-Regular': '0f5cdd2fb255263145b47c9f863d88c48443e617a5a914763c1a081bcf0cf739',
+};
 const PY = path.join(REPO, 'tools', '.venv', 'bin', 'python');
 const OUT = path.join(REPO, 'test', '.out');
 
@@ -57,7 +85,7 @@ test('the gate can run at all — fontTools and ImageMagick are present', () => 
   assert.ok(existsSync(PY), `tools/.venv is missing; see docs/slices.md for how to rebuild it`);
   assert.doesNotThrow(() => execFileSync('magick', ['-version'], { stdio: 'ignore' }),
     'ImageMagick (`magick`) must be on PATH — CLAUDE.md lists it as a requirement');
-  assert.ok(existsSync(TILE), 'the bundled tile font is missing; run `node scripts/build-fonts.mjs`');
+  assert.ok(existsSync(TILE), `the bundled tile font ${TILE_FAMILY} is missing; run \`node scripts/build-fonts.mjs\``);
   assert.ok(existsSync(TEXT), 'the bundled text font is missing');
 });
 
@@ -87,6 +115,37 @@ print(json.dumps({'size': os.path.getsize(sys.argv[1]), 'glyphs': len(font.getGl
   assert.ok(size < 400 * 1024);
   const cmap = probe(TILE, 'print(json.dumps(sorted(cmap.keys())))');
   assert.ok(!cmap.some((cp) => cp >= 0x0900 && cp <= 0x097f), 'Devanagari is still in the subset');
+});
+
+test('Q10a — every bundled face has the SHA-256 that was eyeballed (ui.md §6.2)', () => {
+  for (const [family, expected] of Object.entries(HASHES)) {
+    const file = path.join(FONTS, `${family}.ttf`);
+    assert.ok(existsSync(file), `${family} is recorded in ui.md §6.2 but is not bundled`);
+    const actual = createHash('sha256').update(readFileSync(file)).digest('hex');
+    assert.equal(actual, expected,
+      `${family} has changed. Q10's human letterform check is re-opened: render its \`a\` and \`g\` at 116 pt, look at them, and record the new hash.`);
+  }
+  // And the tile face is one of them, so the wiring cannot point at an unpinned file.
+  assert.ok(HASHES[TILE_FAMILY], `the tile face ${TILE_FAMILY} has no recorded hash`);
+});
+
+test('Q10 — the tile face is the one the letterform criterion selects', () => {
+  // The single-storey clause **cannot honestly be automated** (`ui.md` §6.2, correction
+  // U9): single- and double-storey `a` have the same contour count, the same counter
+  // count and similar bounding boxes, so any "automated" version would be a proxy dressed
+  // as a measurement. Measured here on both shipped faces:
+  const counts = {};
+  for (const family of ['Baloo2-SemiBold', 'BeVietnamPro-SemiBold']) {
+    counts[family] = probe(path.join(FONTS, `${family}.ttf`),
+      "print(json.dumps({'g': contours('g'), 'a': contours('a')}))");
+  }
+  assert.deepEqual(counts['Baloo2-SemiBold'], counts['BeVietnamPro-SemiBold'],
+    'the contour counts now differ — an automated letterform check may have become possible');
+  // What *is* checkable: a monocular `g` has two contours, a binocular one three.
+  assert.equal(counts[TILE_FAMILY].g, 2, 'the tile face`s `g` is binocular');
+  // The human record, and the decision it implements.
+  assert.equal(TILE_FAMILY, 'BeVietnamPro-SemiBold',
+    'the tile face changed; `decisions.md` §Tile typeface is the record, and Q10 is re-opened');
 });
 
 test('Q4 — no glyph ink falls outside the 1.55 em box', () => {
@@ -145,15 +204,7 @@ test('Q5 — the stacked forms are single composed glyphs, not base plus floatin
   }
 });
 
-test('Q10 — the tile font’s lowercase `g` is single-storey', () => {
-  // A binocular `g` has a second enclosed counter and therefore three contours; a
-  // single-storey `g` has two. Calibrated against Liberation Serif, whose `g` measures 3.
-  const n = probe(TILE, "print(json.dumps({'g': contours('g'), 'a': contours('a')}))");
-  assert.equal(n.g, 2, 'the tile font’s `g` is binocular');
-  assert.equal(n.a, 2, 'the tile font’s `a` has more than one counter');
-});
-
-test('Q3 — the minimal pairs differ by >= 200 px at 116 pt and >= 40 px at 36 pt', () => {
+test('Q3 — the minimal pairs differ by >= 200 px at 116 pt and >= 20 px at 36 pt', () => {
   mkdirSync(OUT, { recursive: true });
   const pairs = [['mả', 'mã'], ['hổ', 'hô'], ['ả', 'ã'], ['ẻ', 'ẽ'], ['ỏ', 'õ'], ['ủ', 'ũ'], ['ỷ', 'ỹ']];
   const render = (text, size, file) => {
@@ -174,7 +225,12 @@ test('Q3 — the minimal pairs differ by >= 200 px at 116 pt and >= 40 px at 36 
   };
 
   const measured = {};
-  for (const [size, floor] of [[116, 200], [36, 40]]) {
+  // `ui.md` §6.1, correction U7. The floors sit **far below** every real measurement
+  // rather than near one, because a pixel count is not portable between rasterisers: the
+  // Slice-3 developer measured 38.7 where the designer measured 34 on the same file and
+  // the same pair. The failure the gate exists to catch — *the mark is not drawn* —
+  // scores 0 at either size, and that is what the margin buys.
+  for (const [size, floor] of [[116, 200], [36, 20]]) {
     for (const [a, b] of pairs) {
       const fa = path.join(OUT, `q3-${size}-a.png`);
       const fb = path.join(OUT, `q3-${size}-b.png`);
@@ -182,30 +238,8 @@ test('Q3 — the minimal pairs differ by >= 200 px at 116 pt and >= 40 px at 36 
       render(b, size, fb);
       const px = diff(fa, fb);
       measured[`${size}:${a}/${b}`] = px;
-
-      // ────────────────────────────────────────────────────────────────────────────
-      // DEVIATION, reported not absorbed. `hổ`/`hô` at 36 pt measures **38.7 px**
-      // against Q3's floor of 40 — short by 1.3 px, and the only pair of the seven that
-      // is. It is also the only pair that is *marked against unmarked* rather than one
-      // tone against another: what is being counted is the entire ink of a `hỏi` mark at
-      // 36 pt, which is simply a small object. Every other pair measures 45–52 at 36 pt
-      // and 285–492 at 116 pt.
-      //
-      // The failure Q3 exists to separate is "the mark is not drawn", which scores ~0 at
-      // either size (`ui.md` §6.1 T3). 38.7 is not that. The gate still does its job.
-      //
-      // Recommendation to the game-designer: either lower the 36 pt floor to **30 px**,
-      // or scope it to tone-against-tone pairs and give marked-against-unmarked its own
-      // floor. Q3's 116 pt floor is untouched and passes with 43% margin at worst.
-      //
-      // Note also that `ui.md` §6.0.1's quoted measurement for `mả`/`mã` is 935 px at
-      // 116 pt; this rasteriser measures 469 for the same pair on the shipped subset at
-      // wght 600. Both are far above the floor, but the two numbers are not comparable
-      // and the document should say which tool produced its own.
-      const exempt = size === 36 && a === 'hổ';
-      const effective = exempt ? 30 : floor;
-      assert.ok(px >= effective,
-        `${a} and ${b} differ by only ${px} px at ${size} pt — the mark may not be drawn`);
+      assert.ok(px >= floor,
+        `${a} and ${b} differ by only ${px} px at ${size} pt in ${TILE_FAMILY} — the mark may not be drawn`);
     }
   }
 
@@ -215,7 +249,12 @@ test('Q3 — the minimal pairs differ by >= 200 px at 116 pt and >= 40 px at 36 
   render('hô', 36, same);
   const selfDiff = diff(same, same);
   assert.equal(selfDiff, 0, 'the diff metric does not read 0 for identical rasters');
-  assert.ok(measured['36:hổ/hô'] > 30 * selfDiff + 20, 'the hỏi mark is drawn at 36 pt');
+
+  // `hổ`/`hô` is the binding case: the only marked-against-unmarked pair in the set, so
+  // what it counts is the whole ink of one `hỏi` mark rather than two shapes disagreeing.
+  // It is recorded rather than merely asserted, so a regression is visible as a number.
+  assert.ok(measured['36:hổ/hô'] >= 20, `the binding pair measures ${measured['36:hổ/hô']} px at 36 pt`);
+  assert.ok(measured['116:hổ/hô'] >= 200, `the binding pair measures ${measured['116:hổ/hô']} px at 116 pt`);
 });
 
 test('Q2 — the face that renders is the bundled one, never a system fallback', () => {

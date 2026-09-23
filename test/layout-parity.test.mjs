@@ -2,15 +2,16 @@
 // the transcription a fact rather than an intention: both implementations are swept over
 // the full supported range and every field of every result is compared.
 //
-// `acceptance-criteria.md` P1–P6, P12.
+// `acceptance-criteria.md` P1–P6, P11, P14–P16.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 import {
-  layout as appLayout, boardLayout, fits as appFits, orientationOK as appOrientationOK,
-  fitGlyph, RULES, CAPTION_MIN_FONT,
+  layout as appLayout, fits as appFits, maxCells as appMaxCells,
+  orientationOK as appOrientationOK, fitGlyph, RULES, MIN_TABLE, MAX_TABLE,
+  TILE_MIN, CHROME, TOP_BAR, GAP_STRIP, PAD_BOTTOM,
 } from '../src/layout/layout.mjs';
 
 // `tools/layout-sweep.mjs` is a CLI: importing it runs the sweep and calls
@@ -21,8 +22,7 @@ import {
 const toolSource = readFileSync(new URL('../tools/layout-sweep.mjs', import.meta.url), 'utf8');
 const cut = toolSource.indexOf('/* ---------------- the sweep ---------------- */');
 assert.ok(cut > 0, 'tools/layout-sweep.mjs no longer has the sweep marker this test cuts at');
-const { layout: toolLayout, fits: toolFits, orientationOK: toolOrientationOK } =
-  await import(`data:text/javascript;base64,${Buffer.from(toolSource.slice(0, cut)).toString('base64')}`);
+const tool = await import(`data:text/javascript;base64,${Buffer.from(toolSource.slice(0, cut)).toString('base64')}`);
 
 const INSETS = [
   { insetT: 0, insetB: 0 },
@@ -37,115 +37,89 @@ const INSETS = [
 
 test('the app layout law is identical to tools/layout-sweep.mjs across the whole range', () => {
   let compared = 0;
+  let served = 0;
   for (let Wv = 360; Wv <= 1400; Wv += 4) {
     for (let Hv = 600; Hv <= 1440; Hv += 16) {
       for (const ins of INSETS) {
-        for (let n = 1; n <= 8; n += 1) {
-          const a = appLayout({ Wv, Hv, ...ins, n });
-          const b = toolLayout({ Wv, Hv, ...ins, n });
+        for (let cells = 1; cells <= MAX_TABLE; cells += 1) {
+          const a = appLayout({ Wv, Hv, ...ins, cells });
+          const b = tool.layout({ Wv, Hv, ...ins, cells });
+          if (a === null || b === null) {
+            assert.equal(a, b, `one implementation serves ${Wv}x${Hv} cells=${cells} and the other does not`);
+            compared += 1;
+            continue;
+          }
           for (const key of Object.keys(b)) {
             if (a[key] !== b[key]) {
-              assert.fail(`${key} differs at ${Wv}x${Hv} ${JSON.stringify(ins)} n=${n}: app ${a[key]} vs tool ${b[key]}`);
+              assert.fail(`${key} differs at ${Wv}x${Hv} ${JSON.stringify(ins)} cells=${cells}: app ${a[key]} vs tool ${b[key]}`);
             }
           }
-          assert.equal(appFits(a), toolFits(b));
+          assert.equal(appFits(a), tool.fits(b));
           compared += 1;
         }
-        assert.equal(appOrientationOK({ Wv, Hv, ...ins }), toolOrientationOK({ Wv, Hv, ...ins }));
+        assert.equal(appMaxCells({ Wv, Hv, ...ins }), tool.maxCells({ Wv, Hv, ...ins }));
+        const ok = appOrientationOK({ Wv, Hv, ...ins });
+        assert.equal(ok, tool.orientationOK({ Wv, Hv, ...ins }));
+        if (ok) served += 1;
       }
     }
   }
-  assert.ok(compared > 200000, `swept ${compared} layouts`);
+  assert.ok(compared > 400000, `swept ${compared} layouts`);
+  assert.ok(served > 10000, `only ${served} viewport/inset combinations served`);
 });
 
-test('the representative devices in ui.md §4.4 come out as documented', () => {
-  // P5: an iPad in portrait at stage 5 Vietnamese — tiles 116, picture 758 x 620.
-  const ipad = appLayout({ Wv: 834, Hv: 1194, insetT: 24, insetB: 20, n: 6 });
-  assert.equal(ipad.tile, 116);
-  assert.equal(ipad.frameW, 758);
-  assert.equal(ipad.frameH, 620);
-
-  // P6: a 360 x 640 Android phone at stage 7 English (8 tiles) — tile 73, row 325 of
-  // 328, picture 328 x 300.
-  const android = appLayout({ Wv: 360, Hv: 640, insetT: 24, insetB: 16, n: 8 });
-  assert.equal(android.tile, 73);
-  assert.equal(android.rowW, 325);
-  assert.equal(android.CW, 328);
-  assert.equal(android.frameW, 328);
-  assert.equal(android.frameH, 300);
-});
-
-test('a phone in landscape is not served; a tablet in both orientations is (P7, P8)', () => {
-  assert.equal(appOrientationOK({ Wv: 852, Hv: 393, insetT: 0, insetB: 21, insetL: 59, insetR: 59 }), false);
-  assert.equal(appOrientationOK({ Wv: 834, Hv: 1194, insetT: 24, insetB: 20 }), true);
-  assert.equal(appOrientationOK({ Wv: 1194, Hv: 834, insetT: 24, insetB: 20 }), true);
-  assert.equal(appOrientationOK({ Wv: 393, Hv: 852, insetT: 59, insetB: 34 }), true);
-});
-
-test('Q7 — a multi-character glyph shrinks to fit but never below 24 pt', () => {
-  const L = appLayout({ Wv: 360, Hv: 640, insetT: 24, insetB: 16, n: 8 });
-  assert.equal(fitGlyph(L.tile, L.tileFont, 1), L.tileFont);
-  const three = fitGlyph(L.tile, L.tileFont, 3); // `ngh`
-  assert.ok(three < L.tileFont, `a 3-glyph tile should shrink from ${L.tileFont}, got ${three}`);
-  assert.ok(three >= 24, `never below 24 pt, got ${three}`);
-  assert.ok(three * 3 * 0.56 <= L.tile * 0.82 + 1, 'fits 82% of the tile width');
-  // The floor holds even at an absurd length.
-  assert.equal(fitGlyph(72, 36, 12), 24);
-});
-
-test('the fit rule still holds once the caption strip is in the stack', () => {
-  // `ui.md` §4.2's `stackFixed` omits the caption strip that §7 and §8 both draw.
-  // `boardLayout` puts it back by taking it out of the picture, which §4.2 already names
-  // as the flex element. This is the sweep that says the extension is safe.
-  let worstCaption = Infinity;
-  let hidden = 0;
-  let compared = 0;
-  for (let Wv = 360; Wv <= 1400; Wv += 4) {
+test('the fit rule holds on every served layout — nothing scrolls, nothing is clipped', () => {
+  let checked = 0;
+  for (let Wv = 360; Wv <= 1400; Wv += 8) {
     for (let Hv = 600; Hv <= 1440; Hv += 16) {
       for (const ins of INSETS) {
-        if (!appOrientationOK({ Wv, Hv, ...ins })) continue;
-        for (let n = 1; n <= 8; n += 1) {
-          const L = boardLayout({ Wv, Hv, ...ins, n });
+        const v = { Wv, Hv, ...ins };
+        const mc = appMaxCells(v);
+        if (mc < MIN_TABLE) continue;
+        for (let cells = 1; cells <= mc; cells += 1) {
+          const L = appLayout({ ...v, cells });
           for (const [name, rule] of RULES) {
-            assert.ok(rule(L), `${name} fails with the caption at ${Wv}x${Hv} ${JSON.stringify(ins)} n=${n}`);
+            assert.ok(rule(L), `${name} fails at ${Wv}x${Hv} ${JSON.stringify(ins)} cells=${cells}`);
           }
-          assert.ok(L.capH >= 0);
-          assert.ok(L.captionFont === 0 || L.captionFont >= CAPTION_MIN_FONT,
-            `an illegible ${L.captionFont} pt caption at ${Wv}x${Hv} n=${n}`);
-          if (L.captionFont > 0) worstCaption = Math.min(worstCaption, L.captionFont);
-          else hidden += 1;
-          compared += 1;
+          // B13 / P3 — every cell the stage exposes is on screen at once.
+          assert.ok(L.rows * L.cols >= cells);
+          assert.ok(L.stripH + L.tableH + CHROME <= L.H);
+          checked += 1;
         }
       }
     }
   }
-  assert.ok(compared > 100000, `swept ${compared}`);
-  assert.ok(worstCaption >= CAPTION_MIN_FONT, `the caption shrank to ${worstCaption} pt`);
-  assert.ok(hidden / compared < 0.02,
-    `the caption is dropped on ${((hidden / compared) * 100).toFixed(1)}% of served layouts`);
-
-  // And the one viewport that forced the extension gets exactly the documented answer.
-  const tight = boardLayout({ Wv: 360, Hv: 600, insetT: 24, insetB: 16, n: 1 });
-  assert.equal(tight.captionFont, 37);
-  assert.equal(tight.frameH - tight.overlap, 150, 'F5 exactly on its floor');
-  assert.equal(tight.slack, 0);
-
-  // And the devices the app is actually for all keep a full-size strip.
-  for (const [label, v] of [
-    ['iPad portrait', { Wv: 834, Hv: 1194, insetT: 24, insetB: 20, n: 6 }],
-    ['iPhone 15', { Wv: 393, Hv: 852, insetT: 59, insetB: 34, n: 6 }],
-    ['Android 412x915', { Wv: 412, Hv: 915, insetT: 48, insetB: 34, n: 8 }],
-  ]) {
-    const L = boardLayout(v);
-    assert.ok(L.captionFont >= Math.round(L.tile * 0.42) - 1,
-      `${label}: caption ${L.captionFont} pt, wanted ${Math.round(L.tile * 0.42)}`);
-  }
+  assert.ok(checked > 100000, `only checked ${checked}`);
 });
 
-test('P7/P8 — the orientation policy serves a tablet both ways and locks a phone', () => {
-  // `src/layout/orientation.js` asks exactly this question of the layout law before it
-  // calls `lockAsync`. The policy is tested here rather than through the native module,
-  // because what can be wrong is the arithmetic, not the call.
+test('P5 — an iPad 11" in portrait at stage 5 is 6 x 4 at 112 pt with a 118 pt strip', () => {
+  const L = appLayout({ Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 24 });
+  assert.equal(L.cols, 6);
+  assert.equal(L.rows, 4);
+  assert.equal(L.tile, 112);
+  assert.equal(L.stripH, 118);
+  assert.equal(L.gapY, 50);
+  assert.equal(L.rowW, 757);
+  assert.equal(L.tableH, 598);
+  assert.equal(L.shelf, 44);
+  assert.equal(L.stripFont, 65);
+  assert.equal(L.tileFont, 58);
+});
+
+test('P6 — a 360 x 640 Android tops out at 20 cells, 4 x 5 at 73 pt, row 325 of 328', () => {
+  const v = { Wv: 360, Hv: 640, insetT: 24, insetB: 16 };
+  assert.equal(appMaxCells(v), 20);
+  const L = appLayout({ ...v, cells: 20 });
+  assert.equal(L.cols, 4);
+  assert.equal(L.rows, 5);
+  assert.equal(L.tile, 73);
+  assert.equal(L.rowW, 325);
+  assert.equal(L.tableW, 328);
+  assert.equal(L.stripH, 77);
+  assert.equal(L.shelf, 32);
+});
+
+test('P4 / P7 / P8 — a phone locks portrait, a tablet rotates, every served view holds 20', () => {
   const both = (w, h, top, bottom) => {
     const portrait = { Wv: Math.min(w, h), Hv: Math.max(w, h), insetT: top, insetB: bottom, insetL: 0, insetR: 0 };
     const landscape = { Wv: portrait.Hv, Hv: portrait.Wv, insetT: 0, insetB: bottom, insetL: top, insetR: top };
@@ -156,4 +130,76 @@ test('P7/P8 — the orientation policy serves a tablet both ways and locks a pho
   assert.equal(both(393, 852, 59, 34), false, 'an iPhone must lock to portrait');
   assert.equal(both(360, 640, 24, 16), false, 'a compact Android must lock to portrait');
   assert.equal(both(412, 915, 48, 34), false, 'a large Android phone must lock to portrait');
+  // F7 restated: served means at least 20 cells, and 20 cells means every rule holds.
+  assert.equal(appOrientationOK({ Wv: 852, Hv: 393, insetT: 0, insetB: 21, insetL: 59, insetR: 59 }), false);
+});
+
+test('P2 / P11 — the tile never goes below 72 pt and hit rects can never overlap', () => {
+  let tightest = Infinity;
+  for (let Wv = 360; Wv <= 1400; Wv += 4) {
+    for (let Hv = 600; Hv <= 1440; Hv += 16) {
+      for (const ins of INSETS) {
+        const mc = appMaxCells({ Wv, Hv, ...ins });
+        if (mc < MIN_TABLE) continue;
+        for (let cells = 1; cells <= mc; cells += 1) {
+          const L = appLayout({ Wv, Hv, ...ins, cells });
+          assert.ok(L.tile >= TILE_MIN);
+          // `ui.md` §4.5 — the hit rect extends 6 pt but is clipped to half the gap, so
+          // two rects can touch and never overlap.
+          assert.ok(Math.min(6, Math.floor(L.gap / 2)) * 2 <= L.gap);
+          tightest = Math.min(tightest, L.tile);
+        }
+      }
+    }
+  }
+  assert.equal(tightest, TILE_MIN, 'the floor is never actually reached — is it doing anything?');
+});
+
+test('P16 — the layout law has no caption-strip term, because the board has no caption', () => {
+  const L = appLayout({ Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 24 });
+  assert.ok(!('capH' in L), 'the layout still budgets a caption strip');
+  assert.ok(!('captionFont' in L));
+  assert.ok(!('frameH' in L), 'the layout still budgets a picture frame');
+  assert.ok(!('plateH' in L), 'the layout still budgets a word plate');
+  assert.ok(!('veil' in L));
+  // And the chrome is the three things §4.2 names, and nothing else.
+  assert.equal(CHROME, TOP_BAR + GAP_STRIP + PAD_BOTTOM);
+  assert.equal(CHROME, 86);
+});
+
+test('P14 — a rotation changes the grid but never the reading order', () => {
+  // The table is filled row-major from the same inventory order, so cell *i* is symbol
+  // *i* in both orientations. That is the whole of P14, and it is a property of the
+  // renderer's loop rather than of the law — what the law must not do is reorder.
+  const portrait = appLayout({ Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 24 });
+  const landscape = appLayout({ Wv: 1194, Hv: 834, insetT: 24, insetB: 20, cells: 24 });
+  assert.equal(portrait.cols, 6);
+  assert.equal(landscape.cols, 6);
+  assert.equal(portrait.cols * portrait.rows >= 24, true);
+  assert.equal(landscape.cols * landscape.rows >= 24, true);
+});
+
+test('Q7 — a multi-character glyph shrinks to fit but never below 24 pt', () => {
+  const L = appLayout({ Wv: 360, Hv: 640, insetT: 24, insetB: 16, cells: 20 });
+  assert.equal(fitGlyph(L.tile, L.tileFont, 1), L.tileFont);
+  const three = fitGlyph(L.tile, L.tileFont, 3); // `ngh`
+  assert.ok(three < L.tileFont, `a 3-glyph tile should shrink from ${L.tileFont}, got ${three}`);
+  assert.ok(three >= 24, `never below 24 pt, got ${three}`);
+  assert.ok(three * 3 * 0.56 <= L.tile * 0.82 + 1, 'fits 82% of the tile width');
+  assert.equal(fitGlyph(72, 36, 12), 24);
+});
+
+test('the parity sweep can fail — a one-pixel drift in the app law is caught', () => {
+  // `development-process.md` §5: never trust a green check you have not seen fail.
+  // A transcription that is only *believed* identical is the defect this file exists for,
+  // so the comparison is proven to notice one changed constant.
+  const drifted = ({ Wv, Hv, insetT = 0, insetB = 0, insetL = 0, insetR = 0, cells }) => {
+    const L = appLayout({ Wv, Hv, insetT, insetB, insetL, insetR, cells });
+    return L === null ? null : { ...L, tile: L.tile - 1 };
+  };
+  let caught = false;
+  const a = drifted({ Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 24 });
+  const b = tool.layout({ Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 24 });
+  for (const key of Object.keys(b)) if (a[key] !== b[key]) caught = true;
+  assert.ok(caught, 'the field-by-field comparison would not notice a changed tile size');
 });

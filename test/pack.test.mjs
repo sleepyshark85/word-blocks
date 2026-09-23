@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { viPack, enPack, rawWord } from './helpers/load.mjs';
+import { viPack, enPack, rawWord, rawManifest, loadPack } from './helpers/load.mjs';
 
 test('both seed packs resolve, and the counts match the seed build', () => {
   const vi = viPack();
@@ -134,19 +134,46 @@ test('every playable word has a picture or a fallback emoji (content-pipeline §
   }
 });
 
-test('stage pools are derived from the live vocabulary, not a hand-written table', () => {
-  const vi = viPack();
-  // `bò`, `dê`, `gà`, `xe` … are stage 1, so their parts are available at stage 1.
-  assert.equal(vi.stageOf.rime.o, 1);
-  assert.equal(vi.stageOf.onset.b, 1);
-  assert.equal(vi.stageOf.rime.eo, 2); // first seen in `mèo`
-  assert.equal(vi.stageOf.rime.ach, 4); // first seen in `sách`
-  // A rime no word uses is not in the pool at all, so it can never be a distractor.
-  assert.equal(vi.stageOf.rime.uôi !== undefined, true);
-  const en = enPack();
-  assert.equal(en.stageOf.letter.a, 1);
-  assert.equal(en.stageOf.letter.ck, 6);
-  assert.equal(en.stageOf.letter.k, undefined, '`k` is used by no seed word');
+test('E12 — the inventory order is the board, and every declared tile is on it', () => {
+  // `ui.md` §13.7 E12 — "the table takes the first `cells` of it, so this list *is* the
+  // board. Nothing else may determine which symbol sits in which cell."
+  for (const [label, pack, groups] of [
+    ['Vietnamese', viPack(), ['onset', 'rime', 'tone']],
+    ['English', enPack(), ['letter']],
+  ]) {
+    for (const group of groups) {
+      const order = pack.inventoryOrder[group];
+      assert.ok(Array.isArray(order), `${label}: no ${group} order`);
+      assert.deepEqual(order, [...new Set(order)], `${label}: ${group} order has a duplicate`);
+      // No tile is hidden from the board by an order that forgot it.
+      assert.deepEqual([...order].sort(), pack.tiles[group].map((t) => t.id).sort(),
+        `${label}: the ${group} order and the ${group} inventory disagree`);
+    }
+  }
+});
+
+test('D1 — the English letter inventory is in alphabetical order, digraphs after', () => {
+  const order = enPack().inventoryOrder.letter;
+  const singles = order.filter((id) => [...id].length === 1);
+  const digraphs = order.filter((id) => [...id].length > 1);
+  assert.deepEqual(singles, [...singles].sort(), 'the letters are not alphabetical');
+  assert.deepEqual(digraphs, [...digraphs].sort());
+  assert.deepEqual(order, [...singles, ...digraphs], 'a digraph sits among the letters');
+  assert.equal(order[0], 'a', 'the alphabet song does not start with `a`');
+});
+
+test('a declared inventoryOrder wins, and an entry naming an unknown tile is dropped', () => {
+  const input = { manifest: rawManifest('en-seed') };
+  const declared = ['e', 'a', 'c', 'nope', 't'];
+  const pack = loadPack('en-seed', 'en', {
+    manifest: { ...input.manifest, inventoryOrder: { letter: declared } },
+  });
+  // Her order comes first, exactly as written, minus the tile this pack does not have.
+  assert.deepEqual(pack.inventoryOrder.letter.slice(0, 4), ['e', 'a', 'c', 't']);
+  assert.ok(pack.issues.some((i) => i.code === 'unknownInventoryEntry'));
+  // And every tile she left out is still on the board, after hers.
+  assert.deepEqual([...pack.inventoryOrder.letter].sort(),
+    pack.tiles.letter.map((t) => t.id).sort());
 });
 
 test('a clean seed pack produces no issues at all', () => {

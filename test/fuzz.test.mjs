@@ -1,185 +1,120 @@
-// The Slice 2 gate (`docs/slices.md`): *same seed and taps replay identically; thousands
-// of fuzzed rounds violate no invariant; **every round is solvable with the palette
-// offered**.*
+// The fuzzer. `docs/slices.md` Slice 2's gate: *thousands of fuzzed sessions violate no
+// invariant, and there is no reachable state from which a word cannot be made.*
 //
-// The player here is a four-year-old as far as the engine is concerned: he taps tiles he
-// has already seated, taps empty cells, taps the frame, mashes, and occasionally gets
-// helped. After **every single action** `checkInvariants` runs over the whole state.
+// It taps at random — live tiles, flat tiles, strip cells, the idle ladder, the album —
+// and asserts `checkInvariants` after **every single action**. That is the only honest
+// way to believe a property that has to hold in states nobody wrote a test for.
+//
+// The random source is the engine's own seeded generator, so a failing run is replayable
+// from the seed printed in the assertion.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+
+import { viPack, enPack } from './helpers/load.mjs';
 import {
-  createSession, reduce, bandInstances, checkInvariants, seedFrom,
+  createGame, createSession, reduce, tableView, checkInvariants, seedFrom,
 } from '../src/engine/index.mjs';
 import { nextInt } from '../src/engine/rng.mjs';
-import { viPack, enPack } from './helpers/load.mjs';
 
-function fuzz(pack, { seed, actions }) {
-  const language = pack.language;
-  let rng = seedFrom(seed);
-  let s = createSession(pack, { seed });
-  let rounds = 0;
-  const resolved = { target: 0, found: 0, notAWord: 0 };
-
-  const check = (where) => {
-    const bad = checkInvariants(pack, s, { language, where, seed });
-    if (bad.length) {
-      assert.fail(`${language} seed=${seed} ${where}: ${JSON.stringify(bad)}`);
-    }
+/** A local generator, so fuzzing never perturbs the session's own RNG. */
+function chooser(seed) {
+  let s = seedFrom(seed);
+  return (n) => {
+    const [next, v] = nextInt(s, Math.max(1, n));
+    s = next;
+    return v;
   };
-  check('start');
-
-  for (let i = 0; i < actions; i += 1) {
-    const [r1, roll] = nextInt(rng, 100);
-    rng = r1;
-
-    if (s.phase === 'empty' || s.phase === 'ended') break;
-    if (s.phase === 'album') {
-      s = reduce(pack, s, { type: 'nextPage' });
-      check(`album->page @${i}`);
-      continue;
-    }
-
-    const round = s.round;
-    if (round.status === 'settling') {
-      resolved[round.outcome.kind] += 1;
-      s = reduce(pack, s, { type: 'settle' });
-      check(`settle @${i}`);
-      continue;
-    }
-    if (round.status === 'resolving') {
-      resolved[round.outcome.kind] += 1;
-      rounds += 1;
-      s = reduce(pack, s, { type: 'advance' });
-      check(`advance @${i}`);
-      continue;
-    }
-
-    const band = bandInstances(pack, s);
-    const seated = round.cells.filter((c) => c.tileId !== null);
-    let action;
-    if (roll < 62 && band.length > 0) {
-      const [r2, k] = nextInt(rng, band.length); rng = r2;
-      action = { type: 'tapTile', instanceId: band[k].id };
-    } else if (roll < 78 && seated.length > 0) {
-      const [r2, k] = nextInt(rng, seated.length); rng = r2;
-      action = { type: 'tapCell', cellIndex: seated[k].index };
-    } else if (roll < 86) {
-      const [r2, k] = nextInt(rng, round.cells.length); rng = r2;
-      action = { type: 'tapCell', cellIndex: k };
-    } else if (roll < 90) {
-      action = { type: 'autoPlace' };
-    } else if (roll < 94) {
-      action = { type: 'tapFrame' };
-    } else if (roll < 97) {
-      action = { type: 'partsHint' };
-    } else {
-      // Actions that do not apply right now must be no-ops, not corruptions.
-      const [r2, k] = nextInt(rng, 4); rng = r2;
-      action = [{ type: 'settle' }, { type: 'advance' }, { type: 'nextPage' }, { type: 'nonsense' }][k];
-    }
-
-    s = reduce(pack, s, action);
-    check(`${action.type} @${i}`);
-
-    // The assembled state can never exceed the word's length: there are exactly as many
-    // cells as the word has parts, and no cell holds two tiles.
-    if (s.round) {
-      assert.ok(s.round.cells.filter((c) => c.tileId !== null).length <= s.round.cells.length);
-    }
-  }
-  return { rounds, resolved, s };
 }
 
-test('10 seeds × 5000 actions in Vietnamese violate no invariant', () => {
-  const pack = viPack();
-  let rounds = 0;
-  const totals = { target: 0, found: 0, notAWord: 0 };
-  for (let i = 0; i < 10; i += 1) {
-    const out = fuzz(pack, { seed: `vi-fuzz-${i}`, actions: 5000 });
-    rounds += out.rounds;
-    for (const k of Object.keys(totals)) totals[k] += out.resolved[k];
+function fuzzOne(pack, seed, steps, stage = 1) {
+  const game = createGame(pack, { maxCells: 24 });
+  const pick = chooser(seed);
+  let state = { ...createSession(game, { seed }), stage };
+  const history = [];
+
+  const check = (action) => {
+    history.push(action);
+    const bad = checkInvariants(game, state, { language: pack.language });
+    if (bad.length > 0) {
+      assert.fail(`seed ${seed}: ${bad.map((b) => `${b.code}(${b.detail})`).join(', ')}\n`
+        + `after ${history.length} actions: ${JSON.stringify(history.slice(-8))}`);
+    }
+  };
+
+  check({ type: 'start' });
+  let words = 0;
+
+  for (let i = 0; i < steps; i += 1) {
+    const roll = pick(100);
+    let action;
+    if (state.phase === 'album') {
+      action = roll < 80 ? { type: 'leaveAlbum' } : { type: 'partsHint' };
+    } else if (state.status === 'announcing') {
+      action = { type: 'advance' };
+      words += 1;
+    } else if (roll < 62) {
+      // A tap on the table — live or flat, chosen without looking, exactly as he does.
+      const cells = tableView(game, state).cells;
+      action = cells.length === 0
+        ? { type: 'partsHint' }
+        : { type: 'tapSymbol', symbolId: cells[pick(cells.length)].id };
+    } else if (roll < 78) {
+      action = { type: 'tapStripCell', index: pick(4) };
+    } else if (roll < 88) {
+      action = { type: 'autoPlay' };
+    } else if (roll < 94) {
+      // Actions that cannot apply here. They must be no-ops, not corruptions.
+      action = [{ type: 'advance' }, { type: 'leaveAlbum' }, { type: 'nonsense' },
+        { type: 'tapSymbol', symbolId: 'not-a-symbol' }][pick(4)];
+    } else {
+      action = { type: 'partsHint' };
+    }
+    state = reduce(game, state, action);
+    check(action);
   }
-  assert.ok(rounds > 1000, `only ${rounds} rounds were resolved`);
-  // All three outcomes must actually occur, or the fuzzer is not exercising the game.
-  assert.ok(totals.target > 0 && totals.found > 0 && totals.notAWord > 0,
-    `outcomes: ${JSON.stringify(totals)}`);
+  return { state, words };
+}
+
+for (const [label, load] of [['Vietnamese', viPack], ['English', enPack]]) {
+  test(`${label}: 400 fuzzed sessions, every action checked, no invariant violated`, () => {
+    const pack = load();
+    let words = 0;
+    let discovered = new Set();
+    for (let i = 0; i < 400; i += 1) {
+      // Every stage, so the wide tables are fuzzed as hard as the narrow ones.
+      const out = fuzzOne(pack, `fuzz-${label}-${i}`, 60, 1 + (i % 5));
+      words += out.words;
+      for (const id of Object.keys(out.state.discovered)) discovered.add(id);
+    }
+    // A fuzzer that never reaches the interesting states is a green check nobody earned.
+    assert.ok(words > 800, `only ${words} words were made across 400 sessions`);
+    assert.ok(discovered.size >= 10, `only ${discovered.size} distinct words were ever found`);
+  });
+}
+
+test('a long session stays consistent — 4000 actions, one seed, every state checked', () => {
+  const out = fuzzOne(viPack(), 'marathon', 4000, 5);
+  assert.ok(out.words > 150, `only ${out.words} words in 4000 actions`);
+  assert.ok(out.state.stage >= 1);
 });
 
-test('10 seeds × 5000 actions in English violate no invariant', () => {
-  const pack = enPack();
-  let rounds = 0;
-  const totals = { target: 0, found: 0, notAWord: 0 };
-  for (let i = 0; i < 10; i += 1) {
-    const out = fuzz(pack, { seed: `en-fuzz-${i}`, actions: 5000 });
-    rounds += out.rounds;
-    for (const k of Object.keys(totals)) totals[k] += out.resolved[k];
+test('the fuzzer can fail — a deliberately broken live set is caught', () => {
+  // `development-process.md` §5: never trust a green check you have not seen fail. The
+  // fault injected is the exact defect the mechanic exists to prevent — a symbol that is
+  // live with nothing behind it, which is a path to garbage.
+  const game = createGame(viPack(), { maxCells: 24 });
+  const state = { ...createSession(game, { seed: 'x' }), stage: 5 };
+  const tree = game.treeFor(24);
+  const flat = tableView(game, state).cells.find((c) => !c.live);
+  assert.ok(flat, 'no flat tile to corrupt');
+  tree.root.live.add(flat.id);
+  try {
+    const bad = checkInvariants(game, state);
+    assert.ok(bad.some((b) => b.code === 'liveSetWrong'),
+      `the invariant did not catch a live symbol with no word behind it: ${JSON.stringify(bad)}`);
+  } finally {
+    tree.root.live.delete(flat.id);
   }
-  assert.ok(rounds > 1000, `only ${rounds} rounds were resolved`);
-  assert.ok(totals.target > 0 && totals.found > 0 && totals.notAWord > 0,
-    `outcomes: ${JSON.stringify(totals)}`);
-});
-
-test('the language never changes mid-session, over the whole fuzz', () => {
-  for (const pack of [viPack(), enPack()]) {
-    const { s } = fuzz(pack, { seed: 'lang-fuzz', actions: 3000 });
-    assert.equal(s.language, pack.language);
-  }
-});
-
-test('checkInvariants is not vacuous — it catches a corrupted board', () => {
-  // "Never trust a green check you have not seen fail." Break the state on purpose.
-  const pack = viPack();
-  const s = createSession(pack, { seed: 'inject' });
-  assert.deepEqual(checkInvariants(pack, s), []);
-
-  const wrongLanguage = { ...s, language: 'en' };
-  assert.ok(checkInvariants(pack, wrongLanguage).some((b) => b.code === 'languageDrift'));
-
-  const twoInOneCell = {
-    ...s,
-    round: {
-      ...s.round,
-      cells: s.round.cells.map((c) => ({ ...c, tileId: 'm', instanceId: 'onset:m' })),
-    },
-  };
-  assert.ok(checkInvariants(pack, twoInOneCell).some((b) => b.code === 'instanceSeatedTwice'));
-
-  const foreignTile = {
-    ...s,
-    round: {
-      ...s.round,
-      palette: { ...s.round.palette, onsets: [{ id: 'onset:zz', role: 'onset', tileId: 'zz', glyph: 'zz' }] },
-    },
-  };
-  const bad = checkInvariants(pack, foreignTile);
-  assert.ok(bad.some((b) => b.code === 'tileNotInInventory'));
-  assert.ok(bad.some((b) => b.code === 'unsolvable'), 'a palette missing the answer must be caught');
-
-  const tooWide = {
-    ...s,
-    round: { ...s.round, palette: { ...s.round.palette, rimes: new Array(9).fill(s.round.palette.rimes[0]) } },
-  };
-  assert.ok(checkInvariants(pack, tooWide).some((b) => b.code === 'rimeRowTooWide'));
-
-  const homophones = {
-    ...s,
-    round: {
-      ...s.round,
-      palette: {
-        ...s.round.palette,
-        onsets: [
-          { id: 'onset:c', role: 'onset', tileId: 'c', glyph: 'c' },
-          { id: 'onset:k', role: 'onset', tileId: 'k', glyph: 'k' },
-        ],
-      },
-    },
-  };
-  assert.ok(checkInvariants(pack, homophones).some((b) => b.code === 'neverTogetherViolated'));
-
-  const overStage = { ...s, globalStage: 11 };
-  assert.ok(checkInvariants(pack, overStage).some((b) => b.code === 'stageOutOfRange'));
-
-  const pageOverflow = { ...s, page: { entries: new Array(6).fill({ wordId: 'x' }) } };
-  assert.ok(checkInvariants(pack, pageOverflow).some((b) => b.code === 'pageOverflow'));
+  assert.deepEqual(checkInvariants(game, state), []);
 });

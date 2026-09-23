@@ -3,18 +3,18 @@
 // It holds the engine's state, dispatches actions to it, and **owns every timer**. It
 // contains no game rules: every question about what a tap means is answered by
 // `reduce()`, and every question about what is on screen is answered by an engine
-// selector. What lives here is *when* — the chant's gaps, the reveal's 3 s hold, the idle
-// ladder, the hold-to-repeat — because those are wall-clock concerns and the engine has
-// no clock.
+// selector. What lives here is *when* — the announcement's frame-by-frame, the chant's
+// gaps, the reveal's 3 s hold, the idle ladder, the hold-to-repeat — because those are
+// wall-clock concerns and the engine has no clock.
 //
 // It is a plain object rather than a hook so it can be driven in Node with fake timers
-// (`test/game-controller.test.mjs`). `useGame.js` is a fifteen-line subscription on top.
-// That split is deliberate: a state layer that can only be tested through a renderer is a
+// (`test/game-controller.test.mjs`). `useGame.js` is a short subscription on top. That
+// split is deliberate: a state layer that can only be tested through a renderer is a
 // state layer that will not be tested.
 
 import {
-  createSession, reduce, bandInstances, pageRail, resolutionSteps, partsHintSteps,
-  litCells, veilOpacity, hintInstance, langFor, glyphLength,
+  createSession, reduce, tableView, stripView, shelfView, chantSteps, motifNotes,
+  partsHintSteps, symbolsFrom, hintSymbol, treeOf, effectiveCells, glyphLength,
 } from '../engine/index.mjs';
 import { createTimerBag } from './timers.mjs';
 import {
@@ -23,8 +23,6 @@ import {
 
 /** What a step costs when the pack does not say how long its clip is. */
 const DEFAULT_CLIP_MS = 700;
-/** The gap between parts in the not-a-word read-back (`gameplay.md` §4.4 C). */
-const READBACK_GAP_MS = 250;
 
 /**
  * `ui.md` §11.1 — how long one chant step occupies, clip plus its stated gap. Pure, and
@@ -32,43 +30,44 @@ const READBACK_GAP_MS = 250;
  */
 export function stepDurationMs(step) {
   const clip = step.audio && Number.isFinite(step.audio.ms) ? step.audio.ms : DEFAULT_CLIP_MS;
-  const gap = Number.isFinite(step.gapAfterMs) ? step.gapAfterMs : READBACK_GAP_MS;
+  const gap = Number.isFinite(step.gapAfterMs) ? step.gapAfterMs : 250;
   return clip + gap;
 }
 
 /**
  * `ui.md` §11.2 / `acceptance-criteria.md` D7–D9 — which of a tile's two clips a touch
- * plays. Pure, and separate, because it is three booleans and one of them is a
- * wall-clock window: the rule is worth a test of its own.
+ * plays. Pure, and separate, because it is two booleans and one of them is a wall-clock
+ * window: the rule is worth a test of its own.
  */
-export function clipVariant(firstTouchThisRound, anotherTileWithin900ms) {
-  return firstTouchThisRound && !anotherTileWithin900ms ? 'long' : 'short';
+export function clipVariant(firstTouchThisSession, anotherTileWithin900ms) {
+  return firstTouchThisSession && !anotherTileWithin900ms ? 'long' : 'short';
 }
 
 /**
- * Split the resolution into the part that is chanted and the part that is the reveal.
- * `gameplay.md` §5.1 step 5 *is* the reveal: the whole word is spoken over the top of it,
- * not before it.
+ * Split the announcement into the part that is chanted and the part that is the reveal.
+ * `gameplay.md` §5.3: the whole word is spoken **over** the picture, not before it, so
+ * the `word` step is the reveal's rather than the chant's last beat.
  */
-export function planResolution(steps) {
+export function planAnnouncement(steps) {
   const wordAt = steps.findIndex((s) => s.step === 'word');
-  const chant = wordAt < 0 ? steps : steps.slice(0, wordAt);
+  const parts = wordAt < 0 ? steps : steps.slice(0, wordAt);
   const word = wordAt < 0 ? null : steps[wordAt];
   const sentence = steps.find((s) => s.step === 'sentence') ?? null;
   let at = 0;
-  const timeline = chant.map((step) => {
+  const timeline = parts.map((step) => {
     const entry = { step, at };
     at += stepDurationMs(step);
     return entry;
   });
-  return { timeline, totalMs: at, word, sentence };
+  return { timeline, chantMs: at, word, sentence };
 }
 
 export function createGameController(options) {
   const {
-    pack,
+    game,
     seed = 'ghep-chu',
     mediaSource,
+    ui = {},
     audio,
     settings,
     timers = createTimerBag(),
@@ -76,8 +75,8 @@ export function createGameController(options) {
     onSessionEnd = null,
   } = options;
 
-  const lang = langFor(pack.language);
-  let engine = createSession(pack, { seed });
+  const pack = game.pack;
+  let engine = createSession(game, { seed });
   let opts = { ...settings };
   let destroyed = false;
 
@@ -87,15 +86,25 @@ export function createGameController(options) {
   /* ------------------------------------------------------------ presentation state */
 
   let view = {
-    bandSeq: 0,
-    bandRole: null,
+    tableSeq: 0,
+    tableRole: null,
     pressedId: null,
-    chant: null,          // { caption, stepKind, index }
-    reveal: null,         // { phase: 'running'|'held', art, wordText, sentence }
-    rockSeq: 0,
-    returning: [],        // instance ids flying home after a not-a-word settle
+    /** M9/M10/M11 — which chant step is lighting which strip cell. */
+    chant: null,
+    /** The full-screen reward. `phase`: running | held | flying. */
+    reveal: null,
+    /** M8 — symbols flying home after an undo, in flight order. */
+    returning: [],
+    /** M17 — the idle shimmer; a counter, because it is a one-shot wave. */
+    shimmerSeq: 0,
     hintLevel: 0,
+    hintSymbolId: null,
     autoPlacedId: null,
+    confettiSeq: 0,
+    merged: false,
+    hopSeq: 0,
+    /** H10 — which photograph each album card is currently showing. */
+    albumPhotos: {},
   };
 
   const touch = {
@@ -105,8 +114,9 @@ export function createGameController(options) {
     y: 0,
     holdRepeats: 0,
     lastTileAt: -Infinity,
-    touchedThisRound: new Set(),
-    framePartsFired: false,
+    /** `acceptance-criteria.md` D7 — the long clip on the first touch **this session**. */
+    touchedThisSession: new Set(),
+    stripHintFired: false,
   };
 
   const ladder = { level: 0, dueAt: Infinity };
@@ -114,11 +124,7 @@ export function createGameController(options) {
   /* ------------------------------------------------------------------- plumbing */
 
   function clip(ref) {
-    return ref ? mediaSource(ref.src) : null;
-  }
-
-  function targetWord() {
-    return engine.round ? pack.words.find((w) => w.id === engine.round.targetId) ?? null : null;
+    return ref ? mediaSource(ref.src ?? ref) : null;
   }
 
   function emit() {
@@ -126,45 +132,50 @@ export function createGameController(options) {
     for (const fn of listeners) fn();
   }
 
+  function wordOf(id) {
+    return pack.words.find((w) => w.id === id) ?? null;
+  }
+
   /* -------------------------------------------------------------- the idle ladder */
 
   function scheduleLadder() {
     timers.clear('ladder');
-    if (destroyed || engine.phase !== 'playing' || !engine.round) return;
-    if (engine.round.status !== 'building') return;
+    if (destroyed || engine.phase !== 'playing' || engine.status !== 'building') return;
     if (ladder.level >= LADDER.levels) return;
-    const delay = Math.max(0, ladder.dueAt - now());
-    timers.set('ladder', fireLadder, delay);
+    timers.set('ladder', fireLadder, Math.max(0, ladder.dueAt - now()));
   }
 
   function fireLadder() {
-    if (destroyed || engine.phase !== 'playing' || !engine.round) return;
-    if (engine.round.status !== 'building') return;
+    if (destroyed || engine.phase !== 'playing' || engine.status !== 'building') return;
     ladder.level += 1;
     ladder.dueAt = now() + LADDER.step;
 
-    if (ladder.level === 1) {
-      // 20 s: the target word is spoken again, unprompted (G2).
-      const word = targetWord();
-      if (word) audio.playSpeech(clip(word.audio.word));
-    } else if (ladder.level === 4) {
-      // 80 s: the app places it (G5). The engine decides *which* tile; the flight is
-      // 420 ms rather than 260 because the placement carries `assist` (O8).
-      dispatch({ type: 'autoPlace' });
-      const placed = engine.round && engine.round.placements.length
-        ? engine.round.placements[engine.round.placements.length - 1]
-        : null;
-      if (placed) {
-        view.autoPlacedId = placed.instanceId;
-        const tile = instanceById(placed.instanceId);
-        audio.playTile(tile ? clip(tileAudio(tile, 'short')) : null);
+    if (ladder.level === 4) {
+      // 80 s: the app takes a turn (G5). The engine decides *which* symbol, and it is the
+      // same one that has been breathing since 40 s (G11).
+      //
+      // The descriptor is captured **before** the dispatch: seating it changes the table
+      // (in Vietnamese it morphs to the next role entirely), so looking the symbol up
+      // afterwards finds nothing and the app's turn happens in silence — which is
+      // exactly the "nothing happened" failure `gameplay.md` §4.3 forbids.
+      const chosen = hintSymbol(game, engine);
+      const symbol = chosen === null ? null : symbolOnTable(chosen);
+      dispatch({ type: 'autoPlay' });
+      if (chosen !== null) {
+        view.autoPlacedId = chosen;
+        if (symbol) playSymbol(symbol, 'short');
         timers.set('autoPlaceClear', () => { view.autoPlacedId = null; emit(); }, M.autoPlaceFly);
       }
-      // `acceptance-criteria.md` G6 — the ladder restarts at 20 s for the next cell. The
-      // engine's `resetSeq` bump does that through `syncRound`.
+      // `acceptance-criteria.md` G6 — the ladder restarts at 20 s. The engine's `resetSeq`
+      // bump does that through `syncToEngine`.
       return;
     }
+
     view.hintLevel = ladder.level;
+    // 20 s: the shimmer says *these ones*, without pointing at one (G2).
+    if (ladder.level === 1) view.shimmerSeq += 1;
+    // 40 s / 60 s: one live tile breathes, then takes a steady gold rim (G3, G4).
+    if (ladder.level >= 2) view.hintSymbolId = hintSymbol(game, engine);
     emit();
     scheduleLadder();
   }
@@ -173,13 +184,14 @@ export function createGameController(options) {
     ladder.level = 0;
     ladder.dueAt = now() + LADDER.step;
     view.hintLevel = 0;
+    view.hintSymbolId = null;
     scheduleLadder();
   }
 
   /**
    * `acceptance-criteria.md` G9 — any touch anywhere defers the next escalation by 4 s,
    * so nothing ever flies out from under his finger. It is a deferral, not a reset: a
-   * child mashing tiles is exactly the child who needs help (G8).
+   * child mashing flat tiles is exactly the child who needs help (G8).
    */
   function deferLadder() {
     const earliest = now() + LADDER.deferMs;
@@ -189,79 +201,85 @@ export function createGameController(options) {
     }
   }
 
-  /* ---------------------------------------------------------------- tile lookups */
+  /* ---------------------------------------------------------------- the symbols */
 
-  function instanceById(instanceId) {
-    if (!engine.round) return null;
-    return lang.paletteInstances(engine.round.palette).find((i) => i.id === instanceId) ?? null;
-  }
-
-  function tileAudio(inst, which) {
-    const group = pack.tileById[inst.role];
-    const tile = group ? group[inst.tileId] : null;
-    if (!tile) return null;
-    return which === 'long' ? tile.audio.long : tile.audio.short;
+  function symbolOnTable(symbolId) {
+    return tableView(game, engine).cells.find((c) => c.id === symbolId) ?? null;
   }
 
   /**
-   * `ui.md` §11.2 — the `long` anchored clip on the **first** touch of that tile in the
-   * round, the `short` clip on every touch after, **and always short if any tile was
-   * touched in the previous 900 ms** (`acceptance-criteria.md` D7, D8, D9). A burst of six
-   * taps is therefore six short clips, each audible.
+   * `ui.md` §11.3 — every letter in the app is a sound toy. A **flat** tile plays its own
+   * clip in full at the same latency, then a soft muted knock: *tap on wood, not on a
+   * drum* (`acceptance-criteria.md` E2). The ∅ socket has no đánh vần name, so it plays a
+   * wooden *open* instead of speech (C3, N13).
    */
-  function clipForTouch(inst) {
-    return clipVariant(!touch.touchedThisRound.has(inst.id),
+  function playSymbol(symbol, which) {
+    if (symbol.kind === 'socket') {
+      audio.playTile(ui.socket ?? null);
+      return;
+    }
+    const ref = which === 'long' ? symbol.audio.long : symbol.audio.short;
+    audio.playTile(clip(ref));
+  }
+
+  function clipForTouch(symbolId) {
+    return clipVariant(!touch.touchedThisSession.has(symbolId),
       now() - touch.lastTileAt < SHORT_CLIP_WINDOW);
   }
 
-  /* ------------------------------------------------------------------- the chant */
+  /* ------------------------------------------------------- the announcement */
 
-  function runChant() {
-    const steps = resolutionSteps(pack, engine);
-    const plan = planResolution(steps);
-    view.chant = { caption: null, stepKind: null, index: -1 };
+  /**
+   * `ui.md` §10.4 — the frame-by-frame. The motif fires at t = 0, on his tap; the chant
+   * is the lesson that follows it. Revision 1 had this backwards and the payoff arrived
+   * at the end of a five-step ritual.
+   */
+  function runAnnouncement() {
+    const plan = planAnnouncement(chantSteps(game, engine));
+    const notes = motifNotes(engine);
+
+    audio.playMotif(notes === 4 ? (ui.motif4 ?? null) : (ui.motif3 ?? null));
+    // `gameplay.md` §5.2 — his mother's voice over the motif, if she recorded one. If she
+    // did not, the motif plays alone and nothing is missing (`acceptance-criteria.md` F6).
+    if (ui.cheer) audio.playCheer(ui.cheer);
+
+    view.hopSeq += 1;
+    view.merged = false;
+    view.chant = null;
+    view.reveal = null;
+
+    timers.set('merge', () => { view.merged = true; emit(); }, REVEAL.mergeAt);
+    timers.set('confetti', () => { view.confettiSeq += 1; emit(); }, REVEAL.confettiAt);
 
     plan.timeline.forEach((entry, i) => {
       timers.set(`chant${i}`, () => {
-        view.chant = { caption: entry.step.caption, stepKind: entry.step.step, index: i };
+        view.chant = { caption: entry.step.caption, stepKind: entry.step.step, cell: entry.step.cell };
         audio.playSpeech(clip(entry.step.audio));
         emit();
-      }, entry.at);
+      }, REVEAL.chantAt + entry.at);
     });
 
-    timers.set('revealStart', () => startReveal(plan), plan.totalMs);
+    timers.set('revealStart', () => startReveal(plan), REVEAL.chantAt + plan.chantMs);
     emit();
   }
 
-  /* ------------------------------------------------------------------ the reveal */
-
   function startReveal(plan) {
-    const outcome = engine.round ? engine.round.outcome : null;
-    const word = outcome ? pack.words.find((w) => w.id === outcome.wordId) : null;
+    const p = engine.pending;
     view.chant = null;
     view.reveal = {
       phase: 'running',
-      art: outcome ? outcome.art : null,
-      wordText: word ? word.text : null,
+      image: p ? p.image : null,
+      fallbackEmoji: p ? p.fallbackEmoji : null,
+      imageIndex: p ? p.imageIndex : 0,
+      text: p ? p.text : null,
       sentence: null,
-      photoSwapped: false,
       bounceSeq: 0,
     };
-
-    // The engine is pure, so the next round is knowable before it is committed. That is
-    // what pays for `acceptance-criteria.md` N11: every clip of the next round's palette
-    // is decoded during this celebration, which is 1.4 s of dead time already paid for.
-    timers.set('preloadNext', preloadNextRound, 0);
-
-    timers.set('revealSwap', () => {
-      view.reveal = { ...view.reveal, photoSwapped: true };
-      emit();
-    }, REVEAL.photoSwap);
 
     timers.set('revealSpeak', () => {
       if (plan.word) audio.playSpeech(clip(plan.word.audio));
       emit();
-    }, REVEAL.speak);
+    }, REVEAL.fullBleed + REVEAL.speak);
 
     timers.set('revealSettle', () => {
       view.reveal = { ...view.reveal, phase: 'held' };
@@ -287,105 +305,84 @@ export function createGameController(options) {
     emit();
   }
 
-  /** `acceptance-criteria.md` F6, F5, T12 — 3000 ms, restarted by every tap on the picture. */
+  /** `acceptance-criteria.md` F11, T13 — 3000 ms, restarted by every tap on the picture. */
   function armAutoAdvance() {
-    timers.set('advance', () => dispatch({ type: 'advance' }), REVEAL.autoAdvance);
-  }
-
-  function preloadNextRound() {
-    if (!engine.round || engine.round.status !== 'resolving') return;
-    const next = reduce(pack, engine, { type: 'advance' });
-    audio.prepare(clipsForRound(next));
-  }
-
-  /** Every clip a round can need: its palette, its chant, and the word itself. */
-  function clipsForRound(state) {
-    const out = [];
-    const push = (ref) => { const s = clip(ref); if (s) out.push(s); };
-    if (!state.round) return out;
-    for (const inst of lang.paletteInstances(state.round.palette)) {
-      push(tileAudio(inst, 'long'));
-      push(tileAudio(inst, 'short'));
-    }
-    const word = pack.words.find((w) => w.id === state.round.targetId);
-    if (word) {
-      push(word.audio.word);
-      push(word.audio.blend);
-      if (opts.saySentence) push(word.audio.sentence);
-    }
-    return out;
-  }
-
-  /* ------------------------------------------------------------------ the settle */
-
-  function runSettle() {
-    view.rockSeq += 1;
-    const steps = resolutionSteps(pack, engine);
-    let at = M.rockTotal;
-    steps.forEach((step, i) => {
-      timers.set(`settle${i}`, () => {
-        view.chant = { caption: step.caption, stepKind: step.step, index: i };
-        audio.playSpeech(clip(step.audio));
+    timers.set('advance', () => {
+      const wasNew = engine.pending ? engine.pending.isNew : false;
+      dispatch({ type: 'advance' });
+      if (engine.phase === 'album') {
+        view.reveal = null;
+        view.merged = false;
+        view.chant = null;
         emit();
-      }, at);
-      at += stepDurationMs(step);
-    });
-
-    timers.set('settleDone', () => {
-      // Which tiles are about to walk home, captured before the engine clears them, so
-      // the stagger of `acceptance-criteria.md` E8 has something to stagger.
-      const before = engine.round;
-      const leaving = before
-        ? before.cells.filter((c, i) => c.tileId !== null && !lang.cellCorrect(before, i))
-          .map((c) => c.instanceId)
-        : [];
+        return;
+      }
+      // M15 — the picture flies into the shelf and the strip clears. The slot has already
+      // been filled by the engine; this is the flight, which is presentation.
+      // The strip is a strip again: M10's merge is a state of the announcement, not of
+      // the board, and leaving it set left the three cells fused into one plate for the
+      // rest of the session — seen in a browser after the first word.
+      view.merged = false;
       view.chant = null;
-      view.returning = leaving;
-      dispatch({ type: 'settle' });
-      timers.set('returningClear', () => {
-        view.returning = [];
-        emit();
-      }, M.flyHome + M.flyHomeStagger * Math.max(0, leaving.length - 1));
-    }, at);
-    emit();
+      if (wasNew) {
+        audio.playUi(ui.shelfBell ?? null);
+        view.reveal = { ...view.reveal, phase: 'flying' };
+        timers.set('revealOut', () => { view.reveal = null; emit(); }, M.shelfFly);
+      } else {
+        view.reveal = null;
+      }
+      emit();
+    }, REVEAL.autoAdvance);
+  }
+
+  /**
+   * `acceptance-criteria.md` N11 — every clip the new table can produce is decoded before
+   * the morph completes. The word clips of everything still reachable from here go with
+   * them, because the reveal speaks a word roughly a second after the tap that makes it
+   * and a decode in that window would be audible.
+   */
+  function preloadForTable() {
+    const sources = [];
+    const push = (s) => { if (s) sources.push(s); };
+    for (const cell of tableView(game, engine).cells) {
+      if (cell.kind === 'socket') continue;
+      push(clip(cell.audio.long));
+      push(clip(cell.audio.short));
+    }
+    for (const key of ['motif3', 'motif4', 'cheer', 'seat', 'knock', 'unclick', 'socket', 'shelfBell', 'shelfTip']) {
+      push(ui[key] ?? null);
+    }
+    const tree = treeOf(game, engine);
+    const reachable = tree ? tree.eligible : pack.words;
+    for (const word of reachable) {
+      push(clip(word.audio.word));
+      push(clip(word.audio.blend));
+      if (opts.saySentence) push(clip(word.audio.sentence));
+    }
+    audio.prepare(sources);
   }
 
   /* ------------------------------------------------- reacting to the engine state */
 
-  let lastRoundId = null;
   let lastStatus = null;
+  let lastPhase = null;
   let lastResetSeq = engine.idle.resetSeq;
   let lastTouchSeq = engine.idle.touchSeq;
-  let lastBandRole = null;
+  let lastTableRole = null;
+  let lastPrefixLen = engine.prefix.length;
 
   function syncToEngine() {
-    const round = engine.round;
-    const roundId = round ? round.id : null;
-    const status = round ? round.status : null;
-
-    if (roundId !== lastRoundId) {
-      // A new round: every timer belonging to the old one dies here. This is the
-      // "explicit cleanup on reset" half of `development-process.md` §3.
-      timers.clearAll();
-      lastRoundId = roundId;
-      lastStatus = null;
-      view.chant = null;
-      view.reveal = null;
-      view.returning = [];
-      view.autoPlacedId = null;
-      view.hintLevel = 0;
-      touch.touchedThisRound = new Set();
-      touch.ownerId = null;
-      if (round) audio.prepare(clipsForRound(engine));
-    }
-
-    const role = round ? lang.activeRow(round).role : null;
-    if (role !== lastBandRole) {
-      // `acceptance-criteria.md` C3/C4 — the band cross-fades to the next row. The seq
-      // is what the presentation keys the cross-fade on; it never decides *which* row.
-      lastBandRole = role;
-      view.bandRole = role;
-      view.bandSeq += 1;
+    const role = tableView(game, engine).role;
+    if (role !== lastTableRole || engine.prefix.length !== lastPrefixLen) {
+      // M7 — the table morphs. The sequence is what the presentation keys the cross-fade
+      // on; it never decides *which* table.
+      if (role !== lastTableRole) {
+        lastTableRole = role;
+        view.tableRole = role;
+        view.tableSeq += 1;
+      }
+      lastPrefixLen = engine.prefix.length;
+      preloadForTable();
     }
 
     if (engine.idle.resetSeq !== lastResetSeq) {
@@ -397,42 +394,30 @@ export function createGameController(options) {
       deferLadder();
     }
 
-    if (status !== lastStatus) {
-      lastStatus = status;
-      if (status === 'resolving') { timers.clear('ladder'); runChant(); }
-      else if (status === 'settling') { timers.clear('ladder'); runSettle(); }
-      else if (status === 'building') scheduleLadder();
+    if (engine.status !== lastStatus) {
+      lastStatus = engine.status;
+      if (engine.status === 'announcing') { timers.clear('ladder'); runAnnouncement(); }
+      else scheduleLadder();
     }
 
-    if (engine.phase === 'album' || engine.phase === 'ended' || engine.phase === 'empty') {
-      timers.clear('ladder');
+    if (engine.phase !== lastPhase) {
+      lastPhase = engine.phase;
+      if (engine.phase !== 'playing') {
+        timers.clear('ladder');
+        view.chant = null;
+        view.merged = false;
+      }
+      if (engine.phase === 'album') audio.playUi(ui.shelfTip ?? null);
     }
   }
 
   function dispatch(action) {
     if (destroyed) return;
-    const next = reduce(pack, engine, action);
+    const next = reduce(game, engine, action);
     if (next === engine) { emit(); return; }
     engine = next;
     syncToEngine();
     emit();
-  }
-
-  /* ------------------------------------------------------------------ the caption */
-
-  function captionText() {
-    if (view.reveal) {
-      const parts = [view.reveal.wordText];
-      if (view.reveal.sentence) parts.push(view.reveal.sentence);
-      return parts.filter(Boolean).join('  ');
-    }
-    if (view.chant) return view.chant.caption;
-    const word = targetWord();
-    if (!word) return null;
-    // `ui.md` §2.1 — `Show the word` off replaces the word with one dot per cell, so the
-    // strip still says how long the answer is and no letter is shown (M2).
-    if (!opts.showWord) return engine.round ? '·'.repeat(engine.round.cells.length) : null;
-    return word.text;
   }
 
   /* -------------------------------------------------------------- the public API */
@@ -445,42 +430,42 @@ export function createGameController(options) {
 
     getSnapshot() {
       if (snapshot) return snapshot;
-      const round = engine.round;
+      const table = tableView(game, engine);
       snapshot = {
-        language: pack.language,
+        language: game.language,
         phase: engine.phase,
-        status: round ? round.status : null,
-        round,
+        status: engine.status,
         engine,
-        rail: pageRail(engine),
+        table,
+        // **The layout is sized from the stage's table, never from the table on screen.**
+        // `ui.md` §4.2: "tile size is computed once per stage and does not change as the
+        // table morphs from onsets to rimes to tones, so a tile never resizes under his
+        // finger" (`acceptance-criteria.md` B8). The Vietnamese tone table is 2–6 cells
+        // and the onset table is 24; sizing from the visible one made every tile jump
+        // between the second tap and the third.
+        cells: effectiveCells(game, engine.stage),
+        tableRole: view.tableRole,
+        tableSeq: view.tableSeq,
+        strip: stripView(game, engine),
+        shelf: shelfView(engine),
         album: engine.album,
-        page: engine.page.entries,
-        band: round ? bandInstances(pack, engine) : [],
-        bandRole: view.bandRole,
-        bandSeq: view.bandSeq,
-        plate: round ? lang.plateCells(pack, round) : [],
-        lit: round ? litCells(pack, round) : [],
-        veil: round ? veilOpacity(pack, round) : 0,
-        art: round ? round.art : null,
-        caption: captionText(),
+        albumPhotos: view.albumPhotos,
+        stage: engine.stage,
+        pending: engine.pending,
         chant: view.chant,
+        merged: view.merged,
+        hopSeq: view.hopSeq,
+        confettiSeq: view.confettiSeq,
         reveal: view.reveal,
-        rockSeq: view.rockSeq,
         returning: view.returning,
         pressedId: view.pressedId,
         autoPlacedId: view.autoPlacedId,
+        shimmerSeq: view.shimmerSeq,
         hintLevel: view.hintLevel,
-        hintInstanceId: view.hintLevel >= 2 && round && round.status === 'building'
-          ? (hintInstance(pack, round) || {}).id ?? null
-          : null,
-        lastPlacement: round && round.placements.length
-          ? round.placements[round.placements.length - 1]
-          : null,
-        maxGlyphLen: round ? maxGlyphLen(round) : 1,
-        // `acceptance-criteria.md` C15 — tile size is computed once at round start from
-        // the widest row the round will ever show, and does not change when the band
-        // morphs. A tile that resized under his finger would be a motor failure.
-        maxRow: round ? widestRow(round) : 1,
+        hintSymbolId: view.hintLevel >= 2 ? view.hintSymbolId : null,
+        // `acceptance-criteria.md` B8 — tile size is a function of the table, not of the
+        // live set, so a tile never resizes under his finger.
+        maxGlyphLen: table.cells.reduce((n, c) => Math.max(n, glyphLength(c.glyph ?? '')), 1),
       };
       return snapshot;
     },
@@ -489,37 +474,35 @@ export function createGameController(options) {
 
     /**
      * `ui.md` §11.1 — the sound fires on touch-**down**, not touch-up, and nothing waits
-     * on an animation. `acceptance-criteria.md` T4: the first touch owns the gesture and
+     * on an animation. `acceptance-criteria.md` T5: the first touch owns the gesture and
      * further simultaneous touches are ignored until it ends.
      */
-    tileDown(instanceId, x = 0, y = 0) {
-      if (destroyed || engine.phase !== 'playing' || !engine.round) return;
-      if (engine.round.status !== 'building') return;  // N8
-      if (touch.ownerId !== null) return;              // T4
-      const inst = instanceById(instanceId);
-      if (!inst) return;
+    symbolDown(symbolId, x = 0, y = 0) {
+      if (destroyed || engine.phase !== 'playing' || engine.status !== 'building') return;
+      if (touch.ownerId !== null) return;
+      const symbol = symbolOnTable(symbolId);
+      if (!symbol) return;
 
-      touch.ownerId = instanceId;
+      touch.ownerId = symbolId;
       touch.startedAt = now();
       touch.x = x;
       touch.y = y;
       touch.holdRepeats = 0;
 
-      const which = clipForTouch(inst);
-      audio.playTile(clip(tileAudio(inst, which)));
-      touch.touchedThisRound.add(instanceId);
+      playSymbol(symbol, clipForTouch(symbolId));
+      touch.touchedThisSession.add(symbolId);
       touch.lastTileAt = now();
 
-      view.pressedId = instanceId;
+      view.pressedId = symbolId;
       deferLadder();
 
       // `ui.md` §11.2 — holding past 600 ms replays the **short** clip every 700 ms, up
       // to 6 times, then stops (N5). On release nothing is placed (N6, N7).
       timers.set('hold', function repeat() {
-        if (touch.ownerId !== instanceId) return;
+        if (touch.ownerId !== symbolId) return;
         touch.holdRepeats += 1;
         if (touch.holdRepeats > HOLD.maxRepeats) return;
-        audio.playTile(clip(tileAudio(inst, 'short')));
+        playSymbol(symbol, 'short');
         touch.lastTileAt = now();
         timers.set('hold', repeat, HOLD.repeatMs);
       }, HOLD.startMs);
@@ -527,20 +510,27 @@ export function createGameController(options) {
       emit();
     },
 
-    tileUp(instanceId, x = 0, y = 0) {
-      if (destroyed || touch.ownerId !== instanceId) return;
+    symbolUp(symbolId, x = 0, y = 0) {
+      if (destroyed || touch.ownerId !== symbolId) return;
       timers.clear('hold');
       const elapsed = now() - touch.startedAt;
       const moved = Math.hypot(x - touch.x, y - touch.y);
       touch.ownerId = null;
       view.pressedId = null;
       // `ui.md` §11.2 — a placement is touch-down and touch-up within 600 ms and within
-      // 24 pt. A hold is not a tap, and a drag across the band seats nothing (T5).
-      if (elapsed <= TAP.maxMs && moved <= TAP.maxSlopPt) dispatch({ type: 'tapTile', instanceId });
-      else emit();
+      // 24 pt. A hold is not a tap, and a drag across the table seats nothing (T6).
+      if (elapsed > TAP.maxMs || moved > TAP.maxSlopPt) { emit(); return; }
+
+      const symbol = symbolOnTable(symbolId);
+      const wasLive = Boolean(symbol && symbol.live);
+      dispatch({ type: 'tapSymbol', symbolId });
+      if (wasLive) audio.playUi(ui.seat ?? null);
+      // `gameplay.md` §4.3 — a flat tile talks but does not move: its clip, then a soft
+      // muted knock. Never red, never a buzzer, never a shake (E2, E3).
+      else if (symbol) audio.playUi(ui.knock ?? null, -9);
     },
 
-    tileCancel() {
+    symbolCancel() {
       if (destroyed) return;
       timers.clear('hold');
       touch.ownerId = null;
@@ -548,67 +538,88 @@ export function createGameController(options) {
       emit();
     },
 
-    /** `acceptance-criteria.md` C9, C10, D4 — tapping a seated cell lifts it home. */
-    tapCell(cellIndex) {
-      if (destroyed || engine.phase !== 'playing' || !engine.round) return;
-      if (engine.round.status !== 'building') return;
-      const cell = engine.round.cells[cellIndex];
-      if (cell && cell.tileId !== null) {
-        const inst = instanceById(cell.instanceId);
-        if (inst) audio.playTile(clip(tileAudio(inst, 'short')));
-      }
-      dispatch({ type: 'tapCell', cellIndex });
-    },
+    /* ---- the word strip: tap is undo, hold is the parts hint ---------------- */
 
-    /* ---- the picture frame: tap replays the word, hold speaks the parts ------ */
-
-    frameDown() {
+    stripDown() {
       if (destroyed) return;
-      touch.framePartsFired = false;
-      timers.set('framePartsHint', () => {
-        touch.framePartsFired = true;
-        // `acceptance-criteria.md` B6, B7 — the parts, not the word; the ladder is
-        // untouched and no assist is recorded. The engine says so by returning the
-        // identical state.
+      touch.stripHintFired = false;
+      timers.set('stripHint', () => {
+        touch.stripHintFired = true;
+        // `acceptance-criteria.md` M2, M3 — the parts of what is assembled, never a
+        // completion; the ladder is untouched and no assist is recorded. The engine says
+        // so by returning the identical state.
         dispatch({ type: 'partsHint' });
-        playSteps(partsHintSteps(pack, engine), 'parts');
+        playSteps(partsHintSteps(game, engine), 'parts');
       }, PARTS_HINT_HOLD);
     },
 
-    frameUp() {
+    stripUp(index) {
       if (destroyed) return;
-      timers.clear('framePartsHint');
-      if (touch.framePartsFired) return;
-      if (engine.phase === 'playing' && engine.round && engine.round.status === 'building') {
-        const word = targetWord();
-        if (word) audio.playSpeech(clip(word.audio.word));
-        dispatch({ type: 'tapFrame' });
+      timers.clear('stripHint');
+      if (touch.stripHintFired) return;
+      if (engine.phase !== 'playing' || engine.status !== 'building') return;
+      if (!Number.isInteger(index) || index >= engine.prefix.length) {
+        dispatch({ type: 'tapStripCell', index });
+        return;
       }
+      // `gameplay.md` §4.4 — the removed symbols fly home one at a time, 90 ms apart,
+      // each playing its own clip, under one descending two-note unclick. It is the only
+      // descending motif in the app, so it can never be confused with the announcement.
+      const leaving = symbolsFrom(game, engine, index);
+      view.returning = leaving.map((s) => s.id);
+      audio.playUi(ui.unclick ?? null);
+      leaving.forEach((symbol, i) => {
+        timers.set(`unseat${i}`, () => playSymbol(symbol, 'short'), i * M.flyHomeStagger);
+      });
+      timers.set('returningClear', () => {
+        view.returning = [];
+        emit();
+      }, M.flyHome + M.flyHomeStagger * Math.max(0, leaving.length - 1));
+      dispatch({ type: 'tapStripCell', index });
     },
 
-    /** `acceptance-criteria.md` F5, T12 — each tap replays the word and resets the hold. */
+    /** `acceptance-criteria.md` F10, T13 — each tap replays the word and advances the photo. */
     tapReveal() {
-      if (destroyed || !view.reveal) return;
-      const outcome = engine.round ? engine.round.outcome : null;
-      const word = outcome ? pack.words.find((w) => w.id === outcome.wordId) : null;
+      if (destroyed || !view.reveal || view.reveal.phase === 'flying') return;
+      const p = engine.pending;
+      const word = p ? wordOf(p.wordId) : null;
       if (word) audio.playSpeech(clip(word.audio.word));
+      if (word && word.images.length > 0) {
+        const next = (view.reveal.imageIndex + 1) % word.images.length;
+        view.reveal = { ...view.reveal, imageIndex: next, image: word.images[next] };
+      }
       view.reveal = { ...view.reveal, bounceSeq: view.reveal.bounceSeq + 1 };
       armAutoAdvance();
       emit();
     },
 
-    /** `acceptance-criteria.md` H5 — an album picture replays its word and bounces. */
-    tapAlbum(entry) {
+    /** `acceptance-criteria.md` H13 — a filled shelf slot replays its word. No picture. */
+    tapShelf(entry) {
       if (destroyed || !entry) return;
-      const word = pack.words.find((w) => w.id === entry.wordId);
+      const word = wordOf(entry.wordId);
       if (word) audio.playSpeech(clip(word.audio.word));
     },
 
-    nextPage() {
-      dispatch({ type: 'nextPage' });
+    /** `acceptance-criteria.md` H10 — an album card replays its word and turns the photo. */
+    tapAlbum(entry) {
+      if (destroyed || !entry) return;
+      const word = wordOf(entry.wordId);
+      if (!word) return;
+      audio.playSpeech(clip(word.audio.word));
+      if (word.images.length > 1) {
+        const shown = view.albumPhotos[entry.wordId] ?? entry.image;
+        const at = word.images.findIndex((im) => im.src === (shown && shown.src));
+        const next = word.images[(Math.max(0, at) + 1) % word.images.length];
+        view.albumPhotos = { ...view.albumPhotos, [entry.wordId]: next };
+      }
+      emit();
     },
 
-    /** `gameplay.md` §6.7 — audio fades over 800 ms, the round is abandoned, end screen. */
+    leaveAlbum() {
+      dispatch({ type: 'leaveAlbum' });
+    },
+
+    /** `gameplay.md` §6.3 — audio fades over 800 ms, the board is abandoned, end screen. */
     finishSession() {
       if (destroyed) return;
       timers.clearAll();
@@ -626,30 +637,25 @@ export function createGameController(options) {
     },
 
     /**
-     * `acceptance-criteria.md` T7 — backgrounded mid-chant: audio stops, the chant does
-     * not resume mid-word, and the board is either pre-chant or resolved, never
+     * `acceptance-criteria.md` T8 — backgrounded mid-chant: audio stops, the chant does
+     * not resume mid-word, and the board is either pre-chant or fully revealed, never
      * half-merged.
      */
     onBackground() {
       if (destroyed) return;
       audio.stopAll();
-      const status = engine.round ? engine.round.status : null;
       timers.clearAll();
-      if (status === 'settling') {
-        // Back to a valid partial board — the pre-chant state.
+      if (engine.status === 'announcing') {
         view.chant = null;
-        dispatch({ type: 'settle' });
-      } else if (status === 'resolving') {
-        // Jump to the end of the reveal: resolved, held, waiting for a tap or 3 s.
-        view.chant = null;
-        const outcome = engine.round.outcome;
-        const word = pack.words.find((w) => w.id === outcome.wordId);
+        view.merged = true;
+        const p = engine.pending;
         view.reveal = {
           phase: 'held',
-          art: outcome.art,
-          wordText: word ? word.text : null,
+          image: p ? p.image : null,
+          fallbackEmoji: p ? p.fallbackEmoji : null,
+          imageIndex: p ? p.imageIndex : 0,
+          text: p ? p.text : null,
           sentence: null,
-          photoSwapped: true,
           bounceSeq: 0,
         };
         emit();
@@ -659,7 +665,7 @@ export function createGameController(options) {
     onForeground() {
       if (destroyed) return;
       if (view.reveal && view.reveal.phase === 'held') armAutoAdvance();
-      else if (engine.round && engine.round.status === 'building') scheduleLadder();
+      else if (engine.status === 'building') scheduleLadder();
     },
 
     /** Everything this object ever allocated, released. Called on unmount (A10, R6). */
@@ -682,7 +688,7 @@ export function createGameController(options) {
     steps.forEach((step, i) => {
       timers.set(`${name}${i}`, () => {
         audio.playSpeech(clip(step.audio));
-        view.chant = { caption: step.caption, stepKind: step.step, index: i };
+        view.chant = { caption: step.caption, stepKind: step.step, cell: step.cell };
         emit();
       }, at);
       at += stepDurationMs(step);
@@ -690,30 +696,14 @@ export function createGameController(options) {
     timers.set(`${name}End`, () => { view.chant = null; emit(); }, at);
   }
 
-  /** The widest row this round can show, which is what the layout law is given as `n`. */
-  function widestRow(round) {
-    const p = round.palette;
-    if (p.kind === 'en') return p.tiles.length;
-    return Math.max(
-      p.onsets.length,
-      p.rimes.length,
-      ...Object.values(p.tonesByRime).map((row) => row.length),
-      1,
-    );
-  }
-
-  function maxGlyphLen(round) {
-    let max = 1;
-    for (const inst of lang.paletteInstances(round.palette)) {
-      max = Math.max(max, glyphLength(inst.glyph ?? ''));
-    }
-    return max;
-  }
-
-  // First round: prime the audio, the ladder and the band role.
+  // First table: prime the audio, the ladder and the table role.
   audio.setMuted(opts.mute);
   audio.setRate(opts.rate);
-  syncToEngine();
+  lastPhase = engine.phase;
+  lastStatus = engine.status;
+  lastTableRole = tableView(game, engine).role;
+  view.tableRole = lastTableRole;
+  preloadForTable();
   resetLadder();
 
   return controller;

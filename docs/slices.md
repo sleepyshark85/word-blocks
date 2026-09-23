@@ -11,7 +11,7 @@ squad works), `spike-results.md` (what was measured).
 
 ## Status
 
-> ### ⚠ 2026-09-23 — THE CORE MECHANIC WAS CORRECTED. Slices 2 and 3 are built against the wrong design.
+> ### 2026-09-23 — THE CORE MECHANIC WAS CORRECTED, AND SLICES 2 AND 3 WERE REBUILT AGAINST IT.
 >
 > The owner restated what he asked for in his first message: the app must **show a table of
 > characters**, let the child **build a word character by character**, **disable characters that
@@ -19,44 +19,40 @@ squad works), `spike-results.md` (what was measured).
 > The picture is the **reward**, never the prompt. Revision 1 did the opposite — it picked a
 > target, showed its veiled photograph and offered a palette built for that target.
 >
-> **Design is re-issued as revision 2** by the game-designer: `gameplay.md` §0, `ui.md` §0 and
-> `acceptance-criteria.md` §0 / §W each carry the correction log, and §W lists every revision-1
-> acceptance criterion that is withdrawn and why.
+> **Design was re-issued as revision 2** by the game-designer, verified by the orchestrator, and
+> **the engine and the board have now been rebuilt to it.**
 >
-> | | State after the correction |
+> | | State |
 > |---|---|
-> | `gameplay.md` (601), `ui.md` (1529), `acceptance-criteria.md` (466) | **Revision 2.** 269 criteria + 14 Tier-5 questions + 24 withdrawn groups |
-> | `tools/layout-sweep.mjs` | **Rewritten for the character table. Exit 0** — 10,358,248 layouts, 432,297 viewport/inset combinations served, 8,271 rejected |
-> | `tools/theme-contrast.mjs` | **Extended** (disabled tile, shelf, chant highlight). **Exit 0**, 34 pairs x 3 themes. Emitted tokens are **byte-identical** to `src/theme/tokens.json` |
-> | `npm test` | **253 / 254.** The single failure is `test/layout-parity.test.mjs` — `src/layout/layout.mjs` still implements revision 1's law. Expected and correct: it is the signal that the board must be rebuilt |
-> | Slice 2 (engine) | **Partly obsolete.** Round generation, the word bag, the found-word win and the not-a-word settle have no meaning under discovery. A prefix tree over the pack replaces them |
-> | Slice 3 (the game plays) | **Partly obsolete.** The board is a word strip plus a character table; there is no picture frame, veil, segment border, page rail or caption strip |
-> | Slice 4 (editor) | Unchanged in shape, **plus three additions**: the cheer recording, the "not on the board yet" reason, and a preview that shows discovery |
-> | Content packs | **Unchanged and still valid.** The correction changes how a word is reached, not what a word is |
+> | `gameplay.md`, `ui.md`, `acceptance-criteria.md` | **Revision 2.** 269 criteria + 14 Tier-5 questions + 24 withdrawn groups |
+> | `tools/layout-sweep.mjs` | Rewritten for the character table. **Exit 0** — 10,358,248 layouts |
+> | `tools/theme-contrast.mjs` | Extended. **Exit 0**, 34 pairs × 3 themes; the emitted tokens are byte-identical to `src/theme/tokens.json` |
+> | `npm test` | **230 / 230.** `test/layout-parity.test.mjs` — revision 2's *correct* failure — is green against the rewritten law |
+> | Slice 2 (engine) | **Rebuilt.** `src/engine/tree.mjs` is the prefix tree; `round.mjs` is deleted; `session.mjs` and `stages.mjs` are rewritten |
+> | Slice 3 (the board) | **Rebuilt and driven.** Strip + character table + shelf + album; the reveal is a full-screen overlay |
+> | Content packs | **Unchanged and still valid** — but see defect 10 below, which the rebuild surfaced |
 >
-> **Two findings the correction surfaced, both closed in revision 2:**
-> 1. Revision 1's chant turned a glyph **gold on white** — measured **1.60-2.05:1**, unreadable,
->    and never in the contrast sweep. It is now a gold *face* with an ink glyph, 6.5-8.7:1, and
->    the pair is gated.
-> 2. The six document defects the Slice-3 developer reported and the B9/F2 conflict the tester
->    reported are all closed — `ui.md` §0 (U4-U11) and `acceptance-criteria.md` §W.
+> **What was deleted, not reimplemented** (`gameplay.md` §0.5): round generation, the word bag,
+> the target, the found-word win, the not-a-word settle, the assist ladder, the five-round page,
+> the picture frame, the veil, the segment border, the page rail and the caption strip. The three
+> most intricate states in the engine are gone.
 >
-> **One thing needs the owner, and nothing is blocked on it:** `open-questions-ui.md` **Q5** —
-> the reason recorded for choosing Baloo 2 over Be Vietnam Pro for tiles was false in both
-> directions (Baloo 2's `a` is double-storey; Be Vietnam Pro's is single). Baloo 2 ships;
-> switching is one line if he wants the single-storey letterform.
+> **The tile face is now Be Vietnam Pro** (`decisions.md`, *Tile typeface*). Baloo 2 stays
+> bundled and `src/ui/typography.js`'s `FONT.tile` is the one line that reverses it;
+> `test/font.test.mjs` reads that line, so the whole Q-series re-runs against whichever face is
+> wired in. Measured on the shipped file: 86/86 coverage, minimal pairs 513–545 px at 116 pt and
+> 53–57 px at 36 pt against floors of 200 and 20.
 
-
-*Last updated: 2026-09-23 (design revision 2 — the core mechanic was corrected; see the box
-below). Earlier history: all three design agents were killed mid-work by a weekly rate limit;
-what survived is catalogued below and was verified by execution, not trusted.*
+*Last updated: 2026-09-23 (Slices 2 and 3 rebuilt for the discovery mechanic). Earlier history:
+all three design agents were killed mid-work by a weekly rate limit; what survived is catalogued
+below and was verified by execution, not trusted.*
 
 | # | Slice | State |
 |---|---|---|
 | **0** | Squad, spike, and approved design | **Closed at revision 2, 2026-09-23** — `gameplay.md`, `ui.md` and `acceptance-criteria.md` rewritten for the discovery mechanic; both design tools re-run, both exit 0 |
 | **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
-| **2** | Engine: ~~tile assembly, word matching, round generation~~ -> **prefix tree, live-set computation** | **Built against revision 1; partly obsolete.** `npm test` 179/179; ~9,400 fuzzed rounds per language, 50,000 invariant checks, 0 violations |
-| **3** | The game plays, both languages, on a real device | **Built against revision 1; the board must be rebuilt.** `npm test` 254/254; driven in Chrome at iPad portrait/landscape, iPhone and 320×560; five rounds to the album in both languages. **Not yet run on a real device — Tier 5 is owed** |
+| **2** | Engine: **prefix tree, live-set computation** | **Rebuilt for revision 2.** `npm test` 230/230; 800 fuzzed sessions per language with `checkInvariants` after **every** action, plus a 4,000-action soak; 0 violations. Awaiting independent verification |
+| **3** | The game plays, both languages, on a real device | **Rebuilt for revision 2 and driven.** Chrome at iPad portrait + landscape, iPhone 393×852 and the 360×640 Android floor, both languages; five words to the album; the gate opens on a 1.2 s hold. **Not yet run on a real device — Tier 5 is owed.** Awaiting independent verification |
 | **4** | The editor — add / edit / delete a word | Not started |
 | **5** | Polish: motion, sound, accessibility | Not started |
 | **6** | Store readiness, iOS + Android | Not started |
@@ -163,7 +159,62 @@ partly obsolete against it.
 
 11. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
 
-**Nothing is built. No `src/` exists.** Slice 0 ends when the owner approves the design.
+12. **NEW, and the most important one: neither pack carries an `inventoryOrder`, and the
+    fallback order makes most of the vocabulary unreachable.** `ui.md` §13.7 **E12** requires a
+    stable per-position inventory order, and **that list is the board** — the table takes the
+    first `cells` of it. Neither `pack.json` has one, so `resolvePack` falls back to the order
+    the tiles are declared in (English is sorted alphabetically instead, because
+    `acceptance-criteria.md` **D1** and `ui.md` §8 specify that). Measured against the 24-cell
+    ceiling:
+
+    | | reachable at 8 / 12 / 16 / 20 / 24 cells | of |
+    |---|---|---|
+    | `vi-seed` | 5 / 9 / 14 / 18 / **25** | 47 playable |
+    | `en-seed` | 2 / 3 / 14 / 31 / **35** | 40 playable |
+
+    **22 of the 47 Vietnamese words can never be built**, because the rime inventory is declared
+    in an ASCII-ish order that pushes `ê ô ơ ưa ưng ăng ăt ân âu ây uôi` past cell 24 — and
+    those rimes carry `bơ chân chuối cửa dê dừa gấu ghế hổ lê mắt mây mưa ngựa răng sữa tô
+    trăng trứng`. `gameplay.md` §6.1 predicted four lost words; it is twenty-two.
+
+    **Recommendation (content-engineer's call — `packs/` was out of scope for the rebuild):**
+    add `inventoryOrder` to both `pack.json` files, ordering each position by the number of
+    playable words behind each symbol, then alphabetically. It is a content change, it needs no
+    code change, and the engine already honours it — `test/pack.test.mjs` proves a declared
+    order wins and that an entry naming a tile the pack does not have is dropped with a reason
+    his mother can read.
+
+13. **The stage ladder would deadlock on the shipped packs, and the engine carries an extra
+    clause for it.** `acceptance-criteria.md` **H2** advances the stage after 8 new words at the
+    current stage. At 8 cells the packs expose 5 and 2 words, so H2 alone holds the child at
+    stage 1 for ever. `src/engine/session.mjs` therefore advances on *8 new words **or** every
+    word this table can reach* — which preserves H2 wherever H2 can be satisfied, and cannot
+    advance early, because exhausting a table is strictly harder than not exhausting it.
+    **Reported as a deviation for the game-designer to accept or replace.** Defect 12 makes the
+    eight-word case reachable again, but the deadlock itself should still be closed in the
+    criterion rather than left to the content.
+
+14. **`acceptance-criteria.md` C17 contradicts B3/B4 and is not implemented.** C17 says no
+    never-together pair (`{c,k}`, `{g,gh}`, `{ng,ngh}`, and the dialect sets) may be **live**
+    together; B3 says a symbol is live **iff** the eligible set holds a completion. `vi-seed`
+    has words under both `c` (4) and `k` (1), both `g` (2) and `gh` (1), and under every dialect
+    set, so the two cannot both hold — and enforcing C17 would make `kem`, `ghế` and others
+    permanently unreachable, which contradicts L7's "the board does not reshuffle" as well.
+
+    **Recommendation: withdraw C17 for position 1.** Its premise was revision 1's palette, where
+    exactly one tile was right and `c` versus `k` was an unhearable guess. Under discovery `c`
+    leads to `cá` and `k` to `kem` — both real words, both with pictures — and the spelling is
+    *selected by the word he chooses* rather than guessed. The orthographic rule that matters,
+    `k` only before i/y/e/ê, is enforced structurally by the tree: only rimes that make a real
+    word after `k` are ever live, which is `literacy-vi.md` §4.1 rule 3 delivered better than a
+    palette filter ever did. `test/tree.test.mjs` asserts that property directly. **D11 — `c`
+    and `k` never both live — does hold in English and is tested at every reachable prefix**,
+    because no `en-seed` word uses `k`.
+
+**Stale line removed, 2026-09-23.** This used to read *"Nothing is built. No `src/` exists."*
+It was written before Slice 2 and survived two slices of work — exactly the staleness
+`development-process.md` §7a exists to prevent, and exactly the way defect 1 above survived its
+own fix. `src/` is built: engine, state layer and board, rebuilt for revision 2.
 
 ---
 
@@ -182,8 +233,8 @@ Both Slice 1 and Slice 2 are provable headless, so neither hides behind a render
 | Slice | Gate — the thing that would actually embarrass the app |
 |---|---|
 | 1 | The validator rejects a pack it should reject (proven by feeding it a broken one), and 45 VI + 40 EN words have real curated assets |
-| 2 | Same seed and taps replay identically; thousands of fuzzed rounds violate no invariant; **every round is solvable with the palette offered** |
-| 3 | **The game plays.** Pick a language, build a word, see the picture — on a real iPad |
+| 2 | Same seed and taps replay identically; thousands of fuzzed **sessions** violate no invariant; **every live path ends in a word and no reachable state is stuck** |
+| 3 | **The game plays.** Tap letters, watch the board answer, make a word, see the picture — on a real iPad |
 | 4 | His mother adds a word with her own photo and her own voice, and it survives an app restart |
 | 5 | The reveal reads as a reward; audio carries the game with the screen ignored |
 | 6 | Submittable to both stores |

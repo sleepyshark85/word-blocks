@@ -7,394 +7,364 @@
 // ladder* and *defer the next escalation*, so the policy is testable here and the
 // scheduling is testable there.
 //
-// Determinism is load-bearing: the same seed and the same sequence of actions produces
-// the same rounds, palettes and outcomes (`acceptance-criteria.md` B12). That is what
-// lets the tester replay a failure, and it is why the RNG state is a field of the
-// session rather than a module-level variable.
+// Determinism is load-bearing: the same seed and the same sequence of taps produces the
+// same tables, live sets, words and images (`acceptance-criteria.md` B12). That is what
+// lets the tester replay a failure, and it is why the RNG state is a field of the session
+// rather than a module-level variable.
+//
+// **Revision 2.** The bag, the draw, the target, the found-word win, the not-a-word
+// settle and the five-round page are gone (`gameplay.md` §0.5). Nothing serves him a
+// word: he taps symbols, the prefix tree says which ones are live, and when the prefix is
+// a word the app announces it. The three most intricate states of revision 1 were deleted
+// rather than reimplemented.
 
-import { shuffled, nextInt, seedFrom } from './rng.mjs';
+import { nextInt, deriveSeed, seedFrom } from './rng.mjs';
 import { langFor } from './lang/index.mjs';
-import { createRound, artFor } from './round.mjs';
-import {
-  ROUNDS_PER_PAGE, ROUNDS_PER_STAGE, ASSISTS_BEFORE_REQUEUE, MAX_STAGE,
-  roundStage, clampStage,
-} from './stages.mjs';
+import { nodeAt, continues } from './tree.mjs';
+import { MAX_STAGE, WORDS_PER_STAGE, SHELF_SLOTS, cellsForStage } from './stages.mjs';
 
-export const STATE_VERSION = 1;
+export const STATE_VERSION = 2;
 
-/* --------------------------------------------------------------------- the bag */
+/* ----------------------------------------------------------------- the table */
 
 /**
- * `gameplay.md` §6.3 — a bag: every word with `minStage ≤ globalStage`, shuffled by the
- * seeded RNG, drawn without replacement, refilled and reshuffled when empty. He meets
- * every eligible word once before he meets any word twice.
+ * How many cells the table shows right now.
  *
- * Refill is also when a word his mother added becomes playable without a restart
- * (`acceptance-criteria.md` J14) and when a word she deleted stops appearing (L4).
+ * Normally the stage's number, capped by the viewport (`acceptance-criteria.md` H1). The
+ * fallback exists for hostile content: a pack whose every word needs a symbol beyond the
+ * stage-1 table would otherwise open onto a board with nothing live, which is the one
+ * state `gameplay.md` §3.3 promises cannot happen. A stage is a pacing device, not a
+ * reason to show the child nothing, so the table steps up until something is reachable.
  */
-function eligibleWords(pack, globalStage) {
-  const eligible = pack.words.filter((w) => w.stage <= globalStage);
-  if (eligible.length > 0) return eligible;
-  // A pack whose easiest word is above the current stage would otherwise deal an empty
-  // bag forever. Take the easiest words there are; a stage is a pacing device, not a
-  // reason to show the child nothing.
-  if (pack.words.length === 0) return [];
-  const lowest = pack.words.reduce((m, w) => Math.min(m, w.stage), Infinity);
-  return pack.words.filter((w) => w.stage === lowest);
+export function effectiveCells(game, stage) {
+  const wanted = cellsForStage(stage, game.maxCells);
+  const sizes = [...game.trees.keys()].sort((a, b) => a - b);
+  const tree = game.treeFor(wanted);
+  if (tree && tree.eligible.length > 0) return wanted;
+  for (const n of sizes) {
+    if (n <= wanted) continue;
+    const t = game.trees.get(n);
+    if (t && t.eligible.length > 0) return n;
+  }
+  return wanted;
 }
 
-function refill(state, pack) {
-  const [rng, bag] = shuffled(state.rng, eligibleWords(pack, state.globalStage).map((w) => w.id));
-  return { ...state, rng, bag };
+export function treeOf(game, state) {
+  return game.treeFor(effectiveCells(game, state.stage));
 }
 
-/**
- * Draw the next word. `acceptance-criteria.md` H12: no word repeats within a page while
- * unmet eligible words remain — so a word already used on this page is skipped over
- * rather than dealt again, which is also what keeps a re-inserted target (E6) from
- * arriving as the very next round.
- */
-function draw(state, pack) {
-  let s = state;
-  if (s.bag.length === 0) s = refill(s, pack);
-  if (s.bag.length === 0) return [s, null];
-  const usedThisPage = new Set(s.page.entries.map((e) => e.wordId));
-  let idx = s.bag.findIndex((id) => !usedThisPage.has(id));
-  if (idx === -1) idx = 0;
-  const wordId = s.bag[idx];
-  const bag = s.bag.slice(0, idx).concat(s.bag.slice(idx + 1));
-  return [{ ...s, bag }, wordId];
-}
-
-/**
- * `gameplay.md` §6.3 — a re-insertion goes to a uniformly random position in the **front
- * third** of the bag: a target displaced by a found-word win, or a word that needed
- * three auto-places to finish. He did not build it, so it comes back soon.
- */
-function reinsertFront(state, wordId) {
-  const third = Math.max(1, Math.ceil(state.bag.length / 3));
-  const [rng, pos] = nextInt(state.rng, third);
-  const bag = state.bag.slice();
-  bag.splice(pos, 0, wordId);
-  return { ...state, rng, bag };
-}
-
-/* ------------------------------------------------------------------- the round */
-
-function wordById(pack, id) {
-  return pack.words.find((w) => w.id === id) ?? null;
-}
-
-function beginRound(state, pack) {
-  const [drawn, wordId] = draw(state, pack);
-  if (wordId === null) return { ...drawn, round: null, phase: 'empty' };
-  const word = wordById(pack, wordId);
-  if (!word) return beginRound({ ...drawn }, pack); // a word deleted since the bag was filled
-  const stage = roundStage(pack.language, drawn.globalStage, word.stage, drawn.meetings[wordId] ?? 0);
-  const [rng, round] = createRound(pack, {
-    word,
-    stage,
-    rngState: drawn.rng,
-    encounterIndex: drawn.encounters[wordId] ?? 0,
-    roundId: `r${drawn.roundCount + 1}`,
-  });
+/** `acceptance-criteria.md` B2, B3 — the table, and which of its cells stand up. */
+export function tableView(game, state) {
+  const lang = langFor(game.language);
+  const tree = treeOf(game, state);
+  if (!tree) return { position: 0, role: null, cells: [] };
+  const table = lang.tableFor(game.pack, tree.inventory, state.prefix);
+  const node = nodeAt(tree, state.prefix);
+  const live = node ? node.live : new Set();
   return {
-    ...drawn,
-    rng,
-    round,
-    roundCount: drawn.roundCount + 1,
-    phase: 'playing',
-    idle: { touchSeq: drawn.idle.touchSeq, resetSeq: drawn.idle.resetSeq + 1 },
+    position: table.position,
+    role: table.role,
+    cells: table.symbols.map((symbol, index) => ({ ...symbol, index, live: live.has(symbol.id) })),
   };
+}
+
+/** `ui.md` §7.2 / §8 — what the word strip is showing. */
+export function stripView(game, state) {
+  return langFor(game.language).stripCells(game.pack, state.prefix);
+}
+
+/** `gameplay.md` §6.2 — five slots, each filled with a photograph he just found. */
+export function shelfView(state) {
+  return Array.from({ length: SHELF_SLOTS }, (_, i) => state.shelf[i] ?? null);
 }
 
 /* -------------------------------------------------------------------- creation */
 
 /**
- * Start a session over one resolved pack. The language comes from the pack and is fixed
- * for the life of the session; `gameplay.md` §7.1 says changing it tears the game down
- * and rebuilds it, which at this layer means throwing this object away and calling
- * `createSession` again.
+ * Start a session over one game (a pack plus its prefix trees). The language comes from
+ * the pack and is fixed for the life of the session; `gameplay.md` §7.1 says changing it
+ * tears the game down and rebuilds it, which at this layer means throwing this object
+ * away and calling `createSession` again.
  */
-export function createSession(pack, { seed = 'ghep-chu' } = {}) {
-  const base = {
+export function createSession(game, { seed = 'ghep-chu' } = {}) {
+  const anyEligible = [...game.trees.values()].some((t) => t.eligible.length > 0);
+  return {
     version: STATE_VERSION,
-    language: pack.language,
-    packId: pack.id,
+    language: game.language,
+    packId: game.pack.id,
     seed: seedFrom(seed),
     rng: seedFrom(seed),
-    globalStage: 1,
+    stage: 1,
     stageProgress: 0,
-    meetings: Object.create(null),
+    prefix: [],
+    status: 'building',
+    pending: null,
+    assists: 0,
+    discovered: Object.create(null),
     encounters: Object.create(null),
-    bag: [],
-    page: { entries: [] },
     album: [],
-    round: null,
-    roundCount: 0,
-    phase: 'playing',
+    shelf: [],
+    // `acceptance-criteria.md` L6, K9 — a pack with nothing playable shows his mother a
+    // card. It never shows the child a table with nothing live.
+    phase: anyEligible ? 'playing' : 'empty',
     idle: { touchSeq: 0, resetSeq: 0 },
   };
-  if (pack.words.length === 0) return { ...base, phase: 'empty' };
-  return beginRound(refill(base, pack), pack);
 }
 
-/* --------------------------------------------------------------- placement ops */
+/* ----------------------------------------------------------------- the helpers */
 
 function touched(state) {
   return { ...state, idle: { ...state.idle, touchSeq: state.idle.touchSeq + 1 } };
 }
 
-function clearCells(round, indices) {
-  if (indices.length === 0) return round;
-  const set = new Set(indices);
+function seatedAndReset(state, prefix) {
   return {
-    ...round,
-    cells: round.cells.map((c) => (set.has(c.index) ? { ...c, tileId: null, instanceId: null } : c)),
+    ...state,
+    prefix,
+    idle: { touchSeq: state.idle.touchSeq + 1, resetSeq: state.idle.resetSeq + 1 },
   };
 }
 
-function seat(round, cellIndex, inst, lang) {
-  let next = round;
-  // Whatever was there walks home first; in English that is the leftmost-slot swap of
-  // `acceptance-criteria.md` D3, in Vietnamese it only happens on a replaced rime.
-  if (next.cells[cellIndex].tileId !== null) {
-    next = clearCells(next, [cellIndex, ...lang.dependentCells(next, cellIndex)]);
-  }
-  const cells = next.cells.map((c) => (
-    c.index === cellIndex ? { ...c, tileId: inst.tileId, instanceId: inst.id } : c
-  ));
-  return { ...next, cells };
+function wordById(pack, id) {
+  return pack.words.find((w) => w.id === id) ?? null;
 }
 
 /**
- * `gameplay.md` §4.4 — when every cell is full, exactly one of three things is true.
- * The classification is on the parts, never on a spelling the engine built.
+ * `acceptance-criteria.md` B9, B11 / `ui.md` §9.7 — the *k*-th encounter of a word with
+ * *n* images shows `images[k mod n]`, `k` counting from 0. One image → that image, every
+ * time, no error. Two → alternating. Four → a four-cycle. With no image at all the
+ * bundled emoji carries it (`content-pipeline.md` §5), which is why `fallbackEmoji` is a
+ * key into media inside the binary rather than a pack reference.
  */
-function classify(pack, round, lang) {
-  const parts = lang.partsFrom(round);
-  const target = wordById(pack, round.targetId);
-  const built = lang.lookup(pack, parts);
-  if (built && built.id === target.id) return { kind: 'target', wordId: target.id };
-  if (built) return { kind: 'found', wordId: built.id };
-  return { kind: 'notAWord', wordId: null };
+export function imageFor(word, encounter) {
+  const n = word.images.length;
+  if (n === 0) return { image: null, fallbackEmoji: word.fallbackEmoji, index: 0 };
+  const index = ((encounter % n) + n) % n;
+  return { image: word.images[index], fallbackEmoji: null, index };
 }
 
-function afterPlacement(pack, state, round, lang, { correct }) {
-  let next = { ...state, round };
-  next = touched(next);
-  // `acceptance-criteria.md` G7 / G8: a correct placement resets the idle ladder; an
-  // incorrect one does not — a child mashing tiles is exactly the child who needs help —
-  // but every touch still defers the next escalation by 4 s (G9), which is what
-  // `touchSeq` says.
-  if (correct) next.idle = { ...next.idle, resetSeq: next.idle.resetSeq + 1 };
-
-  if (round.cells.every((c) => c.tileId !== null)) {
-    const outcome = classify(pack, round, lang);
-    const resolvedId = outcome.kind === 'notAWord' ? null : outcome.wordId;
-    const resolvedWord = resolvedId ? wordById(pack, resolvedId) : null;
-    next.round = {
-      ...round,
-      status: outcome.kind === 'notAWord' ? 'settling' : 'resolving',
-      outcome: {
-        ...outcome,
-        // On a found-word win the frame's photo flips to the word he actually built
-        // (`acceptance-criteria.md` E5), so the reveal art belongs to *that* word.
-        art: resolvedWord
-          ? artFor(resolvedWord, next.encounters[resolvedWord.id] ?? 0)
-          : null,
-      },
-    };
-  }
-  return next;
-}
-
-/* ----------------------------------------------------------------- transitions */
-
-function finishRound(pack, state) {
-  const round = state.round;
-  const outcome = round.outcome;
-  const resolvedId = outcome.wordId;
-  const resolvedWord = wordById(pack, resolvedId);
-
-  let next = { ...state };
-  next.meetings = { ...next.meetings, [resolvedId]: (next.meetings[resolvedId] ?? 0) + 1 };
-  next.encounters = { ...next.encounters, [resolvedId]: (next.encounters[resolvedId] ?? 0) + 1 };
-
-  const entry = {
-    wordId: resolvedId,
-    text: resolvedWord.text,
-    image: outcome.art.reveal,
-    fallbackEmoji: outcome.art.fallbackEmoji,
+/**
+ * The announcement is armed the instant the prefix is a word. `gameplay.md` §5.3: *the
+ * announcement fires on his tap, not after the chant* — the instant of recognition
+ * belongs to him, and the chant is the lesson that follows it.
+ */
+function armAnnouncement(game, state, prefix) {
+  const tree = treeOf(game, state);
+  const node = nodeAt(tree, prefix);
+  if (!node || node.wordId === null) return { ...state, prefix };
+  const word = wordById(game.pack, node.wordId);
+  if (!word) return { ...state, prefix };
+  const encounter = state.encounters[word.id] ?? 0;
+  const art = imageFor(word, encounter);
+  return {
+    ...state,
+    prefix,
+    status: 'announcing',
+    pending: {
+      wordId: word.id,
+      text: word.text,
+      isNew: !state.discovered[word.id],
+      encounter,
+      image: art.image,
+      imageIndex: art.index,
+      fallbackEmoji: art.fallbackEmoji,
+      // `gameplay.md` §5.5 — a word that is also a prefix announces in full and the strip
+      // keeps it. Withholding a word he made is the one thing this mechanic must not do.
+      continues: continues(tree, prefix),
+      assisted: state.assists > 0,
+    },
   };
-  next.page = { entries: [...next.page.entries, entry] };
-  next.album = [...next.album, entry];
-
-  // `gameplay.md` §6.2 — the stage advances after 8 rounds resolved at the current stage
-  // **with no auto-place assist**, and never decreases. A bad day must not cost him
-  // ground, because that is the one number he would notice.
-  if (round.assists === 0) {
-    next.stageProgress += 1;
-    if (next.stageProgress >= ROUNDS_PER_STAGE) {
-      next.stageProgress = 0;
-      next.globalStage = clampStage(pack.language, Math.min(MAX_STAGE[pack.language], next.globalStage + 1));
-    }
-  }
-
-  // Two re-insertions into the front third (§6.3).
-  if (outcome.kind === 'found' && round.targetId !== resolvedId) {
-    next = reinsertFront(next, round.targetId);
-  }
-  if (round.assists >= ASSISTS_BEFORE_REQUEUE) {
-    next = reinsertFront(next, round.targetId);
-  }
-
-  next.round = null;
-  if (next.page.entries.length >= ROUNDS_PER_PAGE) {
-    // `gameplay.md` §6.6 — play stops and does not resume by itself. This is the
-    // designed stopping point for a parent.
-    return { ...next, phase: 'album' };
-  }
-  return beginRound(next, pack);
 }
 
-/* -------------------------------------------------------------------- reducer */
+/**
+ * `acceptance-criteria.md` G3, G5, G11 — the symbol the idle ladder breathes at 40 s, rims
+ * at 60 s and flies into the strip at 80 s. **One function, so the tile that breathes is
+ * the tile that flies**: two independent choices would be two chances to disagree, and
+ * the child would watch one tile pulse and a different one move.
+ *
+ * Drawn by the seeded RNG from the **live** set, preferring a symbol whose subtree holds
+ * a word he has not found yet. `deriveSeed` rather than `nextInt` on the live state: the
+ * choice must be stable while he stares at it for sixty seconds, and it must not depend
+ * on how many times the ladder has been asked.
+ */
+export function hintSymbol(game, state) {
+  const table = tableView(game, state);
+  const live = table.cells.filter((c) => c.live);
+  if (live.length === 0) return null;
+  const node = nodeAt(treeOf(game, state), state.prefix);
+  const fresh = live.filter((c) => {
+    const child = node ? node.children.get(c.id) : null;
+    return child ? child.words.some((id) => !state.discovered[id]) : false;
+  });
+  const pool = fresh.length > 0 ? fresh : live;
+  const [, pick] = nextInt(deriveSeed(state.rng, `hint:${state.prefix.join('\u0000')}`), pool.length);
+  return pool[pick].id;
+}
+
+/* ------------------------------------------------------------------ the reducer */
 
 /**
- * The reducer. Unknown actions, and actions that do not apply in the current phase, come
- * back as the identical object — so a double dispatch, a late timer or a stray tap
- * during the chant is a no-op rather than a corruption (`acceptance-criteria.md` N8,
- * T7, T10).
+ * Unknown actions, and actions that do not apply in the current phase, come back as the
+ * identical object — so a double dispatch, a late timer or a stray tap during the chant
+ * is a no-op rather than a corruption (`acceptance-criteria.md` N8, T7, T10).
  */
-export function reduce(pack, state, action) {
+export function reduce(game, state, action) {
   if (!action || typeof action.type !== 'string') return state;
-  const lang = langFor(pack.language);
 
   switch (action.type) {
-    case 'tapTile': {
-      if (state.phase !== 'playing' || !state.round) return state;
-      const round = state.round;
-      if (round.status !== 'building') return state; // N8: not placeable during the chant
-      const inst = lang.paletteInstances(round.palette).find((i) => i.id === action.instanceId);
-      if (!inst) return state;
-
-      // A tile that is already seated lifts home instead. `gameplay.md` §4.2: tapping a
-      // seated tile is the undo, and there is no undo button.
-      const seatedAt = round.cells.find((c) => c.instanceId === inst.id);
-      if (seatedAt) return reduce(pack, state, { type: 'tapCell', cellIndex: seatedAt.index });
-
-      /**
-       * **Only a tile that is on screen can be placed.**
-       *
-       * `gameplay.md` §2.1: exactly one row exists at a time, and the band only ever
-       * offers tiles for the cell that is next. Accepting any instance from the whole
-       * palette made a tile the child cannot see placeable by id — found by the Slice 2
-       * tester with target `quạt`, whose on-screen tone row is `sắc`/`nặng` only
-       * (`literacy-vi.md` §5.2, `acceptance-criteria.md` C6): `tone:ô:huyen` was
-       * accepted, the plate then read the *unmarked* rime because no toned form exists
-       * for `at`+`huyền`, and the read-back spoke a tone over a checked syllable.
-       *
-       * It was unreachable from the rendered band only because nothing rendered yet.
-       * The 280 ms band cross-fade of C3/C4 leaves the outgoing row on screen and
-       * touchable, and T1 taps six tiles in 400 ms, so the presentation layer makes it
-       * reachable. The fix belongs here rather than in a `pointerEvents` prop, because
-       * the rule — a tap is a tap on something he can see — is a rule of the game.
-       */
-      if (!lang.activeRow(round).instances.some((i) => i.id === inst.id)) return state;
-
-      const cellIndex = lang.targetCellFor(round, inst);
-      if (cellIndex < 0) return state;
-      const seated = seat(round, cellIndex, inst, lang);
-      const placed = {
-        ...seated,
-        placements: [...seated.placements, { instanceId: inst.id, tileId: inst.tileId, cellIndex }],
-      };
-      return afterPlacement(pack, state, placed, lang, { correct: lang.cellCorrect(placed, cellIndex) });
-    }
-
-    case 'tapCell': {
-      if (state.phase !== 'playing' || !state.round) return state;
-      const round = state.round;
-      if (round.status !== 'building') return state;
-      const cell = round.cells[action.cellIndex];
+    /**
+     * `gameplay.md` §4.2, §4.3 — a live tap seats; a disabled tap plays its clip and
+     * changes nothing (`acceptance-criteria.md` E2). There is no third case and there is
+     * no wrong tap.
+     */
+    case 'tapSymbol': {
+      if (state.phase !== 'playing' || state.status !== 'building') return state;
+      const table = tableView(game, state);
+      const cell = table.cells.find((c) => c.id === action.symbolId);
+      // **Only a symbol that is on screen can be tapped.** The table cross-fades over
+      // 280 ms (M7) and a 4-year-old taps six times in 400 ms, so the outgoing table is
+      // still drawn and touchable while it fades. The rule belongs here rather than in a
+      // `pointerEvents` prop, because *a tap is a tap on something he can see* is a rule
+      // of the game (`acceptance-criteria.md` T1, T2).
       if (!cell) return state;
-      if (cell.tileId === null) return touched(state); // an empty cell is still a touch
-      const cleared = clearCells(round, [cell.index, ...lang.dependentCells(round, cell.index)]);
-      return touched({ ...state, round: cleared });
+      if (!cell.live) return touched(state); // G8: defers the ladder, never resets it
+      const prefix = [...state.prefix, cell.id];
+      return armAnnouncement(game, seatedAndReset(state, prefix), prefix);
     }
 
     /**
-     * The hint ladder's last rung (`gameplay.md` §6.5, `acceptance-criteria.md` G5): the
-     * correct tile for the next empty cell flies into place by itself. Recorded as an
-     * assist, which is the only thing stage advancement and the queue ever read — the
-     * child's UI never says he needed help.
+     * `gameplay.md` §4.4 — undo is the word strip, and there is no undo button. Tapping
+     * any symbol in the strip returns **that symbol and everything after it**, because a
+     * middle symbol cannot be removed without leaving a prefix that was never on the
+     * tree. One rule, no illegal state (`acceptance-criteria.md` E8, E9, E10).
      */
-    case 'autoPlace': {
-      if (state.phase !== 'playing' || !state.round) return state;
-      const round = state.round;
-      if (round.status !== 'building') return state;
-      const next = round.cells.find((c) => c.tileId === null);
-      if (!next) return state;
-      const seatedIds = new Set(round.cells.map((c) => c.instanceId).filter((x) => x !== null));
-      const inst = lang.activeRow(round).instances
-        .find((i) => i.tileId === next.expect && !seatedIds.has(i.id));
-      if (!inst) return state;
-      const seated = seat(round, next.index, inst, lang);
-      const placed = {
-        ...seated,
-        assists: seated.assists + 1,
-        placements: [...seated.placements, { instanceId: inst.id, tileId: inst.tileId, cellIndex: next.index, assist: true }],
-      };
-      // An auto-place restarts the ladder at 20 s for the next empty cell (G6), so it
-      // counts as a reset even though the child did nothing.
-      const after = afterPlacement(pack, state, placed, lang, { correct: true });
-      return after;
+    case 'tapStripCell': {
+      if (state.phase !== 'playing' || state.status !== 'building') return state;
+      const index = action.index;
+      if (!Number.isInteger(index) || index < 0) return state;
+      if (index >= state.prefix.length) {
+        // An empty cell is a touch and nothing more; an empty strip is not even that
+        // (`acceptance-criteria.md` T20).
+        return state.prefix.length === 0 ? state : touched(state);
+      }
+      return { ...touched(state), prefix: state.prefix.slice(0, index), assists: 0 };
     }
 
     /**
-     * The not-a-word settle (`gameplay.md` §4.4 C): only the **unlit** tiles lift and fly
-     * home; every lit tile stays seated with its segment still lit. The board has tidied
-     * itself and told him, wordlessly, *these are right, keep going*. He never has to
-     * clear it himself.
+     * `gameplay.md` §6.4 — the idle ladder's last rung: the app takes a turn. The engine
+     * decides *which* symbol; the flight is 420 ms rather than 260 so it reads as the app
+     * doing it (`acceptance-criteria.md` O8). Recorded as an assist, which only stage
+     * advancement ever reads — nothing in the child's UI says he needed help.
      */
-    case 'settle': {
-      if (!state.round || state.round.status !== 'settling') return state;
-      const round = state.round;
-      const wrong = round.cells.filter((c, i) => !lang.cellCorrect(round, i)).map((c) => c.index);
-      const cleared = clearCells(round, wrong);
-      return { ...state, round: { ...cleared, status: 'building', outcome: null } };
+    case 'autoPlay': {
+      if (state.phase !== 'playing' || state.status !== 'building') return state;
+      const chosen = hintSymbol(game, state);
+      if (chosen === null) return state;
+      const next = seatedAndReset({ ...state, assists: state.assists + 1 }, [...state.prefix, chosen]);
+      return armAnnouncement(game, next, next.prefix);
     }
 
-    /** The chant and reveal have finished; move on. */
+    /**
+     * The announcement, the chant and the reveal have finished. This is where the
+     * discovery is committed: the shelf, the album, the encounter count and the stage.
+     */
     case 'advance': {
-      if (!state.round || state.round.status !== 'resolving') return state;
-      return finishRound(pack, state);
+      if (state.status !== 'announcing' || !state.pending) return state;
+      const p = state.pending;
+      const word = wordById(game.pack, p.wordId);
+      let next = {
+        ...state,
+        status: 'building',
+        pending: null,
+        assists: 0,
+        // `gameplay.md` §5.5 — a prefix word leaves its symbols in the strip and the
+        // continuing symbols standing; anything else clears (`acceptance-criteria.md`
+        // F14, F15).
+        prefix: p.continues ? state.prefix : [],
+        encounters: { ...state.encounters, [p.wordId]: (state.encounters[p.wordId] ?? 0) + 1 },
+        idle: { touchSeq: state.idle.touchSeq, resetSeq: state.idle.resetSeq + 1 },
+      };
+
+      if (p.isNew && word) {
+        const entry = {
+          wordId: p.wordId,
+          text: p.text,
+          image: p.image,
+          fallbackEmoji: p.fallbackEmoji,
+        };
+        next.discovered = { ...next.discovered, [p.wordId]: true };
+        // `acceptance-criteria.md` H9 — the album is a collection, newest first, and it
+        // only grows. It is the one progress signal in the app that cannot go down.
+        next.album = [entry, ...next.album];
+        next.shelf = [...next.shelf, entry];
+
+        // `gameplay.md` §6.1 — 8 new words at the current stage **with no auto-play
+        // assist**, and the stage never decreases (H2, H4, G10).
+        if (!p.assisted) next.stageProgress += 1;
+
+        /**
+         * **Extension, reported rather than absorbed** (`acceptance-criteria.md` H2).
+         *
+         * H2 says the stage advances after 8 new words at the current stage. A table
+         * that cannot reach 8 words therefore never advances, and the child is held at
+         * stage 1 for ever. That is not hypothetical: at 8 cells the shipped Vietnamese
+         * pack exposes **5** eligible words and the English one **2**, so H2 alone
+         * deadlocks the ladder on the packs that exist today (see the inventory-order
+         * finding in the hand-off).
+         *
+         * So the rule is *8 new words, **or every word this table can reach***. It
+         * preserves H2 exactly wherever H2 can be satisfied, it advances on discovery
+         * rather than on a clock, and it cannot advance early: exhausting the table is
+         * strictly harder than not exhausting it.
+         *
+         * The honest fix is the pack's `inventoryOrder`, which is the content-engineer's.
+         * This keeps the app playable until then, and it is correct afterwards too.
+         */
+        const tree = treeOf(game, next);
+        const exhausted = tree !== null && tree.eligible.length > 0
+          && tree.eligible.every((w) => next.discovered[w.id]);
+        if (next.stageProgress >= WORDS_PER_STAGE || exhausted) {
+          next.stageProgress = 0;
+          next.stage = Math.min(MAX_STAGE, next.stage + 1);
+        }
+
+        if (next.shelf.length >= SHELF_SLOTS) {
+          // `gameplay.md` §6.2 — the shelf tips into the album and **play does not resume
+          // by itself.** That is the parent's stopping point (H7).
+          next = { ...next, phase: 'album', prefix: [] };
+        }
+      }
+      return next;
     }
 
-    /** `acceptance-criteria.md` H6 — the album's play card starts a new page of five. */
-    case 'nextPage': {
+    /** `acceptance-criteria.md` H8, H11 — the album's play card. The shelf is empty again. */
+    case 'leaveAlbum': {
       if (state.phase !== 'album') return state;
-      return beginRound({ ...state, page: { entries: [] } }, pack);
+      return {
+        ...state,
+        phase: 'playing',
+        shelf: [],
+        prefix: [],
+        status: 'building',
+        pending: null,
+        assists: 0,
+        idle: { touchSeq: state.idle.touchSeq, resetSeq: state.idle.resetSeq + 1 },
+      };
     }
 
     /**
-     * `gameplay.md` §6.7 — the current round is abandoned without ceremony and the app
-     * goes to the end screen, which has no control that starts play (H9, H10).
+     * `gameplay.md` §6.3 — the board is abandoned without ceremony and the app goes to
+     * the end screen, which has no control that starts play (H14–H16).
      */
     case 'finishSession': {
       if (state.phase === 'ended') return state;
-      return { ...state, round: null, phase: 'ended' };
+      return { ...state, phase: 'ended', status: 'building', pending: null, prefix: [] };
     }
 
-    /** `acceptance-criteria.md` B5 — tapping the picture frame replays the word. */
-    case 'tapFrame':
-      if (state.phase !== 'playing' && state.phase !== 'album') return state;
-      return touched(state);
-
     /**
-     * `acceptance-criteria.md` B7 — the parts hint leaves the idle-hint ladder timer
-     * unchanged and records no assist. The engine's honest expression of "unchanged" is
-     * to return the identical state object.
+     * `acceptance-criteria.md` M3 — the parts hint leaves the idle ladder unchanged and
+     * records no assist. The engine's honest expression of "unchanged" is to return the
+     * identical state object.
      */
     case 'partsHint':
       return state;
@@ -404,39 +374,47 @@ export function reduce(pack, state, action) {
   }
 }
 
-/* ------------------------------------------------------------------ selectors */
+/* ------------------------------------------------------------------- selectors */
 
-/** What the band is showing right now, minus anything already seated. */
-export function bandInstances(pack, state) {
-  if (!state.round) return [];
-  const lang = langFor(pack.language);
-  const seated = new Set(state.round.cells.map((c) => c.instanceId).filter((x) => x !== null));
-  return lang.activeRow(state.round).instances.filter((i) => !seated.has(i.id));
+/**
+ * `gameplay.md` §5.6 — the chant. Full on a first discovery (parts, then whole); **the
+ * whole word only** on a re-discovery, because by the third `mèo` the đánh vần is no
+ * longer news and the delay is what would make him stop (`acceptance-criteria.md` F5).
+ */
+export function chantSteps(game, state) {
+  if (!state.pending) return [];
+  const word = wordById(game.pack, state.pending.wordId);
+  if (!word) return [];
+  const full = langFor(game.language).chant(game.pack, word);
+  if (state.pending.isNew) return full;
+  return full.filter((s) => s.step === 'word' || s.step === 'sentence');
 }
 
-/** `acceptance-criteria.md` H1/H2 — five dots, one filling per resolved round. */
-export function pageRail(state) {
-  const filled = state.page.entries.length;
-  return Array.from({ length: ROUNDS_PER_PAGE }, (_, i) => i < filled);
+/** `ui.md` §11.4 — three rising notes, plus a fourth an octave up when the word is new. */
+export function motifNotes(state) {
+  return state.pending && state.pending.isNew ? 4 : 3;
 }
 
-/** The steps of the chant, or of the not-a-word read-back, for the presentation layer. */
-export function resolutionSteps(pack, state) {
-  const round = state.round;
-  if (!round) return [];
-  const lang = langFor(pack.language);
-  if (round.status === 'settling') return lang.readBack(pack, round);
-  if (round.status === 'resolving') {
-    const word = pack.words.find((w) => w.id === round.outcome.wordId);
-    return word ? lang.chant(pack, word) : [];
+/** `ui.md` §2.2 — the parts of what is currently assembled. Never a completion. */
+export function partsHintSteps(game, state) {
+  return langFor(game.language).partsHint(game.pack, state.prefix);
+}
+
+/** The symbols an undo to `index` sends home, in the order they fly (E8). */
+export function symbolsFrom(game, state, index) {
+  const lang = langFor(game.language);
+  const out = [];
+  for (let i = state.prefix.length - 1; i >= index; i -= 1) {
+    const sym = lang.symbolAt(game.pack, state.prefix, i);
+    if (sym) out.push(sym);
   }
-  return [];
+  return out;
 }
 
-/** `gameplay.md` §2.5 — the parts hint an adult knows to use. */
-export function partsHintSteps(pack, state) {
-  if (!state.round) return [];
-  const lang = langFor(pack.language);
-  const word = pack.words.find((w) => w.id === state.round.targetId);
-  return word ? lang.partsHint(pack, word) : [];
+/** `gameplay.md` §3.3 property 2 — either the prefix is a word, or something is live. */
+export function isStuck(game, state) {
+  const tree = treeOf(game, state);
+  const node = nodeAt(tree, state.prefix);
+  if (!node) return true;
+  return node.wordId === null && node.live.size === 0;
 }

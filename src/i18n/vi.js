@@ -4,6 +4,17 @@
 
 export default {
   modeTitle: 'Ghép Chữ',
+
+  /**
+   * `ui.md` §12 — the board exposes **one** accessibility element describing the state.
+   * Individual tiles are hidden from the screen reader on purpose: letting it speak
+   * letter *names* over a game whose entire thesis is letter *sounds* would teach the
+   * opposite of the app.
+   */
+  boardA11y: (placed, live) => (placed.length === 0
+    ? `Đang ghép một từ. Chưa có phần nào. ${live} ô đang chờ.`
+    : `Đang ghép một từ. Đã đặt ${placed.join(', ')}. ${live} ô có thể theo sau.`),
+
   languageName: 'Tiếng Việt',
   sampleWord: 'mèo',
 

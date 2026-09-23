@@ -286,6 +286,29 @@ function resolveArt(raw, hasMedia) {
   return { art: { images, fallbackEmoji, audio } };
 }
 
+/**
+ * The order the board uses when the manifest does not declare one.
+ *
+ * English is **specified**: `acceptance-criteria.md` D1 and `ui.md` §8 require the letter
+ * inventory in **alphabetical order** — "the order he will meet in the alphabet song and
+ * the one his mother would expect" — with the digraph tiles appended after the single
+ * letters. Sorted by codepoint rather than by a collator, because `Intl` is not something
+ * this engine may depend on: Hermes ships a reduced ICU and a board that reorders itself
+ * between a browser and a phone would break B7.
+ *
+ * Vietnamese has no specified order, so it keeps the order the pack declares
+ * (`gameplay.md` §6.1: "the cells are filled from the pack's inventory order"). That
+ * order is the content-engineer's to change, and it is the only thing that decides which
+ * symbol sits in which cell.
+ */
+function defaultOrder(language, group, groupTiles) {
+  const ids = groupTiles.map((t) => t.id);
+  if (language !== 'en') return ids;
+  const singles = ids.filter((id) => [...id].length === 1).sort();
+  const rest = ids.filter((id) => [...id].length !== 1).sort();
+  return [...singles, ...rest];
+}
+
 /* ------------------------------------------------------------------ the pack */
 
 function keyOfVi(syllable) {
@@ -515,26 +538,38 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     return x < y ? -1 : x > y ? 1 : 0;
   });
 
-  // Distractor pools are derived from the words that are actually playable, not from a
-  // hand-written table. Two reasons: a distractor drawn from the live vocabulary is far
-  // more likely to make another real word, which is what `gameplay.md` §4.5 asks for;
-  // and it stays correct when his mother adds a word, with no code change.
-  const stageOf = {};
-  for (const group of TILE_GROUPS[language]) stageOf[group] = Object.create(null);
-  const note = (group, tileId, stage) => {
-    if (tileId == null) return;
-    const prev = stageOf[group][tileId];
-    stageOf[group][tileId] = prev === undefined ? stage : Math.min(prev, stage);
-  };
-  for (const w of playable) {
-    if (language === 'vi') {
-      const s = w.syllables[0];
-      note('onset', s.onset, w.stage);
-      note('rime', s.rime, w.stage);
-      note('tone', s.tone, w.stage);
-    } else {
-      for (const t of w.tiles) note('letter', t, w.stage);
+  // `ui.md` §13.7 E12 — **the inventory order per position is the board.** The table
+  // takes the first `cells` of it, so nothing else may decide which symbol sits in which
+  // cell (`gameplay.md` §3.2: spatial constancy is the pedagogical point, and
+  // `acceptance-criteria.md` B7 makes it a pure function of this list and the grid).
+  //
+  // It is read from the manifest as data so that the editor's *put it on the board*
+  // (K11) is a content change, and it is hardened like every other read: an entry naming
+  // a tile this pack does not have is dropped with a reason his mother can act on, and
+  // **every declared tile that the order omits is appended** in declaration order, so a
+  // truncated or half-written list can never hide a tile from the board entirely.
+  const inventoryOrder = {};
+  const declaredOrder = m && m.inventoryOrder && typeof m.inventoryOrder === 'object'
+    && !Array.isArray(m.inventoryOrder)
+    ? m.inventoryOrder
+    : null;
+  for (const group of TILE_GROUPS[language]) {
+    const listed = declaredOrder && Array.isArray(declaredOrder[group]) ? declaredOrder[group] : null;
+    const order = [];
+    const seen = new Set();
+    for (const raw of listed ?? []) {
+      const tileId = isNonEmptyString(raw) ? nfc(raw) : null;
+      if (tileId === null || !tileById[group][tileId]) {
+        issues.push(issue('warning', `inventoryOrder.${group}`, 'unknownInventoryEntry',
+          `"${isNonEmptyString(raw) ? raw : '?'}" is not a tile this pack has; it was left off the board`));
+        continue;
+      }
+      if (seen.has(tileId)) continue;
+      seen.add(tileId);
+      order.push(tileId);
     }
+    for (const t of defaultOrder(language, group, tiles[group])) if (!seen.has(t)) order.push(t);
+    inventoryOrder[group] = order;
   }
 
   if (playable.length === 0) {
@@ -553,7 +588,7 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     chant: m && m.chant && typeof m.chant === 'object' ? m.chant : {},
     tiles,
     tileById,
-    stageOf,
+    inventoryOrder,
     words: playable,
     catalogue,
     index,

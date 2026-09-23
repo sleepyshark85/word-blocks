@@ -1,5 +1,5 @@
-// The engine's public surface. Slice 3's React layer imports from here and from nowhere
-// else inside `src/engine/`.
+// The engine's public surface. The React layer imports from here and from nowhere else
+// inside `src/engine/`.
 //
 // Everything below is pure. Nothing in this directory imports React, a timer, a
 // filesystem, `Date.now()` or `Math.random()`; `test/purity.test.mjs` asserts that by
@@ -9,21 +9,19 @@
 export { resolvePack, wordFromParts, SCHEMA_SUPPORTED, LANGUAGES } from './pack.mjs';
 
 export {
-  createSession, reduce, bandInstances, pageRail, resolutionSteps, partsHintSteps,
-  STATE_VERSION,
-} from './session.mjs';
+  createGame, buildTree, nodeAt, isLive, wordIdAt, continues, tableSizesFor,
+} from './tree.mjs';
 
 export {
-  createRound, artFor, segmentCount, litCells, veilOpacity, availableInstances,
-  hintInstance, isSolvable, VEIL_START,
-} from './round.mjs';
+  createSession, reduce, tableView, stripView, shelfView, chantSteps, motifNotes,
+  partsHintSteps, symbolsFrom, imageFor, effectiveCells, treeOf, isStuck, hintSymbol,
+  STATE_VERSION,
+} from './session.mjs';
 
 export { langFor } from './lang/index.mjs';
 
 export {
-  roundStage, clampStage,
-  VI_ROWS, VI_TONES_BY_STAGE, VI_MAX_PER_ROW, EN_TRAY, EN_MAX_TRAY,
-  MAX_STAGE, ROUNDS_PER_STAGE, ROUNDS_PER_PAGE, MEETING_BUMP_CAP, ASSISTS_BEFORE_REQUEUE,
+  CELLS_BY_STAGE, MAX_STAGE, WORDS_PER_STAGE, SHELF_SLOTS, clampStage, cellsForStage,
 } from './stages.mjs';
 
 export { nfc, sameText, glyphLength } from './text.mjs';

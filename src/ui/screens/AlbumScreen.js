@@ -1,15 +1,18 @@
-// Screen: the album page, and the end screen. `ui.md` §9.6, `gameplay.md` §6.6–6.7.
+// Screen: the album — the collection — and the end screen. `ui.md` §9.6, `gameplay.md` §6.2.
 //
-// The album page is **the designed stopping point**. After the fifth round play stops and
-// does not resume by itself; negotiating an exit mid-round is a tantrum, negotiating it
-// here is "we finished the page".
+// **The album is a collection, not a score.** Every word he has ever discovered, newest
+// first, as photographs. It gets longer, which is the only progress signal in the app and
+// the only one that cannot go down. It is reached when the fifth shelf slot fills, and
+// **play does not resume by itself** — that is the designed stopping point for a parent,
+// and it is the same negotiation revision 1 bought with the five-round page: *we finished
+// the shelf.*
 //
 // The end screen is the same grid with the play card removed. That *is* the mechanism:
 // the device can be handed back to the child with something pleasant to look at and no
-// way to restart, and restarting requires the gate (`acceptance-criteria.md` H9, H10).
+// way to restart, and restarting requires the gate (`acceptance-criteria.md` H15, H16).
 //
-// Neither screen shows a score, a star, a count or a "5 of 5". There is nothing in this
-// file that could render one (F7, H4).
+// Neither screen shows a score, a star, a count or a percentage. There is nothing in this
+// file that could render one (F12, H9).
 
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
@@ -18,12 +21,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme';
 import { EASING } from '../../motion/easing';
 import { M } from '../../motion/durations.mjs';
-import { Picture } from '../PictureFrame';
+import { Picture } from '../Picture';
 import { TopBar } from '../TopBar';
 import { ThemeButtons } from '../ThemeButtons';
 import { Glyph } from '../Text';
 
-/** M17 — the cards arrive 320 ms each, 90 ms apart. *Here is everything you made.* */
+/** M16 — the cards arrive 320 ms each, 90 ms apart. *Here is everything you made.* */
 function Card({ index, size, source, emoji, dim, reduced, onPress }) {
   const theme = useTheme();
   const enter = useRef(new Animated.Value(0)).current;
@@ -89,15 +92,17 @@ function PlayCard({ size, onPress }) {
 }
 
 export function AlbumScreen({
-  entries, strings, themeId, onSelectTheme, onPlay, onTapEntry, onOpenGate, reduced, sourceFor,
+  entries, photos, strings, themeId, onSelectTheme, onPlay, onTapEntry, onOpenGate,
+  reduced, sourceFor,
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
 
-  // `ui.md` §9.6 — 2 + 2 + 1 in portrait, 3 + 2 in landscape. The wrap is forced by
-  // capping the grid's width at `perRow` cards, because flex-wrap on its own would fit
-  // as many as the screen allows and a tablet would silently render 3 + 2 in portrait.
+  // `ui.md` §9.6 — 2 per row in portrait, 3 in landscape, newest first, **scrolling**:
+  // it is a collection and it grows without bound. The wrap is forced by capping the
+  // grid's width at `perRow` cards, because flex-wrap on its own would fit as many as the
+  // screen allows and a tablet would silently render three in portrait.
   const perRow = width > height ? 3 : 2;
   const usable = width - insets.left - insets.right - 48;
   const size = Math.min(220, Math.floor(usable / perRow) - 24);
@@ -118,7 +123,8 @@ export function AlbumScreen({
         <TopBar
           width={width - insets.left - insets.right - 32}
           title={strings.modeTitle}
-          rail={null}
+          shelf={null}
+          sourceFor={sourceFor}
           reduced={reduced}
           onOpenGate={onOpenGate}
         />
@@ -131,7 +137,7 @@ export function AlbumScreen({
               key={`${entry.wordId}-${i}`}
               index={i}
               size={size}
-              source={sourceFor(entry.image)}
+              source={sourceFor(photos[entry.wordId] ?? entry.image)}
               emoji={sourceFor.emoji(entry.fallbackEmoji)}
               dim={!onPlay}
               reduced={reduced}

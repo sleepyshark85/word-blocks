@@ -130,9 +130,12 @@ test('the only file that names both languages is lang/index.mjs (acceptance-crit
     const namesEn = /\ben\b/.test(c) || /'en'/.test(readFileSync(f, 'utf8'));
     if (namesVi && namesEn) offenders.push(rel);
   }
-  // `stages.mjs` and `invariants.mjs` carry per-language constants keyed by language,
-  // which is data rather than a branch. Everything else must not see both.
-  assert.deepEqual(offenders.sort(), ['stages.mjs']);
+  // Revision 2 removed the last per-language constant table: `stages.mjs` is now five
+  // numbers that are the same in both languages, so **no file below `lang/index.mjs`
+  // sees both languages at all**. That is a stronger position than Slice 2 held, and it
+  // is asserted as an empty list rather than as an allow-list, so a new offender is a
+  // failure rather than an entry somebody adds.
+  assert.deepEqual(offenders.sort(), []);
 });
 
 test('no fallback or coalescing onto the other language (acceptance-criteria R4)', () => {

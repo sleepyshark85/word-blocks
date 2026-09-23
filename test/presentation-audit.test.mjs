@@ -182,6 +182,39 @@ test('R4 — no coalescing onto the other language anywhere in the app layer', (
   }
 });
 
+/* ------------------------------------------------------- §N touch latency */
+
+test('N1 — every press that must fire on touch-down sets `delayPressIn={0}`', () => {
+  // **A Tier-3 find, promoted to a Tier-1 gate.** `react-native-web`'s press responder
+  // defaults `delayPressIn` to **50 ms** (`PressResponder.js`, `DEFAULT_PRESS_DELAY_MS`).
+  // Measured in a browser: a tap held for 0, 10 or 40 ms fired **nothing at all**, and an
+  // 80 ms hold delivered `onPressIn` 49 ms late. `ui.md` §11.1 budgets 60 ms from
+  // touch-down to sound, and a 4-year-old's tap is well under 50 ms — so the default
+  // silently drops his taps. No behaviour test below Tier 3 can see this, and Tier 3 saw
+  // it once; this is what stops it coming back.
+  for (const f of APP_FILES) {
+    const c = code(f);
+    for (const m of c.matchAll(/<Pressable\b([\s\S]*?)>/g)) {
+      const attrs = m[1];
+      if (!/onPressIn\s*=/.test(attrs)) continue;
+      assert.ok(/delayPressIn\s*=\s*\{\s*0\s*\}/.test(attrs),
+        `${rel(f)}: a Pressable with onPressIn and no delayPressIn={0} — its touch-down is 50 ms late and a fast tap is dropped entirely`);
+    }
+  }
+});
+
+test('an overlay is made inert by the style key, never by the deprecated prop', () => {
+  // `pointerEvents` as a **prop** is deprecated in React Native 0.81 and is not applied
+  // by react-native-web 0.21 — measured: an overlay declaring it kept a computed
+  // `pointer-events: auto`, so it was still swallowing pointers. The style key works on
+  // both (native since RN 0.73).
+  for (const f of APP_FILES) {
+    const c = code(f);
+    assert.ok(!/\bpointerEvents\s*=\s*["{]/.test(c),
+      `${rel(f)} sets pointerEvents as a prop; use \`style={{ pointerEvents: 'none' }}\``);
+  }
+});
+
 /* -------------------------------------------------------------------- hygiene */
 
 test('no console.log in a render path', () => {

@@ -8,7 +8,13 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolvePack, createSession } from '../src/engine/index.mjs';
+import { resolvePack, createGame, createSession, tableView } from '../src/engine/index.mjs';
+
+/** A session over a pack, the way the app starts one. */
+const open = (pack, seed) => {
+  const game = createGame(pack, { maxCells: 24 });
+  return { game, state: createSession(game, { seed }) };
+};
 import { readPackInputs, packDir, rawManifest } from './helpers/load.mjs';
 
 const viInput = () => readPackInputs(packDir('vi-seed'));
@@ -34,9 +40,9 @@ test('a word file that would not parse costs one word and is reported (K9)', () 
   assert.equal(pack.words.length, 46, 'the other 46 must still play');
   assert.ok(pack.issues.some((i) => i.code === 'unreadable' && i.where === 'meo.json'));
   // The child never sees a blank screen.
-  const s = createSession(pack, { seed: 'k9' });
-  assert.equal(s.phase, 'playing');
-  assert.ok(s.round);
+  const { game, state } = open(pack, 'k9');
+  assert.equal(state.phase, 'playing');
+  assert.ok(tableView(game, state).cells.some((c) => c.live), 'the board has nothing live on it');
 });
 
 test('a word that is not an object at all is survived', () => {
@@ -88,7 +94,7 @@ test('a Vietnamese entry carrying an English field is rejected and the app still
   const pack = resolvePack({ language: 'vi', ...mutate(viInput(), 'meo', { tiles: ['m', 'e', 'o'] }) });
   assert.equal(pack.words.length, 46);
   assert.equal(pack.catalogue.find((c) => c.id === 'meo').reason.code, 'wrongDecomposition');
-  assert.equal(createSession(pack, { seed: 'r9' }).phase, 'playing');
+  assert.equal(open(pack, 'r9').state.phase, 'playing');
 });
 
 test('an English entry carrying Vietnamese syllables is rejected (R9)', () => {
@@ -189,9 +195,9 @@ test('the whole media directory gone: no playable words, an empty-state app, not
   const pack = resolvePack({ language: 'vi', ...viInput(), hasMedia: () => false });
   assert.equal(pack.words.length, 0);
   assert.ok(pack.issues.some((i) => i.code === 'noPlayableWords'));
-  const s = createSession(pack, { seed: 'gone' });
-  assert.equal(s.phase, 'empty');
-  assert.equal(s.round, null);
+  const { game, state } = open(pack, 'gone');
+  assert.equal(state.phase, 'empty');
+  assert.deepEqual(tableView(game, state).cells.filter((c) => c.live), []);
 });
 
 /* ---------------------------------------------------- manifest, schema, drafts */
@@ -200,7 +206,7 @@ test('no manifest at all: the app reports it and does not crash', () => {
   const pack = resolvePack({ language: 'vi', ...viInput(), manifest: null });
   assert.ok(pack.issues.some((i) => i.code === 'noManifest'));
   assert.equal(pack.words.length, 0, 'without tiles nothing decomposes');
-  assert.equal(createSession(pack, { seed: 'nm' }).phase, 'empty');
+  assert.equal(open(pack, 'nm').state.phase, 'empty');
 });
 
 test('a newer schema opens read-only rather than being written (content-pipeline §7)', () => {
@@ -248,9 +254,9 @@ test('two words built from the same parts: the first wins and the clash is repor
 test('every word deleted: a parent-facing empty state, not a crash and not a blank board (L6)', () => {
   const pack = resolvePack({ language: 'vi', ...viInput(), words: [] });
   assert.equal(pack.words.length, 0);
-  const s = createSession(pack, { seed: 'l6' });
-  assert.equal(s.phase, 'empty');
-  assert.deepEqual(s.album, []);
+  const { state } = open(pack, 'l6');
+  assert.equal(state.phase, 'empty');
+  assert.deepEqual(state.album, []);
 });
 
 test('resolvePack never throws on content, however mangled', () => {

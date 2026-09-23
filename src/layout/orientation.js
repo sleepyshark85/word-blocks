@@ -1,10 +1,10 @@
-// Which orientations this device is served in. `gameplay.md` §1.1.
+// Which orientations this device is served in. `gameplay.md` §2.1.
 //
-// "The app supports an orientation **iff the layout fit rule (`ui.md` §4.3) passes for it
-// at the worst case of 8 tiles**. Evaluated once at startup from the screen metrics, not
-// per frame." In practice phones lock to portrait — a phone in landscape has ~330 pt of
-// usable height and fails F3 by 130 pt, which is arithmetic rather than taste — and
-// tablets rotate freely (`acceptance-criteria.md` P7, P8).
+// "The app supports an orientation **iff the layout fit rule passes for the 20-cell
+// table**" (`ui.md` §4.3, rule F7). Evaluated once at startup from the screen metrics,
+// not per frame. In practice phones lock to portrait — a landscape phone serves a 12-cell
+// table and is rejected, which is arithmetic rather than taste — and tablets rotate freely
+// (`acceptance-criteria.md` P7, P8).
 //
 // Evaluated once, deliberately, so the device cannot flip-flop as the user turns it.
 

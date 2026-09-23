@@ -5,7 +5,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { resolvePack, createSession, checkInvariants, langFor } from '../src/engine/index.mjs';
+import {
+  resolvePack, createGame, createSession, reduce, tableView, checkInvariants,
+} from '../src/engine/index.mjs';
 import { readPackInputs, packDir, viPack } from './helpers/load.mjs';
 
 function viInputs() {
@@ -61,7 +63,7 @@ test('two word files with the same id: one plays, the other is reported (never s
   assert.equal(entries.find((c) => !c.playable).reason.code, 'duplicateId');
 });
 
-test('a duplicated tile id yields one tile, not two instances sharing one id', () => {
+test('a duplicated tile id yields one tile, not two cells sharing one id', () => {
   const input = viInputs();
   const onsets = input.manifest.tiles.onset;
   const manifest = {
@@ -74,37 +76,48 @@ test('a duplicated tile id yields one tile, not two instances sharing one id', (
   assert.equal(new Set(ids).size, ids.length, 'the inventory still holds a duplicate');
   assert.ok(pack.issues.some((i) => i.code === 'duplicateTileId'));
 
-  // And the consequence that made it matter: seating one of two instances that share an
-  // id removed both, so 333 of 400 rounds showed the same onset twice.
-  const lang = langFor('vi');
-  const s = createSession(pack, { seed: 'duptile' });
-  const instances = lang.paletteInstances(s.round.palette).map((i) => i.id);
-  assert.equal(new Set(instances).size, instances.length);
-  assert.deepEqual(checkInvariants(pack, s), []);
+  // And the consequence that made it matter. Under revision 1 two palette instances
+  // shared one id, so seating one removed both and 333 of 400 generated rounds showed
+  // the same onset twice. Under discovery the table **is** the inventory, so the same
+  // defect would put one symbol in two cells — and a tap would be ambiguous.
+  const game = createGame(pack, { maxCells: 24 });
+  const state = { ...createSession(game, { seed: 'duptile' }), stage: 5 };
+  const cells = tableView(game, state).cells.map((c) => c.id);
+  assert.equal(new Set(cells).size, cells.length, 'one symbol occupies two cells');
+  assert.deepEqual(pack.inventoryOrder.onset, [...new Set(pack.inventoryOrder.onset)]);
+  assert.deepEqual(checkInvariants(game, state), []);
 });
 
-test('an illegal tone seated against a checked rime is an invariant violation', () => {
-  // The state the Slice 2 tester reached on `quạt`. The reducer refuses it now
-  // (`test/session.test.mjs`), so it is constructed here by hand — an invariant that
-  // only ever sees legal states is an invariant nobody has seen fail.
+test('an illegal tone is not on the tone table at all — legality is absence', () => {
+  // The state the Slice 2 tester reached on `quạt`: a tone seated against a rime that has
+  // no stored form for it, which is a board state with no spelling. Under revision 2 it
+  // is unreachable by construction rather than refused: `literacy-vi.md` §5.2's checked
+  // syllables render **two** tone cells, so the illegal four are not drawn and cannot be
+  // tapped. That is a stronger guarantee than the reducer's refusal was.
   const pack = viPack();
-  const stopFinal = pack.words.find((w) => {
+  const game = createGame(pack, { maxCells: 24 });
+  // It has to be a word the 24-cell board can actually reach, or the taps below are
+  // refused and the test passes for the wrong reason.
+  const stopFinal = game.treeFor(24).eligible.find((w) => {
     const tile = pack.tileById.rime[w.syllables[0].rime];
     return tile.legalTones.length === 2;
   });
-  assert.ok(stopFinal, 'the seed pack still has a checked-syllable word');
+  assert.ok(stopFinal, 'the seed pack still has a reachable checked-syllable word');
 
-  const s = createSession(pack, { seed: 'illegal-tone' });
-  const rimeTile = pack.tileById.rime[stopFinal.syllables[0].rime];
+  let state = { ...createSession(game, { seed: 'illegal-tone' }), stage: 5 };
+  const syl = stopFinal.syllables[0];
+  state = reduce(game, state, { type: 'tapSymbol', symbolId: syl.onset ?? '\u2205' });
+  state = reduce(game, state, { type: 'tapSymbol', symbolId: syl.rime });
+
+  const rimeTile = pack.tileById.rime[syl.rime];
+  const table = tableView(game, state);
+  assert.equal(table.role, 'tone');
+  assert.deepEqual(table.cells.map((c) => c.id), rimeTile.legalTones);
   const illegal = ['ngang', 'huyen', 'hoi', 'nga'].find((t) => !rimeTile.legalTones.includes(t));
-
-  const round = {
-    ...s.round,
-    cells: [
-      { role: 'rime', index: 0, expect: rimeTile.id, tileId: rimeTile.id, instanceId: null },
-      { role: 'tone', index: 1, expect: illegal, tileId: illegal, instanceId: null },
-    ],
-  };
-  const bad = checkInvariants(pack, { ...s, round });
-  assert.ok(bad.some((b) => b.code === 'illegalToneSeated'), JSON.stringify(bad));
+  assert.ok(illegal, 'this rime takes every tone, so there is nothing to exclude');
+  assert.ok(!table.cells.some((c) => c.id === illegal), `${illegal} is drawn on a checked rime`);
+  // And a tap naming it is refused outright rather than seated.
+  const after = reduce(game, state, { type: 'tapSymbol', symbolId: illegal });
+  assert.equal(after, state);
+  assert.deepEqual(checkInvariants(game, state), []);
 });

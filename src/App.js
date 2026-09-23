@@ -20,10 +20,12 @@ import { ThemeProvider, themeTokens, DEFAULT_THEME } from './theme';
 import { FONT_ASSETS } from './ui/typography';
 import { stringsFor, chooserPanels } from './i18n';
 import { loadPack, emojiSource, sampleWordSource } from './content/loadPack';
+import { UI_AUDIO } from '../assets/audio';
 import { readSettings, writeSettings } from './settings/settings';
 import { createAudioEngine, configureAudioSession } from './audio/engine';
 import { useGame } from './state/useGame';
-import { MIN_VIEWPORT } from './layout/layout.mjs';
+import { createGame } from './engine/index.mjs';
+import { MIN_VIEWPORT, MIN_TABLE, maxCells as maxCellsFor } from './layout/layout.mjs';
 import { applyOrientationPolicy } from './layout/orientation';
 import { BoardVi } from './ui/screens/BoardVi';
 import { BoardEn } from './ui/screens/BoardEn';
@@ -49,9 +51,9 @@ function attributionsOf(pack) {
   return [...lines].sort();
 }
 
-/** One round of one language, plus everything that can sit over it. */
+/** One language's board, plus everything that can sit over it. */
 function Game({
-  pack, mediaSource, audio, settings, setSettings, themeId, setThemeId,
+  pack, maxCells, mediaSource, audio, settings, setSettings, themeId, setThemeId,
   onSwitchLanguage, seed,
 }) {
   const strings = stringsFor(pack.language);
@@ -70,7 +72,14 @@ function Game({
   // `ui.md` §10.5 — follows the OS setting, overridable in the parent menu (O4, O6).
   const reduced = settings.reduceMotion === null ? systemReduceMotion : settings.reduceMotion;
 
-  const { controller, snapshot } = useGame({ pack, seed, mediaSource, audio, settings });
+  // `ui.md` §13.7 E13 — the prefix tree is **rebuilt atomically** whenever the pack or
+  // the table size changes: a whole new game object, built and then swapped in. Never a
+  // tree mutated under a child's finger.
+  const game = useMemo(() => createGame(pack, { maxCells }), [pack, maxCells]);
+
+  const { controller, snapshot } = useGame({
+    game, seed, mediaSource, ui: UI_AUDIO, audio, settings,
+  });
 
   const sourceFor = useMemo(() => {
     const fn = (ref) => (ref ? mediaSource(ref.src ?? ref) : null);
@@ -120,11 +129,12 @@ function Game({
     const ended = snapshot.phase === 'ended';
     return (
       <AlbumScreen
-        entries={ended ? snapshot.album : snapshot.page}
+        entries={snapshot.album}
+        photos={snapshot.albumPhotos}
         strings={strings}
         themeId={themeId}
         onSelectTheme={ended ? null : setThemeId}
-        onPlay={ended ? null : () => controller.nextPage()}
+        onPlay={ended ? null : () => controller.leaveAlbum()}
         onTapEntry={ended ? null : (entry) => controller.tapAlbum(entry)}
         onOpenGate={() => setOverlay('gate')}
         reduced={reduced}
@@ -139,6 +149,7 @@ function Game({
       snapshot={snapshot}
       controller={controller}
       strings={strings}
+      settings={settings}
       reduced={reduced}
       sourceFor={sourceFor}
       onOpenGate={() => setOverlay('gate')}
@@ -182,6 +193,18 @@ function Shell() {
   }, [themeId]);
 
   const language = settings ? settings.language : null;
+
+  // `ui.md` §4.3 F7 — evaluated once from the screen metrics, and it is what caps the
+  // stage ladder (`gameplay.md` §6.1): the two shortest supported phones top out at 20
+  // cells and therefore at stage 4.
+  const served = useMemo(() => maxCellsFor({
+    Wv: Math.round(width),
+    Hv: Math.round(height),
+    insetT: Math.round(insets.top),
+    insetB: Math.round(insets.bottom),
+    insetL: Math.round(insets.left),
+    insetR: Math.round(insets.right),
+  }), [width, height, insets.top, insets.bottom, insets.left, insets.right]);
 
   useEffect(() => {
     if (!language) { setLoaded(null); return undefined; }
@@ -233,8 +256,10 @@ function Shell() {
     if (!fontsLoaded || !settings) {
       return <View style={styles.centre}><ActivityIndicator /></View>;
     }
-    // A8 — below 360 x 600 the screen-too-small card is shown and no game board mounts.
-    if (width < MIN_VIEWPORT.width || height < MIN_VIEWPORT.height) {
+    // A8 / A11 — below 360 x 600, **or on any viewport that serves fewer than 20 table
+    // cells**, the screen-too-small card is shown and no game board mounts. Both are the
+    // same refusal: a half-broken game is worse than an honest card his mother can read.
+    if (width < MIN_VIEWPORT.width || height < MIN_VIEWPORT.height || served < MIN_TABLE) {
       // Before a language is chosen this card stands in for the chooser, which is the
       // one screen `acceptance-criteria.md` R3 allows to show both languages. After one
       // is chosen it is in that language, like every other parent surface (R7). There is
@@ -268,6 +293,7 @@ function Shell() {
         // The key is the teardown: a language switch unmounts the whole subtree.
         key={`${language}:${generation}`}
         pack={loaded.pack}
+        maxCells={served}
         mediaSource={loaded.mediaSource}
         audio={loaded.audio}
         settings={settings}

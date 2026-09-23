@@ -1151,5 +1151,44 @@
         "keyWord": "bell, egg"
       }
     ]
+  },
+  "inventoryOrder": {
+    "letter": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z",
+      "ch",
+      "ck",
+      "ff",
+      "gg",
+      "ll",
+      "ng",
+      "sh",
+      "ss",
+      "th",
+      "zz"
+    ]
   }
 }

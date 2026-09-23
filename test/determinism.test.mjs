@@ -1,128 +1,118 @@
-// `acceptance-criteria.md` B12, and the reason `development-process.md` §3 calls
-// determinism load-bearing: **same seed plus same taps must produce the same rounds,
-// palettes and outcomes**, or the tester cannot replay a failure and the whole
-// verification strategy collapses.
+// `acceptance-criteria.md` B12 — the same seed and the same sequence of taps produces the
+// identical sequence of tables, live sets, words and images.
+//
+// This is the property the whole verification strategy rests on: without it a tester
+// cannot replay a failure, and every report becomes an anecdote.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSession, reduce, bandInstances, seedFrom } from '../src/engine/index.mjs';
+
 import { viPack, enPack } from './helpers/load.mjs';
-import { nextInt } from '../src/engine/rng.mjs';
+import {
+  createGame, createSession, reduce, tableView, stripView, chantSteps, hintSymbol,
+} from '../src/engine/index.mjs';
+
+/** Everything a player could observe after one action, as a comparable string. */
+function observation(game, state) {
+  const table = tableView(game, state);
+  return JSON.stringify({
+    role: table.role,
+    cells: table.cells.map((c) => [c.id, c.glyph, c.live]),
+    strip: stripView(game, state).map((c) => [c.glyph, c.filled, c.socket]),
+    prefix: state.prefix,
+    status: state.status,
+    pending: state.pending && {
+      word: state.pending.text,
+      isNew: state.pending.isNew,
+      image: state.pending.image && state.pending.image.src,
+      imageIndex: state.pending.imageIndex,
+      continues: state.pending.continues,
+    },
+    chant: chantSteps(game, state).map((s) => [s.step, s.caption]),
+    stage: state.stage,
+    shelf: state.shelf.map((e) => [e.wordId, e.image && e.image.src]),
+    album: state.album.map((e) => e.wordId),
+    hint: hintSymbol(game, state),
+  });
+}
 
 /**
- * A scripted player. Every decision comes out of its own PRNG, so the *taps* are fixed
- * and the engine's own randomness is the only thing under test.
+ * A scripted run: a deterministic pseudo-child. It taps the *i*-th thing on the table,
+ * live or flat, undoes every so often, and lets the ladder take a turn. Everything it
+ * chooses is a function of the step number, so two runs of the same script are
+ * comparable — the only variable under test is the engine.
  */
-function playScript(pack, seed, script, steps) {
-  let s = createSession(pack, { seed });
-  const trace = [];
-  let cursor = 0;
+function run(pack, seed, steps, stage = 5) {
+  const game = createGame(pack, { maxCells: 24 });
+  let s = { ...createSession(game, { seed }), stage };
+  const trace = [observation(game, s)];
   for (let i = 0; i < steps; i += 1) {
-    trace.push(snapshot(pack, s));
-    if (s.phase === 'ended' || s.phase === 'empty') break;
-    if (s.phase === 'album') { s = reduce(pack, s, { type: 'nextPage' }); continue; }
-    const round = s.round;
-    if (round.status === 'settling') { s = reduce(pack, s, { type: 'settle' }); continue; }
-    if (round.status === 'resolving') { s = reduce(pack, s, { type: 'advance' }); continue; }
-
-    const choice = script[cursor % script.length];
-    cursor += 1;
-    const band = bandInstances(pack, s);
-    const seated = round.cells.filter((c) => c.tileId !== null);
-    if (choice % 7 === 0 && seated.length > 0) {
-      s = reduce(pack, s, { type: 'tapCell', cellIndex: seated[choice % seated.length].index });
-    } else if (choice % 23 === 0) {
-      s = reduce(pack, s, { type: 'autoPlace' });
-    } else if (band.length > 0) {
-      s = reduce(pack, s, { type: 'tapTile', instanceId: band[choice % band.length].id });
-    } else {
-      s = reduce(pack, s, { type: 'tapFrame' });
+    if (s.phase === 'album') s = reduce(game, s, { type: 'leaveAlbum' });
+    else if (s.status === 'announcing') s = reduce(game, s, { type: 'advance' });
+    else if (i % 11 === 10) s = reduce(game, s, { type: 'autoPlay' });
+    else if (i % 7 === 6) s = reduce(game, s, { type: 'tapStripCell', index: 0 });
+    else {
+      const cells = tableView(game, s).cells;
+      const cell = cells[(i * 5 + 3) % Math.max(1, cells.length)];
+      if (cell) s = reduce(game, s, { type: 'tapSymbol', symbolId: cell.id });
     }
+    trace.push(observation(game, s));
   }
   return trace;
 }
 
-function snapshot(pack, s) {
-  return JSON.stringify({
-    phase: s.phase,
-    stage: s.globalStage,
-    progress: s.stageProgress,
-    rng: s.rng,
-    bag: s.bag,
-    page: s.page.entries.map((e) => e.wordId),
-    album: s.album.map((e) => [e.wordId, e.image && e.image.src]),
-    round: s.round && {
-      id: s.round.id,
-      target: s.round.targetId,
-      stage: s.round.stage,
-      status: s.round.status,
-      outcome: s.round.outcome && [s.round.outcome.kind, s.round.outcome.wordId],
-      cells: s.round.cells.map((c) => [c.role, c.tileId, c.instanceId]),
-      palette: JSON.stringify(s.round.palette),
-      placements: s.round.placements,
-      assists: s.round.assists,
-    },
+for (const [label, load] of [['Vietnamese', viPack], ['English', enPack]]) {
+  test(`B12 — ${label}: the same seed and taps replay identically`, () => {
+    const a = run(load(), 'replay-me', 240);
+    const b = run(load(), 'replay-me', 240);
+    assert.equal(a.length, b.length);
+    for (let i = 0; i < a.length; i += 1) {
+      assert.equal(a[i], b[i], `step ${i} diverged`);
+    }
+    // And the run actually did something — a trace of 240 identical states proves nothing.
+    assert.ok(new Set(a).size > 40, `only ${new Set(a).size} distinct states`);
+    assert.ok(a.some((o) => o.includes('"status":"announcing"')), 'no word was ever made');
+  });
+
+  test(`B12 — ${label}: a different seed changes only what the seed governs`, () => {
+    // The seed governs the idle ladder's choice and nothing else: the tables, the live
+    // sets and the images are all pure functions of the pack and his taps. So two seeds
+    // must agree on every table and disagree, somewhere, on a hint.
+    const pack = load();
+    const g1 = createGame(pack, { maxCells: 24 });
+    const g2 = createGame(pack, { maxCells: 24 });
+    const s1 = { ...createSession(g1, { seed: 'one' }), stage: 5 };
+    const s2 = { ...createSession(g2, { seed: 'two' }), stage: 5 };
+    assert.deepEqual(tableView(g1, s1).cells.map((c) => [c.id, c.live]),
+      tableView(g2, s2).cells.map((c) => [c.id, c.live]));
+    const hints = new Set();
+    let a = s1;
+    let b = s2;
+    for (let i = 0; i < 12; i += 1) {
+      hints.add(`${hintSymbol(g1, a)}|${hintSymbol(g2, b)}`);
+      a = reduce(g1, a, { type: 'autoPlay' });
+      b = reduce(g2, b, { type: 'autoPlay' });
+      if (a.status === 'announcing') a = reduce(g1, a, { type: 'advance' });
+      if (b.status === 'announcing') b = reduce(g2, b, { type: 'advance' });
+    }
+    assert.ok([...hints].some((h) => h.split('|')[0] !== h.split('|')[1]),
+      'two different seeds made every identical choice — the RNG is not wired in');
   });
 }
 
-/** A fixed sequence of "which tile did his finger land on" decisions. */
-function makeScript(seed, n) {
-  let r = seedFrom(seed);
-  const out = [];
-  for (let i = 0; i < n; i += 1) { const [next, v] = nextInt(r, 97); r = next; out.push(v); }
-  return out;
-}
-
-test('the same seed and the same taps replay identically (B12)', () => {
-  for (const pack of [viPack(), enPack()]) {
-    for (const seed of ['alpha', 'beta', 'ghép chữ', 17, '']) {
-      const script = makeScript(`${seed}-taps`, 200);
-      const a = playScript(pack, seed, script, 300);
-      const b = playScript(pack, seed, script, 300);
-      assert.equal(a.length, b.length, `${pack.language}/${seed}: trace lengths differ`);
-      for (let i = 0; i < a.length; i += 1) {
-        assert.equal(a[i], b[i], `${pack.language}/${seed}: diverged at step ${i}`);
-      }
-    }
+test('the tree itself is byte-identical across two builds of the same pack', () => {
+  const a = createGame(viPack(), { maxCells: 24 });
+  const b = createGame(viPack(), { maxCells: 24 });
+  const shape = (tree) => {
+    const out = [];
+    const visit = (node, prefix) => {
+      out.push(`${prefix.join('+')}=${node.wordId ?? ''}[${[...node.live].join(',')}]`);
+      for (const [symbol, child] of node.children) visit(child, [...prefix, symbol]);
+    };
+    visit(tree.root, []);
+    return out.join('\n');
+  };
+  for (const n of [8, 12, 16, 20, 24]) {
+    assert.equal(shape(a.treeFor(n)), shape(b.treeFor(n)), `the ${n}-cell tree differs`);
   }
-});
-
-test('a different seed produces a different game — the replay is not trivially true', () => {
-  const pack = viPack();
-  const script = makeScript('same-taps', 200);
-  const a = playScript(pack, 'seed-a', script, 60);
-  const b = playScript(pack, 'seed-b', script, 60);
-  assert.notDeepEqual(a, b);
-});
-
-test('a different tap sequence produces a different game', () => {
-  const pack = enPack();
-  const a = playScript(pack, 'fixed', makeScript('taps-1', 200), 60);
-  const b = playScript(pack, 'fixed', makeScript('taps-2', 200), 60);
-  assert.notDeepEqual(a, b);
-});
-
-test('the reducer never mutates the state it was given', () => {
-  const pack = viPack();
-  let s = createSession(pack, { seed: 'immutable' });
-  const script = makeScript('immutable-taps', 120);
-  for (let i = 0; i < 120; i += 1) {
-    const before = snapshot(pack, s);
-    const band = bandInstances(pack, s);
-    const action = s.phase !== 'playing' ? { type: 'nextPage' }
-      : s.round.status === 'settling' ? { type: 'settle' }
-        : s.round.status === 'resolving' ? { type: 'advance' }
-          : band.length ? { type: 'tapTile', instanceId: band[script[i] % band.length].id }
-            : { type: 'tapFrame' };
-    const next = reduce(pack, s, action);
-    assert.equal(snapshot(pack, s), before, `step ${i}: ${action.type} mutated the input state`);
-    s = next;
-  }
-});
-
-test('the session records the seed it was created from, so a failure can be replayed', () => {
-  const pack = viPack();
-  const s = createSession(pack, { seed: 'record-me' });
-  assert.equal(s.seed, seedFrom('record-me'));
-  assert.equal(typeof s.seed, 'number');
 });

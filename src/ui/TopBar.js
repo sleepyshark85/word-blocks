@@ -1,48 +1,118 @@
-// The top bar. `ui.md` §9.5 — 36 pt, on the ground, above the frame.
+// The top bar. `ui.md` §9.4 — 56 pt, on the ground, above the word strip.
 //
-//  ┌───────────────────────────────────────────────────────────────┐
-//  │ Ghép Chữ              ● ● ○ ○ ○                          ◔    │
-//  └───────────────────────────────────────────────────────────────┘
-//    13pt inkSoft          page rail: 5 dots, 10pt,          gate dot,
-//    mode title            8pt gap                           32pt, 30%
+//  ┌────────────────────────────────────────────────────────────────┐
+//  │ Ghép Chữ           [img][img][  ][  ][  ]                  ◔   │
+//  └────────────────────────────────────────────────────────────────┘
+//    13pt inkSoft       THE SHELF: 5 slots, 32-44pt square,       gate dot,
+//    mode title         6pt gap. Filled = the photograph he       32pt,
+//    (leak detector)    found. Empty = a 1.5pt inkSoft ring.      neutralFace @30%
+//
+// **The shelf replaces revision 1's five-dot page rail**, in the same place, doing the
+// same job — *how much is left before we stop* — but each slot fills with the photograph
+// he just found instead of an abstract dot (`gameplay.md` §6.2). It is a shape, not a
+// score: nothing accumulates across shelves, no number is shown, and it resets when it
+// tips into the album.
 //
 // The mode title is the **leak detector** (`ui.md` §3.1): every screenshot the tester
 // takes carries its own label, so a Vietnamese screen showing `Word Blocks` is visible in
 // the evidence rather than only in the source.
 //
-// The gate dot is the only non-play affordance on the game screen, it is the smallest
-// target in the app, and on a flat tablet it is the point furthest from a seated child's
-// hands. All three properties are deliberate (`acceptance-criteria.md` I1).
+// The gate dot is the only non-play affordance on the board, it is the smallest target in
+// the app, and on a flat tablet it is the point furthest from a seated child's hands. All
+// three are deliberate (`acceptance-criteria.md` B15, I1).
 
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '../theme';
+import { EASING } from '../motion/easing';
 import { M } from '../motion/durations.mjs';
 import { AppText } from './Text';
+import { Picture } from './Picture';
 
 const GATE_DOT = 32;
+const SLOT_GAP = 6;
 
-/** `gameplay.md` §6.4 — five dots. A shape, not a score; nothing accumulates. */
-function PageRail({ rail }) {
+/** One shelf slot. A tap on a filled one replays its word and bounces it (H13). */
+function Slot({ entry, size, index, sourceFor, reduced, onPress }) {
   const theme = useTheme();
+  const fill = useRef(new Animated.Value(entry ? 1 : 0)).current;
+  const bounce = useRef(new Animated.Value(0)).current;
+  const wasFilled = useRef(Boolean(entry));
+
+  useEffect(() => {
+    const filled = Boolean(entry);
+    if (filled === wasFilled.current) return undefined;
+    wasFilled.current = filled;
+    // The picture landing in the slot is the tail of M15. It arrives, it does not grow.
+    const anim = Animated.timing(fill, {
+      toValue: filled ? 1 : 0,
+      duration: filled ? M.shelfFly / 2 : M.albumCard,
+      easing: filled ? EASING.enter : EASING.exit,
+      useNativeDriver: true,
+    });
+    anim.start();
+    return () => anim.stop();
+  }, [entry, fill]);
+
+  const tap = () => {
+    if (!entry || !onPress) return;
+    onPress(entry);
+    const anim = Animated.sequence([
+      Animated.timing(bounce, { toValue: 1, duration: 120, easing: EASING.enter, useNativeDriver: true }),
+      Animated.timing(bounce, { toValue: 0, duration: 180, easing: EASING.calm, useNativeDriver: true }),
+    ]);
+    anim.start();
+  };
+
+  const scale = Animated.add(
+    fill.interpolate({ inputRange: [0, 1], outputRange: [reduced ? 1 : 0.7, 1] }),
+    bounce.interpolate({ inputRange: [0, 1], outputRange: [0, reduced ? 0 : 0.08] }),
+  );
+
   return (
-    <View style={styles.rail}>
-      {rail.map((filled, i) => (
-        <View
-          // eslint-disable-next-line react/no-array-index-key -- position is the identity
-          key={i}
-          style={{
-            width: 10,
-            height: 10,
-            borderRadius: 5,
-            marginLeft: i === 0 ? 0 : 8,
-            backgroundColor: theme.inkSoft,
-            opacity: filled ? 1 : 0.22,
+    <Pressable
+      onPress={tap}
+      disabled={!entry}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+      style={{ marginLeft: index === 0 ? 0 : SLOT_GAP }}
+    >
+      {/* The empty slot: a 1.5 pt `inkSoft` ring at 40%. It is always drawn, so the shelf
+          states how many are left without a number. */}
+      <View style={{
+        width: size,
+        height: size,
+        borderRadius: Math.round(size * 0.26),
+        borderWidth: 1.5,
+        borderColor: theme.inkSoft,
+        opacity: 0.4,
+      }}
+      />
+      {entry ? (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, { opacity: fill, transform: [{ scale }] }]}
+        >
+          <View style={{
+            width: size,
+            height: size,
+            borderRadius: Math.round(size * 0.26),
+            borderWidth: 2,
+            borderColor: theme.rewardEdge,
+            overflow: 'hidden',
           }}
-        />
-      ))}
-    </View>
+          >
+            <Picture
+              source={sourceFor(entry.image)}
+              emoji={sourceFor.emoji(entry.fallbackEmoji)}
+              width={size - 4}
+              height={size - 4}
+              radius={Math.round(size * 0.22)}
+            />
+          </View>
+        </Animated.View>
+      ) : null}
+    </Pressable>
   );
 }
 
@@ -50,7 +120,7 @@ function PageRail({ rail }) {
  * `acceptance-criteria.md` I2–I4 — a tap does nothing; a **hold** fills a ring over
  * 1200 ms and opens the gate at 1200 ms; releasing early resets the ring.
  *
- * M18 is "the only progress indicator in the app", and it is drawn as a rotating
+ * M21 is "the only progress indicator in the app", and it is drawn as a rotating
  * half-disc rather than an animated arc, because an arc is a border and a border is not a
  * transform (`acceptance-criteria.md` O3).
  */
@@ -82,19 +152,16 @@ function GateDot({ reduced, onOpen }) {
     <Pressable
       onPressIn={begin}
       onPressOut={cancel}
+      // I3 — the ring fills over exactly 1200 ms, so it must start when he touches down.
+      delayPressIn={0}
       accessibilityRole="button"
       accessibilityLabel="parent"
       hitSlop={6}
       style={{ width: GATE_DOT, height: GATE_DOT }}
     >
-      <View style={[styles.gateDot, {
-        borderColor: theme.neutralFace,
-        opacity: 0.3,
-      }]}
-      />
+      <View style={[styles.gateDot, { borderColor: theme.neutralFace, opacity: 0.3 }]} />
       <Animated.View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, {
+        style={[styles.inert, StyleSheet.absoluteFill, {
           opacity: fill,
           transform: reduced ? [] : [{ rotate }],
           alignItems: 'center',
@@ -113,12 +180,29 @@ function GateDot({ reduced, onOpen }) {
   );
 }
 
-export function TopBar({ title, rail, reduced, onOpenGate, width }) {
+export function TopBar({
+  title, shelf, slotSize = 32, sourceFor, reduced, onOpenGate, onTapSlot, width,
+}) {
   const theme = useTheme();
   return (
     <View style={[styles.bar, { width }]}>
-      <AppText role="modeTitle" colour={theme.inkSoft} style={styles.title}>{title}</AppText>
-      {rail ? <PageRail rail={rail} /> : <View />}
+      <AppText role="modeTitle" colour={theme.inkSoft} numberOfLines={1} style={styles.title}>{title}</AppText>
+      {shelf ? (
+        <View style={styles.shelf}>
+          {shelf.map((entry, i) => (
+            <Slot
+              // eslint-disable-next-line react/no-array-index-key -- the slot IS the identity
+              key={i}
+              entry={entry}
+              index={i}
+              size={slotSize}
+              sourceFor={sourceFor}
+              reduced={reduced}
+              onPress={onTapSlot}
+            />
+          ))}
+        </View>
+      ) : <View />}
       <View style={styles.right}>
         <GateDot reduced={reduced} onOpen={onOpenGate} />
       </View>
@@ -127,14 +211,22 @@ export function TopBar({ title, rail, reduced, onOpenGate, width }) {
 }
 
 const styles = StyleSheet.create({
+  /**
+   * `pointerEvents` as a **prop** is deprecated in React Native 0.81 and is not applied
+   * by react-native-web 0.21 — measured in a browser, an overlay declaring it kept a
+   * computed `pointer-events: auto`. The **style** key is honoured on both (native since
+   * RN 0.73), so it is the portable spelling, and it is the one that actually makes an
+   * overlay inert.
+   */
+  inert: { pointerEvents: 'none' },
   bar: {
-    height: 36,
+    height: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   title: { flex: 1 },
-  rail: { flexDirection: 'row', alignItems: 'center' },
+  shelf: { flexDirection: 'row', alignItems: 'center' },
   right: { flex: 1, alignItems: 'flex-end' },
   gateDot: {
     width: GATE_DOT,

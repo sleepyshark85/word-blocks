@@ -3,6 +3,12 @@
 
 export default {
   modeTitle: 'Word Blocks',
+
+  /** `ui.md` §12 — the board is one accessibility element. See the note in `vi.js`. */
+  boardA11y: (placed, live) => (placed.length === 0
+    ? `Building a word. Nothing placed yet. ${live} letters can start one.`
+    : `Building a word. ${placed.join(', ')} placed. ${live} letters can follow.`),
+
   languageName: 'English',
   sampleWord: 'cat',
 

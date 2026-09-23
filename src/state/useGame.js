@@ -14,23 +14,26 @@ import { createGameController } from './gameController.mjs';
 
 /**
  * @param {object}  args
- * @param {object}  args.pack          a resolved pack; identity change tears down the game
+ * @param {object}  args.game          a pack plus its prefix trees; identity change tears
+ *                                     the game down and rebuilds it (`ui.md` §13.7 E13)
  * @param {string}  args.seed
  * @param {Function} args.mediaSource
+ * @param {object}  args.ui            the bundled non-speech sounds
  * @param {object}  args.audio         an engine from `audio/engine.js`
  * @param {object}  args.settings
  * @param {Function} [args.onSessionEnd]
  */
-export function useGame({ pack, seed, mediaSource, audio, settings, onSessionEnd }) {
+export function useGame({ game, seed, mediaSource, ui, audio, settings, onSessionEnd }) {
   const [controller, setController] = useState(null);
   const endRef = useRef(onSessionEnd);
   endRef.current = onSessionEnd;
 
   useEffect(() => {
     const ctl = createGameController({
-      pack,
+      game,
       seed,
       mediaSource,
+      ui,
       audio,
       settings,
       onSessionEnd: (...a) => { if (endRef.current) endRef.current(...a); },
@@ -43,9 +46,9 @@ export function useGame({ pack, seed, mediaSource, audio, settings, onSessionEnd
       setController(null);
     };
     // `settings` is applied through `updateSettings` below; rebuilding the session
-    // because the parent toggled `mute` would restart the round under the child.
+    // because the parent toggled `mute` would restart the board under the child.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pack, seed, mediaSource, audio]);
+  }, [game, seed, mediaSource, ui, audio]);
 
   useEffect(() => {
     if (controller) controller.updateSettings(settings);
