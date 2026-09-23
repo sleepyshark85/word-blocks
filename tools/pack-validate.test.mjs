@@ -108,7 +108,12 @@ describe('a filesystem or an interrupted write', () => {
     // The whole point, and the reason there is one file per word: the pack still has 40
     // words and 39 of them are intact and playable. A single `words.json` array would
     // have lost all 40 to the same comma.
-    assert.match(out, /words\s+40 \(39 enabled, 39 playable, 0 photographed, 1 UNREADABLE\)/);
+    // The photograph count is deliberately NOT asserted. It was `0 photographed` when this
+    // test was written, and the assertion passed only because no word had been curated
+    // yet; it broke the moment the content got better, which is the same trap as the
+    // seven tests fixed by test/helpers/fixtures.mjs. What this test is about is that one
+    // stray comma costs one word and not the other thirty-nine.
+    assert.match(out, /words\s+40 \(39 enabled, 39 playable,.*1 UNREADABLE\)/);
   });
 
   test('a word file truncated mid-write', () => {

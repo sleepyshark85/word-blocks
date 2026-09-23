@@ -9,7 +9,54 @@
     "p"
   ],
   "fallbackEmoji": "World map",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/584354896e353d6e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 47538,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Land_Hemisphere_Azimuthal_Equidistant_Projection_Centered_at_48%C2%B0N.,_2%C2%B0W_-_DPLA_-_f5b4453072e2427916309ef3a933d31f.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Central Intelligence Agency",
+      "title": "Land Hemisphere Azimuthal Equidistant Projection Centered at 48°N., 2°W - DPLA - f5b4453072e2427916309ef3a933d31f.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:13.790Z"
+    },
+    {
+      "src": "media/img/4931e49fe3e1d491.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 108062,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:World_Map_1689.JPG",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Gerard van Schagen",
+      "title": "World Map 1689.JPG",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:13.890Z"
+    },
+    {
+      "src": "media/img/575448efa0ae72fd.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 104976,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tabula_Rogeriana_1929_copy_by_Konrad_Miller.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Konrad Miller",
+      "title": "Tabula Rogeriana 1929 copy by Konrad Miller.jpg",
+      "rank": "article",
+      "caption": "Tabula Rogeriana, an early world map, by Muhammad al-Idrisi, 1154 (north is down)[31]",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:13.980Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/f45f5f17a14958e8.mp3",
@@ -28,6 +75,11 @@
     "family": "-ap",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:07:13.981Z"
+    }
   }
 }

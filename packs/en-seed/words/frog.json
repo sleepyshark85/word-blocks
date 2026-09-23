@@ -10,7 +10,71 @@
     "g"
   ],
   "fallbackEmoji": "Frog",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/ecbc43e7f720c68e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 25063,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Red-eyed_Leaf_Frog_(49661076226).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Charlie Jackson",
+      "title": "Red-eyed Leaf Frog (49661076226).jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:32.362Z"
+    },
+    {
+      "src": "media/img/744a579d6ef777b7.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 29593,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Atelopus_zeteki1.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Brian Gratwicke",
+      "title": "Atelopus zeteki1.jpg",
+      "rank": "article",
+      "caption": "Panamanian golden frog (Atelopus zeteki)",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:32.460Z"
+    },
+    {
+      "src": "media/img/4b4818957cff1d5b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 82573,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Litoria_tyleri.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "LiquidGhoul at English Wikipedia",
+      "title": "Litoria tyleri.jpg",
+      "rank": "article",
+      "caption": "Tyler's tree frog (Litoria tyleri) has large toe pads and webbed feet.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:32.546Z"
+    },
+    {
+      "src": "media/img/286255f1995f9e17.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 42418,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bombina_bombina_1_(Marek_Szczepanek)_tight_crop.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Marek Szczepanek",
+      "title": "Bombina bombina 1 (Marek Szczepanek) tight crop.jpg",
+      "rank": "article",
+      "caption": "European fire-bellied toad (Bombina bombina)",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:32.630Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/60b2a29680a3c38a.mp3",
@@ -29,6 +93,11 @@
     "family": null,
     "flags": [],
     "note": "4 tiles",
-    "from": "word-list.md §5 Stage 7 — initial blends, two tiles for two sounds (3)"
+    "from": "word-list.md §5 Stage 7 — initial blends, two tiles for two sounds (3)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T03:58:32.630Z"
+    }
   }
 }

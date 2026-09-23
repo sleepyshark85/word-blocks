@@ -9,7 +9,54 @@
     "b"
   ],
   "fallbackEmoji": "Spider web",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/0c8a42c6dd89e149.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 73278,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Typical-orb-web-photo.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Chen-Pan Liao",
+      "title": "Typical-orb-web-photo.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:55.787Z"
+    },
+    {
+      "src": "media/img/e2cdfd52ad750ebc.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 57485,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_classic_circular_form_spider%27s_web.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Stephencdickson",
+      "title": "A classic circular form spider's web.jpg",
+      "rank": "lead",
+      "caption": "A classic circular web built by an orb-weaver spider",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:55.884Z"
+    },
+    {
+      "src": "media/img/047b29961419c842.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 70815,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Spiral_Orb_Webs.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Bjørn Christian Tørrissen",
+      "title": "Spiral Orb Webs.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:55.976Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5e0541de18068c5d.mp3",
@@ -28,6 +75,11 @@
     "family": "-eb",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:04:55.977Z"
+    }
   }
 }

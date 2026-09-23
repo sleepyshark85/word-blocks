@@ -9,7 +9,56 @@
     "g"
   ],
   "fallbackEmoji": "Backpack",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/1de377ccbedb05b6.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 48903,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Reisetasche_(fcm).jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Photograph: Frank C. Müller, Baden-Baden",
+      "title": "Reisetasche (fcm).jpg",
+      "rank": "article",
+      "caption": "A modern bag for carrying personal belongings",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:46.975Z"
+    },
+    {
+      "src": "media/img/8817d05da1c1e692.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 27236,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bolsas-de-asa-plana-interior-bolsapubli.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Bolsapubli",
+      "title": "Bolsas-de-asa-plana-interior-bolsapubli.jpg",
+      "rank": "lead",
+      "caption": "Paper bags with handles",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:47.069Z"
+    },
+    {
+      "src": "media/img/378b1e9fc6a7d1fe.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 71695,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Burberry_handbag.jpg",
+      "license": "CC BY-SA 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+      "creator": "Rdsmith4",
+      "title": "Burberry handbag.jpg",
+      "rank": "article",
+      "caption": "A tote bag",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:47.156Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/42334f5552318ed1.mp3",
@@ -30,6 +79,11 @@
       "PHOTO"
     ],
     "note": "PHOTO — a backpack is not a bag",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 6,
+      "at": "2026-09-23T04:06:47.156Z"
+    }
   }
 }

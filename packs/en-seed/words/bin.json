@@ -9,7 +9,55 @@
     "n"
   ],
   "fallbackEmoji": "Wastebasket",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/d3f9be8db6352e1f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 48966,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lixo-recicl%C3%A1vel-UFRN.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Patrick – Patrick",
+      "title": "Lixo-reciclável-UFRN.jpg",
+      "rank": "article",
+      "caption": "Recycling trash can in Natal, Brazil",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:04:13.556Z"
+    },
+    {
+      "src": "media/img/c039300ebd108d4b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 72864,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:GarbageMonsters.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "GabrielleMerk",
+      "title": "GarbageMonsters.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:04:13.645Z"
+    },
+    {
+      "src": "media/img/ce1d9b15e878254d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 28738,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brabantia_Pedal_Bin_Decor_Bayon_1972.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "MrMattAnderson",
+      "title": "Brabantia Pedal Bin Decor Bayon 1972.JPG",
+      "rank": "article",
+      "caption": "A pedal bin of 1972",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:04:13.727Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/a0a456d25d19dcb3.mp3",
@@ -30,6 +78,13 @@
       "AMBIG"
     ],
     "note": "AMBIG mild",
-    "from": "word-list.md §5 Stage 3 — + short `i` (3)"
+    "from": "word-list.md §5 Stage 3 — + short `i` (3)",
+    "searchTitle": "Waste container",
+    "searchTitleWhy": "\"Bin\" is a disambiguation page",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T06:04:13.727Z"
+    }
   }
 }

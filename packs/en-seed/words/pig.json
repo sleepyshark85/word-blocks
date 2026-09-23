@@ -9,7 +9,23 @@
     "g"
   ],
   "fallbackEmoji": "Pig",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/43d323d8280094d6.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 66129,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pig_farm_Vampula_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "kallerna",
+      "title": "Pig farm Vampula 1.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:59:12.736Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5da1cd94aaa82353.mp3",
@@ -28,6 +44,13 @@
     "family": "-ig",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 3 — + short `i` (3)"
+    "from": "word-list.md §5 Stage 3 — + short `i` (3)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T03:59:12.746Z"
+    },
+    "searchTitle": "Domestic pig",
+    "searchTitleWhy": "the general Suidae article is warthogs, babirusa and skeletons; the pink pig a child pictures is the domestic one"
   }
 }

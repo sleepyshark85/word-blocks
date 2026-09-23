@@ -9,7 +9,72 @@
     "g"
   ],
   "fallbackEmoji": "Hot beverage",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/fa2c0d25c401a684.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 24177,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mug_of_Tea.JPG",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Factorylad",
+      "title": "Mug of Tea.JPG",
+      "rank": "lead",
+      "caption": "A mug of tea with milk",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:48.789Z"
+    },
+    {
+      "src": "media/img/8abc220e3c603d5e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 33624,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Vintage_VICTOR_Coffee_Mug.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Quercus acuta",
+      "title": "Vintage VICTOR Coffee Mug.jpg",
+      "rank": "article",
+      "caption": "VICTOR coffee mug",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:48.883Z"
+    },
+    {
+      "src": "media/img/b9014efffe361e2f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 24680,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Travel_mug.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "Brugo",
+      "title": "Travel mug.jpg",
+      "rank": "article",
+      "caption": "Travel mug",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:48.967Z"
+    },
+    {
+      "src": "media/img/13c58e8edccb6f2b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 45168,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mugtree1.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "maxf",
+      "title": "Mugtree1.jpg",
+      "rank": "article",
+      "caption": "Mug tree",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:49.051Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/b74973deb8c54ec2.mp3",
@@ -30,6 +95,11 @@
       "AMBIG"
     ],
     "note": "AMBIG mild",
-    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:05:49.052Z"
+    }
   }
 }

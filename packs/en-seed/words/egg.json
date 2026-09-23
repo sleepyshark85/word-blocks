@@ -8,7 +8,24 @@
     "gg"
   ],
   "fallbackEmoji": "Egg",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/76566176250d9644.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 29615,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Six_eggs_views_from_the_top_on_a_white_background.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "TudorTulok",
+      "title": "Six eggs views from the top on a white background.jpg",
+      "rank": "article",
+      "caption": "Six commercial chicken eggs",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:59:45.240Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/2c8668c5ae6aba31.mp3",
@@ -27,6 +44,13 @@
     "family": null,
     "flags": [],
     "note": "3 letters, 2 tiles, no onset",
-    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T03:59:45.250Z"
+    },
+    "searchTitle": "Egg as food",
+    "searchTitleWhy": "the general Egg article is frog spawn, salmon fry and a caiman egg; the breakfast egg is the food article"
   }
 }

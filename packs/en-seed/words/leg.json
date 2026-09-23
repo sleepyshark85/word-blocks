@@ -9,7 +9,53 @@
     "g"
   ],
   "fallbackEmoji": "Leg",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/4be278934e7b305e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 52949,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Staring_At_Legs_(65461151).jpeg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "Seika N",
+      "title": "Staring At Legs (65461151).jpeg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:20.805Z"
+    },
+    {
+      "src": "media/img/856622c7043eba30.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 53511,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Morgan_Sessions_2015-01-22_(Unsplash_yGVNt1Aqpp4).jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Morgan Sessions morgansessions",
+      "title": "Morgan Sessions 2015-01-22 (Unsplash yGVNt1Aqpp4).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:20.904Z"
+    },
+    {
+      "src": "media/img/dd00cf186ce71be4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 40337,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Taylor_Jacobs_2015_(Unsplash).jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Taylor Jacobs taylorjacobs",
+      "title": "Taylor Jacobs 2015 (Unsplash).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:20.990Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5246bbe03fb94a5d.mp3",
@@ -30,6 +76,12 @@
       "TONE"
     ],
     "note": "TONE",
-    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)",
+    "fetched": {
+      "article": 2,
+      "category": 8,
+      "at": "2026-09-23T04:06:20.991Z"
+    },
+    "curationNote": "WEAK. Body parts again: the article is a mammoth leg reconstruction and a prosthetic; the category is mostly legs-in-fashion shots, two of them suggestive. Kept three clear clothed legs. His own leg would be better."
   }
 }

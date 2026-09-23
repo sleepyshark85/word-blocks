@@ -9,7 +9,55 @@
     "p"
   ],
   "fallbackEmoji": "Passenger ship",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/eac0766e0bae71d2.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 60841,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Amerigo_vespucci_1976_nyc_aufgetakelt.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Harley D. Nygren",
+      "title": "Amerigo vespucci 1976 nyc aufgetakelt.jpg",
+      "rank": "article",
+      "caption": "Italian full-rigged ship Amerigo Vespucci in New York Harbor",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:03.787Z"
+    },
+    {
+      "src": "media/img/6023dac876b8c5e3.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 75068,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Containerterminal_Altenwerder_(Hamburg-Altenwerder).Iris_Bolten.4.phb.ajb.jpg",
+      "license": "CC BY-SA 3.0 de",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "creator": "Ajepbah",
+      "title": "Containerterminal Altenwerder (Hamburg-Altenwerder).Iris Bolten.4.phb.ajb.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:03.889Z"
+    },
+    {
+      "src": "media/img/f05d7d7ea67eb8c4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 56520,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nao_Victoria.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Gnsin",
+      "title": "Nao Victoria.jpg",
+      "rank": "article",
+      "caption": "Replica of Magellan's Victoria. Ferdinand Magellan and Juan Sebastián Elcano led the first expedition that circumnavigated the globe in 1519–1522.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:03.974Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/808c5072e5ba1b40.mp3",
@@ -28,6 +76,11 @@
     "family": null,
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:04:03.975Z"
+    }
   }
 }

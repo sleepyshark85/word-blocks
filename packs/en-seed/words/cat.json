@@ -9,7 +9,68 @@
     "t"
   ],
   "fallbackEmoji": "Cat",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/9fe9b9b8ee970bee.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 47818,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01.jpg: Hisashi from Japan der",
+      "title": "Orange tabby cat sitting on fallen leaves-Hisashi-01A.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:03.335Z"
+    },
+    {
+      "src": "media/img/5fe8564a89a352d3.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 51692,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Felis_catus-cat_on_snow.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Von.grzanka",
+      "title": "Felis catus-cat on snow.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:03.433Z"
+    },
+    {
+      "src": "media/img/2ae3e49c4c5bfe5e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 46394,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Siam_lilacpoint.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Karin Langner-Bahmann, upload von Martin Bahmann",
+      "title": "Siam lilacpoint.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:03.521Z"
+    },
+    {
+      "src": "media/img/18508bff35d442ff.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 37741,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sheba1.JPG",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Dovenetel at Dutch Wikipedia",
+      "title": "Sheba1.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:03.605Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/514d89c33ceaa3b1.mp3",
@@ -28,6 +89,11 @@
     "family": "-at",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T03:58:03.605Z"
+    }
   }
 }

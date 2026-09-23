@@ -9,7 +9,39 @@
     "t"
   ],
   "fallbackEmoji": "Pot of food",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/fd580062d66f7de8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 38512,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:AMC_pot.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Grap",
+      "title": "AMC pot.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:46.753Z"
+    },
+    {
+      "src": "media/img/900db18a2e6744d4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49227,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Steam-boiling_green_asparagus.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "W.carter",
+      "title": "Steam-boiling green asparagus.jpg",
+      "rank": "article",
+      "caption": "A stainless steel cooking pot.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:06:46.853Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/56e3c86b361907ce.mp3",
@@ -28,6 +60,11 @@
     "family": "-ot",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)",
+    "fetched": {
+      "article": 1,
+      "category": 9,
+      "at": "2026-09-23T04:06:46.853Z"
+    }
   }
 }

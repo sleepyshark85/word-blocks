@@ -10,7 +10,54 @@
     "m"
   ],
   "fallbackEmoji": "Drum",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/e5b78a76903c25a3.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 42890,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Drums_for_sale_at_the_National_Museum_of_the_American_Indian.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Quadell",
+      "title": "Drums for sale at the National Museum of the American Indian.jpg",
+      "rank": "article",
+      "caption": "Several American Indian-style drums for sale at the National Museum of the American Indian",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:32.856Z"
+    },
+    {
+      "src": "media/img/b746c7d4a77105fe.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 70050,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2019_ColognePride_-_CSD-Parade-8756.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Raimond Spekking",
+      "title": "2019 ColognePride - CSD-Parade-8756.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:32.945Z"
+    },
+    {
+      "src": "media/img/22a5eac336beb1a9.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 52037,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:20151027_K%C3%B6ln_Lena_Meyer-Landrut_Lena_Meyer-Landrut_0135.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "© Markus Felix (talk to me)",
+      "title": "20151027 Köln Lena Meyer-Landrut Lena Meyer-Landrut 0135.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:33.038Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/51f1a27b45117fdd.mp3",
@@ -29,6 +76,11 @@
     "family": null,
     "flags": [],
     "note": "4 tiles",
-    "from": "word-list.md §5 Stage 7 — initial blends, two tiles for two sounds (3)"
+    "from": "word-list.md §5 Stage 7 — initial blends, two tiles for two sounds (3)",
+    "fetched": {
+      "article": 4,
+      "category": 6,
+      "at": "2026-09-23T03:58:33.038Z"
+    }
   }
 }

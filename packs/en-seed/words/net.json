@@ -9,7 +9,23 @@
     "t"
   ],
   "fallbackEmoji": "Goal net",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/0d191686ac63ed78.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49836,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Payallarfishing.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "ozgurmulazimoglu",
+      "title": "Payallarfishing.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:45.890Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/878e70de34314d6d.mp3",
@@ -30,6 +46,13 @@
       "PHOTO"
     ],
     "note": "PHOTO — asset is a football goal",
-    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)",
+    "searchTitle": "Fishing net",
+    "searchTitleWhy": "\"Net\" is a disambiguation page",
+    "fetched": {
+      "article": 10,
+      "at": "2026-09-23T06:03:45.900Z"
+    },
+    "curationNote": "WEAK. The Fishing net article is a Neolithic net fragment, medieval illuminations, paintings and a diagram. One usable photograph of a net mid-cast. A butterfly net or a goal net would be a better referent for a 4-year-old than a fishing net."
   }
 }

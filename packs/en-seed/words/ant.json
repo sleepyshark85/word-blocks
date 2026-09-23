@@ -9,7 +9,71 @@
     "t"
   ],
   "fallbackEmoji": "Ant",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/85a59e08cfc239e9.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 27789,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Red_Ant_-_March_2025.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Samantha Henneke from Seagrove, North Carolina, USA",
+      "title": "Red Ant - March 2025.jpg",
+      "rank": "lead",
+      "caption": "Bright red ant, likely part of the Formica pallidefulva species group, on a flower",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:19.491Z"
+    },
+    {
+      "src": "media/img/709e30a57573c6e8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 34682,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fire_ants_01.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Stephen Ausmus",
+      "title": "Fire ants 01.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:19.589Z"
+    },
+    {
+      "src": "media/img/577e7dae730bdb3a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 48089,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bullant_head_detail.jpg",
+      "license": "GFDL 1.2",
+      "licenseUrl": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
+      "creator": "fir0002 flagstaffotos [at] gmail.com Canon 20D + Sigma 150mm f/2.8",
+      "title": "Bullant head detail.jpg",
+      "rank": "article",
+      "caption": "Bull ant showing the powerful mandibles and the relatively large compound eyes that provide excellent vision",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:19.676Z"
+    },
+    {
+      "src": "media/img/b200bd249b43971b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 44800,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Camponotus_sericeus_Senegal.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "NoahElhardt",
+      "title": "Camponotus sericeus Senegal.jpg",
+      "rank": "article",
+      "caption": "Two Camponotus sericeus workers communicating through touch and pheromones",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:19.762Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/3d7b628ead2112d2.mp3",
@@ -30,6 +94,11 @@
       "VCC"
     ],
     "note": "VCC — no onset tile, same shape as Vietnamese ong",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:05:19.762Z"
+    }
   }
 }

@@ -9,7 +9,53 @@
     "g"
   ],
   "fallbackEmoji": "Bug",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/4f6923cf153a1e02.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 45177,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mimela_splendens_left_facing.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Kanegon insect",
+      "title": "Mimela splendens left facing.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:45.603Z"
+    },
+    {
+      "src": "media/img/a0269837ac7503ac.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 28987,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dynastes_hercules_ecuatorianus_MHNT.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Didier Descouens",
+      "title": "Dynastes hercules ecuatorianus MHNT.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:45.695Z"
+    },
+    {
+      "src": "media/img/bb486fc84df55850.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 33072,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Coleoptera_collage.png",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Bugboy52.40",
+      "title": "Coleoptera collage.png",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:45.774Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/44ec9e3beb860699.mp3",
@@ -28,6 +74,13 @@
     "family": "-ug",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)",
+    "searchTitle": "Beetle",
+    "searchTitleWhy": "\"Bug / beetle\" is not an article title; a beetle is what a child means by bug",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T06:03:45.774Z"
+    }
   }
 }

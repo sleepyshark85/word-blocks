@@ -9,7 +9,68 @@
     "p"
   ],
   "fallbackEmoji": "Billed cap",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/1edf02811fb45901.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 30769,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hufflepuff_Hat.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "anneheathen",
+      "title": "Hufflepuff Hat.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:37.634Z"
+    },
+    {
+      "src": "media/img/a4b175033540c747.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 77819,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Montreal_Expos_hat_(32297579965).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Coastal Elite from Halifax, Canada",
+      "title": "Montreal Expos hat (32297579965).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:37.735Z"
+    },
+    {
+      "src": "media/img/3743dab858cb237d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 73420,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:SF_Giants_Baseball_Hat_4_2019-05-06_(cropped).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "FASTILY",
+      "title": "SF Giants Baseball Hat 4 2019-05-06 (cropped).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:37.821Z"
+    },
+    {
+      "src": "media/img/1a3b554cd2ce6fec.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 57164,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Phrygian_Cap.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Richard",
+      "title": "Phrygian Cap.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:37.904Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5cc889191e323243.mp3",
@@ -28,6 +89,11 @@
     "family": "-ap",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:07:37.904Z"
+    }
   }
 }

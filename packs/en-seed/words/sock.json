@@ -9,7 +9,72 @@
     "ck"
   ],
   "fallbackEmoji": "Socks",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/4a8d930ecc92bf45.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 48427,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Smelly_socks.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Colonel Warden",
+      "title": "Smelly socks.jpg",
+      "rank": "article",
+      "caption": "Smelly socks in a laundry basket",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:28.398Z"
+    },
+    {
+      "src": "media/img/4affc75a9ae86829.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 74612,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Halksockar.JPG",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Sockiplast67",
+      "title": "Halksockar.JPG",
+      "rank": "article",
+      "caption": "Swedish non-skid socks from Nowali",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:28.498Z"
+    },
+    {
+      "src": "media/img/23141132556a1c51.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 40514,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yellow-green_toe_socks.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "The Hurricane",
+      "title": "Yellow-green toe socks.jpg",
+      "rank": "article",
+      "caption": "Toe socks",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:28.584Z"
+    },
+    {
+      "src": "media/img/765c6f950799ed70.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49117,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Kneehighschooluniformsocks-tokyoarea-jan182020.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "Nesnad",
+      "title": "Kneehighschooluniformsocks-tokyoarea-jan182020.jpg",
+      "rank": "article",
+      "caption": "Knee-high white socks, often worn as part of a school uniform or for fashion",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:28.668Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/fdf2ae2c51a2bd24.mp3",
@@ -30,6 +95,10 @@
       "AMBIG"
     ],
     "note": "AMBIG mild — plural",
-    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)",
+    "fetched": {
+      "article": 9,
+      "at": "2026-09-23T04:04:28.669Z"
+    }
   }
 }

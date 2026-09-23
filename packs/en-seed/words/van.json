@@ -9,7 +9,72 @@
     "n"
   ],
   "fallbackEmoji": "Delivery truck",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/66bae3fa3f23669f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 53053,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2018_Ford_Transit_Custom_300_Base_2.0_facelift.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Vauxford",
+      "title": "2018 Ford Transit Custom 300 Base 2.0 facelift.jpg",
+      "rank": "lead",
+      "caption": "A Ford Transit Custom low roof van",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:55.394Z"
+    },
+    {
+      "src": "media/img/ef1ea8ac849fb0c7.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 94481,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:94-97RamVan.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Ahanix1989 at English Wikipedia",
+      "title": "94-97RamVan.JPG",
+      "rank": "article",
+      "caption": "Full-size Dodge Ram van in the United States",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:55.497Z"
+    },
+    {
+      "src": "media/img/eba44b21e8f1b355.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 47103,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Toyota_Hiace_H200_505.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "天然ガス",
+      "title": "Toyota Hiace H200 505.JPG",
+      "rank": "article",
+      "caption": "Toyota HiAce cab over van",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:55.581Z"
+    },
+    {
+      "src": "media/img/620e07c9197adc05.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 48448,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:2011_Toyota_Sienna_XLE_--_05-18-2011.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "IFCAR",
+      "title": "2011 Toyota Sienna XLE -- 05-18-2011.jpg",
+      "rank": "article",
+      "caption": "Toyota Sienna minivan in the United States",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:55.664Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/01921027f97071cb.mp3",
@@ -30,6 +95,11 @@
       "PHOTO"
     ],
     "note": "PHOTO — a truck is not a van",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 7,
+      "at": "2026-09-23T04:04:55.664Z"
+    }
   }
 }

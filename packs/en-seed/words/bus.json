@@ -9,7 +9,72 @@
     "s"
   ],
   "fallbackEmoji": "Bus",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/8d5b8cd92fad27bd.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 48649,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:(SGP-Singapore)_SBS_Transit_SG3042Y_298_2024-12-23.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "S5A-0043",
+      "title": "(SGP-Singapore) SBS Transit SG3042Y 298 2024-12-23.jpg",
+      "rank": "article",
+      "caption": "Volvo B5LH single-decker bus in Singapore",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:03.736Z"
+    },
+    {
+      "src": "media/img/ce7182874105ee49.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 71943,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:LTZ1328-19-20241030-160332.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "SIA321",
+      "title": "LTZ1328-19-20241030-160332.jpg",
+      "rank": "lead",
+      "caption": "New Routemaster double-decker bus in London, United Kingdom",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:03.833Z"
+    },
+    {
+      "src": "media/img/93ea6b899f717aa5.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 60793,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:BRT2101_at_Balou_(20230921084843).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "N509FZ",
+      "title": "BRT2101 at Balou (20230921084843).jpg",
+      "rank": "article",
+      "caption": "Youngman articulated bus in Ürümqi, China",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:03.920Z"
+    },
+    {
+      "src": "media/img/21c3f094097cab84.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 60861,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Toronto_Flyer_E700A_trolleybus_in_1987.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Steve Morgan",
+      "title": "Toronto Flyer E700A trolleybus in 1987.jpg",
+      "rank": "article",
+      "caption": "New Flyer trolleybus in Toronto, Canada",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:58:04.006Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/2fcafe47086afef8.mp3",
@@ -28,6 +93,11 @@
     "family": "-us",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T03:58:04.006Z"
+    }
   }
 }

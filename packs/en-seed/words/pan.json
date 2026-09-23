@@ -9,7 +9,39 @@
     "n"
   ],
   "fallbackEmoji": "Shallow pan of food",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/c0bc5308b933c614.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 48526,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Frying_pans_-_Freedom_Theatre_in_Jenin_012_-_Aug_2011.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "Guillaume Paumier",
+      "title": "Frying pans - Freedom Theatre in Jenin 012 - Aug 2011.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:13.566Z"
+    },
+    {
+      "src": "media/img/1c189bffaf708de0.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 26987,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pan_frying_sausages.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Rene Ehrhardt",
+      "title": "Pan frying sausages.jpg",
+      "rank": "article",
+      "caption": "Sausages being pan fried in a frying pan",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:13.664Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/4f6f33888224dfad.mp3",
@@ -28,6 +60,11 @@
     "family": "-an",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "article": 2,
+      "category": 8,
+      "at": "2026-09-23T04:07:13.664Z"
+    }
   }
 }

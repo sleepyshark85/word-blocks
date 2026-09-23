@@ -9,7 +9,54 @@
     "t"
   ],
   "fallbackEmoji": "Peanuts",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/7c430407e1190a20.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 52763,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:An_konia%27s_pip.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "DXLINH",
+      "title": "An konia's pip.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:46.014Z"
+    },
+    {
+      "src": "media/img/b14e1792bf1e22a6.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49115,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:4_walnut_kernels.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Andrei Suslov",
+      "title": "4 walnut kernels.jpg",
+      "rank": "article",
+      "caption": "Walnut kernels",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:46.108Z"
+    },
+    {
+      "src": "media/img/af40c11fe05bea7c.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 37739,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Argania_spinosa_MHNT.BOT.2010.12.2.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Roger Culos",
+      "title": "Argania spinosa MHNT.BOT.2010.12.2.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:46.190Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/7235583c18ad7792.mp3",
@@ -30,6 +77,13 @@
       "AMBIG"
     ],
     "note": "AMBIG mild — plural; Fluent Nut and bolt is the wrong sense, do not use it",
-    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)",
+    "searchTitle": "Nut (fruit)",
+    "searchTitleWhy": "\"Nut\" is a disambiguation page",
+    "fetched": {
+      "article": 3,
+      "category": 7,
+      "at": "2026-09-23T06:03:46.190Z"
+    }
   }
 }

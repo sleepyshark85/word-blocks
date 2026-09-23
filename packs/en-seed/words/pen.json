@@ -9,7 +9,55 @@
     "n"
   ],
   "fallbackEmoji": "Fountain pen",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/426d16ed117ae731.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 46011,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:GelPen.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "PiccoloNamek on en.wikipedia",
+      "title": "GelPen.jpg",
+      "rank": "article",
+      "caption": "A gel-based rollerball pen",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:19.895Z"
+    },
+    {
+      "src": "media/img/b4f968faf03cd960.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 55381,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Antique_vintage_fountain_pens_from_a_personal_collection,_photographed_by_Yogabrata_Chakraborty.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Billjones94",
+      "title": "Antique vintage fountain pens from a personal collection, photographed by Yogabrata Chakraborty.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:19.989Z"
+    },
+    {
+      "src": "media/img/ddfd6c7455404190.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 25063,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Fude_pen.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Mariko GODA",
+      "title": "Fude pen.jpg",
+      "rank": "article",
+      "caption": "A brush pen",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:20.082Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/3e0aa8dde03a09f0.mp3",
@@ -30,6 +78,10 @@
       "PHOTO"
     ],
     "note": "PHOTO — a fountain pen is not what he has seen",
-    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)",
+    "fetched": {
+      "article": 10,
+      "at": "2026-09-23T04:05:20.082Z"
+    }
   }
 }

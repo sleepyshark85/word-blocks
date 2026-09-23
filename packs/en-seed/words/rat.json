@@ -9,7 +9,39 @@
     "t"
   ],
   "fallbackEmoji": "Rat",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/55280cb97fd3f502.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 60200,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brown_Rat_(Rattus_norvegicus).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Dunpharlain",
+      "title": "Brown Rat (Rattus norvegicus).jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:28.789Z"
+    },
+    {
+      "src": "media/img/9e32e4780eb2fb96.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 64639,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rattus_rattus_-_Reid_Hardin_-_119483853.jpeg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "Reid Hardin",
+      "title": "Rattus rattus - Reid Hardin - 119483853.jpeg",
+      "rank": "article",
+      "caption": "A black rat in Bee Cave, Texas",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:04:28.884Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/1318fb03a38f4e5a.mp3",
@@ -28,6 +60,11 @@
     "family": "-at",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:04:28.884Z"
+    }
   }
 }

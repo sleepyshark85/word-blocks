@@ -9,7 +9,68 @@
     "g"
   ],
   "fallbackEmoji": "Dog",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/58e53d4b3f74126e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 54925,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brooks_Chase_Ranger_of_Jolly_Dogs_Jack_Russell.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "JOLLY-DOGS-JACK-RUSSELL",
+      "title": "Brooks Chase Ranger of Jolly Dogs Jack Russell.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:00:42.520Z"
+    },
+    {
+      "src": "media/img/ea4e4540b60ed4c0.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 44328,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Retriever_in_water.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Kyfishfishfish",
+      "title": "Retriever in water.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:00:42.619Z"
+    },
+    {
+      "src": "media/img/c43711eb109ee9a9.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 55861,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Black_Labrador_Retriever_-_Male_IMG_3323_(cropped).jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Losch",
+      "title": "Black Labrador Retriever - Male IMG 3323 (cropped).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:00:42.708Z"
+    },
+    {
+      "src": "media/img/07ad2b7fb425752d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 50119,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Dog_-_%E0%B4%A8%E0%B4%BE%E0%B4%AF-6.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "കാക്കര",
+      "title": "Dog - നായ-6.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:00:42.793Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/1601b112ca8a61cf.mp3",
@@ -28,6 +89,11 @@
     "family": "-og",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:00:42.793Z"
+    }
   }
 }

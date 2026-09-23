@@ -9,7 +9,55 @@
     "g"
   ],
   "fallbackEmoji": "Wood",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/f59327930b3c5666.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 86872,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:%C5%A0palek_na_%C5%A1t%C3%ADp%C3%A1n%C3%AD.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Chmee2",
+      "title": "Špalek na štípání.jpg",
+      "rank": "article",
+      "caption": "Stack of split firewood and a splitting maul, Czech Republic",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:04:13.160Z"
+    },
+    {
+      "src": "media/img/0973d39b2c4c040d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 90143,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brennreisig.JPG",
+      "license": "CC BY-SA 3.0 de",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "creator": "powerbiker1 (Thomas Kees)",
+      "title": "Brennreisig.JPG",
+      "rank": "lead",
+      "caption": "Stack of firewood next to a building",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:04:13.259Z"
+    },
+    {
+      "src": "media/img/c5158c1829b152b2.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 47915,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Scure_nel_tronco.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Luigi Chiesa",
+      "title": "Scure nel tronco.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:04:13.343Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/6294911c808034fe.mp3",
@@ -28,6 +76,13 @@
     "family": "-og",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)",
+    "searchTitle": "Firewood",
+    "searchTitleWhy": "\"Log of wood\" is not a title; firewood is the photographed form of a cut log",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T06:04:13.343Z"
+    }
   }
 }

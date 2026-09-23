@@ -9,7 +9,55 @@
     "x"
   ],
   "fallbackEmoji": "Fox",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/3bed479598273870.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 43941,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Vulpes_vulpes_ssp_fulvus.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Joanne Redwood",
+      "title": "Vulpes vulpes ssp fulvus.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:00:14.333Z"
+    },
+    {
+      "src": "media/img/ac18847802e4b2d8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49894,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Alopex_lagopus_coiled_up_in_snow.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Keith Morehouse",
+      "title": "Alopex lagopus coiled up in snow.jpg",
+      "rank": "article",
+      "caption": "Arctic fox curled up in snow",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:00:14.428Z"
+    },
+    {
+      "src": "media/img/54f5f0e887f59404.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 53795,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bat_eared_fox_Kenya_crop.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Kenya_August_2010_485.jpg: Joanne Goldby derivative work: Samsara (talk)",
+      "title": "Bat eared fox Kenya crop.jpg",
+      "rank": "article",
+      "caption": "Bat-eared fox in Kenya",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:00:14.515Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/54932076e3afaf67.mp3",
@@ -28,6 +76,11 @@
     "family": "-ox",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 4 — + short `o` (5)"
+    "from": "word-list.md §5 Stage 4 — + short `o` (5)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:00:14.516Z"
+    }
   }
 }

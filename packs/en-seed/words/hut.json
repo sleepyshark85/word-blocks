@@ -9,7 +9,72 @@
     "t"
   ],
   "fallbackEmoji": "Hut",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/3e0e238dd3c3b40e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 63979,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Resting_hut_kambalakonda_eco_park_Visakhapatnam.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Adityamadhav83",
+      "title": "Resting hut kambalakonda eco park Visakhapatnam.jpg",
+      "rank": "article",
+      "caption": "Hut in eastern India",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:38.031Z"
+    },
+    {
+      "src": "media/img/063f38b788635407.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 99522,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sindhi_desert_Home.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Khalid Mahmood",
+      "title": "Sindhi desert Home.JPG",
+      "rank": "article",
+      "caption": "A hut in Tharparkar, Sindh",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:38.130Z"
+    },
+    {
+      "src": "media/img/330a096a8e80ece4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 52292,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:MarinoDelNorteEscalante.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "TheManFromVisayas",
+      "title": "MarinoDelNorteEscalante.jpg",
+      "rank": "article",
+      "caption": "A nipa hut used to accommodate tourists on Negros in the Philippines",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:38.217Z"
+    },
+    {
+      "src": "media/img/a55462507f67e917.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 95746,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chozos_de_ganaderos,_El_Torno,_C%C3%A1ceres.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "No machine-readable author provided. Frobles assumed (based on copyright claims)",
+      "title": "Chozos de ganaderos, El Torno, Cáceres.jpg",
+      "rank": "lead",
+      "caption": "Chozos (Spanish: 'huts') in western Spain",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:07:38.306Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5c153acbf0830b8b.mp3",
@@ -28,6 +93,11 @@
     "family": "-ut",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 5 — + short `u` (7)"
+    "from": "word-list.md §5 Stage 5 — + short `u` (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 7,
+      "at": "2026-09-23T04:07:38.306Z"
+    }
   }
 }

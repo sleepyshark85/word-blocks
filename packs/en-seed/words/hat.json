@@ -9,7 +9,53 @@
     "t"
   ],
   "fallbackEmoji": "Top hat",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/77e6eb07400b1411.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 31076,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Balmoral_bonnet_black.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "SMcCandlish",
+      "title": "Balmoral bonnet black.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:59:12.423Z"
+    },
+    {
+      "src": "media/img/8e9478506f2dad16.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 32661,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:DarkGreenAscotCapOnHead.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "No machine-readable author provided. Schaefer~commonswiki assumed (based on copy",
+      "title": "DarkGreenAscotCapOnHead.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:59:12.525Z"
+    },
+    {
+      "src": "media/img/acb12b479b7dea41.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 53456,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Giovane_guardia_al_palazzo_della_regina_di_Danimarca_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "patano",
+      "title": "Giovane guardia al palazzo della regina di Danimarca - panoramio.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:59:12.612Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/a96958e2a9008b50.mp3",
@@ -28,6 +74,11 @@
     "family": "-at",
     "flags": [],
     "note": "",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T03:59:12.612Z"
+    }
   }
 }

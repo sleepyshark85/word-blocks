@@ -9,7 +9,54 @@
     "n"
   ],
   "fallbackEmoji": "Chicken",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/d39ea09317b0135a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 40502,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hen_Comb_(cropped).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Tomukatsusu",
+      "title": "Hen Comb (cropped).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:45.314Z"
+    },
+    {
+      "src": "media/img/ef7a8ff6400238eb.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 51960,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Male_and_female_chicken_sitting_together.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Andrei Niemimäki from Turku, Finland",
+      "title": "Male and female chicken sitting together.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:45.408Z"
+    },
+    {
+      "src": "media/img/6930ecec93eebaad.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 45623,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Newly-hatched_chickens.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Otwarte Klatki",
+      "title": "Newly-hatched chickens.jpg",
+      "rank": "article",
+      "caption": "Newly hatched chicks",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T06:03:45.487Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5c92c8aea434b61c.mp3",
@@ -30,6 +77,13 @@
       "AMBIG"
     ],
     "note": "AMBIG — generic chicken",
-    "from": "word-list.md §5 Stage 2 — + short `e` (6)"
+    "from": "word-list.md §5 Stage 2 — + short `e` (6)",
+    "searchTitle": "Chicken",
+    "searchTitleWhy": "\"Hen\" has no article of its own",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T06:03:45.487Z"
+    }
   }
 }

@@ -9,7 +9,38 @@
     "sh"
   ],
   "fallbackEmoji": "Fish",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/8ab90db6d40d17fd.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 45258,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Balantiocheilos_melanopterus_-_Karlsruhe_Zoo_02_(cropped).jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "H. Zell",
+      "title": "Balantiocheilos melanopterus - Karlsruhe Zoo 02 (cropped).jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:01:23.881Z"
+    },
+    {
+      "src": "media/img/2584f1caeeadc6a8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 52212,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Eastern_Cleaner_Clingfish_(cropped).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Sylke Rohrlach from Sydney",
+      "title": "Eastern Cleaner Clingfish (cropped).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:01:23.979Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/53e693698a6638d5.mp3",
@@ -28,6 +59,12 @@
     "family": null,
     "flags": [],
     "note": "sh in final position",
-    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)"
+    "from": "word-list.md §5 Stage 6 — consonant digraphs, each one tile (5)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T04:01:23.979Z"
+    },
+    "curationNote": "WEAK. The Fish article is line drawings, a Dunkleosteus fossil, a leafy sea dragon and a seahorse. Kept the two real photographs of an ordinary fish. A goldfish or an aquarium photograph would be a better prototype for a 4-year-old."
   }
 }

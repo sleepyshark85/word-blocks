@@ -9,7 +9,68 @@
     "t"
   ],
   "fallbackEmoji": "Bat",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/36acd05e6748c425.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 69503,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Megaderma_spasma.jpg",
+      "license": "GFDL",
+      "licenseUrl": "http://www.gnu.org/copyleft/fdl.html",
+      "creator": "Piekfrosch",
+      "title": "Megaderma spasma.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:48.393Z"
+    },
+    {
+      "src": "media/img/9b4aa1cc4ebc3b64.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49998,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Myzopoda_aurita_13060431.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "Dan Riskin",
+      "title": "Myzopoda aurita 13060431.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:48.488Z"
+    },
+    {
+      "src": "media/img/b6793396289b97f6.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 40308,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pteropus_niger_three.jpeg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "Simon J. Tonge",
+      "title": "Pteropus niger three.jpeg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:48.580Z"
+    },
+    {
+      "src": "media/img/e7c6bed4b44df54f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 66382,
+      "source": "en.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Desmodus_rotundus_A_Catenazzi.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Acatenazzi at English Wikipedia",
+      "title": "Desmodus rotundus A Catenazzi.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T04:05:48.666Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/6daa87bb3d101da3.mp3",
@@ -30,6 +91,10 @@
       "AMBIG"
     ],
     "note": "AMBIG — English bat is also a baseball bat; the picture decides which word he learns",
-    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)"
+    "from": "word-list.md §5 Stage 1 — CVC, short `a` (11)",
+    "fetched": {
+      "article": 10,
+      "at": "2026-09-23T04:05:48.667Z"
+    }
   }
 }
