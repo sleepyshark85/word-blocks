@@ -11,7 +11,40 @@
     }
   ],
   "fallbackEmoji": "Open book",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/51fce8322fd881be.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 53831,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Urval_av_de_bocker_som_har_vunnit_Nordiska_radets_litteraturpris_under_de_50_ar_som_priset_funnits_(2).jpg",
+      "license": "CC BY 2.5 dk",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5/dk/deed.en",
+      "creator": "Johannes Jansson",
+      "title": "Urval av de bocker som har vunnit Nordiska radets litteraturpris under de 50 ar som priset funnits (2).jpg",
+      "rank": "article",
+      "caption": "Gáy sách là một khía cạnh quan trọng trong thiết kế cuốn sách, đặc biệt là trong việc thiết kế bìa. Khi cuốn sách được xếp chồng lên nhau hoặc được đặt trên một kệ sách, các chi tiết trên gáy sách là những gì duy nhất được người xem nhìn thấy có chứa các thông tin về cuốn sách. Trong các cửa hàng, các chi tiết trên gáy sách là điều đầu tiên thu hút sự chú ý của người mua.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:52:34.555Z"
+    },
+    {
+      "src": "media/img/100e91d600428916.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 67586,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:H%E1%BB%99i_s%C3%A1ch_m%C3%B9a_xu%C3%A2n.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Buihaidang192",
+      "title": "Hội sách mùa xuân.jpg",
+      "rank": "article",
+      "caption": "Hội sách Xuân",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:52:34.647Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/de39bc2c9daf8332.mp3",
@@ -39,6 +72,11 @@
     "assetConcept": "book",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)"
+    "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 5,
+      "at": "2026-09-23T02:52:34.647Z"
+    }
   }
 }

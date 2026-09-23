@@ -11,7 +11,56 @@
     }
   ],
   "fallbackEmoji": "Cloud",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/aca95178bb66d94f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 29009,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cloud.jpg",
+      "license": "CC BY 1.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/1.0",
+      "creator": "Michael Jastremski",
+      "title": "Cloud.jpg",
+      "rank": "lead",
+      "caption": "Các đám mây trên bầu trời",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:53:41.728Z"
+    },
+    {
+      "src": "media/img/7729fadcdbd28479.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 31068,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sky_from_a_Vietnamese_land_2.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Thanhminh2000",
+      "title": "Bautroigoisong.jpg",
+      "rank": "article",
+      "caption": "Mây trung tích",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:53:41.817Z"
+    },
+    {
+      "src": "media/img/8e9ab483ef9fec88.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 19918,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://vi.wikipedia.org/wiki/T%E1%BA%ADp_tin:Phoenix_Cloud.JPG",
+      "license": "Phạm vi công cộng",
+      "licenseUrl": null,
+      "creator": "Nguyễn Quang Tiến",
+      "title": "Phoenix Cloud.JPG",
+      "rank": "article",
+      "caption": "Một ví dụ về màu sắc của mây.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:53:41.895Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/e061f6f3ab0ae399.mp3",
@@ -30,6 +79,11 @@
     "assetConcept": "cloud",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 6,
+      "at": "2026-09-23T02:53:41.895Z"
+    }
   }
 }

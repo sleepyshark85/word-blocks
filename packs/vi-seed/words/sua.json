@@ -11,7 +11,55 @@
     }
   ],
   "fallbackEmoji": "Glass of milk",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/74405daaa0bfef5d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 37690,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Glass_of_milk.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Santeri Viinamäki",
+      "title": "Glass of milk.jpg",
+      "rank": "lead",
+      "caption": "Một ly sữa bò đã được thanh trùng theo phương pháp Pasteur",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:56:14.128Z"
+    },
+    {
+      "src": "media/img/31eb141ecf1b6202.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 25087,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Glass_of_Milk_(33657535532).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "NIAID",
+      "title": "Glass of Milk (33657535532).jpg",
+      "rank": "article",
+      "caption": "Một cốc sữa. Nguồn ảnh: Viện Quốc gia về Dị ứng và Bệnh truyền nhiễm (NIAID)",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:56:14.228Z"
+    },
+    {
+      "src": "media/img/f5cc679eae975569.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 38443,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Instant_pudding_mix_and_milk.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Amy Stephenson",
+      "title": "Instant pudding mix and milk.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:56:14.316Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/92eb0d724884ef25.mp3",
@@ -39,6 +87,12 @@
     "assetConcept": "glass of milk",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 3,
+      "category": 6,
+      "at": "2026-09-23T02:56:14.316Z"
+    }
   }
 }

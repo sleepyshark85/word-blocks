@@ -11,7 +11,40 @@
     }
   ],
   "fallbackEmoji": "Folding hand fan",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/13b094f9af01037a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 46610,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ventilador_Electrico_Piso.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Jorge Barrios",
+      "title": "Ventilador Electrico Piso.jpg",
+      "rank": "article",
+      "caption": "Quạt đặt dưới đất",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:55:36.927Z"
+    },
+    {
+      "src": "media/img/03462ebd7f52344f.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 22716,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ceiling_fan_with_lamp.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Hans Olav Lien",
+      "title": "Ceiling fan with lamp.jpg",
+      "rank": "article",
+      "caption": "Ceiling fan with a lamp",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:55:37.017Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/41f9326d40616b88.mp3",
@@ -41,6 +74,10 @@
       "PHOTO"
     ],
     "note": "PHOTO — asset is a folding hand fan; the qu onset",
-    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
+    "fetched": {
+      "article": 8,
+      "at": "2026-09-23T02:55:37.017Z"
+    }
   }
 }

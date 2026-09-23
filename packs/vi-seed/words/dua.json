@@ -11,7 +11,70 @@
     }
   ],
   "fallbackEmoji": "Coconut",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/df8bd275f6503c6d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 55704,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Coconut_4.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "HRajib",
+      "title": "Coconut 4.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:30.226Z"
+    },
+    {
+      "src": "media/img/967e2c41723b30f8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 78063,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Coconut_face.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Petey21",
+      "title": "Coconut face.jpg",
+      "rank": "article",
+      "caption": "Quả dừa đã tách vỏ xơ có ba lỗ rỗng đặc trưng giống như một khuôn mặt",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:30.328Z"
+    },
+    {
+      "src": "media/img/a10cba7f62dba662.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 71088,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Coconut_Palm_Cola_Bay_Goa_Jan19_DSC00303.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but pl",
+      "title": "Coconut Palm Cola Bay Goa Jan19 DSC00303.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:30.413Z"
+    },
+    {
+      "src": "media/img/ac1cc7b5a106805e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 51632,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tender_coconut,_one_part.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Sidheeq",
+      "title": "Tender coconut, one part.jpg",
+      "rank": "article",
+      "caption": "Bên trong một trái dừa",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:30.513Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/77a2e08df60a35fb.mp3",
@@ -39,6 +102,11 @@
     "assetConcept": "coconut",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T02:54:30.513Z"
+    }
   }
 }

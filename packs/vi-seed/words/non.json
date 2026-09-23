@@ -12,7 +12,70 @@
     }
   ],
   "fallbackEmoji": null,
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/f16cd5157495f5b8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 38922,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Conical_hat,_Viet,_Thanh_Oai,_Hanoi,_1999,_palm_leaves_with_bamboo_frame_-_Vietnamese_Women%27s_Museum_-_Hanoi,_Vietnam_-_DSC03996.JPG",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Daderot",
+      "title": "Conical hat, Viet, Thanh Oai, Hanoi, 1999, palm leaves with bamboo frame - Vietnamese Women's Museum - Hanoi, Vietnam - DSC03996.JPG",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:01.348Z"
+    },
+    {
+      "src": "media/img/10670f7bd2d046ab.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 59007,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Conical_hat.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Andrew J. Rosenthal",
+      "title": "Conical hat.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:01.455Z"
+    },
+    {
+      "src": "media/img/bccf1736198be228.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 45381,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:N%C3%B3n_l%C3%A1_%C4%91%E1%BB%93_ch%C6%A1i.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "terence from Singapore",
+      "title": "Nón lá đồ chơi.jpg",
+      "rank": "article",
+      "caption": "Nón lá được bày bán như là đồ lưu niệm tại Việt Nam.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:01.540Z"
+    },
+    {
+      "src": "media/img/96cc7e93ac930cae.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 55413,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rice_02.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Oliver Spalt",
+      "title": "Rice 02.jpg",
+      "rank": "lead",
+      "caption": "Nón lá che nắng che mưa cho người lao động ngoài đồng ruộng.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:01.623Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/012ad995b9af2ba6.mp3",
@@ -42,6 +105,12 @@
       "PHOTO"
     ],
     "note": "PHOTO",
-    "from": "word-list.md §4 Cultural vocabulary — photo required, no emoji exists (appendix)"
+    "from": "word-list.md §4 Cultural vocabulary — photo required, no emoji exists (appendix)",
+    "fetched": {
+      "lead": 1,
+      "article": 2,
+      "category": 7,
+      "at": "2026-09-23T02:54:01.623Z"
+    }
   }
 }

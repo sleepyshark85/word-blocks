@@ -12,7 +12,55 @@
     }
   ],
   "fallbackEmoji": null,
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/1428f0a87fdb8e75.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49507,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bun_Rieu_close-up_-_Dakao_Hoang.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Alpha from Melbourne, Australia",
+      "title": "Bun Rieu close-up - Dakao Hoang.jpg",
+      "rank": "article",
+      "caption": "Một tô bún riêu",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:56:14.445Z"
+    },
+    {
+      "src": "media/img/5110d3d62cf58d81.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 54195,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Khanom_Chin_-_Thai_rice_noodles.JPG",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "User:Mattes",
+      "title": "Khanom Chin - Thai rice noodles.JPG",
+      "rank": "article",
+      "caption": "Khanom Chin - bún tươi của Thái Lan",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:56:14.538Z"
+    },
+    {
+      "src": "media/img/623807cd2f9a1f10.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 74998,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rice_vermicelli.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Popo le Chien",
+      "title": "Rice vermicelli.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:56:14.620Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/763867c2e0b8aa62.mp3",
@@ -42,6 +90,11 @@
       "PHOTO"
     ],
     "note": "PHOTO",
-    "from": "word-list.md §4 Cultural vocabulary — photo required, no emoji exists (appendix)"
+    "from": "word-list.md §4 Cultural vocabulary — photo required, no emoji exists (appendix)",
+    "fetched": {
+      "lead": 1,
+      "article": 5,
+      "at": "2026-09-23T02:56:14.620Z"
+    }
   }
 }

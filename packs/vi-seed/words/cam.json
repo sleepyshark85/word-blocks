@@ -11,7 +11,38 @@
     }
   ],
   "fallbackEmoji": "Tangerine",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/8539ad250c1c224c.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 39421,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oranges_-_whole-halved-segment.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Ivar Leidus",
+      "title": "Oranges - whole-halved-segment.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:29.917Z"
+    },
+    {
+      "src": "media/img/2b49c50df3d7d810.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 42993,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cam_Vinh_-_m%E1%BB%99t_lo%E1%BA%A1i_cam_%C4%91%E1%BA%B7c_s%E1%BA%A3n_Ngh%E1%BB%87_An.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Hangphuong86",
+      "title": "Cam Vinh - một loại cam đặc sản Nghệ An.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:54:30.100Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/94e378dfd6ace4c8.mp3",
@@ -32,6 +63,11 @@
       "AMBIG"
     ],
     "note": "AMBIG — tangerine ≠ orange",
-    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
+    "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
+    "fetched": {
+      "lead": 1,
+      "article": 6,
+      "at": "2026-09-23T02:54:30.100Z"
+    }
   }
 }

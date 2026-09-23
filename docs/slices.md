@@ -137,7 +137,18 @@ partly obsolete against it.
 6. **No images curated yet.** Both packs deliberately fail `--strict`, which now counts
    *photographs* rather than fallbacks. Candidate fetch is re-running with the licence fix.
 
-7. **The curation-yield report can exceed 100%.** `pack-validate.mjs` joins images kept
+7. **The validator demands an author for PUBLIC DOMAIN images.** A CC0 or public-domain
+   photograph carries no attribution obligation, but `pack-validate.mjs` raises the same
+   "no creator" error for it as for CC BY. It cost a good pile-of-oranges photograph under
+   `cam` before this was noticed. The rule should apply to licences that actually require
+   attribution, not to every third-party image.
+
+8. **`pack-import-media.mjs --remove-image` removes the wrong image, and `--pick` appends
+   rather than replaces.** Together these mean curation is not reversible: you cannot drop a
+   picture you regret, and re-picking silently duplicates. Worked around by editing word
+   files directly.
+
+9. **The curation-yield report can exceed 100%.** `pack-validate.mjs` joins images kept
    (from the pack) against candidates offered (from the on-disk `.candidates/` directory).
    Delete a candidate directory and the join breaks: it printed
    `TOTAL 14 kept / 6 offered 233%` with an `unrecorded 11 kept / 0 offered` line, without
@@ -145,12 +156,12 @@ partly obsolete against it.
    again (`development-process.md` §6a) — the honest fix is for the pack to carry what it
    needs rather than re-deriving it from a directory that is explicitly disposable.
 
-8. **PUBLISHING BLOCKER (not for private use):** neither edge-tts nor gTTS grants the right
+10. **PUBLISHING BLOCKER (not for private use):** neither edge-tts nor gTTS grants the right
    to redistribute generated audio inside a product. Cheap to close, because a recording and
    a generated clip are the same object in the schema — but it must be closed *before* any
    store submission. `open-questions-content.md` C4.
 
-9. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
+11. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
 
 **Nothing is built. No `src/` exists.** Slice 0 ends when the owner approves the design.
 
