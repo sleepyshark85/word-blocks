@@ -11,7 +11,38 @@
     }
   ],
   "fallbackEmoji": "Womans hat",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/bffaf5d66da20c48.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 47661,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Gorra_logotipo_millionaires.png",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Cm1186",
+      "title": "Gorra logotipo millionaires.png",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:09.235Z"
+    },
+    {
+      "src": "media/img/ff39c6654d11e51c.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 29760,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Wit_katoenen_motorkapje_met_kinbandje_en_gesp,_objectnr_74366.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Museum Rotterdam",
+      "title": "Wit katoenen motorkapje met kinbandje en gesp, objectnr 74366.JPG",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:09.368Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/a433493ad2c2f8a0.mp3",
@@ -41,6 +72,12 @@
       "PHOTO"
     ],
     "note": "PHOTO — asset is an adult woman's hat; also ngã, so stage 5 unless the owner is northern",
-    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)",
+    "fetched": {
+      "lead": 1,
+      "category": 9,
+      "at": "2026-09-23T03:52:09.368Z"
+    },
+    "curationNote": "WEAK. The article is 18th-century engravings and military helmets; the only modern hats in the category carry brand logos (MILLIONAIRES, BILLABONG). Kept the least-branded two. His own hat would be better and carries no wordmark."
   }
 }

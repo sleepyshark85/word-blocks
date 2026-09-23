@@ -11,7 +11,38 @@
     }
   ],
   "fallbackEmoji": "Eye",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/e860a88e4e277dd3.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 54397,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Brown_Eyes_Arabic_Gene_Red_Coloring.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Adina Voicu",
+      "title": "Brown Eyes Arabic Gene Red Coloring.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:50:05.426Z"
+    },
+    {
+      "src": "media/img/0fa515371a308366.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 27558,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Beautiful_eye_(2148898387).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Helgi Halldórsson from Reykjavík, Iceland",
+      "title": "Beautiful eye (2148898387).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:50:05.623Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/d45d985ebf8b7567.mp3",
@@ -41,6 +72,12 @@
     "note": "",
     "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)",
     "searchTitle": "Mắt người",
-    "searchTitleWhy": "the general \"Mắt\" article gave a brick wall, an anatomical painting and a Fibonacci overlay"
+    "searchTitleWhy": "the general \"Mắt\" article gave a brick wall, an anatomical painting and a Fibonacci overlay",
+    "fetched": {
+      "lead": 1,
+      "category": 9,
+      "at": "2026-09-23T03:50:05.623Z"
+    },
+    "curationNote": "WEAK — body parts are the category Wikipedia serves worst. The human-specific article still leads with anatomy: a labelled eyeball diagram, a blepharoplasty surgical drawing, a Bertillon iris chart. A photograph of HIS OWN eyes, nose, ears and teeth would beat every candidate here, and is exactly what the editor is for."
   }
 }

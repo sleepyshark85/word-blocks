@@ -11,7 +11,54 @@
     }
   ],
   "fallbackEmoji": "Nose",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/dba6c3683ba0a480.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 14335,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Nez_d%27homme.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Jeremie63",
+      "title": "Nez d'homme.jpg",
+      "rank": "article",
+      "caption": "Mũi người nhìn từ phía trước.",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:53:23.269Z"
+    },
+    {
+      "src": "media/img/dc1e25d997877782.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 35115,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Neus1.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "LHOON",
+      "title": "Neus1.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:53:23.614Z"
+    },
+    {
+      "src": "media/img/1e0d35d3d40d040d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 24626,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Child_nose.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": null,
+      "title": "Child nose.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:53:23.829Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/e8cb4eca8647176c.mp3",
@@ -43,6 +90,13 @@
     "note": "TONE",
     "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
     "searchTitle": "Mũi người",
-    "searchTitleWhy": "human-specific, so the pictures are of a nose rather than of anatomy"
+    "searchTitleWhy": "human-specific, so the pictures are of a nose rather than of anatomy",
+    "curationNote": "WEAK — body parts are the category Wikipedia serves worst. The human-specific article still leads with anatomy: a labelled eyeball diagram, a blepharoplasty surgical drawing, a Bertillon iris chart. A photograph of HIS OWN eyes, nose, ears and teeth would beat every candidate here, and is exactly what the editor is for.",
+    "fetched": {
+      "lead": 1,
+      "article": 1,
+      "category": 8,
+      "at": "2026-09-23T03:53:23.829Z"
+    }
   }
 }

@@ -11,7 +11,24 @@
     }
   ],
   "fallbackEmoji": "Cow",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/82385b2603893490.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 63084,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Vache_Froment_du_L%C3%A9on,_%C3%89comus%C3%A9e_du_pays_de_Rennes,_France.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Trizek derivative work: Justlettersandnumbers",
+      "title": "Vache Froment du Léon, Écomusée du pays de Rennes, France.jpg",
+      "rank": "article",
+      "caption": "Một con bò thuộc giống bò ôn đới châu Âu không có u",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:29.646Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/506b5417f1e0d52d.mp3",
@@ -39,6 +56,11 @@
     "assetConcept": "cow",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 5,
+      "at": "2026-09-23T03:51:30.535Z"
+    }
   }
 }

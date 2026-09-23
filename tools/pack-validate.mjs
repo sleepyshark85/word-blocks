@@ -381,10 +381,24 @@ for (const { file, word } of wordsOk) {
     // Everything else is somebody else's work and carries an attribution obligation.
     const ours = ['camera', 'own-work', 'generated'].includes(im.source);
     if (!ours) {
-      for (const k of ['license', 'sourceUrl', 'creator']) {
+      // A missing AUTHOR is only a breach for licences that require attribution. Public
+      // domain, PDM and CC0 require none, and demanding one there is not "safe" -- it
+      // silently deletes usable photographs. This rule already cost a good pile-of-oranges
+      // image under `cam` and two more under `đèn` and `mũi` before it was noticed.
+      // `licence` and `sourceUrl` are still required for every third-party image, because
+      // without them nobody can check the claim that attribution is unnecessary.
+      const lic = String(im.license ?? '');
+      const attributionFree = /public domain|^\s*pdm\b|\bcc0\b|no known copyright/i.test(lic);
+      const required = attributionFree
+        ? ['license', 'sourceUrl']
+        : ['license', 'sourceUrl', 'creator'];
+      for (const k of required) {
         if (!im[k]) {
           err(rel, `${at} came from ${JSON.stringify(im.source)} and has no "${k}". A CC BY or CC BY-SA image shipped without author, licence and a link back is a licence breach, and the attributions screen is generated from the pack — there is nowhere else for this to come from.`);
         }
+      }
+      if (attributionFree && !im.creator) {
+        warn(rel, `${at} is ${lic || 'public domain'} and names no author, which that licence does not require. Recorded so the attributions screen can credit it anyway where a name is known.`);
       }
       if (!im.modified) {
         warn(rel, `${at} does not record what was changed. CC BY and CC BY-SA both require that modifications be indicated, and this pipeline always crops and re-encodes.`);

@@ -27,7 +27,7 @@ squad works), `spike-results.md` (what was measured).
 > | `gameplay.md`, `ui.md`, `acceptance-criteria.md` | **Revision 2.** 269 criteria + 14 Tier-5 questions + 24 withdrawn groups |
 > | `tools/layout-sweep.mjs` | Rewritten for the character table. **Exit 0** — 10,358,248 layouts |
 > | `tools/theme-contrast.mjs` | Extended. **Exit 0**, 34 pairs × 3 themes; the emitted tokens are byte-identical to `src/theme/tokens.json` |
-> | `npm test` | **230 / 230.** `test/layout-parity.test.mjs` — revision 2's *correct* failure — is green against the rewritten law |
+> | `bash scripts/check.sh` | **ALL GREEN.** `npm test` 233/233, both pack validators, the pack-validator suite, the contrast sweep and the layout sweep, one exit code |
 > | Slice 2 (engine) | **Rebuilt.** `src/engine/tree.mjs` is the prefix tree; `round.mjs` is deleted; `session.mjs` and `stages.mjs` are rewritten |
 > | Slice 3 (the board) | **Rebuilt and driven.** Strip + character table + shelf + album; the reveal is a full-screen overlay |
 > | Content packs | **Unchanged and still valid** — but see defect 10 below, which the rebuild surfaced |
@@ -159,33 +159,34 @@ partly obsolete against it.
 
 11. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
 
-12. **NEW, and the most important one: neither pack carries an `inventoryOrder`, and the
-    fallback order makes most of the vocabulary unreachable.** `ui.md` §13.7 **E12** requires a
-    stable per-position inventory order, and **that list is the board** — the table takes the
-    first `cells` of it. Neither `pack.json` has one, so `resolvePack` falls back to the order
-    the tiles are declared in (English is sorted alphabetically instead, because
-    `acceptance-criteria.md` **D1** and `ui.md` §8 specify that). Measured against the 24-cell
-    ceiling:
+12. ~~Neither pack carries an `inventoryOrder`, and the fallback order makes most of the
+    vocabulary unreachable.~~ **FIXED, 2026-09-23.** Both manifests now declare
+    `inventoryOrder`: Vietnamese ordered by how many playable words sit behind each symbol
+    then alphabetically, English alphabetical with single letters before digraphs (D1 and
+    `ui.md` §8 specify alphabetical, and a 4-year-old expects `d` after `c`, not `ch`).
+    Buildable words, measured:
 
-    | | reachable at 8 / 12 / 16 / 20 / 24 cells | of |
+    | | at 8 / 12 / 16 / 20 / 24 cells | of |
     |---|---|---|
-    | `vi-seed` | 5 / 9 / 14 / 18 / **25** | 47 playable |
-    | `en-seed` | 2 / 3 / 14 / 31 / **35** | 40 playable |
+    | `vi-seed` | was 5 / 9 / 14 / 18 / 25 → **13 / 20 / 23 / 30 / 38** | 47 playable |
+    | `en-seed` | 2 / 3 / 14 / 31 / 35 (unchanged — alphabetical is specified) | 40 playable |
 
-    **22 of the 47 Vietnamese words can never be built**, because the rime inventory is declared
-    in an ASCII-ish order that pushes `ê ô ơ ưa ưng ăng ăt ân âu ây uôi` past cell 24 — and
-    those rimes carry `bơ chân chuối cửa dê dừa gấu ghế hổ lê mắt mây mưa ngựa răng sữa tô
-    trăng trứng`. `gameplay.md` §6.1 predicted four lost words; it is twenty-two.
+    Stage 1 in Vietnamese went from 5 words to 13, and now opens on `bò chó gà mưa sữa dê
+    cửa ong sao áo bóng cá dừa`, which is a far better first minute.
 
-    **Recommendation (content-engineer's call — `packs/` was out of scope for the rebuild):**
-    add `inventoryOrder` to both `pack.json` files, ordering each position by the number of
-    playable words behind each symbol, then alphabetically. It is a content change, it needs no
-    code change, and the engine already honours it — `test/pack.test.mjs` proves a declared
-    order wins and that an entry naming a tile the pack does not have is dropped with a reason
-    his mother can read.
+    **It broke seven tests, and the tests were wrong.** They sourced "a flat tile" from the
+    shipped pack — `tableView(...).cells.find((c) => !c.live)` — and ordering by
+    productivity put the 23 productive onsets first, so at every stage every onset on the
+    board leads to a word and nothing is flat. *A test that depends on today's content
+    passing today stops meaning anything the moment the content improves.* Fixed by
+    **constructing** the fixture instead: `test/helpers/fixtures.mjs` withholds the words
+    behind one on-table symbol, which is exactly L7's deletion case, and **asserts that it
+    delivered a flat tile** so it can never quietly stop. Proven: stub the withholding out
+    and the seven tests fail with the fixture's own message rather than passing vacuously.
 
 13. **The stage ladder would deadlock on the shipped packs, and the engine carries an extra
-    clause for it.** `acceptance-criteria.md` **H2** advances the stage after 8 new words at the
+    clause for it. ACCEPTED by the orchestrator, 2026-09-23, and referred to the
+    game-designer to fold into the criterion.** `acceptance-criteria.md` **H2** advances the stage after 8 new words at the
     current stage. At 8 cells the packs expose 5 and 2 words, so H2 alone holds the child at
     stage 1 for ever. `src/engine/session.mjs` therefore advances on *8 new words **or** every
     word this table can reach* — which preserves H2 wherever H2 can be satisfied, and cannot
@@ -194,7 +195,8 @@ partly obsolete against it.
     eight-word case reachable again, but the deadlock itself should still be closed in the
     criterion rather than left to the content.
 
-14. **`acceptance-criteria.md` C17 contradicts B3/B4 and is not implemented.** C17 says no
+14. **`acceptance-criteria.md` C17 contradicts B3/B4. WITHDRAWN for position 1 by the
+    orchestrator, 2026-09-23.** C17 says no
     never-together pair (`{c,k}`, `{g,gh}`, `{ng,ngh}`, and the dialect sets) may be **live**
     together; B3 says a symbol is live **iff** the eligible set holds a completion. `vi-seed`
     has words under both `c` (4) and `k` (1), both `g` (2) and `gh` (1), and under every dialect
@@ -210,6 +212,16 @@ partly obsolete against it.
     palette filter ever did. `test/tree.test.mjs` asserts that property directly. **D11 — `c`
     and `k` never both live — does hold in English and is tested at every reachable prefix**,
     because no `en-seed` word uses `k`.
+
+15. **At stage 5 the Vietnamese onset table has no flat tile at all** — a consequence of
+    defect 12's fix, and **not a regression.** It is the strongest form of `gameplay.md`
+    §3.3: every letter he can press starts a word. The lesson the flat state carries lives
+    at positions 2 and 3 and lives there *structurally* — an onset is followed by 1–6 rimes
+    out of 8–24 on the table, a rime by one legal tone out of 2–6 — so those tables always
+    have flats. Recorded in `src/engine/lang/vi.mjs` and, more usefully, **asserted**:
+    `test/tree.test.mjs` walks the path of every eligible word in both packs and requires
+    that a flat tile appears somewhere along it. If a pack ever did get dense enough to
+    erase the signal, the suite says so instead of nobody noticing.
 
 **Stale line removed, 2026-09-23.** This used to read *"Nothing is built. No `src/` exists."*
 It was written before Slice 2 and survived two slices of work — exactly the staleness

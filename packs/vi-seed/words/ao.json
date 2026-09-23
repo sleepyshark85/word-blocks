@@ -11,7 +11,53 @@
     }
   ],
   "fallbackEmoji": "T-shirt",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/78c89326a713ec61.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 43051,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:HK_NP_%E5%8C%97%E8%A7%92_North_Point_%E9%9B%BB%E7%85%A7%E8%A1%97_Tin_Chiu_Street_%E6%B8%A3%E8%8F%AF%E9%81%93_Java_Road_%E6%B5%B7%E7%92%87_Victoria_Harbour_%E5%8C%97%E8%A7%92%E5%8C%AF_North_shopping_mall_Uniqlo_clothing_shop_spring_February_2022_Px3_45.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Buptoua DAHON LAWZREN",
+      "title": "HK NP 北角 North Point 電照街 Tin Chiu Street 渣華道 Java Road 海璇 Victoria Harbour 北角匯 North shopping mall Uniqlo clothing shop spring February 2022 Px3 45.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:08.234Z"
+    },
+    {
+      "src": "media/img/7fe95cab0a0a37f5.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 98014,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:HK_TKO_%E5%B0%87%E8%BB%8D%E6%BE%B3_Tseung_Kwan_O_PopCorn_mall_shop_Uniqlo_Clothing_Store_May_2022_Px3_35.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "HSGTLAEHRE 3041",
+      "title": "HK TKO 將軍澳 Tseung Kwan O PopCorn mall shop Uniqlo Clothing Store May 2022 Px3 35.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:08.950Z"
+    },
+    {
+      "src": "media/img/c2f43694864becfc.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 82977,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bazaar_in_Iran_2019_05.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "Mehdi Marizad",
+      "title": "Bazaar in Iran 2019 05.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:09.063Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/d3881df8e7af6acb.mp3",
@@ -41,6 +87,11 @@
     "note": "",
     "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
     "searchTitle": "Áo sơ mi",
-    "searchTitleWhy": "\"Áo (trang phục)\" gave school-kit diagrams; a named garment is photographed"
+    "searchTitleWhy": "\"Áo (trang phục)\" gave school-kit diagrams; a named garment is photographed",
+    "fetched": {
+      "article": 2,
+      "category": 8,
+      "at": "2026-09-23T03:52:09.063Z"
+    }
   }
 }

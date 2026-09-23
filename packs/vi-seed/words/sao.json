@@ -11,7 +11,56 @@
     }
   ],
   "fallbackEmoji": "Star",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/bc5048062213eac2.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 43350,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Where_Heaven_and_Earth_Collide.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "ESO/B. Tafreshi (twanight.org)",
+      "title": "Where Heaven and Earth Collide.jpg",
+      "rank": "article",
+      "caption": "Dải Ngân Hà bao gồm hàng tỉ các ngôi sao, được xếp vào hai cấu trúc đặc biệt khác nhau: vùng quầng và vùng đĩa.[7]",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:31.535Z"
+    },
+    {
+      "src": "media/img/b15bd82edb1d0a4e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 79436,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Starry_Night_at_La_Silla.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "ESO/H. Dahle",
+      "title": "Starry Night at La Silla.jpg",
+      "rank": "article",
+      "caption": "Dải Ngân Hà trông sáng hơn ở bán cầu Nam so với bán cầu Bắc (ảnh chụp ở Đài thiên văn La Silla)[2]",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:31.691Z"
+    },
+    {
+      "src": "media/img/bcfd127993536bfa.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 61794,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D1%80%D0%B0%D0%BD%D0%B0%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B5_%D0%BD%D0%BE%D1%87%D0%B8.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "creator": "ESO/Y. Beletsky",
+      "title": "Паранальские ночи.jpg",
+      "rank": "article",
+      "caption": "Đêm ở Đài thiên văn Paranal.[3] Khái niệm noctcaelador chỉ sự cảm nhận tâm lý về vẻ đẹp của bầu trời ban đêm.[4]",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:31.853Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/6b2b1bc36eed6744.mp3",
@@ -32,6 +81,11 @@
     "note": "",
     "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)",
     "searchTitle": "Bầu trời đêm",
-    "searchTitleWhy": "the astronomy article is diagrams and portraits; the night sky is photographed"
+    "searchTitleWhy": "the astronomy article is diagrams and portraits; the night sky is photographed",
+    "fetched": {
+      "lead": 1,
+      "article": 5,
+      "at": "2026-09-23T03:51:31.853Z"
+    }
   }
 }

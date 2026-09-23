@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Egg",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/ebd5156be3ea3c29.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 23982,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ou%C4%83.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Bogdan29roman",
+      "title": "Ouă.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:32.195Z"
+    },
+    {
+      "src": "media/img/9940b7d8f9acd519.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 41946,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Eggs_001.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Flixtey",
+      "title": "Eggs 001.jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:32.304Z"
+    },
+    {
+      "src": "media/img/673079151355a563.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 85908,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Eggs_in_basket_2020_G1.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "George Chernilevsky",
+      "title": "Eggs in basket 2020 G1.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:32.413Z"
+    },
+    {
+      "src": "media/img/1589ccf6be61e272.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 83210,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chicken_eggs.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "creator": "Fir0002",
+      "title": "Chicken eggs.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:51:32.520Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/90d1c65ad36f729e.mp3",
@@ -41,6 +102,12 @@
     "note": "",
     "from": "word-list.md §4 Stage 4 — + hỏi, stop-final rimes (8)",
     "searchTitle": "Trứng gà",
-    "searchTitleWhy": "the biology article is about zygotes; this one is the food"
+    "searchTitleWhy": "the biology article is about zygotes; this one is the food",
+    "fetched": {
+      "lead": 1,
+      "article": 3,
+      "category": 6,
+      "at": "2026-09-23T03:51:32.520Z"
+    }
   }
 }

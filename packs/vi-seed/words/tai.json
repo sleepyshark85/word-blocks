@@ -11,7 +11,23 @@
     }
   ],
   "fallbackEmoji": "Ear",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/a5ed66685290789e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 26964,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Earrr.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "אני (Transferred by חיים 7/Originally uploaded by צביה)",
+      "title": "Earrr.JPG",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:37.852Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/22629c24ca9cf8f1.mp3",
@@ -32,6 +48,11 @@
       "TONE"
     ],
     "note": "TONE",
-    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)",
+    "fetched": {
+      "lead": 1,
+      "category": 9,
+      "at": "2026-09-23T03:52:37.862Z"
+    }
   }
 }

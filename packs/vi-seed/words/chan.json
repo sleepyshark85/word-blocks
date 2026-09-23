@@ -11,7 +11,23 @@
     }
   ],
   "fallbackEmoji": "Foot",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/e7c2ca06e3796991.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 20686,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:WomanFeet.png",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "2021duet",
+      "title": "WomanFeet.png",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:50:06.697Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/a91e63b40735129a.mp3",
@@ -34,6 +50,11 @@
     "note": "TONE",
     "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
     "searchTitle": "Bàn chân",
-    "searchTitleWhy": "\"Chân\" is ambiguous; bàn chân is the foot itself"
+    "searchTitleWhy": "\"Chân\" is ambiguous; bàn chân is the foot itself",
+    "fetched": {
+      "lead": 1,
+      "at": "2026-09-23T03:50:06.708Z"
+    },
+    "curationNote": "WEAK — body parts are the category Wikipedia serves worst. The human-specific article still leads with anatomy: a labelled eyeball diagram, a blepharoplasty surgical drawing, a Bertillon iris chart. A photograph of HIS OWN eyes, nose, ears and teeth would beat every candidate here, and is exactly what the editor is for."
   }
 }

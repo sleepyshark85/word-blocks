@@ -11,7 +11,53 @@
     }
   ],
   "fallbackEmoji": "Bread",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/aef454be65948977.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 59944,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Four_loaves.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "tom burke from Morgan Hill, CA, USA",
+      "title": "Four loaves.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:36.877Z"
+    },
+    {
+      "src": "media/img/279a1e5f626d2df2.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 52619,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:13-08-31-Kochtreffen-Wien-RalfR-N3S_7849-024.jpg",
+      "license": "GFDL 1.2",
+      "licenseUrl": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
+      "creator": "Ralf Roletschek",
+      "title": "13-08-31-Kochtreffen-Wien-RalfR-N3S 7849-024.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:37.149Z"
+    },
+    {
+      "src": "media/img/3d22d6d458269bc1.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 83136,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Warm_Cinnamon_Rolls_(45-366)_(24928477932).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Tim Sackton from Somerville, MA",
+      "title": "Warm Cinnamon Rolls (45-366) (24928477932).jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T03:52:37.450Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5f04c31a4f7be5b5.mp3",
@@ -43,6 +89,11 @@
     "note": "AMBIG — bánh is genuinely generic in Vietnamese too",
     "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)",
     "searchTitle": "Bánh mì",
-    "searchTitleWhy": "\"Bánh\" alone is a disambiguation page; bread matches the Bread fallback"
+    "searchTitleWhy": "\"Bánh\" alone is a disambiguation page; bread matches the Bread fallback",
+    "fetched": {
+      "lead": 1,
+      "article": 6,
+      "at": "2026-09-23T03:52:37.592Z"
+    }
   }
 }
