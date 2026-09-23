@@ -11,15 +11,52 @@ squad works), `spike-results.md` (what was measured).
 
 ## Status
 
-*Last updated: 2026-09-23 (Slice 2 built, under independent test) — all three design agents were killed mid-work by a weekly
-rate limit. What survived is catalogued below; it was verified by execution, not trusted.*
+> ### ⚠ 2026-09-23 — THE CORE MECHANIC WAS CORRECTED. Slices 2 and 3 are built against the wrong design.
+>
+> The owner restated what he asked for in his first message: the app must **show a table of
+> characters**, let the child **build a word character by character**, **disable characters that
+> cannot lead to a word** (including at the first position), and **announce** when a word forms.
+> The picture is the **reward**, never the prompt. Revision 1 did the opposite — it picked a
+> target, showed its veiled photograph and offered a palette built for that target.
+>
+> **Design is re-issued as revision 2** by the game-designer: `gameplay.md` §0, `ui.md` §0 and
+> `acceptance-criteria.md` §0 / §W each carry the correction log, and §W lists every revision-1
+> acceptance criterion that is withdrawn and why.
+>
+> | | State after the correction |
+> |---|---|
+> | `gameplay.md` (601), `ui.md` (1529), `acceptance-criteria.md` (466) | **Revision 2.** 269 criteria + 14 Tier-5 questions + 24 withdrawn groups |
+> | `tools/layout-sweep.mjs` | **Rewritten for the character table. Exit 0** — 10,358,248 layouts, 432,297 viewport/inset combinations served, 8,271 rejected |
+> | `tools/theme-contrast.mjs` | **Extended** (disabled tile, shelf, chant highlight). **Exit 0**, 34 pairs x 3 themes. Emitted tokens are **byte-identical** to `src/theme/tokens.json` |
+> | `npm test` | **253 / 254.** The single failure is `test/layout-parity.test.mjs` — `src/layout/layout.mjs` still implements revision 1's law. Expected and correct: it is the signal that the board must be rebuilt |
+> | Slice 2 (engine) | **Partly obsolete.** Round generation, the word bag, the found-word win and the not-a-word settle have no meaning under discovery. A prefix tree over the pack replaces them |
+> | Slice 3 (the game plays) | **Partly obsolete.** The board is a word strip plus a character table; there is no picture frame, veil, segment border, page rail or caption strip |
+> | Slice 4 (editor) | Unchanged in shape, **plus three additions**: the cheer recording, the "not on the board yet" reason, and a preview that shows discovery |
+> | Content packs | **Unchanged and still valid.** The correction changes how a word is reached, not what a word is |
+>
+> **Two findings the correction surfaced, both closed in revision 2:**
+> 1. Revision 1's chant turned a glyph **gold on white** — measured **1.60-2.05:1**, unreadable,
+>    and never in the contrast sweep. It is now a gold *face* with an ink glyph, 6.5-8.7:1, and
+>    the pair is gated.
+> 2. The six document defects the Slice-3 developer reported and the B9/F2 conflict the tester
+>    reported are all closed — `ui.md` §0 (U4-U11) and `acceptance-criteria.md` §W.
+>
+> **One thing needs the owner, and nothing is blocked on it:** `open-questions-ui.md` **Q5** —
+> the reason recorded for choosing Baloo 2 over Be Vietnam Pro for tiles was false in both
+> directions (Baloo 2's `a` is double-storey; Be Vietnam Pro's is single). Baloo 2 ships;
+> switching is one line if he wants the single-storey letterform.
+
+
+*Last updated: 2026-09-23 (design revision 2 — the core mechanic was corrected; see the box
+below). Earlier history: all three design agents were killed mid-work by a weekly rate limit;
+what survived is catalogued below and was verified by execution, not trusted.*
 
 | # | Slice | State |
 |---|---|---|
-| **0** | Squad, spike, and approved design | **In progress** — `ui.md` and `acceptance-criteria.md` still missing |
+| **0** | Squad, spike, and approved design | **Closed at revision 2, 2026-09-23** — `gameplay.md`, `ui.md` and `acceptance-criteria.md` rewritten for the discovery mechanic; both design tools re-run, both exit 0 |
 | **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
-| **2** | Engine: tile assembly, word matching, round generation | **Built, in test.** `npm test` 179/179; ~9,400 fuzzed rounds per language, 50,000 invariant checks, 0 violations |
-| **3** | The game plays, both languages, on a real device | **Built.** `npm test` 254/254; driven in Chrome at iPad portrait/landscape, iPhone and 320×560; five rounds to the album in both languages. **Not yet run on a real device — Tier 5 is owed** |
+| **2** | Engine: ~~tile assembly, word matching, round generation~~ -> **prefix tree, live-set computation** | **Built against revision 1; partly obsolete.** `npm test` 179/179; ~9,400 fuzzed rounds per language, 50,000 invariant checks, 0 violations |
+| **3** | The game plays, both languages, on a real device | **Built against revision 1; the board must be rebuilt.** `npm test` 254/254; driven in Chrome at iPad portrait/landscape, iPhone and 320×560; five rounds to the album in both languages. **Not yet run on a real device — Tier 5 is owed** |
 | **4** | The editor — add / edit / delete a word | Not started |
 | **5** | Polish: motion, sound, accessibility | Not started |
 | **6** | Store readiness, iOS + Android | Not started |
@@ -38,15 +75,17 @@ rate limit. What survived is catalogued below; it was verified by execution, not
 | Visual direction — 3 themes, Popsicle default | orchestrator + owner | **Done** — see `decisions.md` |
 | `gameplay.md`, `ui.md`, `acceptance-criteria.md` | game-designer | **In flight** |
 | `content-pipeline.md`, pack validator | content-engineer | **In flight** |
-| `gameplay.md` (571), `ui.md` (1208) | game-designer | **Done** — line counts verified |
-| `acceptance-criteria.md` | game-designer | **Done** — 223 unique AC ids, count verified |
-| `tools/theme-contrast.mjs`, `tools/layout-sweep.mjs` | game-designer | **Done** — both exit 0 when re-run by the orchestrator |
+| `gameplay.md` (601), `ui.md` (1529) | game-designer | **Revision 2** — rewritten for the discovery mechanic; line counts verified |
+| `acceptance-criteria.md` (466) | game-designer | **Revision 2** — 283 unique ids counted (269 + 14 Tier-5); 24 withdrawn groups in §W |
+| `tools/theme-contrast.mjs`, `tools/layout-sweep.mjs` | game-designer | **Revision 2** — layout sweep rewritten for the character table, contrast sweep extended. Re-run 2026-09-23, **both exit 0** |
 | `content-pipeline.md` (1044), `open-questions-content.md` (228) | content-engineer | **Done** |
 | `tools/pack-validate.test.mjs` | content-engineer | **Done** — 50 tests, 50 pass, verified by the orchestrator |
 | `pack-import-media`, `pack-attributions`, `pack-backup` | content-engineer | **Done** |
 | **Owner approval of the full design** | orchestrator | **APPROVED 2026-09-23.** Delegated by the owner while AFK. Every agent claim was re-run by the orchestrator before approval: 223→227 ACs counted, `theme-contrast.mjs` and `layout-sweep.mjs` exit 0, `pack-validate.test.mjs` 50/50 |
 
-**Slice 0 is closed.** Design is complete and verified. Building has started.
+**Slice 0 was closed, then re-opened and re-closed on 2026-09-23** by the mechanic correction
+above. Design is complete and verified at **revision 2**; what was built in Slices 2 and 3 is
+partly obsolete against it.
 
 ### What the killed agents left behind — verified by execution
 

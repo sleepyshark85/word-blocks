@@ -33,7 +33,7 @@ cheap to correct if it is wrong.
 | **Language** | **Chosen at launch. Never mixes.** | owner, explicit |
 | Vietnamese model | Onset + rime + tone (`âm đầu + vần + thanh`) | settled in discussion |
 | English model | Letters carrying **sounds**, not names. CVC phonics | literacy-designer |
-| Tile palette | Constrained per round — target word's tiles plus a few distractors | settled |
+| ~~Tile palette~~ | ~~Constrained per round — target word's tiles plus a few distractors~~ **OVERTURNED BY THE OWNER, 2026-09-23.** The app shows a **table of characters** (the inventory) and **disables the characters that cannot lead to a word**, including at the first position. There is no target and no per-round palette; the picture is the reward, never the prompt. See `gameplay.md` §0. | **owner, explicit** |
 | Seed list size | ~45 Vietnamese, ~40 English. Ceiling ~60 | literacy-designer |
 | Runtime network | **None.** No ads, no analytics, no IAP | owner intent |
 | **Devices** | **iPhone, Android phone, iPad** (and Android tablet by implication) | owner |
@@ -101,15 +101,53 @@ taste one — `mả` and `mã` differ only by a mark, and stacked forms (`ươ`,
 render rather than be inherited from whatever an Android OEM ships.
 
 **Fredoka was corrected out, 2026-09-23.** It has no `vietnamese` subset and covers **35 of
-90** fixture characters; `ã` exists in it and `ả` does not, so the two would have rendered in
-different typefaces. Replaced by **Baloo 2** — 90/90 coverage, single-storey `a`/`g`, 1.017 em
-ink span, 117 KB subset. Measured working in `ui.md` §6.0–6.0.1, gated by
-`acceptance-criteria.md` Q1–Q10.
+86** fixture characters; `ã` exists in it and `ả` does not, so the two would have rendered in
+different typefaces. Replaced by **Baloo 2**. Measured working in `ui.md` §6.0–6.0.1, gated by
+`acceptance-criteria.md` Q1–Q10a.
+
+**Three figures in the sentence above were wrong and are corrected here, 2026-09-23 (design
+revision 2), from renders of the files in `assets/fonts/`:** the fixture is **86** unique
+codepoints, not 90; the shipped `Baloo2-SemiBold.ttf` is **88.6 KB**, not 117 KB (117 was the
+upstream variable-font subset); and **Baloo 2's `a` is double-storey, not single** — while
+**Be Vietnam Pro's `a` is single-storey**, the opposite of what was recorded. Baloo 2 still
+ships, re-argued on true grounds in `ui.md` §6.0.1; the letterform preference is the owner's
+and is `open-questions-ui.md` **Q5**.
 
 **Colour does work in Vietnamese mode.** A syllable is onset + rime + tone, and each part
 carries a consistent hue so the child sees the structure before he can articulate it.
 English has one tile type, so colour there plays rather than labels — an asymmetry the
 game-designer must justify or remove in `ui.md`.
+
+## Tile typeface — corrected to Be Vietnam Pro (orchestrator, 2026-09-23)
+
+**Baloo 2 is replaced by Be Vietnam Pro as the tile face.** Be Vietnam Pro was already the
+text face and is already bundled, so this costs nothing and adds no asset.
+
+The game-designer chose Baloo 2 giving **single-storey `a` and `g`** as the *first and
+decisive* criterion — "this is a letter-teaching app, so the letterforms he is taught to
+write are the first criterion, not a preference" — and ruled out Be Vietnam Pro for a
+double-storey `a`. The Slice 3 developer reported that backwards. The designer then
+re-measured and confirmed the error **runs both ways**, and I verified it myself by
+rendering both faces at 150 pt and looking:
+
+- **Baloo 2's `a` is double-storey** — it carries the upper hook.
+- **Be Vietnam Pro's `a` is a plain bowl and stem** — what a child writes.
+
+So the decisive criterion selected the face that fails it and rejected the face that
+satisfies it. The designer kept Baloo 2 on re-argued grounds (block-letter weight, a
+tighter 1.017 em ink span) and referred the choice up as owner intent.
+
+**Decision: follow the original criterion.** It was right when it was written and the
+measurement was wrong, which is not a reason to change the criterion. Be Vietnam Pro also
+**measures better on every Vietnamese minimal pair** — the correctness gate that matters
+most here, since `mả` and `mã` differ only by a mark — and it is drawn for Vietnamese.
+
+What is given up is roundness. Baloo 2 is the friendlier face and this is a toddler's app,
+so that is a real cost. It loses to legibility of letterform because the design said so
+before the measurement was in question, and reversing that ordering *after* learning the
+measurement was wrong would be fitting the rule to the answer.
+
+Reversible in one line if the owner prefers the rounder face; both are bundled.
 
 ## Stack — decided
 

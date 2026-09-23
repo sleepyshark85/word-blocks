@@ -1,4 +1,4 @@
-# Gameplay — modes, loop, progression, session
+# Gameplay — the mechanic, the loop, progression, session
 
 **Ghép Chữ** (Vietnamese mode) · **Word Blocks** (English mode).
 
@@ -15,446 +15,492 @@ gesture-handler.
 
 ---
 
-## 0. The four sentences this design has to satisfy
+## 0. CORRECTION — the mechanic was wrong, and this is what changed
 
-1. **He cannot read** — but **his mother plays with him.** So the rule is not "no text": it
-   is **nothing he needs is text-only, and nothing on screen asks *him* to read.** Every
-   instruction he depends on is a picture, a position, a motion or a voice. Text exists, and
-   it is aimed at her (§2.5).
-2. **There is no way to lose.** Not softened — *absent*. No timer, no score, no lives, no
-   buzzer, no "try again", and no state he can enter that he cannot leave.
-3. **The languages never mix.** Chosen at launch. A leak must be structurally hard, not
-   merely avoided — the two modes share no screen, no palette, no colour, no tile shape and
-   no title (`ui.md` §3).
-4. **It must fit every screen it lands on.** Not three test devices — a continuous range,
-   with a fit rule that either passes or fails (`ui.md` §4).
-5. **Neither language is secondary.** He has both. Both modes ship complete, with the same
-   ritual, the same states and the same acceptance criteria.
+**Revision 2. 2026-09-23.** Slices 0–3 were built and shipped against revision 1 of this
+document. Revision 1 was wrong about the single most important thing in the app, and this
+section is here so that the history is legible rather than quietly overwritten.
+
+### 0.1 What revision 1 did
+
+It picked a target word, showed its photograph under a veil as the *prompt*, and offered a
+**palette built for that target** — the tiles the word needs plus a few distractors. The
+child completed a word the app had chosen. **Guided completion.**
+
+That followed from one decision taken in the opening conversation: *constrain the palette to
+the round, because with a full inventory a 4-year-old produces garbage and quits.* Everything
+in revision 1 — the veil, the segment border, the found-word win, the not-a-word settle, the
+five-round page, the per-word stage bump — is downstream of it.
+
+### 0.2 What the owner actually asked for, in his words
+
+> "The game is not suggesting words with already picked image, but should be the other way
+> around. The game show a table of characters, the toddler chooses character by character to
+> form a word, some characters may be disabled based on the characters have been chosen (for
+> beginning characters as well, where they doesn't start a word the app has). And when a word
+> is formed, there should be an announcement from the game (a fun and catchy announcement)."
+
+And, from his first message: *"The game is about choosing characters. When the combined
+characters forms a word, the app let him see a picture describe the meaning of the word."*
+
+### 0.3 The mechanic, restated — **discovery, not completion**
+
+1. A **table of characters** is on screen. Not a palette built for a target: the inventory.
+2. He taps characters one at a time and they assemble into a word.
+3. **Characters that cannot lead to a real word are disabled** — including at the very first
+   position, where only characters that *begin* some word in the pack are live.
+4. Because of (3), **garbage is structurally impossible.** Every live path ends in a real
+   word. This is a better answer to the original worry than revision 1's, because it
+   constrains the board without choosing for him.
+5. When the assembled characters **are** a word: a **fun, catchy announcement**, then the
+   picture.
+
+The picture is now purely the **reward**. It is never a prompt, it is not on the board, and
+it is not on screen until he has made something.
+
+Mechanically this is a **prefix tree over the pack's words** — Vietnamese over
+`(onset, rime, tone)` triples, English over tile sequences. The live set at any point is the
+set of next symbols with at least one completion.
+
+### 0.4 What survives revision 1 unchanged
+
+The two literacy models (onset + rime + tone; English letter *sounds*), no fail state, no
+timer, no score, co-play with his mother, the three themes with Popsicle default, Baloo 2 /
+Be Vietnam Pro, the tile visual system and its contrast solution, the parental gate, the
+language chosen at launch and never mixing, tap-only, the 72 pt motor floor, the audio
+latency budget, the accessibility rules, and the whole editor except three additions.
+
+### 0.5 What revision 2 deletes, and why
+
+| Deleted | Because |
+|---|---|
+| the target word, and therefore the **round** | nothing picks a word any more; he does |
+| the **veiled prompt photograph** and the picture frame on the board | the picture is the reward; putting it up front gave the answer away and ate 620 pt of screen |
+| the frame's **N-segment border** and the **veil stepping down** | they signalled "this tile was right for the target". There is no target |
+| the **found-word win** (`gameplay.md` r1 §4.4 B) | every word he builds is now the word he built. The special case *was* the general case all along |
+| the **not-a-word settle** — the rock, the read-back, the self-tidy | a not-a-word state cannot be reached. The three most intricate states in revision 1 are gone, not reimplemented |
+| the **word queue / bag**, and re-insertion rules | nothing is served to him |
+| the **per-word stage bump** (`roundStage(word)`) | stage is a property of the table now, not of a round |
+| the **five-round page** and its dot rail | replaced by the shelf and the album, §6 |
+| the **caption strip** on the board | its job was to show *her* the target word. There is no target; the assembled word is already on screen, in tiles, full size. (This is also the fix for the Slice-3 defect that the layout law never budgeted for it — it is not budgeted for because it no longer exists.) |
+
+### 0.6 What revision 2 adds
+
+The **character table** and its live/disabled states (`ui.md` §5.8), the **announcement**
+(§5), **undo** (§4.4), **re-discovery** (§5.6), the **prefix-word continuation** (§5.5), the
+**shelf** and the **album as a collection** (§6), a rewritten **idle ladder** (§6.4), and
+three editor additions (§7.4).
 
 ---
 
-## 1. Decision: optimise the child's game for a 10-inch tablet; optimise the editor for a phone
+## 1. The four sentences this design has to satisfy
 
-Said outright rather than compromised:
+1. **He cannot read** — but **his mother plays with him.** The rule is *nothing he needs is
+   text-only, and nothing on screen asks him to read.* Revision 2 makes this easier: the only
+   glyphs on the board are the letters themselves, which are the game.
+2. **There is no way to lose.** Not softened — *absent*. No timer, no score, no lives, no
+   buzzer, no "try again", and no state he can enter that he cannot leave. Revision 2
+   strengthens this from a promise into a structural property (§3.3).
+3. **The languages never mix.** Chosen at launch. The two modes share no screen, no table, no
+   colour, no tile shape and no title (`ui.md` §3).
+4. **It must fit every screen it lands on.** Not three test devices — a continuous range,
+   with a fit rule that either passes or fails (`ui.md` §4.3).
+5. **Neither language is secondary.** Both modes ship complete, with the same ritual, the same
+   states and the same acceptance criteria.
+
+---
+
+## 2. Decision: optimise the child's game for a 10-inch tablet; optimise the editor for a phone
+
+Unchanged from revision 1, and revision 2 makes the tablet case better rather than worse.
 
 | | Optimised for | The other case |
 |---|---|---|
-| **The game** (the child) | a **10-inch tablet**, flat on a table or propped | a phone in portrait is **fully supported**, with smaller tiles and a shorter picture — the same layout, not a different one |
+| **The game** (the child) | a **10-inch tablet**, flat on a table or propped | a phone in portrait is **fully supported**, with smaller tiles and a shorter table — the same layout, not a different one |
 | **The editor** (his mother) | a **phone in one hand** | on a tablet it renders as a centred 520 pt column, not a stretched form |
 
-Why the tablet for the game: it is where a toddler's app actually lives, it is where two
-hands and a flat surface work, and the extra room buys the two things that matter most here
-— **a bigger picture and bigger tiles** — which are precisely the payoff and the motor
-constraint. Why the phone for the editor: his mother will add a word standing in the kitchen
-holding the thing she is photographing, and she will do it on the phone in her hand.
+Why the tablet: it is where a toddler's app actually lives, and the extra room now buys the
+one thing that matters most — **a bigger table with bigger tiles**. Measured (`ui.md` §4.4):
+an iPad shows the full 24-cell table as **6 × 4 at 112 pt**; the 360 × 640 Android floor shows
+it as **4 × 5 at 73 pt** and tops out at 20 cells. Why the phone for the editor: his mother
+will add a word standing in the kitchen holding the thing she is photographing.
 
-**The tablet's extra room does not buy more tiles. See §5.5.**
+### 2.1 Orientation is decided by the fit rule, not by device class
 
-## 1.1 Decision: orientation is decided by the fit rule, not by device class
+The app supports an orientation **iff the layout fit rule passes for the 20-cell table**
+(`ui.md` §4.3, rule F7). Evaluated once at startup from the screen metrics, not per frame.
 
-The app supports an orientation **iff the layout fit rule (`ui.md` §4.3) passes for it at the
-worst case of 8 tiles**. Evaluated once at startup from the screen metrics, not per frame.
-
-In practice: **phones lock to portrait** (a phone in landscape has ~330 pt of usable height
-and fails rule 3 by 130 pt — it is arithmetic, not taste), and **tablets rotate freely** in
-both orientations.
-
-There is **one layout**, a vertical stack, in both orientations. Landscape is not a separate
-design; it is the same stack, shorter and wider, with the picture frame absorbing the
-difference. That is deliberate — a second landscape layout is a second thing to keep correct
-and a second place for a toddler to find a bug.
-
-**Rotating mid-round changes nothing but the pixels.** The engine is pure and presentation
-replays resolved state (`development-process.md` §3), so a rotation is a re-render: seated
-tiles stay seated, lit segments stay lit, the chant continues, audio does not restart.
-`acceptance-criteria.md` §P covers it as observable behaviour, because it is the single most
-likely thing a 4-year-old does by accident.
+In practice: **phones lock to portrait** (a landscape phone serves only a 12-cell table and is
+rejected — arithmetic, not taste), and **tablets rotate freely**. There is **one layout**, a
+vertical stack, in both orientations. Rotating changes the grid from 4 × 5 to 6 × 4 and
+nothing else; the engine is pure and presentation replays resolved state, so seated symbols
+stay seated and audio does not restart (`acceptance-criteria.md` §P).
 
 ---
 
-## 2. One game, two layouts, no menu for the child
-
-**There is one mode of play. The child never chooses anything except which tile to touch.**
-
-A mode picker is a reading task, a memory task and a decision task, and a 4-year-old fails
-all three. Everything that would be a mode is instead a *stage* the app moves through by
-itself (§5), or a parent setting behind the gate (§7).
-
-| | Ghép Chữ (Vietnamese) | Word Blocks (English) |
-|---|---|---|
-| What is assembled | onset → rime → tone, in that order | letters, any order, left to right |
-| Assembly surface | a two-cell **word plate**: `onset ┊ rime` | 2–4 **slots** in a row |
-| Palette | **one band showing one row at a time**: onsets, then rimes, then tones | **one band**, the whole tray at once |
-| Tiles visible at once | ≤6 (one row) | ≤8 |
-| Ordering | rime must precede tone (`literacy-vi.md` §5.4) | none |
-| Tile shape | 22% corner radius, warm | 32% corner radius, cool |
-
-These are genuinely different screens. `ui.md` §6 and §7 give both at real dimensions.
-
-### 2.5 Decision: what co-play changes, and what it deliberately does not
-
-His mother plays with him. That is the highest-value mode for early literacy, and it is worth
-designing *for* rather than around. Five changes, and a list of things that stay put.
-
-**What changes**
-
-1. **A caption strip, for her.** One line of `inkSoft` text under the word plate, showing the
-   target word — then each part as the chant speaks it, then the whole word and the sentence.
-   She can say the word before the audio does, prompt him, and point at a letter. He cannot
-   read it and never needs to. Parent setting `Show the word`, default **on**; off replaces
-   the word with one dot per cell so the strip still shows how long the answer is.
-   (`ui.md` §2.1.)
-2. **A hint an adult knows to use.** Holding the picture frame for 800 ms speaks the target's
-   *parts* — the đánh vần, or the letter sounds — rather than the word. It is the
-   pedagogically correct hint: say the pieces, let him find them. It does not reveal, does
-   not place anything, does not reset the idle ladder and does not count as an assist.
-3. **A say-it-together beat.** The reveal holds the word large and **silent from 1400 ms to
-   2200 ms**, then speaks it once more. Long enough for her to say it with him; solo it
-   simply reads as a beat of rest.
-4. **Capture the word he just asked for.** *Add a word* is the **first row of the parent
-   menu**, reachable from anywhere via the gate dot, including mid-round. Entering the editor
-   from play remembers the round and returns to it untouched. The moment he says *"where's
-   the digger?"* is the best moment to add the digger, and it is two taps away.
-5. **The editor and the game stop being two worlds** — still separated by the gate, but one
-   step apart rather than a trip through settings.
-
-**What deliberately does not change**
-
-- **No two-player mode, no turn-taking, no pass-the-device.** The ask was warmth, not
-  mechanics.
-- **Solo play is complete.** Co-play is the best case, never the required case. The hint
-  ladder still guarantees every round finishes (§6.5), the audio still carries the whole
-  game, and no round needs an adult in the room.
-- **Nothing moves in front of the gate.** The editor, the language and the settings stay
-  behind it, because the child is holding the device most of the time.
-- **No progress dashboard, no parent report, no streak.** There is still no score in this app
-  for anybody, including her.
-- **No information is caption-only.** Cover the caption strip and every round is still
-  winnable. That is an acceptance criterion (`acceptance-criteria.md` M4), not a hope.
-
----
-
-### 2.1 Decision: Vietnamese shows one palette row at a time, not three
-
-`literacy-vi.md` §8.1 describes three labelled rows and caps each at 6 tiles. I keep the cap
-and the categories; I do not render all three simultaneously. **The palette band shows
-exactly one row — the next decision — and morphs to the next.**
-
-Three reasons, in order of weight:
-
-1. **Arithmetic.** Three rows of 6 tiles is six lines of tiles. At the motor-safe tile size
-   that is 450–700 pt of palette, which does not fit a phone at all and eats the picture on
-   a tablet. Two rows still does not fit a compact phone with a usable height near 500 pt.
-   One row fits everything in the supported range with room to spare (`ui.md` §4.4).
-2. **It is what §8.1 actually argues for.** Its own words: *"He never scans the whole screen
-   for one choice — he scans one row."* Showing one row is that idea taken to its end.
-3. **It deletes the inert state.** §5.4 requires the tone row to be dead until a rime is
-   chosen. A dead row that he taps and that does nothing is the exact failure the brief
-   names. With one band, **there is never anything inert on screen** — the tone row does not
-   exist until the moment it is the right question.
-
-The morph is also the best teaching moment in the mode. When the rime row becomes the tone
-row, the tiles do not change place or size: `eo` becomes `eo èo éo ẻo ẽo ẹo` in situ. He
-watches the row he was just looking at put on six different hats. That is exactly what
-`literacy-vi.md` §5.4 asked the tone tiles to show, delivered as a transition rather than a
-second widget.
-
-**Flagged for the reconcile step**: this is a layout decision that changes §8.1's screen
-shape. It does not change the tile inventory, the per-row cap of 6, the ordering constraint,
-or anything pedagogical.
-
----
-
-## 3. The round
+## 3. The board
 
 ### 3.1 What is on screen
 
 ```
-   picture frame   ── the prompt. One photo of the target word, dimmed.
-   word plate / slots ── where the answer is built, overlapping the frame's lower edge.
-   palette band    ── the tiles, bottom-anchored, centred, within short-arm reach.
+   top bar      ── mode title · the shelf (5 slots) · the gate dot
+   word strip   ── what he has assembled so far, and the next empty cell
+   the TABLE    ── the characters. Live ones stand up; the rest lie flat.
 ```
 
-Nothing else. No menu, no back, no skip, no settings, no help button, no mascot, no text.
-The only non-play affordance is a 32 pt gate dot in the top-right corner at 30% opacity —
-deliberately the hardest thing on screen for a small arm to reach on a flat tablet, which is
-a feature (§7.2).
+Nothing else. No menu, no back, no skip, no settings, no help button, no mascot, no
+instruction, **and no picture**. The only non-play affordance is a 32 pt gate dot at 30%
+opacity in the top-right — deliberately the hardest thing on screen for a small arm to reach
+on a flat tablet, which is a feature (§7.2).
 
-### 3.2 Decision: the prompt is a visible picture; the payoff is the *reveal*, not the picture
+### 3.2 Decision: the table is the inventory, and it is the same table every time
 
-The target picture is shown **from the first frame of the round**, in the frame, under a 16%
-paper-coloured veil. It is the only prompt that works with the sound off, and with a child
-who cannot read.
+**The table's contents do not depend on any word.** They depend only on the language, the
+position (Vietnamese: onset, then rime, then tone) and the child's stage. Two consequences
+worth having:
 
-**This is a deliberate reading of `literacy-vi.md` §7.2 and `literacy-en.md` §4.2**, which
-say the picture "appears" at the last chant step. What appears at that step is the *reveal*:
-the frame goes full-bleed, the veil clears, and it shows **a different photograph of the same
-word** (`image-sourcing.md`: several per word — that variety is doing real work here, not
-decorating). The prompt is a dim thumbnail of the idea; the payoff is the idea arriving at
-full size, in full light, with the word spoken. Reconciled, not contradicted — flagged here
-so the reconcile step does not have to find it.
+- **Spatial memory starts working.** `m` is in the same cell today as yesterday. Revision 1's
+  palette was reshuffled every round, so nothing he learned about *where* things are was ever
+  worth anything. This is the largest single pedagogical gain of the correction.
+- **He is choosing, not searching.** In revision 1 exactly one tile was right and the rest
+  were distractors, so the cost of a wide palette was a search. Here **every live tile is a
+  correct move**, so a wide table is a wide *choice*. That is why the table can be four times
+  the size of revision 1's palette without being four times harder.
 
-Requirement to the content-engineer: **a word needs ≥2 images for the full reveal.** With one
-image the reveal still works (same photo, veil cleared, scaled up) and loses only the
-surprise. With ≥2, the prompt uses `image[0]` and the reveal cycles `image[1..n]` round-robin
-across meetings of that word.
+### 3.3 Decision: garbage is impossible by construction, not by supervision
 
-### 3.3 Decision: tapping the frame replays the word
+The live set at any point is `{ s : the pack contains a word beginning with prefix + s }`.
+Three properties fall straight out, and all three are testable:
 
-The frame is the game's only button and the biggest thing on screen, which is why he will
-find it — he will tap the picture. Tapping it plays the target word once at the parent-set
-pace. That is the "say it again" affordance, and it needs no glyph, no label and no teaching.
+1. **Every live path ends in a word.** Starting from empty and tapping only live symbols, he
+   always reaches a word.
+2. **He can never be stuck.** Either the current prefix is a word, or at least one symbol is
+   live, or both. There is no third case.
+3. **There is no wrong tap.** Not "a wrong tap is handled gently" — there is no such thing as
+   a wrong tap. The three most delicate states of revision 1 (rejection, not-a-word,
+   found-word) are deleted rather than softened.
 
-### 3.4 Starting a round
+Measured over the shipped packs (`tools/` + the seed packs, 2026-09-23):
 
-**He never starts a round.** The app opens into round 1 (after the one-time language choice,
-§7.1). A round ends, celebrates, the next slides in. No lobby, no play button, no
-tap-to-continue. The only place the flow stops and waits is the **album page** (§6.3), which
-is the designed stopping point for a parent.
+| | Vietnamese `vi-seed` | English `en-seed` |
+|---|---|---|
+| playable words | 47 | 40 |
+| live symbols at position 1 | **24** onsets (incl. the zero onset) | **16** letters |
+| live symbols at position 2 | 1–6 rimes, **mean 1.96** | 1–5 letters |
+| live symbols at position 3 | **exactly 1 tone, in 47 of 47 cases** | 1–2 letters |
+| words that are a proper prefix of another word | 0 (structural — see §5.5) | 0 today |
+
+**The seed tree is wide and shallow: the real choice is at position 1.** For most Vietnamese
+onsets, picking a letter commits the rest of the word. That is not a defect — "tap a letter,
+get a picture" is exactly the owner's first sentence, and it is a very good first minute for a
+4-year-old. It deepens by itself as words are added. Two notes handed on:
+
+- **To the literacy-designer / content-engineer:** the tone step is currently a forced move in
+  every single Vietnamese word. Tone minimal pairs (`bò`/`bó`/`bỏ`, `mà`/`mã`/`mả`,
+  `thỏ`/`thọ`) are what turn position 3 into a real choice and they are the highest-value
+  additions to the word list. This is a content lever, not a mechanic problem.
+- **The forced tone is still a tap he makes.** It is never auto-committed. `literacy-vi.md`
+  §5.3's argument for the `ngang` tile is the same argument: the uniform three-tap ritual is
+  worth more to a 4-year-old than one saved tap, and a single live tone tile against five
+  dimmed ones is the clearest possible statement of *this word wears this hat*.
+
+### 3.4 Decision: he never starts anything, and the board is always ready
+
+The app opens into the table (after the one-time language choice, §7.1). There is no lobby,
+no play button, no tap-to-continue, no round start and no round end. The only place the flow
+stops and waits is the **album** (§6.2), which is the designed stopping point for a parent.
 
 ---
 
-## 4. Placing tiles
+## 4. Choosing characters
 
 ### 4.1 Decision: tap only. No drag anywhere in the game.
 
-A tap seats a tile. There is no drag, no long-press-to-drag, no rearranging by dragging.
+A tap seats a symbol. There is no drag, no long-press-to-drag, no rearranging.
 
 - It is what a 4-year-old is good at. Drag needs a sustained contact, a controlled path and a
   controlled release, and he has none of the three.
-- It removes `react-native-gesture-handler` from the app entirely, which the orchestrator
-  has already decided to drop.
-- Every placement is therefore a discrete, deterministic action that the pure engine can
-  replay — which is what `development-process.md` §3 wants anyway.
+- It removes `react-native-gesture-handler` from the app entirely.
+- Every placement is a discrete, deterministic action the pure engine can replay.
 
-Where a tile goes on tap:
-- **Vietnamese** — into its own cell. The band only ever offers tiles for the cell that is
-  next, so there is no ambiguity.
-- **English** — into the **leftmost empty slot**. If every slot is full, into the **leftmost
-  slot**, and its previous occupant walks home to the tray.
+### 4.2 Decision: what a live tap does
 
-### 4.2 Decision: a tile always goes where he puts it. Nothing is ever refused.
+| | |
+|---|---|
+| Sound | the symbol's own clip, **within 60 ms of touch-down** (`ui.md` §11.1) |
+| The tile | presses in, then flies to the next empty cell of the word strip (260 ms) |
+| The strip | the cell fills; a new empty cell appears at the right (English) |
+| The table | recomputes: symbols that can still lead to a word **stand up**; the rest **lie flat**. 200 ms. |
+| The seat | a 90 ms wooden seat click |
 
-Refusal is the most common way a toddler app teaches a child that the screen is against him.
+**The table's response is the teaching.** The live set after his tap *is* the answer to "what
+can follow this?", and he watches it change under his finger. Revision 1 had nothing like it.
 
-- Every tile touch **plays that tile's sound**, always, in every state, even when the tile is
-  already seated, even during a hold, even on the tenth tap.
-- Every tile tap **seats the tile**. It is never bounced, never greyed, never ignored.
-- Tapping a **seated** tile lifts it home. That is the undo, and there is no undo button.
-- Tapping a seated **onset** in Vietnamese also rewinds the band to the onset row; tapping
-  the seated **rime** rewinds the band from tones to rimes. Reversal is free, everywhere.
+### 4.3 Decision: what a disabled tap does — and it is not nothing
 
-### 4.3 Decision: correctness is shown immediately, and only as reward
+"Nothing happens" is a failure; he will think the app is broken. So a tap on a flat tile:
 
-A placement is judged the instant it lands.
+| | |
+|---|---|
+| Sound | **its own clip, in full, at the same latency** — every letter in the app is always a sound toy |
+| The tile | dips 2 pt and returns, 120 ms, `calm` |
+| Then | a soft muted knock at −9 dB — *tap on wood, not on a drum* |
+| Never | no red, no shake, no buzzer, no "uh-oh", no grey-out, no toast, no motion elsewhere |
 
-| | Correct for that cell/slot | Not correct for that cell/slot |
+He learns, in one tap, that flat tiles talk but do not move. That is a physical rule a
+4-year-old reads instantly, and it is not a rejection: **the letters that are lying down are
+still his to press.** It also means the disabled set is doing real work — it is the only place
+in the app where he meets a letter that is not part of the word he is making.
+
+### 4.4 Decision: undo is the word strip, and there is no undo button
+
+Revision 1 had no undo. Revision 2 must have one, because he will want a character back.
+
+- **Tap any symbol in the strip → that symbol and everything after it returns to the table.**
+  So tapping the last one is undo, and tapping the first one clears the strip.
+- Everything after it goes too, because a middle symbol cannot be removed without leaving a
+  prefix that was never on the tree. One rule, no illegal state.
+- The removed symbols **fly home one at a time, 90 ms apart** (`exit`), each playing its own
+  clip, and the table restands for the shorter prefix.
+- A soft descending two-note *unclick* (140 ms) plays under it. It communicates *taken back*,
+  and it is the only descending motif in the app, so it can never be confused with the
+  announcement, which only rises.
+
+No button, no glyph, no label. The affordance is the same one the game already teaches: the
+strip is made of the same tiles the table is.
+
+### 4.5 Decision: the strip states the shape of a word, honestly, in each language
+
+| | Vietnamese | English |
 |---|---|---|
-| The tile | soft "thunk", settles, stays | settles, stays, **no further event** |
-| Frame border | one of its N segments lights gold | nothing |
-| The picture | the veil steps down by 16%/N | nothing |
-| Sound | the tile's own sound + a 90 ms wooden seat click | the tile's own sound only |
+| The strip | **three cells, always**: `onset ┊ rime ┊ tone` | the symbols placed, **plus one empty cell** |
+| Because | a Vietnamese syllable is always exactly three slots (`literacy-vi.md` §1), and showing that is teaching, not a hint | an English word is 2–4 tiles and he is not told which — the length *is* part of the discovery |
+| Zero onset | the first cell is filled by the **∅ tile** (§4.6), so the ritual is still three taps | — |
 
-**The negative case is the absence of a reward, not the presence of a rejection.** No red, no
-shake, no buzzer, no "uh-oh", no motion at all. He hears his tile and sees it sit exactly
-where he put it — which is true, and neutral.
+Neither strip ever tells him what the answer is. The Vietnamese strip tells him the *shape* of
+every answer, which is true of every word in the language.
 
-This is the answer to *"nothing happens is also a failure"*: something always happens (a
-sound, a seat, a settle), and something **extra** happens when he is right. The difference is
-legible across a room with the sound off: **the picture is getting brighter.**
+### 4.6 Decision: the zero onset is a tile in discovery mode
 
-### 4.4 Decision: what a complete-but-wrong combination does
+`literacy-vi.md` §2 lists the zero onset as "(no tile)", which was right when the app chose
+the word: a zero-onset round simply rendered a one-cell plate. In discovery he has to be able
+to *start* `ong` and `áo` himself, so there must be something to press.
 
-When every cell is full, one of three things happens.
-
-**A. It is the target.** → Resolve (§5).
-
-**B. It is a different real word in the pack** — `hat` when the target was `cat`; `bò` when
-the target was `bó`. → **Found-word win.** Every segment lights at once with a rising two-note
-chime, the frame's photo flips to the picture of the word he actually built, and *that* word
-resolves in full: chant, reveal, celebration. The round is over and he won it. The original
-target goes back into the front third of the queue (§6.3) and he meets it again within a few
-rounds.
-
-This is `literacy-en.md` §6.2's strongest idea taken literally, and it is the deepest no-fail
-guarantee available: **no combination of tiles is "wrong" — there are only words the app
-knows and words it does not.**
-
-**C. It is not a word.** → **The settle.** The plate rocks ±4 pt three times over 520 ms — a
-slow rock, never a fast shake, because a fast shake means *error* in every interface he will
-ever meet. The app reads back what he built, part by part, with no whole-word step and no
-falling tone at the end. Then the **unlit tiles lift 6 pt and fly home, one at a time, 140 ms
-apart**, while the lit ones stay seated and keep their gold. The board has tidied itself and
-told him, wordlessly, *these are right, keep going*.
-
-He is never left staring at a full board that does nothing, and he never has to clear it.
-
-### 4.5 Requirement to the round generator (literacy-designer / content-engineer)
-
-Case B is worth engineering for. **Prefer distractor sets whose alternate combinations are
-also pack words.** English gets this nearly free from word families (`cat/hat/bat/rat`).
-Vietnamese gets it from shared rimes and tones (`bò`/`bó`, `thỏ`/`hổ`, `ong`/`bóng`) —
-`word-list.md` already flags these pairs.
-
-A preference with a measurable target, not a hard constraint: **≥50% of generated rounds
-should have at least one alternate real word reachable.** Measurable in Tier 1.
+**The ∅ tile is the last cell of the onset table, drawn as an empty socket** — a dashed
+rounded outline with a centred dot, the same mark the strip's empty cells use. Its sound is a
+soft low wooden *open* (140 ms), not a speech clip, because it has no đánh vần name. It is
+live only when some eligible word has no onset. Flagged to the literacy-designer as the one
+place revision 2 touches the Vietnamese tile inventory; it changes no rule, only whether the
+zero onset is pressable.
 
 ---
 
-## 5. Resolution — the chant and the reveal
+## 5. When a word forms — the announcement
 
-The ritual is identical in both languages because `literacy-en.md` §4.2 asked for it and it
-costs nothing: **parts → whole → picture → sentence.**
+This is the payoff of the whole loop and the owner asked for it twice. It is specified here as
+timing and meaning; `ui.md` §10.6 has the frame-by-frame and `ui.md` §11.4 the audio.
 
-### 5.1 Vietnamese — `mèo`
+### 5.1 Decision: one signature motif, every time, forever
 
-| Step | Audio | Visual | Gap after |
+**A rising three-note figure on a soft mallet voice, 440 ms** — the same three notes in both
+languages, at every stage, on the first word and the thousandth.
+
+Catchy is **repetition plus anticipation**, not novelty. A motif he can hum after a day is
+worth more than a library of variations he never learns to expect, and it is short enough to
+survive a thousand plays. A spoken catchphrase was considered and rejected: it is a second
+recorded asset per language, it collides with the word audio 600 ms later, and it is the
+element that would go stale first.
+
+**A fourth note, an octave up, is added when the word is new to him** (§5.6). So "I made a
+word" and "I made a *new* word" are audibly different, with no number, no score and nothing to
+read.
+
+### 5.2 Decision: his mother's voice is the best version of this, so the editor can record it
+
+One optional recording per pack — a cheer, 2 s, hers: *"Giỏi quá!"*, *"Yes!"*, anything. If it
+exists it plays **over** the motif at t = 0. If it does not, the motif plays alone and nothing
+is missing. Recorded on one screen in the editor (§7.4), and re-recordable in twenty seconds.
+
+This is the cheapest warmth in the whole app: the announcement is the moment he will hear most
+often, and it can be his mother saying well done.
+
+### 5.3 The sequence, the first time he makes a word
+
+| t (ms) | Audio | Visual | What it says |
 |---|---|---|---|
-| 1 | `mờ` | the onset cell lifts 1.12× and its glyph goes gold | 250 ms |
-| 2 | `eo` | the rime cell lifts | 250 ms |
-| 3 | `meo` | **the hairline between the cells dissolves and the glyphs slide together** | 400 ms |
-| 4 | `huyền` | the toned form cross-fades in; the mark drops 10 pt from 1.8× scale | 250 ms |
-| 5 | `mèo` | **reveal** — the frame goes full-bleed, new photo, light, confetti | 600 ms |
-| 6 | `Con mèo.` *(if present)* | picture held | — |
+| 0 | **the motif** (+ the cheer, if recorded) | the strip's symbols hop in sequence, 90 ms apart, `translateY −14`, `scale 1→1.14→1` | *you made a thing* |
+| 300 | — | the strip's dividers dissolve; the symbols slide together into one word | *these are one word* |
+| 350 | — | 12 confetti in the mode accent and `reward` drift outward | |
+| 440 | **the chant** begins — §5.4 | each part's cell takes the gold face in turn | *and this is how it is built* |
+| chant end | — | the word lifts and the **picture arrives**, scaling from the strip to full screen over 420 ms | *and this is what it means* |
+| +200 | **the word, spoken** | picture held | |
+| +1400 → +2200 | **silence** | the word sits large on the picture | the say-it-together beat (§5.7) |
+| +2200 | the word, once more | | so the last thing heard is correct |
+| +2200 → | held | each tap replays the word and **turns to the next photograph** | |
+| exit | | the picture flies into the shelf (520 ms); the strip clears | *that one is kept* |
 
-`ngang` words skip step 4 entirely (`literacy-vi.md` §5.3). Zero-onset words skip step 1 and
-the plate has one cell, not two — and the onset row never appears in that round at all.
+Total, first discovery, Vietnamese `mèo`: ≈ 5.4 s. Re-discovery: ≈ 3.2 s.
 
-### 5.2 English — `cat`
+**The announcement fires on his tap, not after the chant.** The instant of recognition belongs
+to him; the chant is the lesson that follows it. Revision 1 had this backwards — the payoff
+arrived at the end of a five-step ritual.
 
-| Step | Audio | Visual | Gap after |
-|---|---|---|---|
-| 1–n | each tile's **short** clip, left to right | that slot lifts and goes gold | 200 ms |
-| n+1 | `cat` | the slots slide together, hairlines dissolve, one word | 350 ms |
-| n+2 | — | **reveal** | 600 ms |
-| n+3 | `The cat says meow.` *(if present)* | picture held | — |
+### 5.4 The chant is unchanged, and it is still the literacy payload
 
-The chant uses **short** clips (`c-short` = "kuh"), never the long anchored form
-(`"kuh, cat"`). Chanting `"kuh, cat" · "ah, apple" · "tuh, ten" → "cat"` would be four
-seconds of noise ending in a word he has already heard twice. The long form belongs on first
-touch of a tile, where its job is teaching; the chant's job is blending. (`decisions.md`:
-English clip pairs, closed.)
+Identical to revision 1 because `literacy-vi.md` §7.2 and `literacy-en.md` §4.2 specify it and
+it is correct: **parts → whole.** Vietnamese `mèo`: `mờ` · `eo` · `meo` · `huyền` · `mèo`, with
+the tone step omitted for `ngang` and the onset step omitted for a zero onset. English `cat`:
+the **short** clips left to right, then `cat`. The picture now arrives *after* the chant's last
+step rather than on it, which is the same beat with the reward moved 200 ms later and made
+much bigger.
 
-### 5.3 The reveal — the payoff moment of the app
+### 5.5 Decision: a word that is also a prefix — **announce, then continue**
 
-Full motion spec in `ui.md` §9.6. What it *is*, in one line: **the picture stops being a
-thumbnail and becomes the room.**
+If the assembled symbols are a word *and* at least one longer word continues them (`he` →
+`hen`), the announcement, the chant and the picture all run in full. **Nothing is withheld and
+there is no commit gesture** — a "done" button is a thing he must know to press, and a
+4-year-old who does not press it has been failed by the design.
 
-1. `0 ms` — the veil's remaining opacity snaps to 0 and a white flash sprite fires at 22%,
-   falling to 0 over 220 ms. The frame begins scaling and translating toward full-bleed.
-2. `180 ms` — the photo cross-fades to a **different photograph of the same word**.
-3. `420 ms` — full-bleed reached. A radial light sprite expands from the centre, 0.4× → 1.6×
-   scale, opacity 0.55 → 0, over 520 ms.
-4. `300–1200 ms` — eight soft confetti shapes in the mode accent and gold drift outward and
-   fade.
-5. `600 ms` — the word is spoken over the top of it.
-6. `1400 ms` — motion is over. **The picture is held with no auto-advance for 2.2 s**, and it
-   stays as long as he keeps tapping it; each tap replays the word and bounces the photo 1.04×.
+What differs is only the exit: **the picture flies to the shelf and the word stays in the
+strip**, with the continuing symbols standing up in the table. `he` → picture of *he* → the
+board returns with `he` assembled and `n` standing. He can continue, or tap the strip to clear
+(§4.4), or do nothing and let the idle ladder continue for him (§6.4). All three are fine.
 
-Nothing here is a score. Nothing counts. The reward for building a word is seeing the thing
-bigger and brighter, and hearing its name.
+This is the best teaching moment the correction produced and it costs one rule.
+
+In **Vietnamese it cannot occur**: a word is exactly three symbols, so no word is a proper
+prefix of another. Measured today in English: zero cases in `en-seed`. The rule exists because
+his mother will add `he`, `be` and `at`.
+
+### 5.6 Decision: re-discovery — a different photograph, a shorter ritual, no new slot
+
+He will build `mèo` twenty times. That is not a failure mode, it is what a 4-year-old does
+with something he likes, and it must stay rewarding.
+
+| | First discovery | Every later one |
+|---|---|---|
+| Motif | three notes **+ the fourth, an octave up** | three notes |
+| Chant | full — parts, then whole | **whole word only**, straight to the picture |
+| Picture | `images[0]` | **`images[encounter mod n]` — the next photograph** |
+| Shelf | a slot fills | the existing album card bounces, no slot fills |
+| Duration | ≈ 5.4 s | ≈ 3.2 s |
+
+The parts chant is dropped on repeats because by the third `mèo` the đánh vần is no longer
+news, and the delay is what would make him stop. The **different photograph is what keeps the
+twentieth `mèo` worth making**, which is what `decisions.md`'s "several photographs per word"
+was bought for. A word with one image simply shows that image every time and loses only the
+variety.
+
+### 5.7 The say-it-together beat, kept
+
+The reveal holds the word large and **silent from +1400 ms to +2200 ms**, then speaks it once
+more. Long enough for his mother to say it with him; solo it reads as a beat of rest.
 
 ---
 
 ## 6. Progression and session
 
-### 6.1 Decision: the palette widens silently. There are no levels.
+### 6.1 Decision: the table widens silently. There are no levels.
 
-Stage is `literacy-vi.md` §8.3 / `literacy-en.md` §6.2 and is not mine to redefine. What is
-mine is that **the child is never told about it.** No level-up screen, no "Stage 2!", no
-unlocking, no stars. A level-up screen is a score with a costume on, and the moment there is
-a number that can go up there is a number that can fail to go up.
+`stage` is the child's, not a word's, and it governs exactly one thing: **how many cells the
+table has.**
 
-The palette simply gets one tile wider, some day, between two rounds, and he does not notice.
+| Stage | Cells | Grid (phone / tablet) |
+|---|---|---|
+| 1 | 8 | 4 × 2 / 6 × 2 |
+| 2 | 12 | 4 × 3 / 6 × 2 |
+| 3 | 16 | 4 × 4 / 6 × 3 |
+| 4 | 20 | 4 × 5 / 6 × 4 |
+| 5 | 24 | 4 × 6 / 6 × 4 |
 
-### 6.2 Decision: global stage, with a per-word bump
+- The cells are filled from the pack's **inventory order** for that position — `literacy-vi.md`
+  §8.3 / `literacy-en.md` §6.2 own that order, and the table takes the first *n* of it.
+- A word is **eligible** iff every one of its symbols is on the table. The prefix tree is built
+  over the eligible set, so the live/disabled computation and the table can never disagree.
+- `globalStage` starts at **1**, advances by 1 after **8 new words discovered at the current
+  stage with no auto-play assist**, and **never decreases.** A bad day must not cost him
+  ground.
+- **He is never told.** No level-up screen, no "Stage 2!", no unlock, no star, no sound. Four
+  new cells appear between one word and the next, and he does not notice. A level-up screen is
+  a score with a costume on.
+- Revision 1's **per-word stage bump is deleted**. It existed to make a familiar word's
+  *round* harder, and there are no rounds.
 
-```
-roundStage(word) = min( globalStage , word.minStage + min(word.meetings, 2) )
-```
+**The two smallest supported phones top out at stage 4.** Measured (`ui.md` §4.4): a
+360 × 640 Android and a 375 × 667 iPhone SE serve a 20-cell table at the 72 pt motor floor and
+not a 24-cell one. 4,280 of the 432,297 served viewport/inset combinations are in that class.
+The consequence is concrete and is recorded rather than smoothed over: **on those two screens
+the last four symbols of the inventory are not on the board, and the words behind them — four
+of the 47 Vietnamese words — are not reachable there.** The fix is a bigger screen, not a
+smaller tile; dropping the tile to fit a sixth row would mean 59 pt (≈ 9.4 mm), which is below
+every preschool touch guideline there is.
 
-- `globalStage` starts at **1**, advances by 1 after **8 rounds resolved at the current stage
-  with no auto-place assist** (§6.5), and **never decreases**. Never decreasing is the point:
-  a bad day must not cost him ground, because that is the one number he *would* notice.
-- `word.meetings` is how many times he has resolved that word. A word met twice comes back
-  with a wider palette; a word met for the first time comes in easy even at stage 5. This is
-  `literacy-vi.md` §8.3's "escalation should be per-word", and v1 does track it — two
-  integers, and the difference between a list that teaches and a list that shuffles.
-- Cap of +2, so a favourite word does not run away from him.
+### 6.2 Decision: no rounds, no page. A **shelf** of five, then the album.
 
-### 6.3 The word queue
+The brief asks whether a word ends a round and whether there is a round at all. **There is
+not.** There is nothing to end: he is exploring, and an exploration that stops every 45 seconds
+to congratulate itself is an exploration with a metronome in it.
 
-A **bag**: every word with `minStage ≤ globalStage`, shuffled by the seeded RNG, drawn
-without replacement; refilled and reshuffled when empty. He meets every eligible word once
-before he meets any word twice.
+What replaces the five-round page and its dot rail:
 
-Two re-insertions, each at a uniformly random position in the **front third** of the bag:
-- a target displaced by a **found-word win** (§4.4 B) — he did not build it, so it comes back
-  soon;
-- a word that needed **three auto-places** to finish — he did not get it, and spacing it 40
-  rounds away is how it stays not-got.
+- **The shelf.** Five slots in the top bar, exactly where revision 1's dot rail was, and doing
+  the same job — *how much is left before we stop* — but each slot fills with **the photograph
+  he just found** instead of an abstract dot. It is strictly better than the rail: it is a
+  picture, it is his, and it is not a number.
+- **Only a new word fills a slot.** Re-discoveries bounce the album card instead (§5.6).
+- **When the fifth slot fills, the shelf tips into the album** — the five pictures fly down and
+  land in the grid — **and play pauses there.** That is the parent's stopping point, and it is
+  the same negotiation revision 1 bought with the five-round page: *we finished the shelf.*
+- **The album is a collection, not a score.** Every word he has ever discovered, newest first,
+  as photographs. Tapping one replays its word, bounces it and turns to its next photograph.
+  No count, no number, no percentage, no "12 of 47". It gets longer, which is the only
+  progress signal in the app and the only one that cannot go down.
+- One control leaves it: a photo-shaped card with a play chevron, bottom centre. The three
+  44 pt theme buttons stay in the bottom-left, as in revision 1.
 
-Determinism (`development-process.md` §3): bag order is a pure function of the seed and the
-resolved-round history. Same seed, same taps, same words.
+### 6.3 What a session looks like
 
-### 6.4 A page is five rounds
+**How he starts:** he opens the app and the table is there. No choice, no menu, no button.
 
-A round is roughly 45 s (estimate, to be replaced by Tier 5). Five rounds ≈ 4 minutes, which
-is what "holds him for five minutes" looks like at this age. Progress is a **rail of five
-dots** at the top, one filling per round.
+**What holds him for five minutes:** the first tap plays a letter sound; the second changes the
+whole board; the third makes a word and the app cheers and hands him a photograph. That loop
+is 12–20 seconds at the seed pack's tree depth, so five minutes is roughly 15–25 words —
+three to five shelves. Revision 1's estimate was 45 s per round for five rounds; **discovery is
+roughly three times faster per word**, which is the right direction for this age.
 
-**Five dots is a shape, not a score.** Nothing accumulates across pages, nothing is compared,
-no number is shown, and the rail resets every page. Its entire job is to answer *how much is
-left* — the question a 4-year-old asks, and the one a parent needs answered to say "one more
-page, then we stop."
+**How it ends when a parent needs it to:** three exits, in increasing order of bluntness.
 
-### 6.5 Decision: the quiet hint ladder replaces a skip button
+1. **The shelf fills** and play pauses at the album. Wait for this and there is no negotiation.
+2. **Gate dot → Finish session.** Audio fades over 800 ms, the board is abandoned without
+   ceremony, and the app goes to the **end screen**: everything he made this session, still and
+   dim.
+3. Take the device away. Nothing in this app punishes that: there is no progress to lose, no
+   streak, nothing half-finished, and a word part-built is just three taps he can make again.
 
-A 4-year-old stuck with no way out is a fail state wearing a different hat. But a skip button
-is a button he will press constantly, and it teaches him that pressing the corner beats
-thinking.
+**The end screen has no play button.** That is the whole mechanism: the device can be handed
+back to the child with something pleasant to look at and no way to restart. Restarting needs
+the gate, which needs an adult.
 
-So there is no button. An **idle timer** escalates by itself. It resets on every *correct*
-placement. It does **not** reset on incorrect placements — a child mashing tiles is exactly
-the child who needs help — but **any touch anywhere defers the next escalation by 4 s**, so
-nothing ever flies out from under his finger.
+### 6.4 Decision: the idle ladder now plays the game rather than rescuing him
+
+Revision 1's ladder pointed at *the correct tile*, which no longer exists. The replacement is
+better, because under discovery **the app can simply take a turn.**
+
+An idle timer escalates by itself. It resets on every seated symbol. **Any touch anywhere
+defers the next escalation by 4 s**, so nothing ever flies out from under his finger.
 
 | Idle | What happens |
 |---|---|
-| 20 s | the target word is spoken again, unprompted |
-| 40 s | the correct tile for the next empty cell **breathes**: 1200 ms of opacity 1→0.55→1 and scale 1→1.05→1, then a 1600 ms pause, repeating. Slow on purpose — a fast pulse reads as urgency, and this game has none. |
+| 20 s | **the shimmer** — a soft wave of light crosses the live tiles, left to right, 900 ms. It says *these ones*, with no words and no pointing at one answer. |
+| 40 s | one live tile **breathes**: 1200 ms of opacity 1 → 0.55 → 1 and scale 1 → 1.05, then a 1600 ms pause, repeating. Chosen by the seeded RNG among the live set, preferring a symbol whose subtree contains a word he has not yet found. Slow on purpose — a fast pulse reads as urgency and this game has none. |
 | 60 s | the breathe becomes a steady gold rim on that tile |
-| 80 s | the tile **rises 12 pt, pauses 160 ms, and flies into place by itself** over 420 ms — slower than a child-initiated flight, so it reads as the app doing it rather than him. It plays its sound and lights its segment. The ladder restarts at 20 s for the next cell. |
+| 80 s | that tile **rises 12 pt, pauses 160 ms and flies into the strip by itself** over 420 ms — slower than a child-initiated flight, so it reads as the app doing it. It plays its sound. The ladder restarts at 20 s. |
 
-Every round therefore completes. There is no state in which the app waits forever, and
-nothing in the child's UI ever says he needed help — the assist is recorded only for §6.2 and
-§6.3.
-
-### 6.6 The album page — the designed stopping point
-
-After the fifth round, play stops and does not resume by itself. The five pictures he made
-fly in and settle into a grid: **his page in the album.**
-
-- Tapping any picture replays its word and bounces it. He can sit here as long as he likes.
-- One control: a photo-shaped card with a play chevron, bottom centre, starts the next page.
-- Nothing else. No score, no stars, no "5 of 5".
-
-This is the moment a parent uses. Negotiating an exit mid-round is a tantrum; negotiating it
-at the album page is "we finished the page."
-
-### 6.7 How a parent ends the session
-
-Two routes, both through the parental gate (§7.2), because otherwise the child ends the
-session by accident at the worst possible moment.
-
-1. **Gate dot → Finish session.** Audio fades over 800 ms, the current round is abandoned
-   without ceremony, and the app goes to the **end screen**: everything he made this session,
-   as a still, dim grid.
-2. **Album page → gate dot → Finish session.** Same screen.
-
-**The end screen has no play button.** That is the mechanism, and it is the whole point: the
-phone or tablet can be handed back to the child from the end screen with something pleasant
-to look at and no way to restart. Restarting requires the gate, which requires an adult.
+Because every live path ends in a word, the ladder cannot fail and does not need to know
+anything: **left alone, the app finds a word by itself, announces it and shows the picture.**
+That is a far friendlier idle state than revision 1's — the screen is not waiting for him, it
+is playing. Nothing in the child's UI ever says he needed help; the assist is recorded only to
+hold `globalStage` (§6.1).
 
 ---
 
@@ -462,110 +508,94 @@ to look at and no way to restart. Restarting requires the gate, which requires a
 
 ### 7.1 Language is chosen once, deliberately, and it restarts everything
 
-**First launch** shows the language chooser — the only screen that is neither play nor behind
-the gate, and it is shown exactly once.
+Unchanged. **First launch** shows the language chooser — the only screen that is neither play
+nor behind the gate, shown exactly once. Two full-height panels, **Ghép Chữ** and **Word
+Blocks**. Touching a panel expands it, speaks a sample word (`mèo` / `cat`) and reveals a
+confirm control: **two deliberate touches, seconds apart**, so a toddler cannot commit by
+accident. Three unlabelled 56 pt theme buttons sit below; default **Popsicle**, persisted in
+AsyncStorage — settings only.
 
-Two full-height panels, **Ghép Chữ** and **Word Blocks**. Touching a panel expands it, speaks
-a sample word in that language (`mèo` / `cat`) and reveals a confirm control. **Two deliberate
-touches, seconds apart.** A toddler who grabs the device on first launch cannot commit by
-accident, and if he does, a parent changes it in twenty seconds.
-
-**Three unlabelled colour buttons sit below the panels** — the theme picker. Each shows that
-theme's ground with its three role hues as solid / split / dotted bars, so the button *is* a
-sample of what it selects. No text, non-destructive, instantly reversible, and the same three
-buttons reappear on the album page at 44 pt so he can change his mind without an adult.
-Letting a 4-year-old choose his own colours is a real piece of ownership over his app.
-Default **Popsicle**. Persisted in AsyncStorage — settings only (`ui.md` §5.7).
-
-No "device language", no "auto", no third option. Changing language later is behind the gate,
-takes the same two-touch confirm, and **tears the game down and rebuilds it**: the pack is
-unloaded, the engine re-seeded, the queue rebuilt. No screen, cache or in-memory object
-survives the switch.
-
-**The chooser is the only screen in the app on which both languages appear, and it is the
-single documented exception to the no-mixing rule.** Everything else — including the app
-title, the parent menu, the editor and the gate — is in one language only.
-`acceptance-criteria.md` §R tests exactly that, with the chooser named as the exemption.
+Changing language later is behind the gate, takes the same two-touch confirm, and **tears the
+game down and rebuilds it**: the pack is unloaded, the tree rebuilt, no screen or in-memory
+object survives. **The chooser is the only screen on which both languages appear** and is the
+single documented exception to the no-mixing rule (`acceptance-criteria.md` §R).
 
 ### 7.2 The parental gate
 
-**Trigger:** a 32 pt circle in the top-right corner, floating over the picture frame at 30%
-opacity. Small, low-contrast, in the least interesting part of the screen, and — on a flat
-tablet — the point furthest from a seated child's hands. **Press and hold 1.2 s** to open it.
-The hold stops the accidental press; the gate stops the intentional one.
+Unchanged. A 32 pt circle in the top-right at 30% opacity, **press and hold 1.2 s** to open.
+The gate is a multiplication written out in words, in the app's language, answered in digits on
+a keypad; operands 3–9 × 3–9, re-randomised on every open; three wrong answers → 30 s cooldown.
 
-**The gate:** a multiplication written out in words, in the app's language, answered in digits
-on a keypad.
+It needs **reading and multiplication**, which is the cleanest separation between a 4-year-old
+and a literate adult, and it needs **nothing remembered** — a PIN set today is a PIN forgotten
+in three months.
 
-```
-        Nhập kết quả:                    Enter the answer
-
-          bảy nhân sáu                     seven times six
-
-              [ 42 ]                            [ 42 ]
-        ┌───┬───┬───┐                     ┌───┬───┬───┐
-        │ 1 │ 2 │ 3 │  …                  │ 1 │ 2 │ 3 │  …
-```
-
-Operands 3–9 × 3–9, re-randomised on every open so it cannot be learned by watching. Three
-wrong answers → 30 s cooldown with the keypad disabled.
-
-It needs **reading and multiplication**, which is the cleanest separation between a
-4-year-old and a literate adult. It needs **nothing remembered** — a PIN set today is a PIN
-forgotten in three months (`game-designer.md`: assume she will not return for three months),
-and there is nothing behind this gate worth a password.
-
-**Text is allowed here and on every screen behind it.** The no-text rule protects the child,
-not the mother. Parent surfaces are ordinary, readable, labelled, conventional interfaces in
-the app's chosen language. Conflating the two products is the main way this design fails, so
-they do not look alike at all (`ui.md` §10.1).
+**Text is allowed here and on every screen behind it.** The no-text rule protects the child, not
+the mother.
 
 ### 7.3 The parent menu
 
-Behind the gate. Six rows, never nested deeper than two levels.
+Behind the gate. Seven rows, never nested deeper than two levels.
 
 | Row | What |
 |---|---|
-| **Add a word** | straight into the editor's add flow, camera step first (§2.5) |
+| **Add a word** | straight into the editor's add flow, camera step first |
 | **Words** | the content editor (`ui.md` §13) |
-| **Finish session** | §6.7 |
+| **Finish session** | §6.3 |
 | **Language** | §7.1, two-touch confirm, with "this restarts the game" stated |
-| **Voice & pace** | playback rate 0.8× / 1.0×; "say the sentence after the word" on/off; **`Show the word`** (§2.5), default on; volume |
+| **Voice & pace** | playback rate 0.8× / 1.0×; "say the sentence after the word" on/off; **the cheer** (record / replace / remove, §5.2); volume |
 | **Motion & sound** | reduce motion (defaults to the OS setting, overridable); mute; theme |
-| **About** | version, and the per-image attribution list generated from the pack (`image-sourcing.md`) |
+| **About** | version, and the per-image attribution list generated from the pack |
 
-No analytics, no account, no sync, no "rate this app", **and no network call anywhere in the
-app, including the editor** (`decisions.md`: runtime network — none).
+No analytics, no account, no sync, no rating prompt, **and no network call anywhere in the app,
+including the editor.**
+
+### 7.4 What revision 2 adds to the editor
+
+The editor is otherwise unchanged (`ui.md` §13). Three additions, all small:
+
+1. **Record the cheer** — one screen, reachable from *Voice & pace* and offered once, in the
+   add flow, the first time she saves a word (§5.2).
+2. **A new not-yet-playable reason: "this letter is not on the board yet."** A word can now be
+   linguistically perfect and still unreachable, because its symbols are outside the stage's
+   inventory or outside the 24-cell ceiling. The editor says so in her words and offers a
+   one-tap *put it on the board*, which appends the symbol to the pack's inventory order.
+3. **The preview step shows discovery, not completion.** Step 5 plays the real thing: the real
+   table, her word live in it, her picture arriving at the end. She sees what he will see,
+   including the fact that **her photograph is never shown until he has made the word** — which
+   is the single most important thing about this app that she needs to understand, and the
+   preview is where she learns it without being told.
 
 ---
 
 ## 8. Decisions and why
 
+Revision-2 decisions are marked **new**; the rest carried forward and were re-checked against
+the new mechanic rather than inherited.
+
 | Decision | Why |
 |---|---|
-| Game optimised for a 10-inch tablet; editor optimised for a phone | Two products, two ergonomics. The child plays two-handed on a flat screen; his mother adds a word one-handed while holding the thing she photographed. |
-| Tablet room buys bigger tiles and a bigger picture, never more tiles | The literacy caps are cognitive, not spatial (§5.5 of `ui.md`). |
-| One vertical stack in both orientations; phones portrait-locked | A landscape phone fails the fit rule by 130 pt. A second landscape layout is a second thing to keep correct. |
-| Orientation decided by the fit rule, not a device list | The target is a continuous range, and a device list rots. |
-| Vietnamese shows one palette row at a time | Three rows do not fit; §8.1 already argues he scans one row; and it removes the inert-tone-row dead state entirely. |
+| **new** · Discovery replaces guided completion | The owner's instruction, twice stated. Disabling by prefix constrains the board without choosing for him, which is what revision 1's palette was trying and failing to do. |
+| **new** · The table is the stage's inventory, never a per-word palette | A constant table makes spatial memory pay, and it is the difference between choosing and searching. |
+| **new** · Disabled = the tile lies flat, keeps its letter, and still speaks | It must not read as punishment, it must stay visible because the live set is the lesson, and "nothing happens" is a failure. A flat tile that talks is a physical rule a 4-year-old reads in one tap. |
+| **new** · One signature three-note motif, plus a fourth note for a new word | Catchy is repetition and anticipation. A spoken catchphrase would go stale first and collide with the word audio. |
+| **new** · The announcement fires on his tap, before the chant | The instant of recognition belongs to him; the lesson follows it. |
+| **new** · Optional parent-recorded cheer over the motif | The most-heard moment in the app can be his mother saying well done, for one editor screen. |
+| **new** · A prefix word announces and continues; the strip keeps it | A commit gesture is a thing he must know to press. Withholding a word he made is the one thing this mechanic must never do. |
+| **new** · Re-discovery: full motif, short chant, the next photograph | He will build `mèo` twenty times; it must stay rewarding, and the đánh vần is not news the third time. |
+| **new** · Undo is a tap on the strip; it takes that symbol and everything after it | He will want a character back. One rule, no illegal prefix, no button, no glyph. |
+| **new** · No rounds. A shelf of five, then the album. | Nothing serves him a word, so nothing can end a round. The shelf keeps the parent's stopping point and replaces a dot with a photograph. |
+| **new** · The album is a collection that only grows | The only progress signal in the app, and the only one that cannot go down. |
+| **new** · The idle ladder plays a symbol rather than pointing at the answer | There is no answer to point at, and since every live path ends in a word, the app taking a turn is delightful rather than a rescue. |
+| **new** · The zero onset is a pressable empty socket in Vietnamese | He must be able to start `ong` himself. It changes no linguistic rule. |
+| **new** · The caption strip is deleted from the board | Its job was to show her the target word. There is no target, and the assembled word is already on screen at full size. |
+| Vietnamese still shows one table at a time — re-argued, not inherited | Tone tiles render **the chosen rime, marked**, so the tone table is undrawable before a rime exists. Three tables would also be 54 cells, which fits nothing. And two of the three would be entirely disabled, which is the inert-screen failure the brief forbids. |
+| Game optimised for a 10-inch tablet; editor for a phone | Two products, two ergonomics. The tablet now buys a 6 × 4 table at 112 pt against a phone's 4 × 5 at 73 pt. |
+| One vertical stack in both orientations; phones portrait-locked | A landscape phone serves a 12-cell table and fails F7. |
 | Tap only, no drag | A 4-year-old cannot drag. It also removes gesture-handler. |
 | One game, no child-facing mode picker | Choosing is a reading, memory and decision task. He fails all three. |
-| Prompt picture visible from frame one | The only prompt that survives the sound being off and a child who cannot read. |
-| Reveal = full-bleed + a *different* photo of the same word | Makes the payoff scale, motion and surprise rather than first sight, and makes "several per word" load-bearing rather than decorative. |
-| Tapping the frame replays the word | It is the biggest thing on screen and he will tap it anyway. One rule, zero glyphs. |
-| Tiles are never refused | Refusal teaches a 4-year-old that the screen is against him. |
-| Correct = reward; incorrect = *absence* of reward | Instant, honest, legible feedback with no negative event anywhere in the system. |
-| The picture brightens by 1/N per correct tile | Soundless, textless, cross-the-room progress. |
-| Any real word he builds wins | Turns "wrong answer" into "different answer" — the strongest no-fail guarantee available. |
-| Not-a-word → slow rock, read-back, self-tidy | Something always happens; the board never traps him; the tiles he got right stay visible. |
-| Hint ladder instead of a skip button | A skip button gets pressed constantly. An idle ladder guarantees completion without ever being asked for. |
-| Global stage never decreases | A bad day must not cost him ground. |
-| Per-word stage bump, capped at +2 | A familiar word deserves a harder palette; a new word does not, even at stage 5. |
-| Five-round page, then an album | A 4-minute unit with a natural stop — the parent's only non-confrontational exit. |
-| The end screen has no play button | This *is* "how a parent ends a session": the device can be handed back safely. |
+| Global stage never decreases, and is never announced | A bad day must not cost him ground, and a number that can go up can fail to go up. |
 | Gate = spelled-out multiplication, 1.2 s hold to open | Needs reading and arithmetic; needs nothing remembered in three months. |
 | Language chooser needs two touches seconds apart | A toddler cannot commit by accident, and this is the setting with the worst blast radius. |
 | Parent surfaces look nothing like the game | Two products, one binary; they must not be confusable, by anyone, including the tester. |
-| Text exists, aimed at his mother, never required of him | She is in the room by design. A word she can read aloud is worth more than a rule that forbids it — but cover the caption and every round still wins. |
-| Theme picker on the chooser *and* the album page | The chooser is shown once; without the album buttons he could never change his mind. The album page is a rest moment, so nothing is interrupted. |
-| No two-player mechanic | The ask was warmth, not a mode. A turn indicator would make her a player the app manages rather than a parent in the room. |
+| No two-player mechanic | The ask was warmth, not a mode. The cheer is the warmth, and it costs no mechanics. |

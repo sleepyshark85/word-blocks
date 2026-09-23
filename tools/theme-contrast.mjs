@@ -167,7 +167,9 @@ for (const t of Object.values(THEMES)) {
       const c = toLstar(t.reward, L); if (ratio(c, t.ground) >= 3.0) return c; }
     return toLstar(t.reward, 16); })();
   t.hairline = mix(t.ink, t.surface, 0.80);
-  t.veil     = t.ground;         // prompt-photo overlay, alpha-animated 0.16 -> 0
+  t.veil     = t.ground;         // vestigial: the veiled prompt photo was removed with the
+                                 // guided-completion mechanic. Kept so the emitted token set is
+                                 // unchanged; the reveal overlay may reuse it as a scrim.
 }
 
 /* ---------------- the sweep ----------------
@@ -180,29 +182,30 @@ for (const t of Object.values(THEMES)) {
  *                  object's silhouette on the ground is separately gated at 3.0.
  *   decor     1.0  Logged, never gates.                                              */
 const PAIRS = [
-  ['glyph','tileFace','tileGlyph','tile glyph -- the letter he is learning (all roles, both modes)'],
-  ['glyph','surface','ink','word-plate glyph (the assembled word)'],
-  ['glyph','role1Soft','ink','tile glyph, dimmed / reduce-motion state'],
-  // the bright identity bars must read against the white tile they sit on
+  ['glyph','tileFace','tileGlyph','LIVE tile glyph -- the letter he is learning (all roles, both modes)'],
+  ['glyph','ground','inkSoft','DISABLED tile glyph on the ground -- the disabled set is doing the teaching, so it must stay readable (ui.md 5.8)'],
+  ['glyph','surface','ink','assembled-word glyph in the strip'],
+  ['glyph','reward','ink','chant highlight: ink glyph on the GOLD FACE (see note - the glyph never turns gold)'],
+  ['glyph','role1Soft','ink','tile glyph, tinted / reduce-motion state'],
   // the identity bars are the owner's bright hex; their INNER EDGE against the white
   // face is carried by a 1.5pt roleDeep keyline, so a bright hue never has to be dulled
   // to make its own boundary read (ui.md 5.4)
   ['component','tileFace','role1Deep','onset / EN-consonant identity-bar keyline on the tile'],
   ['component','tileFace','role2Deep','rime / EN-vowel identity-bar keyline on the tile'],
   ['component','tileFace','role3Deep','tone identity-bar keyline on the tile'],
-  // the tile silhouette on the play ground is the 2pt outline
-  ['component','ground','role1Edge','onset / EN-consonant tile outline on the ground'],
-  ['component','ground','role2Edge','rime / EN-vowel tile outline on the ground'],
-  ['component','ground','role3Edge','tone tile outline on the ground'],
-  ['component','ground','inkSoft','word-plate 2pt outline on the ground'],
+  // the tile silhouette on the play ground.  The SAME token draws the live tile's 2pt
+  // outline and the disabled tile's 3pt underbar, so both read on the ground.
+  ['component','ground','role1Edge','onset / EN-consonant tile outline, and disabled underbar, on the ground'],
+  ['component','ground','role2Edge','rime / EN-vowel tile outline, and disabled underbar, on the ground'],
+  ['component','ground','role3Edge','tone tile outline, and disabled underbar, on the ground'],
+  ['component','ground','inkSoft','assembled-word strip outline on the ground'],
   ['component','ground','neutralFace','gate dot on the ground'],
-  ['component','ground','inkSoft','page-rail dot, filled'],
-  ['component','ground','rewardEdge','lit frame-segment outline on the ground'],
-  ['component','ink','reward','lit vs unlit frame segment'],
-  ['component','surface','neutralFace','empty cell dashed outline'],
-  ['largeText','role1Soft','role1Deep','role chip label on its band tint'],
-  ['largeText','role2Soft','role2Deep','role chip label on its band tint'],
-  ['largeText','role3Soft','role3Deep','role chip label on its band tint'],
+  ['component','ground','inkSoft','shelf slot ring, empty, on the ground'],
+  ['component','ground','rewardEdge','announcement burst / just-filled shelf slot, on the ground'],
+  ['component','surface','neutralFace','empty strip cell, dashed outline'],
+  ['largeText','role1Soft','role1Deep','table header chip label on its role tint'],
+  ['largeText','role2Soft','role2Deep','table header chip label on its role tint'],
+  ['largeText','role3Soft','role3Deep','table header chip label on its role tint'],
   ['bodyText','groundAlt','ink','parent body text'],
   ['bodyText','groundAlt','inkSoft','parent secondary text'],
   ['bodyText','surface','ink','editor row title'],
@@ -210,14 +213,15 @@ const PAIRS = [
   ['bodyText','accentFace','WHITE','primary button label'],
   ['bodyText','surface','accentFace','link / tertiary action'],
   ['bodyText','reward','ink','celebration badge text'],
-  ['bodyText','ground','ink','parental-gate prompt text, co-play caption text'],
+  ['bodyText','ground','ink','parental-gate prompt text, reveal caption text'],
   ['bodyText','ground','inkSoft','parental-gate helper text'],
   ['shade','role1','role1Deep','keyline against its own identity bar'],
   ['shade','role2','role2Deep','keyline against its own identity bar'],
   ['shade','role3','role3Deep','keyline against its own identity bar'],
   ['shade','reward','rewardEdge','celebration badge edge'],
-  ['decor','surface','hairline','cell divider hairline'],
-  ['decor','ground','surface','album card / tile face on the ground'],
+  ['shade','tileFace','reward','chant highlight: the gold face over the white face of ONE tile'],
+  ['decor','surface','hairline','strip cell divider hairline'],
+  ['decor','ground','surface','LIVE tile face on the ground -- 1.06-1.13:1, so the white face is NOT the live/disabled discriminator; the bars, the outline weight and the glyph ink are (ui.md 5.8)'],
 ];
 const THRESHOLD = { glyph:4.5, bodyText:4.5, largeText:3.0, component:3.0, shade:1.4, decor:1.0 };
 // Normal-sighted separation is gated hard.  The CVD bar is 12 rather than 18 because
