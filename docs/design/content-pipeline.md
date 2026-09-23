@@ -14,6 +14,18 @@ Everything below was executed. Byte counts are measured, not estimated; the numb
 are projections are labelled as projections and the per-unit measurement they rest on is
 shown.
 
+**Revision 5, 2026-09-23 — read §3.7 and §3.8 with §3.1–§3.3.** The owner played the built app and
+asked for the standard alphabet as the character table, entering a digraph letter by
+letter; he separately ruled that **English tiles are uppercase** (§3.8). The pack format
+changed in five places and **nothing already in a pack was
+invalidated**: `inventoryOrder` became `{ letter, tone }`, every word gained a derived
+`letters` (and Vietnamese an `onsetLetterCount`), Vietnamese gained a `prefixAudio`
+section of ten clips, the two tile inventories were put into dictionary order, and both
+manifests gained `display.glyphCase`. The
+model — `{onset, rime, tone}` in Vietnamese, `tiles` in English — **did not change at
+all**, which is why this is a rebuild and not a migration. Priced in §10: **+54.6 KiB to
+`vi-seed`, +1.6 KiB to `en-seed`.**
+
 ---
 
 ## 0. Decisions, in one table
@@ -37,6 +49,12 @@ shown.
 | Audio | **mp3 24 kHz**, not re-encoded | No ffmpeg needed, and none is wanted |
 | Engine padding | **cut at generation time, losslessly, by dropping MP3 frames** | edge-tts pads 1.6 s of silence onto every clip; §9.3a |
 | Clip duration | **a budget in the manifest, enforced against the bytes** | `ui.md` E15. A budget nothing enforces is a sentence in a document |
+| The board (rev 5) | `inventoryOrder` is **`{ letter, tone }`** — the standard alphabet | The owner: the old table "feel really random and un-organized" |
+| The model (rev 5) | `tiles` and `syllables` **unchanged**; they are no longer the board | A digraph is two taps and still one unit |
+| Letter stream (rev 5) | **stored** as `letters` + `onsetLetterCount`, never derived at runtime | `gì` is `gi` + `i` written with one `i`; letters cannot express that |
+| Partial units (rev 5) | **`prefixAudio`**, derived from the inventory | `p`, `q` and eight rime prefixes are states no tile speaks for |
+| Glyph casing (rev 5) | **`display.glyphCase`** — `en` upper, `vi` lower (§3.8) | The owner's answer to Q7. Nested so D20's boundary is structural |
+| A Vietnamese pack set to upper | **error, until the render fixture covers it** | Q13. A font containing `Ẫ` is not a gate that has drawn it |
 
 ---
 
@@ -220,6 +238,15 @@ Real, from `packs/vi-seed/pack.json`, with the 67 tiles elided to three examples
     "skipToneStepFor": ["ngang"]  // §5.3: a ngang word has no tone-naming step
   },
 
+  // REVISION 5 — see §3.7. What the CHILD sees: 29 letters then 6 tones, generated.
+  "inventoryOrder": { "letter": ["a","ă","â","b", "…28 more…"],
+                      "tone":   ["ngang","huyen","sac","hoi","nga","nang"] },
+
+  // REVISION 5 — see §3.7. The ten reachable states that are not tiles: `p`, `q`, and
+  // the eight pass-through rime prefixes. Derived from `tiles`, not listed by hand.
+  "prefixAudio": { "onset": [ /* p, q */ ], "rime": [ /* ac an ă ăn â uô ư ưn */ ] },
+
+  // What the EDITOR offers HER — the model, in Vietnamese dictionary order. NOT the board.
   "tiles": {
     "onset": [
       { "id": "m", "glyph": "m",
@@ -275,6 +302,12 @@ Real, from `packs/vi-seed/words/pho.json`, images abbreviated to one.
   "syllables": [ { "onset": "ph", "rime": "ơ", "tone": "hoi" } ],
                                   // onset: null for the zero onset (`ong`, `áo`)
 
+  // REVISION 5, DERIVED from the line above and stored — see §3.7. The board is the
+  // 29-letter alphabet, so the child taps `p`, `h`, `ơ` and then the tone; the
+  // onset/rime boundary is DATA and is never re-derived at runtime.
+  "letters": ["p", "h", "ơ"],
+  "onsetLetterCount": 2,
+
   "fallbackEmoji": null,          // a Fluent Emoji 3D asset name, or null. NOT a pack
                                   // media ref — see §5.
 
@@ -313,7 +346,8 @@ Real, from `packs/vi-seed/words/pho.json`, images abbreviated to one.
 ```jsonc
 {
   "id": "cat", "text": "cat", "stage": 1, "enabled": true,
-  "tiles": ["c", "a", "t"],       // literacy-en.md §1 — letter by letter, one tile one sound
+  "tiles": ["c", "a", "t"],       // literacy-en.md §1 — the SOUNDS. `duck` is ["d","u","ck"]
+  "letters": ["c", "a", "t"],     // REVISION 5, DERIVED — what he TAPS. `duck` is d,u,c,k
   "fallbackEmoji": "Cat",
   "images": [],
   "audio": {
@@ -431,6 +465,333 @@ photograph from her camera roll differs from a Commons file only in the `source`
 `-auto-orient` is applied (her portrait shots would otherwise land sideways) and `-strip`
 removes EXIF, **including the GPS tag on her camera-roll photos** — a pack gets shared,
 and it must not carry her home address.
+
+### 3.7 Revision 5 — the board is the alphabet, the model is unchanged
+
+The owner played the built app:
+
+> the characters being displayed feel really random and un-organized and doesn't give my
+> son a sense of character order in the table. Let's try this, display the full standard
+> character table …
+
+and then, when the first reading of that deleted the digraphs:
+
+> for character combining, he will still going through character by character, event for
+> combine ones like ch, tr …(Choose C and choose H …). This to keep the table consistent
+
+`literacy-vi.md` §0.1 records that two confidently-argued designs were built from the
+first message and **both were wrong**. The settled answer is **letter-by-letter input over
+an unchanged đánh vần model**, and it lands on this format in exactly four places.
+
+#### What changed
+
+| | Revision 4 | **Revision 5** |
+|---|---|---|
+| `inventoryOrder` (vi) | `{ onset[26], rime[35], tone[6] }` | **`{ letter[29], tone[6] }`** |
+| `inventoryOrder` (en) | `{ letter[36] }` — `a`–`z` then ten digraphs | **`{ letter[26] }`** — `a`–`z` |
+| `tiles` | the board **and** the model | **the model only**, in dictionary order |
+| word | `syllables` / `tiles` | **unchanged**, plus derived `letters` (+ `onsetLetterCount`) |
+| tile audio | keyed on the **unit** | keyed on the **unit-state**; the ten non-tile states live in `prefixAudio` |
+
+**Nothing was invalidated.** Every `{onset, rime, tone}` triple, every `tiles` array, every
+photograph, licence field and clip in both packs survived the rebuild untouched —
+`build-seed-pack.mjs` reports `preserved media on 50/50` and `40/40`. That is the whole
+reason this is a rebuild and not a schema migration on a live pack on her phone (§7).
+
+#### `inventoryOrder` — what the child sees
+
+```jsonc
+"inventoryOrder": {
+  // literacy-vi.md §0.13 — the 29 letters, in the order the owner typed them.
+  // f, j, w and z are not Vietnamese letters and are not on the board.
+  "letter": ["a","ă","â","b","c","d","đ","e","ê","g","h","i","k","l","m",
+             "n","o","ô","ơ","p","q","r","s","t","u","ư","v","x","y"],
+  // §0.13, and the OWNER's answer to open-questions.md Q11, asked directly:
+  // `ngang huyền sắc hỏi ngã nặng` — the set phrase, matching his son's book.
+  // It shipped as `ngang sac huyen hoi nang nga`, which is frequency order.
+  "tone": ["ngang","huyen","sac","hoi","nga","nang"]
+}
+```
+
+English is `{ "letter": ["a", …, "z"] }` and has no tone run.
+
+**It is generated now, and that is the point.** Both manifests carried a hand-written
+list, which is how the shipped one came to be sorted by how many seed words sat behind
+each symbol — the "really random" table the owner reported. A hand-edited ordering drifts
+the moment the word list changes; a generated one cannot. `build-seed-pack.mjs` emits it
+from `rules.mjs`'s `VI_ALPHABET` / `EN_ALPHABET` / `VI_TONE_IDS`.
+
+**`inventoryOrder` entries are no longer tile ids.** A board cell is a *letter*: the string
+is the glyph. This matters because six of the 29 Vietnamese letters (`ă â ô ơ ư y`… ) have
+no tile of their own, and nothing is wrong with that — what a tap *says* depends on the
+state it creates, not on the cell, so a per-letter tile would be the wrong home for audio
+anyway.
+
+**Three severities in the validator, deliberately.** A leftover `onset` / `rime` /
+`digraph` run is an **error** (an un-migrated pack; the app would draw the revision-4
+board). A missing, unknown or duplicated letter is an **error** — a letter that is not on
+the board is every word containing it made unbuildable, which is the defect revision 4
+actually shipped (22 of 47 words). A *different order* of the same letters is a
+**warning**: it is her board and she may reorder it; she may not lose a letter from it.
+
+#### `tiles` — what the editor offers her
+
+`tiles` is now the model and the editor's vocabulary, and nothing else. It is ordered for
+the adult who reads it, in each language's own dictionary order (`literacy-en.md` §0.7:
+*follow each language's own dictionary order* — Vietnamese genuinely sorts `ch` after `c`
+and English genuinely does not).
+
+```
+vi tiles.onset   b c ch d đ g gh gi h k kh l m n ng ngh nh ph qu r s t th tr v x
+vi tiles.rime    a ach ai am anh ao at ay | ăng ăt | ân âu ây | e em en eo | ê | i im it
+                 | o oa oi on ong | ô | ơ | u ua ui un uôi | ưa ưng
+en tiles.letter  a … z, then ch ck ff gg ll ng sh ss th zz
+```
+
+Both Vietnamese lists are produced by **one comparator** over the 29-letter alphabet
+(`rules.mjs` `viCollate`), not transcribed. `literacy-vi.md` §0.13 prints the two expected
+lists, so those lists are a **test** of the comparator rather than its source, and
+`pack-validate.test.mjs` asserts them character for character.
+
+The ten English digraph **tiles and their clips stay** (`literacy-en.md` §0.9). They lost
+their cells, not their existence: they are the sound decomposition a word is stored as,
+and their clips are what a re-voiced second tap plays — `s` says /s/, then `h` makes it
+say /ʃ/.
+
+#### `letters` and `onsetLetterCount` — derived, stored, never recomputed
+
+```jsonc
+// packs/vi-seed/words/cho.json
+"syllables": [ { "onset": "ch", "rime": "o", "tone": "sac" } ],   // THE MODEL — unchanged
+"letters": ["c", "h", "o"],                                        // what he taps
+"onsetLetterCount": 2                                              // where the onset ends
+```
+
+```jsonc
+// packs/en-seed/words/duck.json
+"tiles": ["d", "u", "ck"],          // THE SOUNDS — unchanged. Three sounds.
+"letters": ["d", "u", "c", "k"]     // what he taps. Four taps.
+```
+
+> **The rule, and it is load-bearing: the onset/rime boundary is STORED, never derived at
+> runtime.**
+
+`gì` is onset `gi` + rime `i` written with a **single** `i` (§1.2, `literacy-vi.md` §0.5).
+Its letters are `g` `i` and there is no way to see the rime in them. Nothing in the seed
+list does this; his mother can type `gì` tomorrow. Deriving the boundary at runtime would
+also be *composing a spelling*, which §1.2 forbids for the same reason.
+
+The validator checks the two directions with different strengths, and the asymmetry is the
+design:
+
+| Rule | Severity |
+|---|---|
+| `letters` present, each entry exactly one character | error |
+| every letter is on the board (`inventoryOrder.letter`) | **error** — otherwise the word is unbuildable |
+| `onsetLetterCount` is an integer in `0 … letters.length` | error |
+| `letters[0 … onsetLetterCount)` spells the stored onset | **error** — this is the boundary the engine will trust |
+| the remainder spells the stored rime | error **unless** `build.spellingException` |
+| English: `letters.join('')` is the spelling | error (English concatenates exactly) |
+
+`build.spellingException` is the same opt-out §1.2 already gives the composed spelling, for
+the same orthographic reason. A harness case writes a real `gì` and asserts **both**
+directions: rejected without the flag, accepted with it. An escape hatch nobody has watched
+open is not an escape hatch.
+
+**Why word level rather than per syllable.** `syllables` is an array from day one (§1.1)
+because it is *authored* data and reshaping it later would be a migration on her phone.
+`letters` and `onsetLetterCount` are *derived*, so reshaping them is a rebuild, not a
+migration — when polysyllables arrive they become per-syllable and no human work is at
+risk. The cost of getting this wrong is asymmetric, and the two fields sit on the cheap
+side of it.
+
+#### `prefixAudio` — the states that are not tiles
+
+Tile audio is re-keyed from units to **unit-states** (`literacy-vi.md` §0.12). `c` alone is
+a state and says `cờ`; `ch` is a state and says `chờ`; every tap must answer (§0.9). Most
+states are already tiles. Ten are not:
+
+| | States | Why they cannot be tiles |
+|---|---|---|
+| onset | `p` `q` | Bare `p` and bare `q` are **never** Vietnamese onsets (§0.6). A tile is something a word can be built from, and §4 validates that |
+| rime | `ac` `an` `ă` `ăn` `â` `uô` `ư` `ưn` | Pass-through states; no tone is ever live on them, and three are the bare vowels §3.1 says can never stand alone |
+
+```jsonc
+"prefixAudio": {
+  "onset": [
+    { "id": "p", "glyph": "p", "role": "onset", "label": "pờ",
+      "extendsTo": ["ph"],
+      "audio": { "name": { "src": "media/aud/da50713b9c96c96d.mp3", "ms": 624, "…": "…" } } },
+    { "id": "q", "glyph": "q", "role": "onset", "label": "quờ",
+      "extendsTo": ["qu"],
+      "sameAs": "onset:qu",        // says exactly what the `qu` tile says — ONE blob, two refs
+      "audio": { "name": { "src": "media/aud/d6901540d82cd85e.mp3", "…": "…" } } }
+  ],
+  "rime": [
+    { "id": "ac", "glyph": "ac", "role": "rime", "label": "ac",
+      "extendsTo": ["ach"], "needsListen": true,
+      "audio": { "name": { "src": "media/aud/a9fbe2df135b01c5.mp3", "ms": 840, "…": "…" } } }
+    // … an ă ăn â uô ư ưn
+  ]
+}
+```
+
+**It is derived, not listed.** `rules.mjs` `prefixStates(ids)` returns every proper prefix
+of a symbol in `ids` that is not itself in `ids`; over the 26 onsets that is exactly
+`p q`, and over the 35 rimes exactly `ac an ă ăn â uô ư ưn` — which is what
+`literacy-vi.md` §0.12 says by hand. The validator re-derives the set and rejects a
+pack that is missing one (**that tap would be silent**, which `gameplay.md` §4.3 forbids),
+that lists one which is already a tile, or that invents one no word can reach. So the day
+his mother adds a word with the onset `ngh`, `ngh`'s prefixes follow automatically.
+
+**`sameAs` is derived too.** A prefix whose *one* extension already says exactly the same
+thing does not need a clip: `q` says `quờ`, and so does the `qu` tile. `gen-audio.mjs`
+copies the existing media object rather than synthesising a second `quờ` that could drift
+from the first and be approved separately by ear. Media is content-addressed, so one blob
+serves both references and it costs **zero bytes**. The rule is a comparison of labels, not
+a hard-coded `q`.
+
+**`needsListen` is the honest part.** `ac` and `ăn` and `ưn` are mid-word states, and a
+stop-final rime takes only sắc or nặng — so a clip of `ac` read level is **not a sound
+Vietnamese has**. `ă` and `â` cannot be said level at all, which is why they are voiced `á`
+and `ớ` (§0.4, confidence `check`; the owner can settle it from his son's book). These
+eight are flagged by the generator exactly as the §7.3 toneless blends are, and
+`CLAUDE.md` is explicit about why: **nobody on this team can hear.**
+
+#### What this hands to the app
+
+The storage layer answers a tap in one lookup, in this order:
+
+```
+state -> tiles[group][state]           (26 onsets, 35 rimes, 6 tones — 67 clips)
+      -> prefixAudio[group][state]     (2 + 8 — 10 clips, 9 of them new)
+```
+
+and it reads the onset/rime boundary off `onsetLetterCount`. It never infers a boundary
+from the letter stream, and it never composes a spelling. The liveness computation over
+letters is the app-developer's; the parse it is computed against is data.
+
+### 3.8 Revision 5 — `display.glyphCase`, the answer to E22
+
+**The owner answered `open-questions-ui.md` Q7 on 2026-09-23, against the game-designer's
+recommendation: English tiles are `A B C D`.** `ui.md` §8.2 specifies the mechanism and
+hands the *name and shape* of the field to this document as **E22**. This is it.
+
+```jsonc
+{
+  "schema": 1, "id": "en-seed", "language": "en", "…": "…",
+
+  // THE RENDER POLICY. Read once at pack load, applied at ONE place in the glyph
+  // component (AC D21). `en-seed` is "upper"; `vi-seed` is "lower" (§8.2.3, and see the
+  // Q13 gate below — that asymmetry is a correctness constraint, not a style preference).
+  "display": { "glyphCase": "upper" },
+
+  "media": { "…": "…" },        // the degradation policy
+  "rules": { "…": "…" },        // the orthography
+  "chant": { "…": "…" }         // the timing
+}
+```
+
+#### Why `display`, and why it is nested
+
+The manifest already groups policy-as-data by what it governs: `media` is the degradation
+policy, `rules` the orthography, `chant` the timing. `display` is the render policy, and
+nesting the field under it makes **AC D20's boundary structural rather than remembered**:
+
+> **Nothing under `display` may reach stored data, audio, ordering or any parent surface.**
+
+A bare top-level `glyphCase` sitting between `dialect` and `rules` would read like
+content, and the next render-only field would have nowhere principled to go. The name
+`glyphCase` — rather than `case` or `uppercase` — carries the scope: §8.2 is emphatic that
+it reaches *the glyph* and nothing else.
+
+**It is generated, not hand-written** (`rules.mjs` `seedGlyphCase`), for the same reason
+`inventoryOrder` is: a hand-edited value is exactly how the tone order drifted into
+frequency order, and a casing flag is easier to mistype than a tone list.
+
+#### Three outcomes, three severities, and the split is the point
+
+`ui.md` §8.2.2 requirement 5 and **AC D23**: an absent or unrecognised value renders
+lowercase and the app **starts normally**. A casing flag is never worth refusing to boot
+over. But the validator is not the app, and collapsing all three cases into "the app
+copes" would mean a typo silently overrides the owner's decision with nothing anywhere
+able to say so.
+
+| What is in the manifest | The app | The validator |
+|---|---|---|
+| no `display` at all | lowercase | **nothing.** Lowercase is the default and is right for most packs |
+| `"glyphCase": "uppercase"` — a typo | lowercase | **warning**, naming the exact value it wanted. Fails `--strict` |
+| `"glyphCase": ""` | lowercase | warning, same |
+| `"display": "upper"` — a wrong *shape* | lowercase | **error.** This is not a typo, it is a broken writer |
+| `"glyphCase": true` | lowercase | **error**, same reason |
+| `vi` + `"upper"` | uppercase | **error** — see the Q13 gate |
+
+A wrong shape being an error while the runtime survives it is the same line this pipeline
+already draws for a dangling media reference (§3.4): *the runtime degrades precisely so
+the child never sees it, and surviving it is not the same as it being acceptable.*
+
+#### The Q13 gate — a computation, not a constant
+
+`ui.md` §8.2.3 forbids a **Vietnamese** pack from being set to uppercase until the render
+gate covers it, and AC **Q13** makes that a gate requirement rather than folklore. The
+reason is not taste:
+
+- `mả` / `mã` is the tightest pair in the §6.1 render gate — **34 px apart at 36 pt**. A
+  tone mark on a capital sits against cap height (0.74 em) rather than x-height, which
+  compresses the pair further.
+- `assets/fonts/FIXTURE.txt` carries **7** uppercase Vietnamese letters — `Ă Â Đ Ê Ô Ơ Ư`
+  — and **none** of the ~130 precomposed marked capitals. Verified here by counting the
+  cased characters in the shipped file.
+- Both bundled faces *do contain* those glyphs. **A font that contains a glyph is not a
+  gate that has rendered it.** Q5a would report green and say nothing about `Ẫ`.
+- `CLAUDE.md` calls a font that renders `mả` and `mã` alike a **correctness** failure, not
+  a cosmetic one.
+
+Banning the combination with a hard-coded `if (lang === 'vi')` would be a constant nobody
+remembers to delete. So the validator instead computes **what this specific pack would
+have to draw** — every tile glyph, every stored toned rime form, every word spelling,
+upper-cased — and asks which of those characters the fixture does not cover. On
+`packs/vi-seed` that is **55 characters**, named in the error message:
+
+```
+ERROR pack.json display.glyphCase: "upper" on a Vietnamese pack would render 55
+character(s) the §6.1 render gate has never drawn: À Á Ã È É Ì Í Ò Ó Õ Ù Ú Ĩ Ũ Ạ Ả Ấ Ầ Ẩ
+Ẫ Ậ Ắ Ằ Ẳ Ẵ Ặ Ẹ Ẻ Ẽ Ế Ề Ể Ễ Ệ Ỉ Ị Ọ Ỏ Ố Ồ Ổ Ỗ Ộ Ớ Ờ Ở Ỡ Ợ Ụ Ủ Ứ Ừ Ử Ữ Ự Ỹ …
+```
+
+**Extend the fixture with exactly those, re-run Q1–Q5c, and the gate lifts by itself** —
+proved end-to-end in an isolated copy: the same pack goes from exit 1 to **exit 0** once
+the 55 forms are in the fixture, and the shipped fixture was not touched to do it. That is
+the only form of this rule that stays true, because the version that needs a human to
+remember it does not.
+
+**It fails closed.** If the fixture cannot be found, the flag cannot be cleared and that is
+an error rather than a skipped check. This is the opposite call from the decode gate
+(§9.3c), which announces a skip when the venv is missing — and the difference is that
+fail-closed there would block every honest offline validation, while here nobody has a
+legitimate reason to set a Vietnamese pack uppercase outside this repo.
+
+#### D20 — nothing stored is uppercase, and the validator enforces it
+
+The cheap way to give the owner uppercase tiles is to upper-case the **data**. It would
+look right on the board and be wrong four ways at once: the clip lookup is by tile id, the
+alphabetical sort is over the stored lowercase, word ids are file names on a filesystem
+that may or may not care, and the editor would show his mother text she never typed (D24).
+
+So `inventoryOrder`, every tile id, every word's `letters`, `tiles` and `syllables`, and
+every media file name are checked for a cased character and it is an **error**.
+`word.text` is deliberately **not** checked — D20 does not list it, and `Hà Nội` is a
+legitimate thing for her to type.
+
+#### What it does not touch
+
+| | |
+|---|---|
+| **audio** (D19) | `A` says /æ/, never "ay". The clip lookup is by lowercase tile id, so there is structurally nowhere for a letter *name* to enter; a harness case asserts every English `short` clip's text is still the tile's `sound` |
+| **`inventoryOrder`'s sort** | still alphabetical over the stored lowercase; nothing re-sorts |
+| **stored data** (D20) | above |
+| **the editor and every parent surface** (D24) | she sees what she typed |
+| **bytes** | `{"glyphCase":"upper"}` is **+34 B** per manifest. Reversing the owner's decision is one field and no code, which is the entire reason it is a pack field |
 
 ---
 
@@ -1291,6 +1652,56 @@ long job, and it is now a resumable one.
 
 ---
 
+### 9.6 Revision 5 — the nine new Vietnamese clips, measured
+
+`literacy-vi.md` §0.12 is explicit that a smaller board is **not** cheaper audio: the tile
+clips are now indexed by unit-in-progress, and partial units need clips too. Ten states
+were added and nine clips were generated; **nothing was retired.**
+
+```
+node tools/gen-audio.mjs --pack packs/vi-seed --only tiles
+  77 clip(s) needed: 9 generated, 1 reused, 67 already present, 0 failed
+  45.8 KiB written, 5.9 s of audio
+  9 clip(s) trimmed, 1.1 s of padding removed
+```
+
+Every one was opened and measured — duration from the frame table, loudness and decoder
+diagnostics from libmpg123 through `audio-measure.py`. **`peak`, `rms` and `clean` are
+measurements; none of them is intelligibility** (§9.3c, `CLAUDE.md`).
+
+| State | Says | ms | bytes | peak dBFS | rms dBFS | lead/tail ms | decoder diagnostics |
+|---|---|---|---|---|---|---|---|
+| `p` | `pờ` | 624 | 4,992 | −5.3 | −17.7 | 50 / 100 | **none** |
+| `q` | `quờ` | 792 | — | −5.8 | −19.4 | 95 / 210 | **none** — `sameAs onset:qu`, the existing blob |
+| `ac` | `ac` | 840 | 6,720 | −8.9 | −21.0 | 75 / 110 | **none** |
+| `an` | `an` | 624 | 4,992 | −10.3 | −19.0 | 70 / 95 | **none** |
+| `ă` | `á` | 624 | 4,992 | −7.9 | −20.7 | 55 / 110 | **none** |
+| `ăn` | `ăn` | 600 | 4,800 | −7.5 | −18.5 | 65 / 100 | **none** |
+| `â` | `ớ` | 672 | 5,376 | −7.3 | −18.3 | 70 / 110 | **none** |
+| `uô` | `uô` | 648 | 5,184 | −6.3 | −16.6 | 70 / 115 | **none** |
+| `ư` | `ư` | 624 | 4,992 | −6.3 | −15.9 | 70 / 95 | **none** |
+| `ưn` | `ưn` | 600 | 4,800 | −5.3 | −16.3 | 65 / 100 | **none** |
+
+**Against the budget.** All ten are inside the 1,500 ms tap ceiling. Two — `ac` at 840 ms
+and the reused `quờ` at 792 ms — are over `ui.md` E15's 700 ms *target*, which is a
+warning, and they sit inside the range the 67 existing Vietnamese clips already occupy
+(600–888 ms). Closing that gap means changing what is said or how fast, and both are the
+owner's call, not this pipeline's.
+
+**The eight rime-prefix clips need a human listening check before they ship** (§0.9, and
+the same rule as the §7.3 toneless blends). `ac`, `ăn` and `ưn` are mid-word states read
+level, which is not a thing Vietnamese does; `ă` and `â` are voiced with a mark because
+they cannot be said level at all, and that choice carries the literacy-designer's
+confidence `check`.
+
+**English needs no new clips at all.** Every English grapheme prefix is itself a grapheme
+(`literacy-en.md` §0.5), so there are no pass-through states; the ten digraph clips change
+role from *tile* to *re-voicing* and keep their bytes. Net English asset change: **zero**.
+
+**The blocking English audio item is unchanged and is not this revision's.** 24 of the 35
+English `short` clips exceed the 700 ms target because they are genuine speech, and the
+owner has rejected two rounds of re-cut letter sounds by ear. That decision is his.
+
 ## 10. Budgets
 
 All per-unit figures measured. Totals at the seed size are measured; the ×10 column is a
@@ -1332,9 +1743,10 @@ projection from those per-unit figures and is labelled as one.
 | **total at 40 words** | **6,977,654 B = 6.65 MiB** |
 | total at 400 words *(projection)* | 64,273,454 B = 61.3 MiB |
 
-> **Measured today**, over the real curated pack rather than the model above:
-> `packs/en-seed` is 6017.4 KiB images + **745.2 KiB audio** + 152.0 KiB json = 6914.6 KiB,
-> and `packs/vi-seed` is 8468.7 KiB + 890.8 KiB + 181.7 KiB = 9541.3 KiB. The per-word JSON
+> **Measured today**, over the real curated pack rather than the model above, after the
+> revision-5 rebuild: `packs/en-seed` is 6017.4 KiB images + **758.4 KiB audio** +
+> 154.8 KiB json = 6930.7 KiB, and `packs/vi-seed` is 8468.7 KiB + **936.6 KiB** +
+> 190.6 KiB = 9595.8 KiB. The per-word JSON
 > row above predates curation and is now ~2.8 KiB/word, because each image carries its
 > licence, creator and source URL — the price of being able to generate `ATTRIBUTION.md`
 > from the pack (§11), and noise beside one 51 KB photograph.
@@ -1343,6 +1755,27 @@ projection from those per-unit figures and is labelled as one.
 > entire audio budget of the Vietnamese one. That was never the reason to do it — the
 > reason was that the owner could hear it — but it is the second-largest size lever in
 > this document after image count, and it cost nothing.
+
+### What revision 5 cost — measured against both packs, before and after
+
+Every figure is `after − before` on the real packs, from `git show HEAD:<file> | wc -c`
+against the file on disk.
+
+| | `vi-seed` | `en-seed` |
+|---|---|---|
+| manifest: `inventoryOrder` reshaped, `prefixAudio` added, tiles reordered | **+5,414 B** | **−216 B** |
+| words: `letters` (+ `onsetLetterCount`) | +3,616 B over 50 words = **+72 B/word** | +1,903 B over 40 words = **+48 B/word** |
+| nine new clips | **+46,848 B** (5,205 B mean) | 0 |
+| **total** | **+55,878 B = +54.6 KiB** | **+1,687 B = +1.6 KiB** |
+| as a fraction of the pack | **+0.6 %** | **+0.02 %** |
+
+The English manifest got *smaller*: `inventoryOrder.letter` went from 36 entries to 26.
+
+**At ten times the word count** the per-word term is the only one that grows. 500
+Vietnamese words costs **+36 KB** of derived letters; the manifest and the ten prefix
+clips are fixed, so revision 5's whole contribution at 10× is about **88 KB** — three
+photographs. The board got half the size and the pack got 0.6 % bigger, and neither number
+is worth an argument.
 
 ### What this says
 
@@ -1423,6 +1856,61 @@ pack at runtime**, not ship this file's output — because she will add pictures
 build and their licences must appear too. `--check` fails CI when the committed file is
 stale, and the tool exits non-zero if any photograph cannot be attributed.
 
+#### One predicate, two tools — and they disagreed
+
+**`pack-validate.mjs` and `pack-attributions.mjs` both decide whether an image can ship,
+from the same entries, and they returned different answers on the same two photographs.**
+The validator passed `packs/vi-seed`; the attributions generator refused to let it be
+published, over `đèn` `images[0]` and `mũi` `images[2]` — both `"license": "Public
+domain"`, `"creator": null`. Its rule was one line:
+
+```js
+const unattributed = list.filter((e) => !e.license || !e.creator || !e.sourceUrl);
+```
+
+**The validator was right.** A public-domain work has no attribution obligation: there is
+no rights-holder to credit, and `creator: null` is the correct, honest representation of
+that rather than missing data. It was a false blocker on the one screen where a false
+blocker is expensive, because the cheapest way to clear it is to **invent an author** —
+and demanding one unconditionally had already silently deleted three usable photographs
+(`cam`, `đèn`, `mũi`) before anyone noticed.
+
+Measured across both packs, grouped by licence: **222 images require credit and 222 are
+credited, including all 8 GFDL** — the heaviest obligation in the packs. Zero
+credit-requiring images are missing an author. The two "failures" were the only two that
+never needed one.
+
+**The repair is not to relax the generator.** The predicate moved to
+**`tools/lib/licence.mjs`** and both tools import it, so they can now be wrong *together*
+— which is fixable — rather than wrong *differently*, which is not detectable. That module
+is the only place this project answers "what does this licence oblige":
+
+| Export | What it decides |
+|---|---|
+| `OWN_SOURCES` / `isOurs()` | `camera`, `own-work`, `generated` — no third-party obligation at all |
+| `licenceObligations(license)` | `recorded`, `publicDomain`, `attribution`, `shareAlike`, `licenceText` (GFDL), `noDerivatives`, `nonCommercial` |
+| `missingCredit(image)` | the required fields this image is missing, given its own licence |
+
+Three properties worth stating, because each one is a way this could go wrong quietly:
+
+1. **`license` and `sourceUrl` are required even for a public-domain work.** The claim
+   *"this needs no credit"* has to be auditable; only `creator` is excused.
+2. **An unrecognised licence string requires attribution.** Unknown means nobody has read
+   the terms, and the cost of crediting a work that needed no credit is a line in a table
+   while the cost of the reverse is a breach. The live example is `Copyrighted free use` —
+   a Commons tag meaning the holder *permits* free use, which is not the same as
+   abandoning the copyright. It correctly falls through to strict.
+3. **`Phạm vi công cộng`** — vi.wikipedia's own public-domain tag, present in `vi-seed` —
+   was **not** matched by the old regex, so that image sat in the attribution-required
+   bucket. It happens to carry an author, which is the only reason nothing failed. A latent
+   false blocker is still a false blocker, and it is matched now.
+
+**A field of spaces is not a field.** `"license": "   "` is truthy, so the original
+`!e.license` test passed it while the obligation classifier — which trims — had already
+concluded nothing was recorded: the image would have shipped with a blank licence cell.
+Found by the obligation table in `pack-validate.test.mjs`, which is why `missingCredit`
+trims. It was not found by reading the code.
+
 If the owner would rather avoid share-alike entirely, the fetcher's licence filter can be
 narrowed to `cc0`/`pdm`/`by`. The measured cost is roughly a third of the candidate pool,
 which given the ~30% Commons yield would make several words photo-less.
@@ -1461,10 +1949,11 @@ already says a parent's voice beats any synthesised voice for this child.
 | `tools/audio-trim.mjs` | cuts engine padding losslessly at MP3 frame boundaries; verifies every cut sample by sample; `--pack`, `--apply`, `--words` |
 | `tools/lib/mp3.mjs` | MPEG frame table and Layer III side info: exact duration, frame offsets, `main_data_begin`, and the priming frames a cut needs. No decoder, no dependency |
 | `tools/pack-validate.mjs` | **exit 1 on a bad pack**; `--strict`, `--json`, `--gc`, `--delete-orphans` |
-| `tools/pack-validate.test.mjs` | 50 cases: 49 deliberate corruptions asserted to be rejected, plus the rebuild-preservation regression |
-| `tools/pack-attributions.mjs` | generates `ATTRIBUTION.md`; `--check` for CI |
+| `tools/pack-validate.test.mjs` | **100 cases**: deliberate corruptions asserted to be rejected, plus the rebuild-preservation regression. 38 are revision 5's — the retired board runs, a lost letter, a digraph put back as a cell, the tone order, a misplaced onset boundary, the `gì` exception in both directions, the three `prefixAudio` set rules, a prefix clip through each of the two audio gates, the twelve glyph-casing cases of §3.8, and eleven licensing cases that run **both** binaries and assert they agree |
+| `tools/pack-attributions.mjs` | generates `ATTRIBUTION.md`; `--check` for CI; **exit 1 if any photograph cannot be attributed**, asking `lib/licence.mjs` — the same predicate the validator asks |
+| `tools/lib/licence.mjs` | **what a licence obliges, in one place.** `isOurs`, `licenceObligations`, `missingCredit`. It exists because the validator and the attributions generator disagreed about the same two photographs (§11) |
 | `tools/pack-backup.mjs` | export / restore, both verified |
-| `tools/lib/{pack,media,rules,http,markdown}.mjs` | atomic writes, path safety, orthography, throttling |
+| `tools/lib/{pack,media,rules,http,markdown}.mjs` | atomic writes, path safety, orthography, throttling. Revision 5 added `VI_ALPHABET`, `EN_ALPHABET`, `viCollate`/`enCollate`, `viLetters`, `viOnsetLetterCount`, `enLetters`, `prefixStates`, `viPrefixSpeech`, `seedGlyphCase`, `readGlyphCase` and `viUppercaseGaps` — the board, the two dictionary orders and the prefix-state derivation, in the one place the builder and the validator both read |
 | `tools/timestretch.py` | unchanged; pitch-preserving speed, kept per `decisions.md` |
 
 `tools/fetch-wiki-candidates.mjs` was merged into `fetch-candidates.mjs` behind `--lang`.
@@ -1525,6 +2014,28 @@ node tools/pack-attributions.mjs packs/vi-seed
 | Title resolution | **48 of 50 Vietnamese words resolve, up from 38.** `--resolve-only` over the whole pack, 59 requests, 0 × 429 |
 | A wrong-sense resolution is caught | `tô` → an article about a département in Burkina Faso; flagged by the missing-description heuristic |
 | A word with no picture route is named | `bún` and `nón` have neither a photograph nor a `fallbackEmoji` |
+| **Rev 5: the un-migrated packs are rejected** | the new checks were run against the shipped revision-4 packs *before* the rebuild: both exit 1, naming the retired `onset`/`rime` runs, the ten missing prefix states and the ten digraph cells on the English board |
+| **Rev 5: the collation is not a transcription** | `viCollate` sorts a shuffled inventory into `literacy-vi.md` §0.13's two printed lists, character for character, for both onsets and rimes |
+| **Rev 5: the prefix set is derived** | `prefixStates` over the 26 onsets returns exactly `p q`, over the 35 rimes exactly `ac an ă ăn â uô ư ưn` — §0.12's hand list, computed |
+| **Rev 5: each new rule was seen to fail** | 11 injections, each exit 1: retired run, lost letter, digraph cell (vi and en), misplaced onset boundary, letters/rime disagreement, absent letters, missing prefix state, prefix state that is a tile, prefix state no word reaches |
+| **Rev 5: the tone order is caught but not fatal** | the shipped `ngang sac huyen hoi nang nga` → exit 0 with a warning, exit 1 under `--strict` |
+| **Rev 5: the `gì` exception opens and closes** | a real `gì` word rejected without `build.spellingException`, accepted with it |
+| **Rev 5: the new clips pass both audio gates** | `pờ` tripled to 1,872 ms → exit 1 on the ceiling; `ac` cut at an unprimed frame boundary → exit 1 with `part2_3_length (1888) too large for available bit count (1432)`, naming `prefixAudio.rime[ac]` |
+| **Rev 5: the new harness cases test their rules** | the `onsetLetterCount` rule and the prefix-reachability rule were each deleted from the validator: exactly those two cases went red, 75 others stayed green |
+| **Rev 5: the casing field's three severities** | absent → no finding, exit 0; `"uppercase"` and `""` → warning, exit 0; `"display": "upper"` and `glyphCase: true` → **exit 1** |
+| **Rev 5: the Q13 gate bites** | `vi-seed` set to `"upper"` → **exit 1**, naming all 55 uncovered characters |
+| **Rev 5: the Q13 gate lifts** | the same pack in an isolated copy, with those 55 forms appended to the fixture → **exit 0**. The shipped `FIXTURE.txt` was not touched |
+| **Rev 5: the fixture really is short** | counted the cased characters in the shipped file: **7** (`Ă Â Đ Ê Ô Ơ Ư`), **0** precomposed marked capitals |
+| **Rev 5: D20 is enforced** | `inventoryOrder`, a word's `letters` and a Vietnamese `syllables` each upper-cased → **exit 1** in all three |
+| **Rev 5: the casing cases test their rules** | the Q13 gate, the malformed-shape error and the D20 check were each deleted from the validator: exactly those three cases went red |
+| **Licensing: the two tools disagreed** | `pack-validate` exit 0 and `pack-attributions` **exit 1** on the same `packs/vi-seed`, over two public-domain photographs with no author |
+| **Licensing: the permissive side** | every public-domain and CC0 image in `vi-seed` stripped of its creator (21 of them) → **both tools exit 0** |
+| **Licensing: the strict side still bites** | creator stripped from a CC BY-SA 4.0, a CC BY 2.0 and a GFDL 1.2 image in turn → **both tools exit 1**, each naming the missing field |
+| **Licensing: unknown is strict** | licence replaced with `Some Bespoke Museum Terms` and the creator removed → **both exit 1**. `Copyrighted free use` classifies the same way |
+| **Licensing: the claim is auditable** | `sourceUrl` removed from a public-domain image → **both exit 1**, even though no credit is owed |
+| **Licensing: the cases test their rule** | the old `!e.creator` rule restored → the two permissive cases go red; `missingCredit` relaxed to require nothing → the four strict cases and the obligation table go red |
+| **Licensing: a blank field is not a field** | `"license": "   "` passed the original presence test; caught by the obligation table, not by reading the code |
+| **Rev 5: `q` really is one blob** | `prefixAudio.onset[q].audio.name.src` is byte-identical to `tiles.onset[qu].audio.name.src` — `media/aud/d6901540d82cd85e.mp3` |
 | Every final-only English tile is enforced | the test iterates `EN_FINAL_ONLY`; `gg` was missing from the constant and nothing failed, because the pack happened to be right |
 | Backup round-trips | 1,061,171 B export → restore → identical counts, validates clean |
 | A damaged backup is refused | truncated archive → refused, nothing changed |

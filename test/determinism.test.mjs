@@ -54,7 +54,7 @@ function run(pack, seed, steps, pages = null) {
     if (s.phase === 'album') s = reduce(game, s, { type: 'leaveAlbum' });
     else if (s.status === 'announcing') s = reduce(game, s, { type: 'advance' });
     else if (i % 11 === 10) s = reduce(game, s, { type: 'autoPlay' });
-    else if (i % 7 === 6) s = reduce(game, s, { type: 'tapStripCell', index: 0 });
+    else if (i % 7 === 6) s = reduce(game, s, { type: 'tapStrip' });
     else if (i % 13 === 12) s = reduce(game, s, { type: 'tapPage', index: (i / 13 | 0) % 4 });
     else {
       // Mostly a standing tile, sometimes a flat one — which is what a child does with a

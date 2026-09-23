@@ -91,6 +91,10 @@ function viOnsets() {
       source: 'literacy-vi.md §2',
     });
   }
+  // `literacy-vi.md` §0.13 — the EDITOR's vocabulary, in Vietnamese dictionary order,
+  // each digraph immediately after the base letter it extends. It is no longer the
+  // board (§0.3), so it is ordered for the adult who reads it, not for the child.
+  out.sort((a, b) => R.viCollate(a.id, b.id));
   return out;
 }
 
@@ -105,7 +109,7 @@ function viToneTiles() {
 }
 
 function viRimeTiles(rimes) {
-  return [...rimes].sort().map((rime) => ({
+  return [...rimes].sort(R.viCollate).map((rime) => ({
     id: rime, glyph: rime,
     legalTones: R.viLegalTones(rime),
     toned: R.viTonedForms(rime), // §5.4 — six forms, null where illegal
@@ -162,6 +166,34 @@ function enTiles() {
       });
     }
   }
+  /*
+   * EVERY LETTER OF THE ALPHABET IS ON THE BOARD (`literacy-en.md` §0.3, `ui.md` §8.1).
+   *
+   * `q` is excluded from v1 WORDS (§3.5 — no picturable CVC word) and the §3.1 table says
+   * so in its Notes, which made the loop above skip it entirely. That is the wrong
+   * granularity: revision 3's complaint was a MISSING LETTER, and revision 5 makes the
+   * board literally `a`-`z`. A letter with no words behind it is permanently flat and
+   * still speaks (AC D1b); it is not absent.
+   *
+   * This was a live defect, not a hypothetical: `q` had been hand-added to
+   * `packs/en-seed/pack.json` after the fact, and the next rebuild would have silently
+   * deleted it along with its two approved clips. Derived here, it cannot go missing.
+   */
+  const have = new Set(out.map((t) => t.id));
+  for (const letter of R.EN_ALPHABET) {
+    if (have.has(letter)) continue;
+    out.push({
+      id: letter,
+      glyph: letter,
+      kind: R.EN_VOWELS.includes(letter) ? 'vowel' : 'consonant',
+      position: 'any',
+      sound: null,
+      anchor: null,
+      audio: { long: null, short: null },
+      source: 'ui.md §8.1 / literacy-en.md §0.3 — every letter of the alphabet is on the board; this one has no seed word and is permanently flat',
+    });
+  }
+
   // The approved English clip curriculum (decisions.md "Audio — closed").
   const manifestFile = path.join(ROOT, 'samples', 'audio', 'en-final', 'manifest.json');
   if (existsSync(manifestFile)) {
@@ -171,6 +203,10 @@ function enTiles() {
       if (entry) { tile.sound = entry.sound; tile.anchor = entry.anchor; }
     }
   }
+  // `literacy-en.md` §0.7 — the alphabet, then the digraphs alphabetised among
+  // themselves. English orthography has no convention that puts `ch` after `c`, and
+  // inserting it there would break the alphabet the owner asked for.
+  out.sort((a, b) => R.enCollate(a.id, b.id));
   return out;
 }
 
@@ -205,6 +241,13 @@ function viWords() {
         enabled: !appendix,
         ...(appendix ? { disabledReason: 'no picture yet (word-list.md §4 appendix)' } : {}),
         syllables: [{ onset, rime, tone }], // literacy-vi.md §1.1 — array from day one
+        // DERIVED, revision 5 (`literacy-vi.md` §0.5). The board is 29 letters, so the
+        // engine walks LETTERS — but the onset/rime boundary is a property of the triple
+        // above and is **stored, never re-derived at runtime**: `gì` is onset `gi` +
+        // rime `i` written with a single `i`, and no letter stream can express that.
+        // `syllables` stays the source of truth; these two are a projection of it.
+        letters: R.viLetters(onset, rime),
+        onsetLetterCount: R.viOnsetLetterCount(onset),
         fallbackEmoji: plain(row['Fluent fallback']) || null,
         images: [],
         audio: { word: null, blend: null, sentence: null },
@@ -239,6 +282,10 @@ function enWords() {
         stage: Number(stageMatch[1]),
         enabled: true,
         tiles,
+        // DERIVED, revision 5 (`literacy-en.md` §0.5). `tiles` is the SOUND
+        // decomposition and stays (`duck` = `d` `u` `ck`); `letters` is what he taps
+        // (`d` `u` `c` `k`). English concatenates exactly, so this is the spelling.
+        letters: R.enLetters(text),
         fallbackEmoji: plain(row['Fluent fallback']) || null,
         images: [],
         audio: { word: null, sentence: null },
@@ -280,13 +327,23 @@ function enWords() {
  */
 function mergeWord(fresh, existing) {
   if (!existing) return fresh;
-  const { text, stage, syllables, tiles, fallbackEmoji, build } = fresh;
+  const { text, stage, syllables, tiles, letters, onsetLetterCount, fallbackEmoji, build } = fresh;
   return {
     ...existing,                       // carries images, audio, draft, and unknown keys
     text,
     stage,
     ...(syllables ? { syllables } : {}),
     ...(tiles ? { tiles } : {}),
+    // `letters` and `onsetLetterCount` are DERIVED from what the document owns, so the
+    // document wins on them too — unlike `images` and `audio`, which are a human's work.
+    // A word carrying `build.spellingException` keeps whatever is stored, because the
+    // derivation is exactly what is wrong for it (`literacy-vi.md` §1.2, §0.5).
+    ...(existing.build?.spellingException === true
+      ? {}
+      : {
+        ...(letters ? { letters } : {}),
+        ...(onsetLetterCount !== undefined ? { onsetLetterCount } : {}),
+      }),
     fallbackEmoji,
     build: { ...existing.build, ...build },
   };
@@ -306,6 +363,60 @@ function mergeTile(fresh, existing) {
   };
 }
 
+/**
+ * THE PREFIX STATES — `literacy-vi.md` §0.12, and why they are a manifest section of
+ * their own rather than tiles.
+ *
+ * Revision 5 re-keys tile audio from *units* to **unit-states**. The child now taps `c`
+ * and then `h`; `c` alone is a state (it says `cờ`) and so is `ch` (it says `chờ`), and
+ * every tap must answer (§0.9). Most states are already tiles — `c`, `ch`, `ao`, `ăng`
+ * all exist in `tiles` — but a handful are not:
+ *
+ *   onsets  `p` and `q`. Bare `p` and bare `q` are NEVER Vietnamese onsets (§0.6); they
+ *           exist only as the first step toward `ph` and `qu`. They cannot be tiles,
+ *           because a tile is something a word can be built from and §4 validates that.
+ *   rimes   `ac an uô â ă ăn ư ưn`. Pass-through states on the way to a real rime; no
+ *           tone is ever live on them, and three of them are the bare vowels §3.1 says
+ *           can never stand alone.
+ *
+ * So they are NOT tiles and they are not on the board either — the board is 29 letters.
+ * They are a lookup table of clips, keyed by the state, and the app resolves a tap as
+ * "tiles first, then prefixAudio". Derived from the inventory (`prefixStates`), so when
+ * his mother adds a word with the onset `ngh`, `ngh`'s prefixes follow automatically.
+ *
+ * `q` says `quờ`, which is what the `qu` tile already says — so it carries `sameAs` and
+ * gen-audio copies that clip rather than synthesising a second, drifting one. One blob,
+ * two references; the media is content-addressed, so this costs zero bytes.
+ */
+function viPrefixAudio(onsetTiles, rimeTiles) {
+  const build1 = (tiles, role) => {
+    const ids = tiles.map((t) => t.id);
+    const labelOf = new Map(tiles.map((t) => [t.id, t.label ?? t.glyph ?? t.id]));
+    return R.prefixStates(ids).sort(R.viCollate).map((id) => {
+      const extendsTo = ids.filter((x) => x !== id && x.startsWith(id)).sort(R.viCollate);
+      const says = R.viPrefixSpeech(id);
+      // A prefix whose ONE extension already says exactly the same thing does not need a
+      // clip of its own. Derived, not special-cased: today this picks out `q`/`qu` and
+      // nothing else, and if his mother's inventory ever grows another such pair it will
+      // pick that out too instead of generating a second, drifting recording.
+      const sameAs = extendsTo.length === 1 && labelOf.get(extendsTo[0]) === says
+        ? `${role}:${extendsTo[0]}` : null;
+      return {
+        id,
+        glyph: id,
+        role,
+        label: says,                      // what it SAYS — §0.9. `ă` -> `á`, `â` -> `ớ`
+        extendsTo,                        // provenance for the editor; not read at runtime
+        // §0.9 cost 1: a partial rime read level is sometimes not a sound Vietnamese has.
+        ...(role === 'rime' ? { needsListen: true } : {}),
+        ...(sameAs ? { sameAs } : {}),
+        audio: { name: null },
+      };
+    });
+  };
+  return { onset: build1(onsetTiles, 'onset'), rime: build1(rimeTiles, 'rime') };
+}
+
 function build(lang) {
   const dir = path.join(out, `${lang}-seed`);
   ensurePackDirs(dir);
@@ -317,10 +428,14 @@ function build(lang) {
     catch { /* an unreadable word file is the validator's problem, not the builder's */ }
   }
   let priorTiles = new Map();
+  const priorPrefix = new Map();
   try {
     const m = JSON.parse(readFileSync(path.join(dir, 'pack.json'), 'utf8'));
     for (const [g, list] of Object.entries(m.tiles ?? {})) {
       for (const t of list) priorTiles.set(`${g}:${t.id}`, t);
+    }
+    for (const [g, list] of Object.entries(m.prefixAudio ?? {})) {
+      for (const t of list) priorPrefix.set(`${g}:${t.id}`, t);
     }
   } catch { /* first build, or a broken manifest the validator will report */ }
 
@@ -331,6 +446,23 @@ function build(lang) {
     const w = viWords();
     words = w.words;
     tiles = { onset: viOnsets(), rime: viRimeTiles(w.rimes), tone: viToneTiles() };
+    /*
+     * `inventoryOrder` IS THE BOARD (`ui.md` §13.7 E12), and revision 5 changed what it
+     * holds: `{ letter, tone }`, not `{ onset, rime, tone }`. Nothing on the board is an
+     * onset or a rime any more — 29 letters in the owner's order, then the six tones.
+     *
+     * It is GENERATED here for the first time. Both manifests used to carry a
+     * hand-written list, which is how the shipped one came to be sorted by how many seed
+     * words sat behind each symbol — the "really random and un-organized" table the owner
+     * reported. A hand-edited ordering drifts the moment the word list changes; a
+     * generated one cannot.
+     *
+     * The tone order is `ngang huyền sắc hỏi ngã nặng` — the set phrase, and the OWNER's
+     * answer to `open-questions.md` Q11, asked directly. It ships as
+     * `ngang sac huyen hoi nang nga`, which is frequency order and is wrong.
+     */
+    manifestExtra.inventoryOrder = { letter: R.VI_ALPHABET.slice(), tone: R.VI_TONE_IDS.slice() };
+    manifestExtra.prefixAudio = viPrefixAudio(tiles.onset, tiles.rime);
     manifestExtra.dialect = dialect;
     manifestExtra.rules = {
       // literacy-vi.md §6.1 / §4.1 — read by the round generator as DATA, so that
@@ -346,6 +478,12 @@ function build(lang) {
   } else {
     words = enWords();
     tiles = { letter: enTiles() };
+    // `literacy-en.md` §0.3 — `a`-`z`, one run, no digraphs. The ten digraphs stay in
+    // `tiles` as the sound inventory and as the editor's vocabulary (§0.9: their clips
+    // are kept and change role to the re-voicing a completed digraph plays), and English
+    // has no tone run. Every English grapheme prefix is itself a grapheme (§0.5), so
+    // unlike Vietnamese there is no `prefixAudio` and no new clip.
+    manifestExtra.inventoryOrder = { letter: R.EN_ALPHABET.slice() };
     manifestExtra.rules = {
       neverTogether: R.EN_HOMOPHONE_SETS,
       note: 'literacy-en.md §6.2 — `c` and `k` are homophones in v1',
@@ -365,6 +503,17 @@ function build(lang) {
       builtAt: new Date().toISOString(),
       sources: ['docs/design/word-list.md', `docs/design/literacy-${lang}.md`],
     },
+    /*
+     * THE RENDER POLICY — `ui.md` §8.2 / E22, and it is generated for the same reason
+     * `inventoryOrder` is. The owner answered `open-questions-ui.md` Q7: English tiles are
+     * **UPPERCASE**. A hand-written value is exactly how the tone order drifted into
+     * frequency order, and a casing flag is far easier to mistype than a tone list.
+     *
+     * Nothing under `display` may reach stored data, audio, ordering or any parent
+     * surface (AC D19, D20, D24). That boundary is why the field is nested here rather
+     * than sitting loose at the top level beside `dialect`.
+     */
+    display: { glyphCase: R.seedGlyphCase(lang) },
     media: {
       // The policy the runtime applies when a referenced file is not there.
       // See docs/design/content-pipeline.md §"When a file is missing".
@@ -409,6 +558,12 @@ function build(lang) {
   for (const g of Object.keys(manifest.tiles)) {
     manifest.tiles[g] = manifest.tiles[g].map((t) => mergeTile(t, priorTiles.get(`${g}:${t.id}`)));
   }
+  // The prefix states are derived, but their CLIPS are not — a recording of `ac` in his
+  // mother's voice must survive a rebuild exactly as a tile's clip does.
+  for (const g of Object.keys(manifest.prefixAudio ?? {})) {
+    manifest.prefixAudio[g] = manifest.prefixAudio[g]
+      .map((t) => mergeTile(t, priorPrefix.get(`${g}:${t.id}`)));
+  }
   const merged = words.map((w) => mergeWord(w, prior.get(w.id)));
 
   // A word removed from the document is removed from the pack — that is what a rebuild
@@ -429,7 +584,9 @@ function build(lang) {
   }
 
   const tileCount = Object.values(manifest.tiles).reduce((n, g) => n + g.length, 0);
-  console.log(`${lang}: ${merged.length} words (${merged.filter((w) => w.enabled).length} enabled), ${tileCount} tiles -> ${path.relative(ROOT, dir)}`);
+  const boardCells = Object.values(manifest.inventoryOrder).reduce((n, g) => n + g.length, 0);
+  const prefixCount = Object.values(manifest.prefixAudio ?? {}).reduce((n, g) => n + g.length, 0);
+  console.log(`${lang}: ${merged.length} words (${merged.filter((w) => w.enabled).length} enabled), ${tileCount} tiles, ${prefixCount} prefix state(s), ${boardCells} board cells -> ${path.relative(ROOT, dir)}`);
   return { dir, words: merged, tiles: manifest.tiles };
 }
 

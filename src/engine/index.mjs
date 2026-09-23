@@ -16,14 +16,16 @@ export {
 
 export {
   createSession, reduce, tableView, pageView, stripView, shelfView, chantSteps, motifNotes,
-  partsHintSteps, symbolsFrom, imageFor, treeOf, isStuck, hintSymbol, pageHasLive,
-  progressOf,
+  partsHintSteps, imageFor, treeOf, isStuck, hintSymbol, pageHasLive, progressOf,
+  readingOf, tapAudio, undoAudio, lastSymbol,
   STATE_VERSION, SHELF_SLOTS,
 } from './session.mjs';
 
 export { langFor } from './lang/index.mjs';
 
-export { nfc, sameText, glyphLength } from './text.mjs';
+export { nfc, sameText, glyphLength, applyCasing } from './text.mjs';
+
+export { spansAt, spanOf, unitText, openSpan } from './spans.mjs';
 
 export { seedFrom } from './rng.mjs';
 

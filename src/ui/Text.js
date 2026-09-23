@@ -4,11 +4,35 @@
 // else". Two components is how that is kept true — a parent screen cannot accidentally
 // borrow a tile's face, and a tile cannot accidentally borrow Dynamic Type.
 
-import React from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { Text, View } from 'react-native';
 
 import { useTheme } from '../theme';
+import { applyCasing } from '../engine/index.mjs';
 import { FONT, GLYPH_BOX_EM, TYPE, textLineHeight } from './typography';
+
+/**
+ * **`ui.md` §8.2 / AC D17–D24 — the glyph casing, and the only place it is applied.**
+ *
+ * The owner answered `open-questions-ui.md` Q7 with `A B C D`: English glyphs are
+ * uppercase. It is **one field per pack**, read once at pack load, carried here beside
+ * the theme tokens, and applied at exactly one place — `Glyph`, below.
+ *
+ * §8.2.2 item 3 is explicit: **a `toUpperCase()` in a component is a bug**, in exactly
+ * the sense a colour literal in a component is one. It would be right in one language and
+ * wrong in the other, and it could not be reversed without a developer. So no component
+ * in `src/ui/` calls it; `applyCasing` does, in the engine, where `test/presentation-
+ * audit.test.mjs` can see that nothing else does.
+ *
+ * `AppText` and `CaptionText` deliberately do **not** consume it: parent surfaces and the
+ * editor show his mother exactly what she typed (D24).
+ */
+const CasingContext = createContext('lower');
+
+export function CasingProvider({ casing, children }) {
+  const value = useMemo(() => (casing === 'upper' ? 'upper' : 'lower'), [casing]);
+  return <CasingContext.Provider value={value}>{children}</CasingContext.Provider>;
+}
 
 /** A glyph never takes a touch; its tile does. The style key, not the deprecated prop. */
 const GLYPH_INERT = { pointerEvents: 'none' };
@@ -79,7 +103,12 @@ export function CaptionText({ size = 20, colour, style, children, ...rest }) {
  */
 export function Glyph({ text, size, colour, style, ...rest }) {
   const theme = useTheme();
+  const casing = useContext(CasingContext);
   const box = Math.round(size * GLYPH_BOX_EM);
+  // D17 / D18 — the table tile, the strip cell, the merged word at chant beat 3, a rail
+  // button and the reveal's word all draw through here, so all five obey the pack's one
+  // field and nothing else in the app has to know about it.
+  const shown = applyCasing(text, casing);
   return (
     <View style={[GLYPH_INERT, { height: box, justifyContent: 'center' }, style]}>
       <Text
@@ -95,7 +124,7 @@ export function Glyph({ text, size, colour, style, ...rest }) {
         }}
         {...rest}
       >
-        {text}
+        {shown}
       </Text>
     </View>
   );

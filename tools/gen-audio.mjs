@@ -85,6 +85,30 @@ if (only === 'all' || only === 'tiles') {
     for (const t of manifest.tiles.onset) jobs.push({ kind: 'tile', group: 'onset', id: t.id, slot: 'name', text: t.label });
     for (const t of manifest.tiles.rime) jobs.push({ kind: 'tile', group: 'rime', id: t.id, slot: 'name', text: t.glyph });
     for (const t of manifest.tiles.tone) jobs.push({ kind: 'tile', group: 'tone', id: t.id, slot: 'name', text: t.label });
+    /*
+     * THE PREFIX STATES — `literacy-vi.md` §0.12. Revision 5 put the standard alphabet
+     * on the board, so `ch` is two taps and `ăng` is three. Tile audio is therefore
+     * keyed on the unit-STATE, not the unit, and ten states have no tile to hang on:
+     * the onset steps `p` and `q`, and the eight pass-through rime prefixes.
+     *
+     * Two of them are not new clips. `q` says `quờ`, which the `qu` tile already says —
+     * it carries `sameAs` and the existing clip is copied, so one blob serves both and
+     * the two can never drift apart. Nine really are generated.
+     *
+     * §0.9 is explicit about the cost: several of these are NOT real Vietnamese
+     * syllables read level (`ac` and `ăn` and `ưn` are mid-word states, and a stop-final
+     * rime takes only sắc or nặng), so each one is flagged for a human listen exactly
+     * like the §7.3 toneless blends. Nobody on this team can hear.
+     */
+    for (const g of ['onset', 'rime']) {
+      for (const t of manifest.prefixAudio?.[g] ?? []) {
+        jobs.push({
+          kind: 'prefix', group: g, id: t.id, slot: 'name', text: t.label,
+          sameAs: t.sameAs ?? null,
+          needsListen: t.needsListen === true,
+        });
+      }
+    }
   } else {
     for (const t of manifest.tiles.letter) {
       if (t.sound == null || t.anchor == null) continue; // curriculum gap; the validator warns
@@ -149,8 +173,12 @@ if (!dryRun) mkdirSync(tmpDir, { recursive: true });
 
 const wordById = new Map(words.map(({ word }) => [word.id, word]));
 const tileOf = (group, id) => manifest.tiles[group].find((t) => t.id === id);
+const prefixOf = (group, id) => (manifest.prefixAudio?.[group] ?? []).find((t) => t.id === id);
+const hostOf = (job) => (job.kind === 'word' ? wordById.get(job.id)
+  : job.kind === 'prefix' ? prefixOf(job.group, job.id)
+    : tileOf(job.group, job.id));
 const hasClip = (job) => {
-  const host = job.kind === 'word' ? wordById.get(job.id) : tileOf(job.group, job.id);
+  const host = hostOf(job);
   const cur = host?.audio?.[job.slot];
   return !!(cur && cur.src && existsSync(path.join(packDir, cur.src)));
 };
@@ -170,6 +198,28 @@ for (const job of jobs) {
   const key = `${job.kind}:${job.group ?? ''}:${job.id}:${job.slot}`;
   if (!force && hasClip(job)) { skipped += 1; continue; }
   if (!job.text || !job.text.trim()) { console.error(`${key}: no text to say — skipped`); continue; }
+
+  /*
+   * A state whose clip is ALREADY IN THE PACK under another name. `q` and `qu` both say
+   * `quờ` (`literacy-vi.md` §0.6, §0.9), so generating a second `quờ` would spend bytes
+   * to create a clip that can drift from the first one and be approved separately by
+   * ear. The media is content-addressed, so pointing both at one blob costs nothing.
+   */
+  if (job.sameAs) {
+    const [sg, sid] = job.sameAs.split(':');
+    const src = tileOf(sg, sid)?.audio?.name;
+    if (!src || !src.src || !existsSync(path.join(packDir, src.src))) {
+      failed += 1;
+      console.error(`${key}: FAILED — sameAs ${job.sameAs} has no clip yet`);
+      continue;
+    }
+    if (dryRun) { console.log(`would copy     ${key.padEnd(28)} <- ${job.sameAs}`); continue; }
+    const host = hostOf(job);
+    host.audio = { ...host.audio, [job.slot]: { ...src, sameAs: job.sameAs } };
+    reused += 1;
+    state.set(key, 'done', src.src);
+    continue;
+  }
 
   if (dryRun) { console.log(`would generate ${key.padEnd(28)} "${job.text}"`); made += 1; continue; }
 
@@ -252,14 +302,18 @@ for (const job of jobs) {
   });
   bytes += media.bytes;
   ms += media.ms ?? 0;
-  if (job.needsListen) listen.push(`${job.id} step-3 blend "${job.text}" -> ${media.src}`);
+  if (job.needsListen) {
+    listen.push(job.kind === 'prefix'
+      ? `${job.group} prefix state "${job.id}" read as "${job.text}" -> ${media.src}`
+      : `${job.id} step-3 blend "${job.text}" -> ${media.src}`);
+  }
 
   if (job.kind === 'word') {
     const w = wordById.get(job.id);
     w.audio = { ...w.audio, [job.slot]: media };
     dirtyWords.add(job.id);
   } else {
-    const t = tileOf(job.group, job.id);
+    const t = hostOf(job);
     t.audio = { ...t.audio, [job.slot]: media };
   }
   state.set(key, 'done', media.src);

@@ -5,10 +5,16 @@
 Owner: game-designer. Companions: `ui.md` (how it looks and moves),
 `acceptance-criteria.md` (what "done" means), `open-questions-ui.md` (what needs the owner).
 
-**Revision 4, 2026-09-23 — read §0B first, then §0A.** §0B is the owner's own remedy for the
-one cost revision 3 could not design away: he named his device and proposed paging. §0A
-records the four findings he reported from playing the built app. §0 is kept below both,
-because the mechanic correction it records is still the mechanic.
+**Revision 5, 2026-09-23 — read §0C first, then §0B, then §0A.** §0C is the alphabet
+correction and the one contradiction it closed: **undo is the whole strip, not the cell**
+(§4.4). §0B is the owner's own remedy for the one cost revision 3 could not design away: he
+named his device and proposed paging. §0A records the four findings he reported from playing
+the built app. §0 is kept below all three, because the mechanic correction it records is still
+the mechanic.
+
+**The mechanic is unchanged in revision 5.** Discovery, liveness, the constant table, no fail
+state, the shelf, the album, the idle ladder and the announcement are all exactly as revision 4
+left them. What changed is **what a cell holds** and **how many taps a word takes**.
 
 Designed around and not relitigating: `decisions.md`, `literacy-vi.md`, `literacy-en.md`,
 `word-list.md`, `image-sourcing.md`, `spike-results.md`, `development-process.md`.
@@ -243,6 +249,59 @@ literally the thing he asked for in revision 3, delivered rather than approximat
 | 4 | The 62 pt ink lever, priced and offered | **Dropped.** It existed to buy back vocabulary; there is no vocabulary to buy back. The 72 pt floor stands, for the fourth revision |
 | 5 | F7: a served viewport holds ≥ 20 cells | **F7: a served viewport can build a page plan for both packs.** "Served" now means "can actually be played" rather than "holds a number of cells" |
 | 6 | The editor's §13.5 is the normal state of every phone | **Back to an edge case.** It fires only for a character that is not in `inventoryOrder` at all |
+
+---
+
+## 0C. CORRECTION — revision 5. The board is the alphabet, and one contradiction is closed.
+
+**Revision 5. 2026-09-23.** The owner played the revision-4 build:
+
+> "also, the characters being displayed feel really random and un-organized and **doesn't give
+> my son a sense of character order** in the table. Let's try this, display the **full standard
+> character table**"
+
+and then, asked what that meant for `ch` and `tr`:
+
+> "but, for character combining, he will still going through **character by character**, event
+> for combine ones like ch, tr …(Choose C and choose H …). This to keep the table consistent"
+
+**`literacy-vi.md` §0 and `literacy-en.md` §0 own the model** — letter-by-letter input over an
+**unchanged đánh vần**. **`ui.md` §0C and `acceptance-criteria.md` §0D own the design.** This
+section records only what revision 5 changes in *this* document, which is deliberately little:
+the mechanic did not change, only what a cell holds and how many taps a word takes.
+
+| # | Revision 4 said | **Revision 5** | Where |
+|---|---|---|---|
+| **G1** | The Vietnamese table is `[26 onsets][35 rimes][6 tones]`; English is `[26 letters][10 digraphs]` | **VI `[29 letters][6 tones]`, EN `[26 letters]`.** `ch` is two taps and is still one âm đầu. §3.2's constant table, §3.3's liveness, §3.4a's tone carriers and §3.7's "runs never share a page" all survive **unchanged** | §3.2, §3.7 |
+| **G2** | §4.4: **tap a symbol in the strip** → it and everything after it returns | **§4.4 rewritten: tap the strip → one symbol returns.** See below | §4.4 |
+| **G3** | §0B.2's device table: 4 VI pages `26/18/17/6` at 75 pt, 2 EN pages | **Measured in revision 5: 3 VI pages `15/14/6` at 3 × 5, tile 101 pt (A) / 104 pt (B); English is ONE page of 26 with no rail at all.** `ui.md` §4.4 is the measurement and supersedes §0B.2's numbers | §0B.2, §3.5 |
+| **G4** | §4.5's strip drawing — an onset cell, a rime cell, a dashed cell | **Superseded by `ui.md` §7.2**, which is a six-cell strip with span bars and a marked onset/rime boundary. §4.5's *principle* — the strip is the word so far plus one dashed cell — is unchanged and is why it is not rewritten here | §4.5 |
+
+### 0C.1 The contradiction this closes, recorded because it survived two revisions
+
+**`ui.md` §2.2 has said since revision 3:** *"A short tap on the strip is **undo**
+(`gameplay.md` §4.4), so the two gestures are: tap = take it back, hold = say what I have."*
+The whole strip, one target.
+
+**`ui.md` §7.2 and this document's §4.4 said, at the same time:** tap **a cell** to return that
+symbol and everything after it. Per cell.
+
+**Both sentences shipped, in three documents, for two revisions, and neither review caught
+it.** `acceptance-criteria.md` **D4, E8, E9, C10 and C11** were written against the per-cell
+reading, so the criteria agreed with the wrong half.
+
+**What settled it was not a preference, it was arithmetic.** Revision 5 sized the word strip
+against the content width for the first time — revision 4 never did, because three cells always
+fitted — and the number that came out is that **a 360 dp phone has 328 pt of content width and
+five 72 pt cells need 392**. Per-cell undo was never buildable at the floor. The design had
+been carrying a rule that the smallest supported device could not draw, and the contradiction
+was the symptom.
+
+**The lesson, in this project's standing form.** The two sentences were in different files and
+each was locally reasonable; nothing compared them, because nothing *executed* them. The strip
+had no rule in `tools/layout-sweep.mjs` until revision 5 — F4, F15, F16 and F17 are new — so
+there was no gate that could have failed. **An unmeasured component is where a contradiction
+lives**, and it lived here for two revisions in the one component the child touches most.
 
 ---
 
@@ -597,8 +656,8 @@ after the rime — which is precisely when staying put would strand him.
 - a soft non-speech **page sound**, so it is legible with the screen ignored (`ui.md` §11.3).
 
 **How he always gets back:** every page button is on screen, always, and always pressable —
-including the flat ones. And **tapping a symbol in the strip slides to that symbol's page**,
-so undo doubles as navigation back to where that character lives.
+including the flat ones. And **tapping the strip returns the last symbol and slides to that
+symbol's page** (§4.4), so undo doubles as navigation back to where that character lives.
 
 ### 3.9 Decision: the rail says where the live characters are, and the app never strands him
 
@@ -672,22 +731,59 @@ He learns, in one tap, that flat tiles talk but do not move. That is a physical 
 still his to press.** It also means the disabled set is doing real work — it is the only place
 in the app where he meets a letter that is not part of the word he is making.
 
-### 4.4 Decision: undo is the word strip, and there is no undo button
+### 4.4 Decision (revision 5): undo is **the whole strip**, one symbol per tap, and there is no undo button
 
 Revision 1 had no undo. Revision 2 must have one, because he will want a character back.
 
-- **Tap any symbol in the strip → that symbol and everything after it returns to the table.**
-  So tapping the last one is undo, and tapping the first one clears the strip.
-- Everything after it goes too, because a middle symbol cannot be removed without leaving a
-  prefix that was never on the tree. One rule, no illegal state.
-- The removed symbols **fly home one at a time, 90 ms apart** (`exit`), each playing its own
-  clip, and the table restands for the shorter prefix.
+> **Tap the word strip → the last symbol returns to the table. Tap again → the one before it.**
+> The strip is **one** target, not one target per cell.
+
+- The returned symbol **flies home** over 300 ms (`exit`, M8) and the table restands for the
+  shorter prefix.
+- **The clip that plays is the clip of what is LEFT**, not of what was taken. Undoing `h` from
+  `c h` says `cờ`, not `hờ` — the same rule as a tap, running backwards: *say the unit you are
+  building now* (`literacy-vi.md` §0.9).
 - A soft descending two-note *unclick* (140 ms) plays under it. It communicates *taken back*,
   and it is the only descending motif in the app, so it can never be confused with the
   announcement, which only rises.
+- The board **slides to the returned symbol's page** if it is not already there, so undo is
+  also the way back (`ui.md` §7.1c).
+- **On an empty strip, a tap does nothing and plays nothing.**
+- **There is no clear-all gesture.** A word is at most six symbols, so emptying it is at most
+  six taps, each with its own sound and its own flight home — feedback, not friction. The
+  strip keeps exactly two gestures: **tap = take the last one back, hold 800 ms = the parts
+  hint** (`ui.md` §2.2).
 
 No button, no glyph, no label. The affordance is the same one the game already teaches: the
 strip is made of the same tiles the table is.
+
+**Revision 2 said the opposite and revision 5 overrules it, on geometry rather than taste.**
+It said *tap any symbol → that symbol and everything after it returns*, so tapping the first
+one cleared the strip. That was a reasonable model when a Vietnamese word was three cells. It
+is not available any more:
+
+| | |
+|---|---|
+| What per-cell undo requires | a **72 pt** motor target per cell (`ui.md` §4.5 — the floor, refused for the fifth revision) |
+| What five of those cost | `5 × 72 + 4 × 8 = 392` pt |
+| What the supported floor has | **328 pt** of content width at 360 dp |
+| On the owner's own iPhone | the strip cell is **58 pt** wide |
+
+**So per-cell undo is not a thing the smallest supported phone can draw, and it is below the
+motor floor on his own device.** `ui.md` §7.2.6 has the full ruling; `STRIP_CELL_MIN` is a
+*legibility* floor of 40 pt as a result, not a motor one.
+
+**Three things get better, which is why this is not merely damage control.**
+
+1. *Take the last one back* is **one rule a 4-year-old can hold.** *Tap the third block to
+   return the third, fourth and fifth* is a model of a model.
+2. **The target becomes enormous** — the whole strip band, 392 × 106 pt on his phone,
+   328 × 77 at the floor. The most-used control in the app becomes the easiest thing on the
+   screen to hit.
+3. **The illegal-prefix worry disappears rather than being managed.** Revision 2 removed
+   "everything after it" to avoid leaving a prefix that was never on the tree. Removing only
+   the last symbol cannot leave one at all, so the rule that existed to prevent an illegal
+   state is no longer needed to prevent it.
 
 ### 4.5 Decision (revision 3): the strip is the word so far, in both languages
 
@@ -1108,7 +1204,7 @@ were re-checked rather than inherited.
 | **new** · Optional parent-recorded cheer over the motif | The most-heard moment in the app can be his mother saying well done, for one editor screen. |
 | **new** · A prefix word announces and continues; the strip keeps it | A commit gesture is a thing he must know to press. Withholding a word he made is the one thing this mechanic must never do. |
 | **new** · Re-discovery: full motif, short chant, the next photograph | He will build `mèo` twenty times; it must stay rewarding, and the đánh vần is not news the third time. |
-| **new** · Undo is a tap on the strip; it takes that symbol and everything after it | He will want a character back. One rule, no illegal prefix, no button, no glyph. |
+| **new** · Undo is a tap on the strip; **revision 5: it takes the LAST symbol, one per tap** | He will want a character back. No button, no glyph. Per-cell undo needs a 72 pt cell and the 360 dp floor cannot draw five of them — §4.4, §0C.1. Removing only the last symbol also cannot leave an illegal prefix, so the rule that existed to prevent one is no longer needed. |
 | **new** · No rounds. A shelf of five, then the album. | Nothing serves him a word, so nothing can end a round. The shelf keeps the parent's stopping point and replaces a dot with a photograph. |
 | **new** · The album is a collection that only grows | The only progress signal in the app, and the only one that cannot go down. |
 | **new** · The idle ladder plays a symbol rather than pointing at the answer | There is no answer to point at, and since every live path ends in a word, the app taking a turn is delightful rather than a rescue. |

@@ -15,6 +15,7 @@ import {
   gridFor as appGridFor, planFits as appPlanFits, fitGlyph, RULES, PLAN_RULES,
   MIN_TABLE, MAX_TABLE, TILE_MIN, CHROME, TOP_BAR, GAP_STRIP, PAD_BOTTOM,
   RAIL_GAP, RAIL_MAX_ROWS, railCols, railH, orientationPolicy,
+  STRIP_CELLS, STRIP_GAP, STRIP_PAD, STRIP_CELL_MIN, VI_RUNS, EN_RUNS,
 } from '../src/layout/layout.mjs';
 
 // `tools/layout-sweep.mjs` is a CLI: importing it runs the sweep and calls
@@ -39,9 +40,16 @@ const INSETS = [
   { insetT: 0, insetB: 21, insetL: 59, insetR: 59 },
 ];
 
-/** The two shipped inventories as run lengths. `ui.md` §4.2. */
-const VI_RUNS = [26, 35, 6];
-const EN_RUNS = [26, 10];
+// The two shipped inventories as run lengths — **design revision 5**: VI is 29 letters
+// then 6 tones, EN is 26 letters. They are imported rather than restated so that a run
+// length changing in the law cannot leave this file asserting the old board.
+// `ui.md` §4.2, §0C U28.
+assert.deepEqual(VI_RUNS, [29, 6]);
+assert.deepEqual(EN_RUNS, [26]);
+
+/** The longest word in each pack, in letters — what F17 checks the strip against. */
+const VI_MAX_LETTERS = 5; // `chuối` / `trăng` / `trứng` (`literacy-vi.md` §0.11)
+const EN_MAX_LETTERS = 4; // `ship` / `fish` / `duck` / `sock` (`literacy-en.md` §0.2)
 
 test('the app layout law is identical to tools/layout-sweep.mjs across the whole range', () => {
   let compared = 0;
@@ -94,7 +102,9 @@ test('V4–V8 — the page plan and the fixpoint are identical to the tool', () 
           assert.equal(a === null, b === null, `planFor disagrees at ${Wv}x${Hv} ${JSON.stringify(ins)}`);
           if (a === null) continue;
           assert.deepEqual(a, b, `the page plan differs at ${Wv}x${Hv} ${JSON.stringify(ins)}`);
-          assert.equal(appPlanFits(a, runs), true, `a served plan fails a plan rule at ${Wv}x${Hv}`);
+          const maxLetters = runs === VI_RUNS ? VI_MAX_LETTERS : EN_MAX_LETTERS;
+          assert.equal(appPlanFits(a, runs, maxLetters), true,
+            `a served plan fails a plan rule at ${Wv}x${Hv}`);
           plans += 1;
           if (a.paged) paged += 1;
         }
@@ -106,12 +116,14 @@ test('V4–V8 — the page plan and the fixpoint are identical to the tool', () 
   }
   assert.ok(plans > 20000, `only built ${plans} page plans`);
   assert.ok(served > 10000, `only ${served} viewport/inset combinations served`);
-  assert.ok(paged > 1000, `only ${paged} plans were paged — the paged branch is barely exercised`);
+  // Revision 5 halved the board, so 93% of served combinations need no rail at all
+  // (V3a). The paged branch is rarer than it was and still has to be exercised.
+  assert.ok(paged > 400, `only ${paged} plans were paged — the paged branch is barely exercised`);
 });
 
 test('V5 / V6 — pagePlan balances a run and drops nothing, identically to the tool', () => {
   for (let cap = 12; cap <= 90; cap += 1) {
-    for (const runs of [VI_RUNS, EN_RUNS, [26, 35, 6, 1], [1], [90], [7, 7, 7]]) {
+    for (const runs of [VI_RUNS, EN_RUNS, [29, 6, 1], [1], [90], [7, 7, 7]]) {
       const a = appPagePlan(runs, cap);
       assert.deepEqual(a, tool.pagePlan(runs, cap), `pagePlan differs at cap=${cap}`);
       // V6 — every character is on exactly one page.
@@ -120,16 +132,19 @@ test('V5 / V6 — pagePlan balances a run and drops nothing, identically to the 
       assert.ok(a.every((n) => n > 0), 'V13 — no page is empty');
     }
   }
-  // The named case from `ui.md` §7.1: 35 rimes at capacity 28 is 18/17, never 28/7.
-  assert.deepEqual(appPagePlan([35], 28), [18, 17]);
-  assert.deepEqual(appPagePlan(VI_RUNS, 28), [26, 18, 17, 6]);
-  assert.deepEqual(appPagePlan(EN_RUNS, 28), [26, 10]);
+  // **RESTATED for revision 5 (V5, P6d).** The named case is now the alphabet: 29 letters
+  // at his device's capacity of 28 is `15, 14` — balanced — never `28, 1`. That is what
+  // makes the split sayable out loud: page 1 is `a`…`m`, page 2 is `n`…`y`, page 3 is
+  // the six tones (`ui.md` §0C).
+  assert.deepEqual(appPagePlan([29], 28), [15, 14]);
+  assert.deepEqual(appPagePlan(VI_RUNS, 28), [15, 14, 6]);
+  assert.deepEqual(appPagePlan(EN_RUNS, 28), [26]);
 });
 
 test('gridFor is identical to the tool over the whole search space', () => {
   for (let tableW = 280; tableW <= 1280; tableW += 17) {
     for (let H = 560; H <= 1440; H += 31) {
-      for (const cells of [1, 6, 12, 16, 20, 26, 28, 35, 36, 67, 90]) {
+      for (const cells of [1, 6, 12, 15, 16, 20, 26, 28, 29, 35, 36, 67, 90]) {
         assert.deepEqual(appGridFor(tableW, H, cells), tool.gridFor(tableW, H, cells),
           `gridFor(${tableW},${H},${cells}) differs`);
       }
@@ -161,59 +176,141 @@ test('the fit rule holds on every served layout — nothing scrolls, nothing is 
   assert.ok(checked > 100000, `only checked ${checked}`);
 });
 
-test('P5 / V1 — an iPad 11" portrait holds the whole 67-cell table at 86 pt, 7 x 10, no rail', () => {
+test('P5 / V1 — an iPad 11" portrait holds the whole 35-cell table at 116 pt, 5 x 7, no rail', () => {
+  // **RESTATED for revision 5.** Revision 4 asked for 67 cells at 86 pt in a 7 x 10 grid;
+  // the board is 35 cells now, so the same tablet draws them at the 116 pt reach cap.
   const v = { Wv: 834, Hv: 1194, insetT: 24, insetB: 20 };
   const P = appPlanFor(v, VI_RUNS);
   assert.equal(P.paged, false, 'a tablet must not page');
   assert.equal(P.railRows, 0);
   assert.equal(railH(0), 0, 'V1 — no rail is charged');
-  assert.deepEqual(P.pages, [67]);
-  assert.equal(P.L.cols, 7);
-  assert.equal(P.L.rows, 10);
-  assert.equal(P.L.tile, 86);
-  // English is one page too.
-  assert.equal(appPlanFor(v, EN_RUNS).paged, false);
+  assert.deepEqual(P.pages, [35]);
+  assert.equal(P.L.cols, 5);
+  assert.equal(P.L.rows, 7);
+  assert.equal(P.L.tile, 116);
+  // English is one page too: all 26 letters at 116 pt in 5 x 6.
+  const en = appPlanFor(v, EN_RUNS);
+  assert.equal(en.paged, false);
+  assert.deepEqual(en.pages, [26]);
+  assert.equal(en.L.cols, 5);
+  assert.equal(en.L.rows, 6);
+  assert.equal(en.L.tile, 116);
 });
 
-test('P6 — a 360 x 640 Android: 12 cells per page, 7 Vietnamese pages, every word reachable', () => {
+test('P6 — a 360 x 640 Android: 16 cells per page, 3 Vietnamese pages, one rail row', () => {
+  // **RESTATED for revision 5.** Revision 4 gave the floor 12 cells a page, 7 Vietnamese
+  // pages and TWO rail rows. The smaller board buys back a rail row, which buys back
+  // table height, which is why the capacity rises to 16 with the tile floor untouched.
   const v = { Wv: 360, Hv: 640, insetT: 24, insetB: 16 };
   const P = appPlanFor(v, VI_RUNS);
   assert.equal(P.paged, true);
-  assert.equal(P.cap, 12);
-  assert.deepEqual(P.pages, [9, 9, 8, 12, 12, 11, 6]);
-  assert.equal(P.railRows, 2);
+  assert.equal(P.cap, 16);
+  assert.deepEqual(P.pages, [15, 14, 6]);
+  assert.equal(P.railRows, 1);
   assert.equal(P.L.tile, 73);
-  assert.equal(P.pages.reduce((a, b) => a + b, 0), 67, 'all 67 characters are on a page');
-  assert.deepEqual(appPlanFor(v, EN_RUNS).pages, [13, 13, 10]);
+  assert.equal(P.L.cols, 4);
+  assert.equal(P.L.rows, 4);
+  assert.equal(P.pages.reduce((a, b) => a + b, 0), 35, 'all 35 characters are on a page');
+  assert.deepEqual(appPlanFor(v, EN_RUNS).pages, [13, 13]);
 });
 
-test('P6a — an iPhone SE 3 holds 16 cells per page and 6 Vietnamese pages', () => {
+test('P6a — an iPhone SE 3 holds 20 cells per page and 3 Vietnamese pages', () => {
+  // **RESTATED for revision 5**: was 16 cells and 6 pages.
   const v = { Wv: 375, Hv: 667, insetT: 20, insetB: 0 };
   const P = appPlanFor(v, VI_RUNS);
-  assert.equal(P.cap, 16);
-  assert.deepEqual(P.pages, [13, 13, 12, 12, 11, 6]);
-  assert.equal(P.pages.length, 6);
-  assert.equal(P.L.tile, 72);
+  assert.equal(P.cap, 20);
+  assert.deepEqual(P.pages, [15, 14, 6]);
+  assert.equal(P.pages.length, 3);
+  assert.equal(P.L.tile, 76);
+  assert.equal(P.L.cols, 4);
+  assert.equal(P.L.rows, 4);
+  assert.deepEqual(appPlanFor(v, EN_RUNS).pages, [13, 13]);
 });
 
-test('V3 — an iPhone 17 Plus is 4 VI pages [26,18,17,6] and 2 EN pages [26,10] at BOTH candidate sizes', () => {
-  for (const [label, v] of [
-    ['A 430x932', { Wv: 430, Hv: 932, insetT: 59, insetB: 34 }],
-    ['B 440x956', { Wv: 440, Hv: 956, insetT: 62, insetB: 34 }],
+test('V3 / P6c / D1d — an iPhone 17 Plus is 3 VI pages [15,14,6] and ONE EN page, no rail, at BOTH candidate sizes', () => {
+  // **RESTATED for revision 5, measured** (`ui.md` §4.4, §0C U39). Revision 4 asserted 4
+  // Vietnamese pages `[26,18,17,6]` at 75 pt and 2 English pages. The owner's own device
+  // now shows English as a single 26-cell alphabet grid with no page rail at all.
+  for (const [label, v, tile, enTile] of [
+    ['A 430x932', { Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, 101, 84],
+    ['B 440x956', { Wv: 440, Hv: 956, insetT: 62, insetB: 34 }, 104, 87],
   ]) {
     const vi = appPlanFor(v, VI_RUNS);
     const en = appPlanFor(v, EN_RUNS);
     assert.equal(vi.cap, 28, `${label}: 28 cells per page`);
-    assert.deepEqual(vi.pages, [26, 18, 17, 6], `${label}: the Vietnamese plan`);
-    assert.deepEqual(en.pages, [26, 10], `${label}: the English plan — page 1 is the whole alphabet`);
+    assert.deepEqual(vi.pages, [15, 14, 6], `${label}: the Vietnamese plan`);
     assert.equal(vi.railRows, 1, `${label}: one rail row`);
-    assert.equal(vi.L.railCols >= 4, true, `${label}: four buttons fit one row`);
-    assert.equal(vi.L.cols, 4);
-    assert.equal(vi.L.rows, 7);
-    assert.equal(vi.cells, 26, `${label}: one grid, sized from the largest page`);
+    assert.equal(vi.L.railCols >= 3, true, `${label}: three buttons fit one row`);
+    assert.equal(vi.L.cols, 3);
+    assert.equal(vi.L.rows, 5);
+    assert.equal(vi.cells, 15, `${label}: one grid, sized from the largest page`);
+    assert.equal(vi.L.tile, tile, `${label}: the Vietnamese tile`);
+
+    assert.equal(en.paged, false, `${label}: D1d — English needs no rail`);
+    assert.equal(en.railRows, 0, `${label}: and none is charged`);
+    assert.deepEqual(en.pages, [26], `${label}: the whole alphabet in one page`);
+    assert.equal(en.L.cols, 4);
+    assert.equal(en.L.rows, 7);
+    assert.equal(en.L.tile, enTile);
   }
-  assert.equal(appPlanFor({ Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, VI_RUNS).L.tile, 75);
-  assert.equal(appPlanFor({ Wv: 440, Hv: 956, insetT: 62, insetB: 34 }, VI_RUNS).L.tile, 77);
+});
+
+test('X5 / P6c / P17 / P18 — the six-cell word strip, measured on his device and at the floor', () => {
+  // X5: the strip on an iPhone 17 Plus is 106 pt tall with six 58 x 90 cells, an 8 pt gap
+  // and a 47 pt glyph. P18: the tightest served strip is 48 x 61 with a 39 pt glyph.
+  assert.equal(STRIP_CELLS, 6);
+  assert.equal(STRIP_GAP, 8);
+  assert.equal(STRIP_PAD, 8);
+  assert.equal(STRIP_CELL_MIN, 40);
+
+  const A = appPlanFor({ Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, VI_RUNS).L;
+  assert.equal(A.stripH, 106);
+  assert.equal(A.stripCellW, 58);
+  assert.equal(A.stripCellH, 90);
+  assert.equal(A.stripFont, 47);
+  assert.equal(A.stripCells, 6);
+  assert.equal(A.stripRowW, 6 * 58 + 5 * STRIP_GAP);
+
+  const B = appPlanFor({ Wv: 440, Hv: 956, insetT: 62, insetB: 34 }, VI_RUNS).L;
+  assert.equal(B.stripCellW, 60);
+  assert.equal(B.stripCellH, 93);
+  assert.equal(B.stripFont, 49);
+
+  const floor = appLayout({
+    Wv: 360, Hv: 600, cells: appMaxCells({ Wv: 360, Hv: 600 }),
+  });
+  assert.equal(floor.stripCellW, 48);
+  assert.equal(floor.stripCellH, 61);
+  assert.equal(floor.stripFont, 39);
+
+  // P20 — five 72 pt cells need 392 pt and the floor's content width is 328. That
+  // arithmetic is the whole reason undo is the strip and not the cell (`ui.md` §7.2.6).
+  assert.equal(5 * 72 + 4 * STRIP_GAP, 392);
+  assert.equal(floor.tableW, 328);
+  assert.ok(5 * 72 + 4 * STRIP_GAP > floor.tableW, 'per-cell undo would fit after all');
+});
+
+test('F15 / F16 / F17 can fail — the strip rules are checks, not decoration', () => {
+  // `development-process.md` §5. Each rule is handed a layout that violates it and must
+  // say so; a rule nobody has watched reject something is not a rule.
+  const L = appPlanFor({ Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, VI_RUNS).L;
+  const f15 = RULES.find(([n]) => n.startsWith('F15'))[1];
+  const f16 = RULES.find(([n]) => n.startsWith('F16'))[1];
+  const f4 = RULES.find(([n]) => n.startsWith('F4'))[1];
+  assert.equal(f15(L), true);
+  assert.equal(f15({ ...L, stripRowW: L.tableW + 1 }), false, 'F15 would not notice an overflowing strip');
+  assert.equal(f16(L), true);
+  assert.equal(f16({ ...L, stripCellW: STRIP_CELL_MIN - 1 }), false, 'F16 would not notice an illegible cell');
+  assert.equal(f4(L), true);
+  assert.equal(f4({ ...L, stripFont: 33 }), false, 'F4 would not notice a 33 pt glyph');
+
+  // F17 is the only strip rule that is not circular: it asks whether the PACK's longest
+  // word fits the strip the DEVICE laid out. `nghiêng` is seven letters.
+  const P = appPlanFor({ Wv: 360, Hv: 640, insetT: 24, insetB: 16 }, VI_RUNS);
+  const f17 = PLAN_RULES.find(([n]) => n.startsWith('F17'))[1];
+  assert.equal(f17(P, VI_RUNS, VI_MAX_LETTERS), true);
+  assert.equal(f17(P, VI_RUNS, 7), false, 'F17 would not notice a seven-letter word');
+  assert.equal(appPlanFits(P, VI_RUNS, 7), false);
 });
 
 test('P6b — the chrome is 56 + 12 + 12 = 80 and the tile floor is 72', () => {
@@ -296,7 +393,7 @@ test('V21 — on every served paged viewport the rail fits, in at most 2 rows', 
 
 test('P16 — the layout law has no caption-strip, frame, plate or stage term', () => {
   const L = appLayout({
-    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 67,
+    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 35,
   });
   assert.ok(!('capH' in L), 'the layout still budgets a caption strip');
   assert.ok(!('captionFont' in L));
@@ -312,17 +409,17 @@ test('P14 — a rotation changes the grid but never the reading order', () => {
   // *i* in both orientations. That is the whole of P14, and it is a property of the
   // renderer's loop rather than of the law — what the law must not do is reorder.
   const portrait = appLayout({
-    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 67,
+    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 35,
   });
   const landscape = appLayout({
-    Wv: 1194, Hv: 834, insetT: 24, insetB: 20, cells: 67,
+    Wv: 1194, Hv: 834, insetT: 24, insetB: 20, cells: 35,
   });
-  assert.equal(portrait.cols, 7);
-  assert.equal(portrait.rows, 10);
-  assert.equal(landscape.cols, 12);
-  assert.equal(landscape.rows, 6);
-  assert.ok(portrait.cols * portrait.rows >= 67);
-  assert.ok(landscape.cols * landscape.rows >= 67);
+  assert.equal(portrait.cols, 5);
+  assert.equal(portrait.rows, 7);
+  assert.equal(landscape.cols, 9);
+  assert.equal(landscape.rows, 4);
+  assert.ok(portrait.cols * portrait.rows >= 35);
+  assert.ok(landscape.cols * landscape.rows >= 35);
 });
 
 test('Q7 — a multi-character glyph shrinks to fit but never below 24 pt', () => {
@@ -351,10 +448,10 @@ test('the parity sweep can fail — a one-pixel drift in the app law is caught',
   };
   let caught = false;
   const a = drifted({
-    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 67,
+    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 35,
   });
   const b = tool.layout({
-    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 67,
+    Wv: 834, Hv: 1194, insetT: 24, insetB: 20, cells: 35,
   });
   for (const key of Object.keys(b)) if (a[key] !== b[key]) caught = true;
   assert.ok(caught, 'the field-by-field comparison would not notice a changed tile size');
@@ -371,8 +468,8 @@ test('the plan comparison can fail — a greedy pagePlan is caught by the plan r
     }
     return pages;
   };
-  assert.deepEqual(greedy([35], 28), [28, 7]);
-  assert.notDeepEqual(greedy([35], 28), appPagePlan([35], 28),
+  assert.deepEqual(greedy([29], 28), [28, 1]);
+  assert.notDeepEqual(greedy([29], 28), appPagePlan([29], 28),
     'the balanced split and the greedy split must differ, or V5 is untestable');
 
   const dropping = (runs, cap) => appPagePlan(runs, cap).map((n) => n).slice(0, -1);

@@ -62,5 +62,10 @@
       "article": 5,
       "at": "2026-09-23T03:51:30.535Z"
     }
-  }
+  },
+  "letters": [
+    "b",
+    "o"
+  ],
+  "onsetLetterCount": 1
 }

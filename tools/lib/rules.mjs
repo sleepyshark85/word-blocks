@@ -191,3 +191,203 @@ export const EN_EXCLUDED = ['q'];
 
 /** §6.2 and `literacy-vi.md` §4.1: same rule, same reason, both languages. */
 export const EN_HOMOPHONE_SETS = [['c', 'k']];
+
+/* ============================================================ revision 5 — letters */
+/*
+ * `literacy-vi.md` §0 and `literacy-en.md` §0. The board stopped being a list of onsets,
+ * rimes and digraphs and became **the standard alphabet**: a digraph is entered as its
+ * letters and is still one unit of the model. The owner, from playing the built app:
+ *
+ *   "display the full standard character table … for character combining, he will still
+ *    going through character by character, even for combine ones like ch, tr (Choose C
+ *    and choose H). This to keep the table consistent"
+ *
+ * So there are two different orderings in a pack now, and they are not the same list:
+ *
+ *   inventoryOrder   what the CHILD sees — 29 Vietnamese letters, or a-z, then the tones
+ *   tiles            what the EDITOR offers HER — the onsets, rimes and digraphs, which
+ *                    are still the model and still what a word is stored as
+ */
+
+/**
+ * `literacy-vi.md` §0.2, §0.4, §0.13 — the 29 letters, in the order the owner typed
+ * them. `f j w z` are not Vietnamese letters and are not on the board; that is why
+ * Vietnamese is 29 and English 26, and it is correct.
+ */
+export const VI_ALPHABET = [
+  'a', 'ă', 'â', 'b', 'c', 'd', 'đ', 'e', 'ê', 'g', 'h', 'i', 'k', 'l', 'm',
+  'n', 'o', 'ô', 'ơ', 'p', 'q', 'r', 's', 't', 'u', 'ư', 'v', 'x', 'y',
+].map((c) => c.normalize('NFC'));
+
+/** `literacy-en.md` §0.3 — a-z, one run, no digraphs. */
+export const EN_ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+const VI_LETTER_RANK = new Map(VI_ALPHABET.map((c, i) => [c, i]));
+
+/**
+ * Vietnamese dictionary collation, over the 29-letter alphabet. This is what puts `ch`
+ * immediately after `c` and `ăng` immediately after `a…`, and it is a FUNCTION rather
+ * than a transcribed list precisely because `literacy-vi.md` §0.13 prints the two
+ * expected lists — so the lists are a test of this comparator, not its source.
+ * A shorter string that is a prefix of a longer one sorts first (`c` < `ch`, `on` < `ong`).
+ */
+export function viCollate(a, b) {
+  const x = [...a.normalize('NFC')];
+  const y = [...b.normalize('NFC')];
+  for (let i = 0; i < Math.min(x.length, y.length); i += 1) {
+    const rx = VI_LETTER_RANK.has(x[i]) ? VI_LETTER_RANK.get(x[i]) : VI_ALPHABET.length;
+    const ry = VI_LETTER_RANK.has(y[i]) ? VI_LETTER_RANK.get(y[i]) : VI_ALPHABET.length;
+    if (rx !== ry) return rx - ry;
+    if (x[i] !== y[i]) return x[i] < y[i] ? -1 : 1;
+  }
+  return x.length - y.length;
+}
+
+/** English: the alphabet first, then the digraphs alphabetised among themselves (§0.7). */
+export function enCollate(a, b) {
+  const la = [...a].length === 1 ? 0 : 1;
+  const lb = [...b].length === 1 ? 0 : 1;
+  if (la !== lb) return la - lb;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
+ * `literacy-vi.md` §0.5 — **the letter stream of a syllable, which is what he taps.**
+ *
+ * Default: the onset's letters followed by the rime's letters, untoned; the tone is the
+ * separate terminal tap (§0.8). It is DERIVED here, once, at build time, and then
+ * STORED — never recomputed at runtime — because the derivation is not always right:
+ * `gì` is onset `gi` + rime `i` written with a single `i`, and the letter stream cannot
+ * express that. Such a word carries `build.spellingException` and an explicit `letters`,
+ * and this function is not consulted for it.
+ */
+export function viLetters(onset, rime) {
+  return [...`${onset ?? ''}${rime}`.normalize('NFC')];
+}
+
+/** How many of those letters belong to the onset. `ch` -> 2, `ngh` -> 3, zero onset -> 0. */
+export function viOnsetLetterCount(onset) {
+  return [...(onset ?? '').normalize('NFC')].length;
+}
+
+/** `literacy-en.md` §0.5 — English letters ARE the spelling, character for character. */
+export function enLetters(text) {
+  return [...text.normalize('NFC')];
+}
+
+/**
+ * Every proper prefix of a symbol in `ids` that is not itself in `ids` — the states the
+ * child can be in that no tile speaks for.
+ *
+ * `literacy-vi.md` §0.12: over the 26 onsets this is exactly `p` and `q` (bare `p` and
+ * bare `q` are never onsets), and over the 35 rimes it is exactly
+ * `ac an uô â ă ăn ư ưn`. Deriving it rather than listing it is what makes the answer
+ * follow the pack when his mother adds `ngh` or a rime nobody thought of.
+ */
+export function prefixStates(ids) {
+  const have = new Set(ids.map((s) => s.normalize('NFC')));
+  const out = new Set();
+  for (const id of have) {
+    const chars = [...id];
+    for (let n = 1; n < chars.length; n += 1) {
+      const p = chars.slice(0, n).join('');
+      if (!have.has(p)) out.add(p);
+    }
+  }
+  return [...out];
+}
+
+/**
+ * `literacy-vi.md` §0.9 — what a partial unit SAYS when the tap that makes it lands.
+ * A rime-state reads itself aloud; an onset-state says its đánh vần name. Two vowels
+ * cannot be said level at all, which is why they are voiced with a mark:
+ *
+ *   ă -> á   â -> ớ        (§0.4, confidence `check`: the owner can settle it from the book)
+ *   p -> pờ  q -> quờ      (§0.6: neither is ever an onset on its own)
+ *
+ * Every other prefix state is read as written. §0.9 records the honest cost: several of
+ * these are not real Vietnamese syllables read level, so **every one needs a human
+ * listening check before it ships**.
+ */
+export const VI_PREFIX_SPEECH = { p: 'pờ', q: 'quờ', ă: 'á', â: 'ớ' };
+export function viPrefixSpeech(id) {
+  return VI_PREFIX_SPEECH[id.normalize('NFC')] ?? id.normalize('NFC');
+}
+
+/* ======================================== revision 5 — glyph casing (ui.md §8.2) */
+
+/*
+ * **The owner answered `open-questions-ui.md` Q7 on 2026-09-23: English tiles are
+ * UPPERCASE.** `ui.md` §8.2 hands the content-engineer E22 — "one casing field per pack;
+ * the name and shape are the content-engineer's" — and this is the answer.
+ *
+ *     "display": { "glyphCase": "upper" }
+ *
+ * **Why `display`, and why it is nested.** The manifest already groups policy-as-data by
+ * what it governs: `media` is the degradation policy, `rules` the orthography, `chant` the
+ * timing. `display` is the render policy, and putting the field under it makes D20's
+ * boundary a fact about the schema rather than a rule somebody has to remember: **nothing
+ * under `display` may reach stored data, audio, ordering or any parent surface.** A bare
+ * top-level `glyphCase` sitting between `dialect` and `rules` would read like content, and
+ * the next render-only field would have nowhere principled to go.
+ *
+ * **Why `glyphCase` and not `case` or `uppercase`.** §8.2 is emphatic that it reaches *the
+ * glyph* and nothing else — not `letters`, not the clip key, not `inventoryOrder`'s sort,
+ * not the editor. The name carries the scope.
+ *
+ * **Two values, and everything else is lowercase.** D23: absent, empty or unrecognised
+ * renders lowercase and starts normally. A casing flag is never worth refusing to start
+ * over (`CLAUDE.md`: content is hostile input).
+ */
+export const GLYPH_CASES = ['lower', 'upper'];
+export const DEFAULT_GLYPH_CASE = 'lower';
+
+/**
+ * What a seed pack ships with. English upper (the owner's answer); Vietnamese lower —
+ * and `ui.md` §8.2.3 is explicit that the asymmetry is a **correctness** constraint, not a
+ * style preference. See `viUppercaseGaps` below for the gate that keeps it that way.
+ */
+export function seedGlyphCase(language) {
+  return language === 'en' ? 'upper' : 'lower';
+}
+
+/** D23's fallback, applied to whatever the manifest actually holds. Never throws. */
+export function readGlyphCase(manifest) {
+  const d = manifest && manifest.display;
+  if (!d || typeof d !== 'object' || Array.isArray(d)) return DEFAULT_GLYPH_CASE;
+  const v = d.glyphCase;
+  return typeof v === 'string' && GLYPH_CASES.includes(v) ? v : DEFAULT_GLYPH_CASE;
+}
+
+/**
+ * **The Q13 gate, as a computation rather than a constant.**
+ *
+ * `ui.md` §8.2.3 / AC **Q13**: `assets/fonts/FIXTURE.txt` carries seven uppercase
+ * Vietnamese letters — `Ă Â Đ Ê Ô Ơ Ư` — and **none of the ~130 precomposed marked
+ * capitals**. The bundled faces do contain those glyphs, but *a font that contains a glyph
+ * is not a gate that has rendered it*, and `mả`/`mã` are 34 px apart at 36 pt with the
+ * mark sitting against cap height rather than x-height. `CLAUDE.md` calls rendering those
+ * two alike a **correctness** failure.
+ *
+ * So rather than banning `vi` + `upper` with a constant that nobody will remember to
+ * delete, this returns **the characters this specific pack would need and the fixture does
+ * not cover**. Extend the fixture, re-run Q1–Q5c, and the gate lifts by itself.
+ *
+ * @param {string[]} texts   every string the child would see upper-cased
+ * @param {string}   fixture the contents of assets/fonts/FIXTURE.txt
+ * @returns {string[]} the uncovered characters, sorted
+ */
+export function viUppercaseGaps(texts, fixture) {
+  const covered = new Set([...fixture.normalize('NFC')]);
+  const need = new Set();
+  for (const t of texts) {
+    for (const ch of String(t).toLocaleUpperCase('vi').normalize('NFC')) {
+      // ASCII is covered by the Latin half of the fixture and by every font on earth.
+      // What Q13 is about is `Ẫ`, `Ộ`, `Ử` — a base letter carrying a diacritic AND a tone.
+      if (ch.codePointAt(0) < 128) continue;
+      if (ch.toLowerCase() === ch) continue;      // not a letter with a case
+      if (!covered.has(ch)) need.add(ch);
+    }
+  }
+  return [...need].sort();
+}

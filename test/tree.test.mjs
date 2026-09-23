@@ -34,15 +34,64 @@ test('B2 / C21 — the table is EVERY character of every run, in order, and noth
   }
 });
 
-test('C21 — Vietnamese is 26 onsets + 35 rimes + 6 tones, and paging truncates none of it', () => {
+test('B2j / C21 — Vietnamese is 29 letters + 6 tones, in the owner\'s order, truncated nowhere', () => {
   const pack = viPack();
-  const runs = langFor('vi').runsFor(pack).map((r) => r.ids.length);
-  assert.deepEqual(runs, [26, 35, 6], 'the run lengths the layout law is swept against');
-  for (const pages of [null, phonePages('vi'), [9, 9, 8, 12, 12, 11, 6]]) {
+  const runs = langFor('vi').runsFor(pack);
+  assert.deepEqual(runs.map((r) => r.ids.length), [29, 6],
+    'the run lengths the layout law is swept against');
+  // **B2j — the alphabet, exactly as he typed it**, and the tone run as the set phrase.
+  // Neither is sorted by frequency, by word count, or by anything a build script produced
+  // (`literacy-vi.md` §0.13 — the defect he actually reported).
+  assert.deepEqual(runs[0].ids, [
+    'a', 'ă', 'â', 'b', 'c', 'd', 'đ', 'e', 'ê', 'g', 'h', 'i', 'k', 'l', 'm',
+    'n', 'o', 'ô', 'ơ', 'p', 'q', 'r', 's', 't', 'u', 'ư', 'v', 'x', 'y',
+  ]);
+  assert.deepEqual(runs[1].ids, ['ngang', 'huyen', 'sac', 'hoi', 'nga', 'nang']);
+  // **B2k — and the retired runs are gone from the board**: nothing on it is an onset or
+  // a rime, though both still exist in `tiles` as the model (`content-pipeline.md` §3.7).
+  assert.deepEqual(Object.keys(pack.inventoryOrder).sort(), ['letter', 'tone']);
+  assert.ok(pack.tiles.onset.length === 26 && pack.tiles.rime.length === 35,
+    'the model lost its vocabulary along with the cells');
+  for (const pages of [null, phonePages('vi'), [15, 14, 6]]) {
     const game = createGame(pack, { pages });
-    assert.equal(game.inventory.symbols.length, 67, `pages=${pages}`);
-    assert.deepEqual(game.inventory.pages.flat().map((s) => s.id), game.inventory.ids);
+    assert.equal(game.inventory.symbols.length, 35, `pages=${pages}`);
+    assert.deepEqual(game.inventory.pages.flat().map((x) => x.id), game.inventory.ids);
   }
+});
+
+test('B2l / C15 / D5 / S5 — a cell\'s kind is a permanent property of its glyph', () => {
+  for (const [label, load] of PACKS) {
+    const pack = load();
+    const { game, state } = start(pack);
+    const kinds = new Map(tableView(game, state).cells.map((c) => [c.id, c.kind]));
+    // Every kind is one of the three, and a tone is only ever Vietnamese (D6).
+    for (const [id, kind] of kinds) {
+      assert.ok(['consonant', 'vowel', 'tone'].includes(kind), `${label}: ${id} is "${kind}"`);
+      if (pack.language === 'en') assert.notEqual(kind, 'tone', 'English rendered a tone');
+    }
+    // **And it never changes, whatever he taps** — including at the five branching
+    // onsets, where a consonant and a vowel are live at once meaning opposite things
+    // (B2m, `literacy-vi.md` §0.6).
+    const walk = (st, depth) => {
+      if (st.status === 'announcing' || depth > 3) return;
+      for (const cell of tableView(game, st).cells) {
+        assert.equal(cell.kind, kinds.get(cell.id), `${label}: ${cell.id} changed kind`);
+      }
+      for (const symbol of live(game, st)) walk(tap(game, st, symbol), depth + 1);
+    };
+    walk(state, 0);
+  }
+});
+
+test('B2m — after `c`, a consonant and a vowel stand at the same time', () => {
+  const pack = viPack();
+  const { game, state } = start(pack);
+  const after = tap(game, state, 'c');
+  const standing = tableView(game, after).cells.filter((x) => x.live);
+  const kinds = new Set(standing.map((x) => x.kind));
+  assert.ok(kinds.has('consonant'), '`h` must stand: it makes the sound bigger');
+  assert.ok(kinds.has('vowel'), 'a vowel must stand: it starts the next part of the word');
+  assert.ok(standing.some((x) => x.id === 'h' && x.kind === 'consonant'));
 });
 
 test('D1a / D1b — all 26 letters are on the English board, `q` included and always flat', () => {
@@ -130,7 +179,7 @@ test('B3 — a symbol is live iff some eligible word continues the prefix, check
       const key = prefix.join('\u0000');
       if (seen.has(key)) continue;
       seen.add(key);
-      const symbols = lang.symbolsFor(pack, tree.inventory, prefix).map((s) => s.id);
+      const symbols = tree.inventory.ids;
       for (const symbol of symbols) {
         const wanted = [...prefix, symbol];
         const reachable = paths.some((p) => p.length >= wanted.length
@@ -190,14 +239,49 @@ test('B14 / L7 — a withheld word leaves its character on the board, in its cel
   assert.deepEqual(tree.inventory.ids, full.inventory.ids);
 });
 
-test('D12 — no final-only tile is live on an empty strip, and it is B4 doing it for free', () => {
+test('D12 / D1c / D1f — the live-at-position-1 set is 15 letters, and the flat 11 are named', () => {
+  // **RESTATED in revision 5** (`literacy-en.md` §0.2): the board is the alphabet, so
+  // there is no final-only *tile* to withhold. The position rules moved to liveness —
+  // `ck` is dead at position 1 because no word starts `ck`, not because a tile was hidden.
   const { game, state } = start(enPack());
   const table = tableView(game, state);
-  for (const id of ['ck', 'll', 'ss', 'ff', 'zz', 'ng', 'x', 'q']) {
+  assert.deepEqual(table.cells.map((c) => c.id), 'abcdefghijklmnopqrstuvwxyz'.split(''));
+  assert.deepEqual(table.cells.filter((c) => c.live).map((c) => c.id),
+    'a b c d e f h l m n p r s v w'.split(' '));
+  for (const id of 'g i j k o q t u x y z'.split(' ')) {
     const cell = table.cells.find((c) => c.id === id);
-    assert.ok(cell, `${id} is not on the board — every character of inventoryOrder is`);
     assert.equal(cell.live, false, `${id} begins a word`);
+    assert.ok(cell.audio.short, 'D1c — a permanently flat letter must still speak');
   }
+  // D1f — after `c`, `k` is NOT live (no word starts `ck`) and the live set is `a r u`.
+  const c = tap(game, state, 'c');
+  assert.deepEqual(live(game, c), ['a', 'r', 'u']);
+  // D1c — `j`, `q`, `y` and `z` appear in no `en-seed` word, so they are live nowhere.
+  const walk = (st, depth) => {
+    if (st.status === 'announcing' || depth > 4) return;
+    for (const id of ['j', 'q', 'y', 'z']) {
+      assert.equal(live(game, st).includes(id), false, `${id} became live at ${st.prefix.join('')}`);
+    }
+    for (const symbol of live(game, st)) walk(tap(game, st, symbol), depth + 1);
+  };
+  walk(state, 0);
+});
+
+test('C18a — every one of the 29 Vietnamese letters appears in some word', () => {
+  // The contrast with D1c, and it is the literacy-designer's measured claim: the
+  // Vietnamese board has **no permanently dead cell** where English has four
+  // (`literacy-vi.md` §0.4). `p` is the one to watch: its only word, `phở`, is switched
+  // off for want of a photograph, so it is measured over the catalogue rather than over
+  // what is playable today.
+  const pack = viPack();
+  const used = new Set();
+  for (const entry of pack.catalogue) {
+    const word = pack.wordById[entry.id];
+    if (word) for (const letter of word.letters) used.add(letter);
+  }
+  const missing = pack.inventoryOrder.letter.filter((l) => !used.has(l));
+  assert.deepEqual(missing, ['p'],
+    'the only letter with no playable word behind it should be `p` (phở has no picture yet)');
 });
 
 test('D11 — `c` and `k` are never both live, at any reachable prefix', () => {
@@ -223,17 +307,71 @@ test('D13 — after `c` `a`, exactly the letters that complete a pack word are l
   assert.ok(live(game, after).length > 0);
 });
 
-test('B2g / C19 — a zero-onset word is TWO taps: the rime, then the tone', () => {
+test('B2g / C19 / C4e — the empty-strip live set is letters, and `áo` is THREE taps', () => {
   const pack = viPack();
   const { game, state } = start(pack);
-  // `áo` = ao + sắc. On an empty strip the rime must be live, with no placeholder first.
-  assert.ok(live(game, state).includes('ao'), '`ao` does not begin a word on an empty strip');
-  const after = tap(game, state, 'ao');
-  assert.deepEqual(after.prefix, ['ao']);
-  const done = tap(game, after, 'sac');
+  // **B2g, restated**: the live set is the letters that begin a word. `áo` is started by
+  // tapping the letter `a` — there is no rime tile to tap any more.
+  const first = live(game, state);
+  const expected = [...new Set(game.tree.eligible.map((w) => w.letters[0]))]
+    .sort((a, b) => pack.inventoryOrder.letter.indexOf(a) - pack.inventoryOrder.letter.indexOf(b));
+  assert.deepEqual(first, expected);
+  assert.ok(first.includes('a'), '`a` does not begin a word on an empty strip');
+  assert.ok(first.every((id) => !pack.tileById.tone[id]), 'a tone is live on an empty strip');
+
+  const done = tap(game, tap(game, tap(game, state, 'a'), 'o'), 'sac');
   assert.equal(done.status, 'announcing');
   assert.equal(done.pending.text, 'áo');
-  assert.equal(done.prefix.length, 2, 'it took more than two taps');
+  assert.deepEqual(done.prefix, ['a', 'o', 'sac'], 'C19 — three taps, no placeholder');
+
+  // **C4e — every word in the pack is 3 to 6 taps**, and every intermediate prefix has
+  // something live (`literacy-vi.md` §0.11).
+  let sum = 0;
+  for (const word of game.tree.eligible) {
+    const path = [...word.letters, word.syllables[0].tone];
+    assert.ok(path.length >= 3 && path.length <= 6, `"${word.text}" is ${path.length} taps`);
+    sum += path.length;
+    let st = state;
+    for (const symbol of path) {
+      assert.ok(live(game, st).includes(symbol), `"${word.text}": ${symbol} is not live`);
+      st = tap(game, st, symbol);
+    }
+    assert.equal(st.status, 'announcing');
+  }
+  const mean = sum / game.tree.eligible.length;
+  assert.ok(mean > 3.9 && mean < 4.3, `mean taps per word is ${mean.toFixed(2)}`);
+});
+
+test('C4f — the onset/rime boundary is STORED, and the letters alone cannot recover it', () => {
+  // `literacy-vi.md` §0.5. The proof that this is not a distinction without a difference
+  // is `gì`: onset `gi` + rime `i`, written with a single `i`. Its letters are `g` `i`
+  // and no rule over them can say where the onset ends — so the engine reads the stored
+  // triple, and a pack that says something different about the same letters is believed.
+  const pack = viPack();
+  for (const word of pack.words) {
+    const n = word.onsetLetterCount;
+    assert.equal(word.letters.slice(0, n).join(''), word.syllables[0].onset ?? '',
+      `${word.id}: the stored letters do not spell the stored onset`);
+    const onsetSpan = word.spans.find((sp) => sp.group === 'onset');
+    assert.equal(onsetSpan ? onsetSpan.end : 0, n, `${word.id}: the span disagrees with the count`);
+  }
+  // Every reachable letter prefix agrees about the boundary — zero disagreements, which
+  // is what makes a single stored parse enough to draw the strip.
+  const { game, state } = start(pack);
+  const walk = (st, depth) => {
+    if (st.status === 'announcing' || depth > 6) return;
+    const node = game.tree.root;
+    const words = [];
+    let cursor = node;
+    for (const symbol of st.prefix) cursor = cursor.children.get(symbol);
+    for (const id of cursor.words) words.push(pack.wordById[id]);
+    const letters = st.prefix.filter((id) => !pack.tileById.tone[id]).length;
+    const counts = new Set(words.map((w) => Math.min(w.onsetLetterCount, letters)));
+    assert.ok(counts.size <= 1,
+      `the completions of "${st.prefix.join('')}" disagree about the onset: ${[...counts].join(',')}`);
+    for (const symbol of live(game, st)) walk(tap(game, st, symbol), depth + 1);
+  };
+  walk(state, 0);
 });
 
 test('C7 — ALL SIX tone cells are always present; the illegal four are flat', () => {
@@ -242,7 +380,8 @@ test('C7 — ALL SIX tone cells are always present; the illegal four are flat', 
   // `sách` = s + ach + sắc. `ach` ends in `ch`, so only sắc and nặng are legal — and the
   // other four are still on the board, lying down. Legality and completability are both
   // flatness now (`ui.md` §7.2, the restated C7).
-  const after = tap(game, tap(game, state, 's'), 'ach');
+  let after = state;
+  for (const letter of ['s', 'a', 'c', 'h']) after = tap(game, after, letter);
   const tones = tableView(game, after).cells.filter((c) => c.role === 'tone');
   assert.deepEqual(tones.map((c) => c.id), pack.inventoryOrder.tone);
   assert.equal(tones.length, 6);
@@ -270,10 +409,15 @@ test('B2d — with no rime placed, every tone cell is a bare mark and every one 
   }
 });
 
-test('C6 / C10 — a tone cell carries the chosen rime, marked, and reverts on undo', () => {
+test('C5 / C6 / C10 — the carrier swaps on the letter that COMPLETES the rime', () => {
   const pack = viPack();
   const { game, state } = start(pack);
-  const after = tap(game, tap(game, state, 'm'), 'eo');
+  // **C5, restated**: `eo` is two taps now, and the carriers stay bare through the first
+  // of them. Anything else would flicker two carriers at him inside one rime.
+  const half = tap(game, tap(game, state, 'm'), 'e');
+  const halfway = tableView(game, half).cells.filter((c) => c.role === 'tone');
+  assert.ok(halfway.every((c) => c.carrier === 'mark'), 'the carrier swapped mid-rime');
+  const after = tap(game, half, 'o');
   const tones = tableView(game, after).cells.filter((c) => c.role === 'tone');
   for (const cell of tones) {
     assert.equal(cell.glyph, pack.tileById.rime.eo.toned[cell.id], `${cell.id}`);
@@ -281,10 +425,21 @@ test('C6 / C10 — a tone cell carries the chosen rime, marked, and reverts on u
     assert.ok(cell.glyph.includes('o'), `${cell.id} renders "${cell.glyph}"`);
   }
   assert.equal(tones.find((c) => c.id === 'huyen').glyph, 'èo');
-  // C10 — returning the rime reverts the carriers to bare marks.
-  const undone = reduce(game, after, { type: 'tapStripCell', index: 1 });
+  // C10 — one tap on the strip returns the letter that completed the rime, and the
+  // carriers revert to bare marks the instant it is no longer complete.
+  const undone = reduce(game, after, { type: 'tapStrip' });
   const back = tableView(game, undone).cells.filter((c) => c.role === 'tone');
   assert.ok(back.every((c) => c.carrier === 'mark'), 'the carriers did not revert');
+
+  // **`ăng` is three letters, and the carriers hold bare marks through two of them.**
+  let tran = state;
+  for (const letter of ['t', 'r', 'ă']) tran = tap(game, tran, letter);
+  const stages = [];
+  for (const letter of ['n', 'g']) {
+    tran = tap(game, tran, letter);
+    stages.push(tableView(game, tran).cells.filter((c) => c.role === 'tone')[1].carrier);
+  }
+  assert.deepEqual(stages, ['mark', 'rime'], 'the swap is on the `g`, not before it');
 });
 
 test('B2c — no tap changes any cell but the six tone carriers', () => {
@@ -294,7 +449,7 @@ test('B2c — no tap changes any cell but the six tone carriers', () => {
     .map((c) => `${c.id}@${c.page}:${c.slot}:${c.role}${c.role === 'tone' ? '' : `:${c.glyph}`}`).join(' ');
   const base = shape(state);
   let s = state;
-  for (const symbol of ['m', 'eo']) {
+  for (const symbol of ['m', 'e', 'o']) {
     s = tap(game, s, symbol);
     assert.equal(shape(s), base, `the board changed after tapping ${symbol}`);
   }
@@ -303,7 +458,7 @@ test('B2c — no tap changes any cell but the six tone carriers', () => {
 test('C9 — exactly one live tone, and the word is not auto-committed', () => {
   const pack = viPack();
   const { game, state } = start(pack);
-  const after = tap(game, tap(game, state, 'm'), 'eo');
+  const after = tap(game, tap(game, tap(game, state, 'm'), 'e'), 'o');
   assert.deepEqual(live(game, after), ['huyen']);
   assert.equal(after.status, 'building', 'the word committed itself without his tap');
   const done = tap(game, after, 'huyen');
@@ -339,12 +494,12 @@ test('V1 / V2 — createGame builds ONE tree, and the plan decides only the page
   const tablet = createGame(pack, { pages: null });
   assert.equal(tablet.inventory.paged, false, 'a tablet must not page');
   assert.equal(tablet.pageCount, 1);
-  assert.equal(tablet.cells, 67, 'one page holds the whole inventory');
+  assert.equal(tablet.cells, 35, 'one page holds the whole inventory');
 
   const phone = createGame(pack, { pages: phonePages('vi') });
   assert.equal(phone.inventory.paged, true);
-  assert.equal(phone.pageCount, 4);
-  assert.equal(phone.cells, 26, 'V9 — one grid, sized from the largest page');
+  assert.equal(phone.pageCount, 3);
+  assert.equal(phone.cells, 15, 'V9 — one grid, sized from the largest page');
   assert.ok(!('trees' in phone), 'there are no per-stage trees any more');
 });
 
@@ -353,10 +508,10 @@ test('a page plan that does not cover the inventory degrades to one page, never 
   // silently take characters off the board, which is the one failure `ui.md` §8.1 exists
   // to prevent, so it is refused in favour of a worse board rather than a broken one.
   const pack = viPack();
-  for (const bad of [[26, 18], [0, 67], [26, 18, 17, 6, 1], ['x'], []]) {
+  for (const bad of [[15, 14], [0, 35], [15, 14, 6, 1], ['x'], []]) {
     const game = createGame(pack, { pages: bad });
-    assert.equal(game.inventory.symbols.length, 67, `pages=${JSON.stringify(bad)}`);
-    assert.equal(game.inventory.pages.flat().length, 67);
+    assert.equal(game.inventory.symbols.length, 35, `pages=${JSON.stringify(bad)}`);
+    assert.equal(game.inventory.pages.flat().length, 35);
   }
 });
 
@@ -366,20 +521,19 @@ test('V16–V19 — the rail stands a button up for every page that holds someth
   const state = createSession(game, { seed: 'rail' });
   const rail = pageView(game, state);
   assert.equal(rail.paged, true);
-  assert.equal(rail.buttons.length, 4, 'one button per page (V2)');
+  assert.equal(rail.buttons.length, 3, 'one button per page (V2)');
   // V19 — the glyph is that page's FIRST character.
   assert.deepEqual(rail.buttons.map((b) => b.symbolId),
     game.inventory.pages.map((p) => p[0].id));
   assert.equal(rail.buttons[0].current, true);
-  // V22 — with an empty strip, the onset page AND the page holding the zero-onset rimes
-  // stand, because `ao` and `ong` begin words. That rail button is the only way `áo` is
-  // ever discoverable on a phone.
+  // **V22, restated**: with an empty strip, pages 1 and 2 both stand — the 19 letters
+  // that begin a word are spread across `a`…`m` and `n`…`y` — and page 3, the tones, is
+  // flat, because no tone can be placed before a rime.
   const standing = rail.buttons.filter((b) => b.live).map((b) => b.page);
-  const aoPage = game.inventory.pageOf('ao');
-  assert.ok(standing.includes(0), 'the onset page is flat on an empty strip');
-  assert.ok(standing.includes(aoPage), `page ${aoPage} holds "ao" and is flat`);
-  // The tone page can never be live before a rime.
-  assert.equal(rail.buttons[rail.buttons.length - 1].live, false);
+  assert.deepEqual(standing, [0, 1]);
+  assert.equal(rail.buttons[2].live, false);
+  // V19 — a button is drawn with its character's own kind, not its run's.
+  assert.deepEqual(rail.buttons.map((b) => b.kind), ['vowel', 'consonant', 'tone']);
 });
 
 test('L6 — a pack with nothing playable opens on the empty card, never a dead table', () => {
@@ -436,27 +590,34 @@ test('C17 replacement — no live path can spell an illegal onset + rime', () =>
   // stand up, and every real word already cleared the spelling rule at pack load. So the
   // child cannot reach an illegal pair — not because one was filtered out, but because
   // there is nothing behind it.
+  //
+  // **Revision 5 asks it of the letters**, because there are no onset and rime cells any
+  // more: every word a live path can reach is an (onset, rime) pair, so the property is
+  // that every *reachable* pair is legal.
   const pack = viPack();
   const { game, state } = start(pack);
   let checked = 0;
-  for (const onsetCell of tableView(game, state).cells) {
-    if (!onsetCell.live || onsetCell.role !== 'onset') continue;
-    for (const rimeCell of tableView(game, tap(game, state, onsetCell.id)).cells) {
-      if (!rimeCell.live || rimeCell.role !== 'rime') continue;
-      assert.equal(viCheckSpellingRule(onsetCell.id, rimeCell.id), null,
-        `"${onsetCell.id}" + "${rimeCell.id}" is live and is not a legal Vietnamese spelling`);
+  const walk = (st, depth) => {
+    if (depth > 7) return;
+    if (st.status === 'announcing') {
+      const word = pack.wordById[st.pending.wordId];
+      const { onset, rime } = word.syllables[0];
+      assert.equal(viCheckSpellingRule(onset, rime), null,
+        `"${onset}" + "${rime}" is reachable and is not a legal Vietnamese spelling`);
       checked += 1;
+      return;
     }
-  }
-  assert.ok(checked > 20, `only ${checked} live (onset, rime) pairs were checked`);
+    for (const symbol of live(game, st)) walk(tap(game, st, symbol), depth + 1);
+  };
+  walk(state, 0);
+  assert.ok(checked > 20, `only ${checked} reachable (onset, rime) pairs were checked`);
 
   // And the pair C17 was written about is reachable in both spellings, which is the point
   // of withdrawing it: `c` and `k` are both live, and each leads to a real word.
   const live1 = tableView(game, state).cells.filter((c) => c.live).map((c) => c.id);
-  if (live1.includes('c') && live1.includes('k')) {
-    for (const onset of ['c', 'k']) {
-      const after = tap(game, state, onset);
-      assert.ok(live(game, after).length > 0, `"${onset}" is live and leads nowhere`);
-    }
+  assert.ok(live1.includes('c') && live1.includes('k'), 'c and k should both begin a word');
+  for (const onset of ['c', 'k']) {
+    const after = tap(game, state, onset);
+    assert.ok(live(game, after).length > 0, `"${onset}" is live and leads nowhere`);
   }
 });

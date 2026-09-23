@@ -33,8 +33,20 @@ export function tap(game, state, symbolId) {
   return reduce(game, state, { type: 'tapSymbol', symbolId });
 }
 
-export function undoTo(game, state, index) {
-  return reduce(game, state, { type: 'tapStripCell', index });
+/**
+ * **Undo: tap the strip, one symbol comes back** (`gameplay.md` §4.4 revision 5, AC D4,
+ * E8, E9). There is no index — the strip is one target, because five 72 pt cells need
+ * 392 pt and the 360 dp floor has 328 (`ui.md` §7.2.6).
+ */
+export function undoStrip(game, state) {
+  return reduce(game, state, { type: 'tapStrip' });
+}
+
+/** Empty the strip the only way the app can: one tap at a time. */
+export function undoAll(game, state) {
+  let s = state;
+  for (let i = 0; i < 8 && s.prefix.length > 0; i += 1) s = undoStrip(game, s);
+  return s;
 }
 
 /** Tap live symbols until a word forms, then commit it. Returns the state after. */

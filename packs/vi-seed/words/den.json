@@ -109,5 +109,11 @@
       "category": 9,
       "at": "2026-09-23T03:53:22.660Z"
     }
-  }
+  },
+  "letters": [
+    "đ",
+    "e",
+    "n"
+  ],
+  "onsetLetterCount": 1
 }

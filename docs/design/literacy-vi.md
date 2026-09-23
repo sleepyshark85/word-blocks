@@ -5,12 +5,530 @@ combinations are legal, how tone is presented, and what the child hears when a w
 resolves. It is the input to the content pack format (content-engineer) and to the tile
 layout (game-designer). It is not a screen design.
 
+**Revision 5, 2026-09-23 — read §0 first.** The owner played the built app and asked for the
+standard alphabet as the character table, then corrected the design twice. The settled answer
+is **letter-by-letter input over an unchanged đánh vần model**: `ch` is two taps and still one
+âm đầu. §0 records all three scopings, because the first two were wrong in opposite
+directions and the next reader will otherwise repeat them.
+
 **Confidence marking.** Every rule below carries a confidence column. `high` means this is
 standard Vietnamese primary-school orthography that I am confident is correct. `check`
 means I believe it is correct but it should be confirmed with the owner or a Vietnamese
 primary-school textbook before it is coded as a hard constraint. Nothing is stated
 confidently that I am not confident about — a wrong rule here is worse than an open
 question (`.claude/agents/literacy-designer.md:86`).
+
+---
+
+## 0. CORRECTION — revision 5. Letter-by-letter **input**, đánh vần **model**
+
+**Revision 5, 2026-09-23. Tier 5 — the owner, from playing the built app.** This section
+overrides §2 and §3 *as tile inventories*, §7.1 *as the tap-audio table*, and §8 entirely.
+Everything else below — the three-slot machine (§1), the legality rules (§4), the tone model
+(§5), the dialect rules (§6) and the chant (§7.2) — **survives unchanged**, and §0.3 says why
+that is the whole point of this revision rather than an accident of it.
+
+### 0.1 The record: the owner corrected this design twice, and the next reader must not repeat the first mistake
+
+This is written out because two plausible, confidently-argued designs were built from his
+first message and **both were wrong**, and the only thing that caught it was asking him.
+
+| # | What was proposed | What the owner then said | Verdict |
+|---|---|---|---|
+| **1** | Read "display the full standard character table" as *delete the digraphs*. `chó` becomes `c` + `h` + `ó`; the onset/rime/tone model is abandoned for English-style letter spelling. | *"yes, he's learning **đánh vần** and using vietnamese characters, including combined characters like **ch, tr** …"* | **Wrong.** It threw away the model his son is being taught this term. |
+| **2** | Over-correct: keep `ch`, `tr`, `ng` … as **tiles**, and treat his message as being about the *order* of the inventory only. | *"but, for character combining, he will still going through character by character, **event for combine ones like ch, tr** …(Choose C and choose H …). This to keep the table consistent"* | **Also wrong.** He does want to tap `c` then `h`. |
+| **3** | **This document.** The **input** is letter by letter; the **model** is đánh vần. `ch` is entered as two taps and is still one onset. | — | Built. |
+
+**The lesson, and it is the general form of this project's standing rule.** Both wrong answers
+came from inferring a *model* from a sentence about a *surface*. He described what the board
+should look like; two readings of that sentence each silently decided what the board *means*.
+The question "is your son being taught đánh vần?" was answerable in one message and would have
+prevented both. It is now `open-questions.md` Q9, answered — and the reason it is recorded as
+an answered question rather than deleted is that the next person to read his first message
+will read it the same two wrong ways.
+
+### 0.2 What he actually complained about, and the cause is real
+
+> also, the characters being displayed feel really random and un-organized and doesn't give
+> my son a sense of character order in the table. Let's try this, display the full standard
+> character table (Vietnamese: A, Ă, Â, B, C, D, Đ, E, Ê, G, H, I, K, L, M, N, O, Ô, Ơ, P, Q,
+> R, S, T, U, Ư, V, X, Y and English: A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R,
+> S, T, U, V, W, X, Y, Z) and he will pick the first character from there. The first pick
+> displays in the list of picked character and the table refreshed and enable only characters
+> that can combine to words supported by the app. And so on and so forth until he can form a
+> word
+
+`packs/vi-seed/pack.json` → `inventoryOrder` ships:
+
+```
+onset:  m b c ch s d g h t tr v gh gi k kh l ng nh qu r th x đ n ngh ph
+rime:   ưa a o ê ao ong ô ăng  ach ai am anh at ay e em en eo i im it oa oi u ua ui uôi ân âu ây ăt ơ ưng on un
+```
+
+Both are **sorted by how many seed words sit behind each symbol**, most productive first,
+with the tail falling back to whatever order the build script's sort produced. It is not
+alphabetical, not phonetic, not anything a child or an adult could name. His diagnosis is
+correct and the cause is a build-time sort that nobody looked at.
+
+### 0.3 The model: **input changes, đánh vần does not**
+
+> **A digraph is a sequence of taps and a single unit of the model.**
+> `ch` is `c` then `h`. `ch` is still one âm đầu. The chant still says `chờ`.
+
+| | Revision 4 | **Revision 5** |
+|---|---|---|
+| What is on the table | 26 onsets + 35 rimes + 6 tones = **67 cells** | **29 letters + 6 tones = 35 cells** |
+| Order | frequency-descending | **his alphabet, exactly as he typed it** |
+| How `ch` is entered | one tap | **two taps: `c`, `h`** |
+| What `ch` *is* | one âm đầu | **one âm đầu — unchanged** |
+| Word model | `(onset, rime, tone)` | **`(onset, rime, tone)` — unchanged** |
+| §5.4 tone tiles show the chosen rime, marked | yes | **yes, verbatim.** The rime is still known |
+| The chant (§7.2) | `chờ · o · cho · sắc · chó` | **unchanged** |
+| Legality §4.1, dialect §6, `ngang` §5.3 | as written | **unchanged** |
+
+Only two things actually change: **what a cell is**, and **how many taps a word takes**. That
+is why this revision is much smaller than the first reading of his message implied, and it is
+why the engine's word representation must not be touched (§0.13).
+
+### 0.4 The table — 29 letters, then 6 tones. 35 cells.
+
+**Run 1 — the alphabet, in the owner's order, every letter always in the same slot.**
+
+| # | Tile | Kind | What it says when tapped *(see §0.9)* | Confidence |
+|---|---|---|---|---|
+| 1 | `a` | vowel | as a rime letter: the rime so far | high |
+| 2 | `ă` | vowel | `á` — `ă` cannot be said level | **check** |
+| 3 | `â` | vowel | `ớ` — same reason | **check** |
+| 4 | `b` | consonant | `bờ` | high |
+| 5 | `c` | consonant | `cờ` | high |
+| 6 | `d` | consonant | `dờ` | high |
+| 7 | `đ` | consonant | `đờ` | high |
+| 8 | `e` | vowel | the rime so far | high |
+| 9 | `ê` | vowel | the rime so far | high |
+| 10 | `g` | consonant | `gờ` | high |
+| 11 | `h` | consonant | `hờ`, **or the digraph it completes** (§0.9) | high |
+| 12 | `i` | vowel | the rime so far, **or `giờ` after `g`** (§0.6) | high |
+| 13 | `k` | consonant | `cờ` | high |
+| 14 | `l` | consonant | `lờ` | high |
+| 15 | `m` | consonant | `mờ` | high |
+| 16 | `n` | consonant | `nờ` | high |
+| 17 | `o` | vowel | the rime so far | high |
+| 18 | `ô` | vowel | the rime so far | high |
+| 19 | `ơ` | vowel | the rime so far | high |
+| 20 | `p` | consonant | `pờ` — **only ever a step toward `ph`** (§0.6) | high |
+| 21 | `q` | consonant | `quờ` — **only ever a step toward `qu`** (§0.6) | **check** on the clip |
+| 22 | `r` | consonant | `rờ` | high |
+| 23 | `s` | consonant | `sờ` | high |
+| 24 | `t` | consonant | `tờ` | high |
+| 25 | `u` | vowel | the rime so far, **or `quờ` after `q`** (§0.6) | high |
+| 26 | `ư` | vowel | the rime so far | high |
+| 27 | `v` | consonant | `vờ` | high |
+| 28 | `x` | consonant | `xờ` | high |
+| 29 | `y` | vowel | the rime so far | high |
+
+`f j w z` are not Vietnamese letters and are not on the board. That is why Vietnamese is 29
+and English 26, and it is correct.
+
+**Run 2 — the six tones.** Unchanged in behaviour from §5.1–§5.4; **corrected in order**, see
+§0.12. The order is `ngang · huyền · sắc · hỏi · ngã · nặng`.
+
+**All 29 letters appear in at least one `vi-seed` word**, so the Vietnamese board has no
+permanently dead cell. (English has four — `literacy-en.md` §0.5.)
+
+### 0.5 The step boundary — how the app knows the onset has ended
+
+This is the question the letter stream creates, and it has a clean answer.
+
+> **Every Vietnamese rime begins with a vowel letter, and every onset is consonant letters —
+> except `gi` and `qu`, which are the only two onsets containing a vowel letter.**
+
+So the boundary is "the first vowel letter", with exactly two exceptions, and **both
+exceptions are deterministic**:
+
+| Exception | Why it is not ambiguous | Confidence |
+|---|---|---|
+| `q` + `u` | `q` never occurs without `u` in Vietnamese. After `q` the only live letter is `u`, and that `u` is onset. | high |
+| `g` + `i` | `g` before a rime beginning `i`, `e` or `ê` is illegal — that spelling is `gh` (§4.1). So an `i` after `g` is always the onset `gi`. | high, **contingent on §4.1**, which is `high` |
+
+**Verified against the pack.** For all 50 `vi-seed` words, expanded to letters: at **every one
+of the reachable letter prefixes, all completing words agree on whether the current letter is
+onset or rime. Zero disagreements.** Cross-checks from the same run: the 35 seed rimes contain
+**zero** that begin with a consonant letter, and the 26 seed onsets contain **exactly two**
+with a vowel letter — `gi` and `qu`, as stated.
+
+**And the check was made to fail first, because the first version of it could not.** My
+initial fault injection forced every onset's length to 1 and the checker still reported zero
+disagreements — a green check I had not seen fail, which this project has now caught five
+times (`CLAUDE.md`). It passed because that fault does not create an ambiguity: it relabels
+every word consistently. The injection that *does* test the detector is a fabricated word
+spelled `c` `h` `o` but parsed as onset `c` + rime `ho`:
+
+```
+REAL pack  -> disagreements: 0
+FAULTED    -> disagreements: 1   ["ch", chân:2 chim:2 chó:2 chuối:2 *cho*:1]
+```
+
+The detector fires on a genuine ambiguity, so the zero above means something. **`*cho*` is not
+a legal Vietnamese syllable** — no rime begins with `h` — which is precisely why the boundary
+rule holds, and precisely what the validator must keep out of the pack.
+
+**But the boundary is not re-derived at runtime, and must not be.** It is a property of the
+stored `(onset, rime, tone)` triple, which is already in every word entry. Two reasons:
+
+1. **A spelling can collapse and hide the rime.** `gì` is `gi` + rime `i`, written with one
+   `i` (§1.2). Its letters are `g` `i` and there is no way to see the rime in them. Nothing in
+   the seed list does this, but his mother can type `gì` tomorrow.
+2. The project's standing rule: the engine never composes a spelling (§1.2). Deriving a
+   boundary is composing.
+
+**What this costs the chant: nothing.** The chant only runs at resolution, when exactly one
+word is identified, so it reads `chờ · o · cho · sắc · chó` straight off the stored triple.
+
+### 0.6 Onset-prefix liveness — the full enumeration
+
+Computed from the pack. "Extends the onset" and "starts a rime" are the two kinds of live
+letter; a state with both is a state where his next tap decides whether the onset is one
+letter or two.
+
+| Onset-prefix | A complete onset? | Live letters that **extend** it | Live letters that **start a rime** | Seed words behind it |
+|---|---|---|---|---|
+| `b` | yes | — | `a` `o` `u` `ơ` | bánh bò bóng bún bơ |
+| `c` | **yes** | `h` | `a` `u` `ư` | cam cá cua cửa chim chó chuối chân |
+| `ch` | yes | — | `i` `o` `u` `â` | chim chó chuối chân |
+| `d` | yes | — | `ê` `ư` | dê dừa |
+| `g` | **yes** | `h` `i` | `a` `â` | gà gấu ghế giày |
+| `gh` | yes | — | `ê` | ghế |
+| `gi` | yes | — | `a` | giày |
+| `h` | yes | — | `o` `ô` | hoa hổ |
+| `k` | **yes** | `h` | `e` | kem khỉ |
+| `kh` | yes | — | `i` | khỉ |
+| `l` | yes | — | `ê` | lê |
+| `m` | yes | — | `e` `u` `â` `ă` `ư` | mây mèo mũ mũi mưa mắt |
+| `n` | **yes** | `g` `h` | `o` | nón ngựa nhà |
+| `ng` | yes | — | `ư` | ngựa |
+| `nh` | yes | — | `a` | nhà |
+| `p` | **NO** | `h` | **—** | phở |
+| `ph` | yes | — | `ơ` | phở |
+| `q` | **NO** | `u` | **—** | quạt |
+| `qu` | yes | — | `a` | quạt |
+| `r` | yes | — | `ă` | răng |
+| `s` | yes | — | `a` `ư` | sao sách sữa |
+| `t` | **yes** | `h` `r` | `a` `ô` | tai tô thỏ trăng trứng |
+| `th` | yes | — | `o` | thỏ |
+| `tr` | yes | — | `ă` `ư` | trăng trứng |
+| `v` | yes | — | `i` `o` | voi vịt |
+| `x` | yes | — | `e` | xe |
+| `đ` | yes | — | `e` | đèn |
+
+**The five branching states are `c`, `g`, `k`, `n`, `t`.** Every other consonant letter either
+finishes the onset or continues it, never both.
+
+**Answers to the three specific questions asked:**
+
+1. **Bare `p` is never an onset.** Vietnamese initial `p` occurs only in loanwords (`pin`,
+   `pi-a-nô`) and §2 already excluded it from v1. `p` is on the board **only as the first
+   step toward `ph`**: after `p`, `h` is the one live letter and no vowel is live. Confidence
+   `high`.
+2. **Bare `q` is never an onset, ever, not just in v1.** `q` is always `qu`. After `q`, `u`
+   is the one live letter. Confidence `high`.
+3. **`g` before `i`/`e`/`ê` is never bare `g`.** §4.1: that spelling is `gh`. Confirmed by the
+   data — after `g`, the only rime-starting letters that are live are `a` and `â`, never
+   `i`/`e`/`ê`. So an `i` after `g` unambiguously makes the onset `gi`.
+
+**Not reachable, and worth saying so.** `ngh` has no seed word (§4.2), so `h` is not live
+after `n` `g` today. The rule is in place for the day his mother adds one: after `ng`, `h` is
+live iff some stored word has onset `ngh`.
+
+**Position 1 stands 19 of the 29 letters:** `a b c d đ g h k l m n o p q r s t v x`. The other
+ten — `ă â e ê i ô ơ u ư y` — are **every vowel except `a` and `o`**, and that is because `áo`
+and `ong` are the only vowel-initial words in the pack.
+
+### 0.7 Rime-prefix liveness
+
+Rimes are typed letter by letter too — `ao` is `a` then `o`, `ăng` is `ă` then `n` then `g` —
+and the same enumeration applies. Over the 35 rimes in the pack:
+
+| Rime-prefix | A complete rime? | Rimes it extends to | Live continuation letters |
+|---|---|---|---|
+| `a` | **yes** | ach, ai, am, anh, ao, at, ay | `c` `i` `m` `n` `o` `t` `y` |
+| `ac` | no | ach | `h` |
+| `an` | no | anh | `h` |
+| `e` | **yes** | em, en, eo | `m` `n` `o` |
+| `i` | **yes** | im, it | `m` `t` |
+| `o` | **yes** | oa, oi, on, ong | `a` `i` `n` |
+| `on` | **yes** | ong | `g` |
+| `u` | **yes** | ua, ui, un, uôi | `a` `i` `n` `ô` |
+| `uô` | no | uôi | `i` |
+| `â` | no | ân, âu, ây | `n` `u` `y` |
+| `ă` | no | ăng, ăt | `n` `t` |
+| `ăn` | no | ăng | `g` |
+| `ư` | no | ưa, ưng | `a` `n` |
+| `ưn` | no | ưng | `g` |
+
+Every other rime is terminal — no rime extends it, so the tone run goes live the moment it is
+complete.
+
+**The rule, stated for the engine.** After the onset is closed, at each rime letter:
+
+- **Live letters** = the next letter of any rime that (a) starts with what he has typed, and
+  (b) belongs to a stored word with the onset he has typed.
+- **Live tones** = the legal, word-completing tones of that rime, *iff* what he has typed is
+  already a complete rime of such a word.
+
+**Six of the 35 rimes are also a proper prefix of another** — `a e i o on u` — so in those six
+the tone run and the letter run can be live at the same time. Measured against the real pack,
+that actually happens at **exactly three points**: after `b`+`o` (`n`→`bóng`, huyền→`bò`),
+after `c`+`a` (`m`→`cam`, sắc→`cá`), and after `m`+`u` (`i`→`mũi`, ngã→`mũ`).
+
+**Eight rime-prefixes are pass-through states that are not themselves rimes** — `ac an uô â
+ă ăn ư ưn`. They are never a stopping point: no tone is ever live on them. Three of them
+(`ă`, `â`, `ư`) are the bare vowels §3.1 says can never stand alone, which is the same fact
+seen from the other side.
+
+### 0.8 Tone — unchanged, and letter-by-letter input makes the case *stronger*
+
+**Decided: the six tones are a second run of six cells after the 29 letters. §5.1–§5.5 stand
+verbatim, and `gameplay.md` §3.4a stands verbatim.** No amendment is needed, because the
+**rime is still known** — that is the dividend of keeping đánh vần.
+
+The three options, priced:
+
+| Option | Cells | Verdict |
+|---|---|---|
+| **A — a tone run of 6, live once the rime is complete** ✅ | **35** | **Chosen.** đánh vần's third step *is* the tone (`bờ · o · bo · huyền · bò`), so a control that appears after the rime is the method, not a departure from it. And it leaves the 29-letter table absolutely untouched — one run, one kind of thing, every letter always in the same slot, which is exactly what he means by "keep the table consistent". |
+| B — tone-marked vowels as table entries | **89** | 12 Vietnamese vowel letters × 5 marks = **60 extra cells**. 72 of the 89 cells would be vowels, 60 of them differing from another cell only by a diacritic, shown to a child who cannot read. It also destroys what he asked for: "the full standard character table" is 29 letters, not 89. On the 360 × 640 floor it is ~8 pages. **Rejected on all three counts.** |
+| C — tone applied to its carrier vowel the moment that vowel is typed | 35 | Breaks the chant he asked for in revision 4 (`b` → `b o` → `bò` puts the mark last), and forces a tone tap on vowels that have only one live form. Rejected. |
+
+**Unchanged and worth restating because they are load-bearing:**
+
+- **`ngang` is a tile he presses** (§5.3). Two of its four original supports survive — it *is*
+  a tone, and the engine otherwise cannot tell "hasn't chosen" from "chose level" — and a
+  third replaces the ritual argument that `gameplay.md` §3.4 retired: **every Vietnamese word
+  now ends with exactly one tone tap**, and with letter counts varying from 2 to 5 that is the
+  only invariant left. Measured: three untoned strings in the pack are proper prefixes of
+  another (`bo`<`bong`, `ca`<`cam`, `mu`<`mui`) and in all three the shorter word is toned, so
+  today the ambiguity happens not to bite — **that is luck, not design.** A terminal tone
+  symbol makes the tree unambiguous by construction.
+- **The tone cells show the chosen rime with each mark applied** (§5.4): `eo èo éo ẻo ẽo ẹo`.
+  Not a floating diacritic.
+- **The tone run shrinks itself on a stop-final rime** (§5.2): `ach` offers two cells, not six.
+- **Before a rime is complete the tone cells are never live**, and carry the bare mark on a
+  dotted circle (`gameplay.md` §3.4a).
+
+### 0.9 What a letter says when tapped — the real tension, resolved
+
+The tension is exact: if each letter speaks its own sound, `c` `h` is two sounds for one
+Vietnamese phoneme; if the app waits for the digraph, the first tap is silent and breaks the
+rule that every tap answers.
+
+> **Decided: every tap speaks, and a tap that completes a digraph speaks the digraph —
+> superseding, not adding.** The speech channel already cuts hard (`ui.md` §11, revision 3),
+> so `chờ` cutting `cờ` is existing behaviour, not new machinery.
+
+He hears `cờ`, then `chờ`. He never hears `cờ` **and** `hờ`. And "`c` and `h` say `chờ`" is a
+true statement about Vietnamese and is the same formula synthetic phonics uses for English
+`sh` (`literacy-en.md` §0.6).
+
+| He taps | Then taps | Second tap plays | Not | Note |
+|---|---|---|---|---|
+| `c` (`cờ`) | `h` | **`chờ`** | `hờ` | |
+| `g` (`gờ`) | `h` | **`gờ`** | `hờ` | `gh` is the same sound as `g` — worth hearing |
+| `g` (`gờ`) | `i` | **`giờ`** | the rime `i` | |
+| `k` (`cờ`) | `h` | **`khờ`** | `hờ` | |
+| `n` (`nờ`) | `g` | **`ngờ`** | `gờ` | |
+| `n` `g` (`ngờ`) | `h` | **`ngờ`** | `hờ` | `ngh` is the same sound as `ng` |
+| `n` (`nờ`) | `h` | **`nhờ`** | `hờ` | |
+| `p` (`pờ`) | `h` | **`phờ`** | `hờ` | |
+| `q` (`quờ`) | `u` | **`quờ`** | the rime `u` | a repeat, not a contradiction |
+| `t` (`tờ`) | `h` | **`thờ`** | `hờ` | |
+| `t` (`tờ`) | `r` | **`trờ`** | `rờ` | |
+
+**The same rule covers the rime, and that is what makes it one rule rather than two.**
+
+> **A tap always speaks the unit it is currently building, as far as it has got.**
+> Onset states speak the đánh vần name (`cờ`, `chờ`, `ngờ`). Rime states speak the rime-so-far
+> read aloud (`ă` → `á`, `ăn` → `ăn`, `ăng` → `ăng`).
+
+That is §7.1's onset-name/rime-reading split, extended from whole units to partial ones. The
+app always knows which it is, because liveness knows the parse (§0.5).
+
+**Two honest costs.**
+
+1. **A partial rime is sometimes not a real Vietnamese syllable.** `ac` and `ăn` and `ưn` are
+   mid-word states, and a clip of `ac` read level is not a sound Vietnamese has (a stop-final
+   rime takes only sắc or nặng, §5.2). This is the same class of problem as §7.3's
+   toneless-blend caution and it gets the same treatment: **every rime-prefix clip needs a
+   human listening check before it ships.**
+2. **`ă` and `â` cannot be said level at all**, which is why they are voiced `á` and `ớ` —
+   confidence `check`, and the kind of thing the owner can settle by looking at his son's
+   book.
+
+### 0.10 The chant is unchanged
+
+**§7.2 stands exactly as written**, and so does the owner's revision-4 accumulating build
+(`gameplay.md` §0A.2 finding 4). The build is letters; the chant is đánh vần.
+
+| | Strip as he taps | Chant on resolution |
+|---|---|---|
+| `bò` | `b` → `b o` → `bò` | `bờ` · `o` · `bo` · `huyền` · `bò` |
+| `chó` | `c` → `c h` → `c h o` → `chó` | `chờ` · `o` · `cho` · `sắc` · `chó` |
+| `dê` | `d` → `d ê` → `dê` | `dờ` · `ê` · `dê` *(no tone step, §7.2)* |
+| `áo` | `a` → `a o` → `áo` | `ao` · `sắc` · `áo` *(no onset step)* |
+
+**The strip marks the onset/rime boundary; it does not merge cells.** When the first rime
+letter is tapped, a divider appears between the onset letters and the rime letters. Merging
+`c` `h` into one `ch` cell is the morph the owner rejected in revision 3 and must not come
+back. Handed to the game-designer as a requirement; the drawing is theirs.
+
+### 0.11 What it costs — measured against the pack, not estimated
+
+| | Revision 4 | **Revision 5** |
+|---|---|---|
+| Board | 67 cells | **35 cells** |
+| Words buildable | 50 of 50 | **50 of 50** |
+| Words needing a glyph outside the 29 letters | — | **0** |
+| Taps per word | 2–3, mean 2.96 | **3–6, mean 4.08** (+38%) |
+| 6-tap words | — | `chuối`, `trăng`, `trứng` |
+| Decision points | 76 | **116** |
+| Mean live-set size | 1.64 | **1.42** |
+| Decision points with exactly **one** live tile | 64 / 76 = **84%** | 98 / 116 = **84%** |
+| Live at position 1 | 27 of 67 | **19 of 29** |
+| Step-boundary ambiguities | n/a | **0** |
+| **Dead ends** | none | **none** |
+
+Three things to take from this.
+
+1. **No word becomes a dead end, and none can.** A letter is live *iff* some stored word
+   completes through it, so every live path ends in a word. `gameplay.md` §3.3's three
+   properties are untouched; only the tree's depth changed.
+2. **The mostly-flat board does not get worse — 84% in both models, and the mean live set
+   falls.** That was the risk worth checking and it came back clean. `acceptance-criteria.md`
+   U7a is the same Tier-5 question it already was, now asked of a board half the size.
+3. **The cost is taps: +1.12 per word.** That is the honest price of "consistent table", and
+   it is the price the owner has now asked for twice.
+
+**Paging gets substantially better.** Hand-computed from the capacities
+`tools/layout-sweep.mjs --pages` currently reports — **the tool must be re-run once the packs
+are rebuilt; these are predictions, not measurements**:
+
+| Device | cells/page | Revision 4 (67 cells) | **Revision 5 (35 cells)** |
+|---|---|---|---|
+| Android 360 × 640 (the floor) | 12 | 7 pages | **4 pages** — `10 ¦ 10 ¦ 9 ¦ 6` |
+| iPhone SE 3 375 × 667 | 16 | 6 pages | **3 pages** — `15 ¦ 14 ¦ 6` |
+| iPhone 15/16 393 × 852 | 20 | 5 pages | **3 pages** — `15 ¦ 14 ¦ 6` |
+| **iPhone 17 Plus** (his device) | 28 | 4 pages | **3 pages** — `15 ¦ 14 ¦ 6` |
+| Every tablet | 67+ | 1 page, no rail | **1 page, no rail** |
+
+**A near-miss worth recording so nobody "fixes" it.** 29 letters against a 28-cell page misses
+a single-page alphabet **by one cell** on his device. Do not buy it back by shaving the 72 pt
+tile floor or the inter-tile gap — `gameplay.md` §0B.2 already warns about exactly this, and
+the gap is what keeps hit rects from overlapping (F6). The 15/14 split is clean anyway: **page
+1 is `a`…`m`, page 2 is `n`…`y`, page 3 is the hats.** That is a rule his mother can say out
+loud, which is more than revision 4's `26 ¦ 18 ¦ 17 ¦ 6` ever was.
+
+### 0.12 Audio — this revision **adds** clips, it does not save any
+
+Stated plainly because the instinct is that a smaller board is cheaper audio, and it is not:
+the tile clips are now indexed by *unit-in-progress*, and partial units need clips too.
+
+| Set | Count | Status |
+|---|---|---|
+| Onset states (26 onsets + the two non-onset steps `p`, `q`) | 28 | 26 exist as the current onset clips. `q` reuses the existing `quờ`. **1 new: `pờ`** |
+| Rime states (35 rimes + 8 pass-through prefixes) | 43 | 35 exist. **8 new: `ac` `an` `uô` `â`(→`ớ`) `ă`(→`á`) `ăn` `ư` `ưn`** |
+| Tone names | 6 | exist, 648–888 ms |
+| **Total tile clips** | **77** | was 67 |
+| **New clips required** | **9** | **Retired: 0** |
+
+Two cautions carried forward from §7.3 and one new:
+
+1. Tune Piper `length-scale` per clip; partial units slower than whole ones.
+2. Every step-3 toneless blend still needs a human listening check.
+3. **New: every rime-prefix clip needs one too** (§0.9), because several are not real
+   Vietnamese syllables read level.
+
+### 0.13 The ordered inventories, for `inventoryOrder` and for the editor
+
+**`inventoryOrder` becomes `{ letter: […29], tone: […6] }`.** The `onset` and `rime` arrays
+leave `inventoryOrder` — nothing on the board is an onset or a rime any more. They remain in
+`pack.tiles` as the **editor's vocabulary and the model's source of truth**, and they should
+be ordered properly there too, because his mother reads them.
+
+**Run 1 — `inventoryOrder.letter`, 29 entries:**
+
+```
+a  ă  â  b  c  d  đ  e  ê  g  h  i  k  l  m  n  o  ô  ơ  p  q  r  s  t  u  ư  v  x  y
+```
+
+**Run 2 — `inventoryOrder.tone`, 6 entries. This is a correction:**
+
+| | Order |
+|---|---|
+| Ships as | `ngang  sac  huyen  hoi  nang  nga` |
+| **Should be** | **`ngang  huyen  sac  hoi  nga  nang`** |
+
+The shipped order is frequency again — `sắc` is the commonest tone in the seed list, which is
+why it drifted to the front, and `nặng`/`ngã` are swapped for the same reason. **`huyền, sắc,
+hỏi, ngã, nặng` is a set phrase** Vietnamese speakers recite for the five marks, with `ngang`
+(also `không dấu`) before them. Confidence `check` on `huyền` vs `sắc` in second place: the
+**dictionary collation** order is `ngang, huyền, hỏi, ngã, sắc, nặng` (`ba bà bả bã bá bạ`),
+which is a defensible alternative and differs only in where `sắc` sits. Either way the shipped
+order is wrong, and the owner can settle it in one glance at his son's book —
+`open-questions.md` **Q11**.
+
+**The editor's vocabulary, ordered — âm đầu, 26 entries.** Vietnamese dictionary order, each
+digraph immediately after the base letter it extends. Agrees with the 29-letter alphabet
+letter for letter.
+
+```
+b  c  ch  d  đ  g  gh  gi  h  k  kh  l  m  n  ng  ngh  nh  ph  qu  r  s  t  th  tr  v  x
+```
+
+**The editor's vocabulary, ordered — vần, 35 entries.** Same collation, applied to the rime as
+written. **The ordering principle is: the rime's own spelling, in alphabet order** — not by
+final, not by phonological type. That is the only key a child can use, because the first
+letter of the rime is the thing he sees; and it makes the run read down as `a ă â e ê i o ô ơ
+u ư`, which *is* the vowel chant he is learning.
+
+| Block | Rimes |
+|---|---|
+| `a` | a · ach · ai · am · anh · ao · at · ay |
+| `ă` | ăng · ăt |
+| `â` | ân · âu · ây |
+| `e` | e · em · en · eo |
+| `ê` | ê |
+| `i` | i · im · it |
+| `o` | o · oa · oi · on · ong |
+| `ô` | ô |
+| `ơ` | ơ |
+| `u` | u · ua · ui · un · uôi |
+| `ư` | ưa · ưng |
+
+Note this deliberately puts `oa` in the `o` block, not the `a` block, even though its nucleus
+is `a` and its `o` is a medial glide. Ordering on the nucleus would be more phonologically
+honest and less findable; **findable wins.**
+
+### 0.14 One more correction, found while checking §5.5
+
+§5.5 labels `hòa` as "new style (mark on the nucleus)". In `oa` the nucleus is `a` and the `o`
+is the medial, so `hòa` has the mark on the **medial**, not the nucleus — and I should not
+have attached the "old"/"new" labels at all, because Vietnamese writers use them
+inconsistently and I am not confident which label goes with which form. **Not in doubt: both
+`hòa` and `hoà` are in circulation, and the recommendation is unchanged — write `hòa`, the
+mark on the first vowel letter.** One seed word is affected (`hoa`), and it is `ngang`, so no
+mark is drawn either way.
+
+### 0.15 What revision 5 hands to the other agents
+
+| To | Requirement |
+|---|---|
+| content-engineer | `inventoryOrder` becomes `{ letter: [29 in §0.13], tone: [6 in §0.13] }`. `inventoryOrder.onset` and `.rime` are deleted. **Fix the tone order** (§0.13) |
+| content-engineer | **Do not touch `word.syllables`.** `{onset, rime, tone}` stays exactly as it is — it is the model, the chant reads it, the carrier and the boundary come from it, and §4 validates it. **Add** a derived `letters` array and `onsetLetterCount` per syllable, written by the editor, never composed at runtime (§1.2, §0.5) |
+| content-engineer | Validator: `letters` must recompose to onset+rime character for character; `onsetLetterCount` must equal the onset's letter count; every letter must be one of the 29; §4.1 and §5.2 unchanged |
+| content-engineer | Tile audio is re-keyed from *units* to *unit-states*: 28 onset states, 43 rime states, 6 tones. **9 new clips** (§0.12), 0 retired. Every rime-prefix clip gets a listening check |
+| game-designer | Table is 29 + 6 in two runs; every letter always in the same slot. `gameplay.md` §3.4a and §3.7 are unaffected. The strip **marks** the onset/rime boundary and never merges cells (§0.10). Re-run `tools/layout-sweep.mjs --pages` — §0.11's numbers are predictions |
+| game-designer | The strip now holds up to **5 letters plus a mark**, not 3 cells. That is a layout change and it is the one thing §0 does not price |
+| app-developer | Liveness is computed over letters, but **the parse comes from the stored triple** (§0.5). Never infer the onset/rime boundary from the letter stream |
+| owner | `open-questions.md` **Q9** (answered — kept as the record of the two wrong readings), **Q11** (tone order) |
 
 ---
 
@@ -71,6 +589,10 @@ as data makes both moot, which is why that is the recommendation.
 
 ## 2. Onset inventory (âm đầu)
 
+> **Still the model; no longer the tiles (§0.3, §0.4).** An onset is entered as its letters
+> and is still one âm đầu. This table is what the đánh vần clips say (§0.9), what the editor
+> offers his mother, and what §4 validates. Its *order* is corrected in §0.13.
+
 26 written onsets plus the zero onset. The "đánh vần name" column is what the tile says when
 he taps it — the classroom sound-name, consonant + `ờ`.
 
@@ -118,6 +640,10 @@ convention. Confidence `high` that the school convention is `qu` as one onset.
 ---
 
 ## 3. Rime inventory (vần)
+
+> **Still the model; no longer the tiles (§0.3).** A rime is entered as its letters and is
+> still one vần — §5.4's tone tiles depend on it being known. Its *order* is corrected in
+> §0.13, and §0.7 adds the partial-rime states letter entry creates.
 
 ### 3.1 Structure
 
@@ -187,6 +713,10 @@ starting set, not the universe.
 ## 4. Orthographic legality — the rules the palette must enforce
 
 ### 4.1 c / k / q, g / gh, ng / ngh
+
+> **Unchanged, and now doing extra work.** §0.5 and §0.6 lean on this rule: it is *why* an `i`
+> after `g` is unambiguously the onset `gi`. It is enforced by liveness over stored spellings
+> at play time and by the validator at edit time.
 
 These are three pairs of spellings for **one sound each**. Which spelling is correct is
 determined entirely by the rime that follows — the child cannot hear it, and must never be
@@ -285,6 +815,9 @@ buys, and it is the right place to spend it.
 
 ### 5.4 Decision: the tone tile shows the *chosen rime*, marked
 
+> **Unchanged, verbatim (§0.8).** The rime is still known, so this holds exactly as written.
+> This is the clearest single dividend of keeping đánh vần.
+
 A tone mark on its own (`◌̀`, or a mark on a dotted circle) is an abstraction a 4-year-old
 cannot read. **The tone tiles render the rime he has already selected, with each tone
 applied:**
@@ -311,6 +844,9 @@ other agents:
   runtime.**
 
 ### 5.5 Where the mark sits on stacked vowels
+
+> **CORRECTED by §0.14** — the `oa`/`oe`/`uy` paragraph mislabels which form is "new style".
+> The *recommendation* (`hòa`) is unchanged; ignore the labels.
 
 Stated for completeness and for the editor's generator. **No runtime code implements this** —
 the pack stores the composed strings (§1.2, §5.4).
@@ -388,6 +924,10 @@ while the child is southern, every syllable he hears will differ from his mother
 
 ## 7. The đánh vần audio sequence
 
+> **§7.1 is superseded by §0.9** (a tap speaks the *unit-so-far*, and a digraph completion
+> re-voices). **§7.2 — the chant — is unchanged**, and §7.3's two cautions still apply plus one
+> more (§0.12).
+
 ### 7.1 Tile-press feedback (any time, always)
 
 | Tile type | Plays |
@@ -460,6 +1000,9 @@ Two cautions carried from the spike:
 
 ## 8. How many tiles — the progression
 
+> **SUPERSEDED.** The stage ladder was deleted by `gameplay.md` §3.6 in revision 3, and the
+> per-row caps by the constant table. The board is 35 cells, paged to the device (§0.11).
+
 ### 8.1 The cap is per row, not per screen
 
 Vietnamese mode has three labelled rows (onsets / rimes / tones). He never scans the whole
@@ -512,6 +1055,8 @@ stage is a property of the round, not of the word.
 ---
 
 ## 9. What this document hands to the other agents
+
+> **SUPERSEDED by §0.15.**
 
 | To | Requirement |
 |---|---|

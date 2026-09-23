@@ -6,7 +6,134 @@ way, from the live pack, so pictures added on the phone appear there too.
 
 ## Photographs
 
-_No third-party photographs in this pack yet._
+120 third-party photograph(s).
+
+| Picture | Author | Licence | Source | Used for |
+|---|---|---|---|---|
+| - panoramio (785).jpg | Kashparovski | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:-_panoramio_(785).jpg) | sun |
+| (SGP-Singapore) SBS Transit SG3042Y 298 2024-12-23.jpg | S5A-0043 | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:(SGP-Singapore)_SBS_Transit_SG3042Y_298_2024-12-23.jpg) | bus |
+| 2011 Toyota Sienna XLE -- 05-18-2011.jpg | IFCAR | Public domain | [link](https://commons.wikimedia.org/wiki/File:2011_Toyota_Sienna_XLE_--_05-18-2011.jpg) | van |
+| 20151027 Köln Lena Meyer-Landrut Lena Meyer-Landrut 0135.jpg | © Markus Felix (talk to me) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:20151027_K%C3%B6ln_Lena_Meyer-Landrut_Lena_Meyer-Landrut_0135.jpg) | drum |
+| 2018 Ford Transit Custom 300 Base 2.0 facelift.jpg | Vauxford | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:2018_Ford_Transit_Custom_300_Base_2.0_facelift.jpg) | van |
+| 2019 ColognePride - CSD-Parade-8756.jpg | Raimond Spekking | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:2019_ColognePride_-_CSD-Parade-8756.jpg) | drum |
+| 4 walnut kernels.jpg | Andrei Suslov | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:4_walnut_kernels.jpg) | nut |
+| 94-97RamVan.JPG | Ahanix1989 at English Wikipedia | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:94-97RamVan.JPG) | van |
+| A classic circular form spider's web.jpg | Stephencdickson | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:A_classic_circular_form_spider%27s_web.jpg) | web |
+| Alopex lagopus coiled up in snow.jpg | Keith Morehouse | Public domain | [link](https://commons.wikimedia.org/wiki/File:Alopex_lagopus_coiled_up_in_snow.jpg) | fox |
+| AMC pot.jpg | Grap | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:AMC_pot.jpg) | pot |
+| Amerigo vespucci 1976 nyc aufgetakelt.jpg | Harley D. Nygren | Public domain | [link](https://commons.wikimedia.org/wiki/File:Amerigo_vespucci_1976_nyc_aufgetakelt.jpg) | ship |
+| An konia's pip.jpg | DXLINH | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:An_konia%27s_pip.jpg) | nut |
+| Antique vintage fountain pens from a personal collection, photographed by Yogabrata Chakraborty.jpg | Billjones94 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Antique_vintage_fountain_pens_from_a_personal_collection,_photographed_by_Yogabrata_Chakraborty.jpg) | pen |
+| Archive boxes.JPG | Effeietsanders (talk) | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5) | [link](https://commons.wikimedia.org/wiki/File:Archive_boxes.JPG) | box |
+| Argania spinosa MHNT.BOT.2010.12.2.jpg | Roger Culos | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Argania_spinosa_MHNT.BOT.2010.12.2.jpg) | nut |
+| Atelopus zeteki1.jpg | Brian Gratwicke | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Atelopus_zeteki1.jpg) | frog |
+| Balantiocheilos melanopterus - Karlsruhe Zoo 02 (cropped).jpg | H. Zell | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Balantiocheilos_melanopterus_-_Karlsruhe_Zoo_02_(cropped).jpg) | fish |
+| Balmoral bonnet black.jpg | SMcCandlish | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Balmoral_bonnet_black.jpg) | hat |
+| Bat eared fox Kenya crop.jpg | Kenya_August_2010_485.jpg: Joanne Goldby derivative work: Samsara (talk) | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Bat_eared_fox_Kenya_crop.jpg) | fox |
+| Bed in hotel room 5.jpg | Kurt Kaiser | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Bed_in_hotel_room_5.jpg) | bed |
+| Black Labrador Retriever - Male IMG 3323 (cropped).jpg | Losch | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Black_Labrador_Retriever_-_Male_IMG_3323_(cropped).jpg) | dog |
+| Bolsas-de-asa-plana-interior-bolsapubli.jpg | Bolsapubli | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Bolsas-de-asa-plana-interior-bolsapubli.jpg) | bag |
+| Bombina bombina 1 (Marek Szczepanek) tight crop.jpg | Marek Szczepanek | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Bombina_bombina_1_(Marek_Szczepanek)_tight_crop.jpg) | frog |
+| Box.agr.jpg | ArnoldReinhold | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Box.agr.jpg) | box |
+| Brabantia Pedal Bin Decor Bayon 1972.JPG | MrMattAnderson | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Brabantia_Pedal_Bin_Decor_Bayon_1972.JPG) | bin |
+| Brennreisig.JPG | powerbiker1 (Thomas Kees) | [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Brennreisig.JPG) | log |
+| Brooks Chase Ranger of Jolly Dogs Jack Russell.jpg | JOLLY-DOGS-JACK-RUSSELL | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Brooks_Chase_Ranger_of_Jolly_Dogs_Jack_Russell.jpg) | dog |
+| Brown Rat (Rattus norvegicus).jpg | Dunpharlain | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Brown_Rat_(Rattus_norvegicus).jpg) | rat |
+| BRT2101 at Balou (20230921084843).jpg | N509FZ | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:BRT2101_at_Balou_(20230921084843).jpg) | bus |
+| Bullant head detail.jpg | fir0002 flagstaffotos [at] gmail.com Canon 20D + Sigma 150mm f/2.8 | [GFDL 1.2](http://www.gnu.org/licenses/old-licenses/fdl-1.2.html) | [link](https://commons.wikimedia.org/wiki/File:Bullant_head_detail.jpg) | ant |
+| Burberry handbag.jpg | Rdsmith4 | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5) | [link](https://commons.wikimedia.org/wiki/File:Burberry_handbag.jpg) | bag |
+| Camponotus sericeus Senegal.jpg | NoahElhardt | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Camponotus_sericeus_Senegal.jpg) | ant |
+| Cancer pagurus.jpg | Hans Hillewaert | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Cancer_pagurus.jpg) | crab |
+| Ceiling fan with lamp.jpg | Hans Olav Lien | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Ceiling_fan_with_lamp.jpg) | fan |
+| China, Chinese Export, 18th century, Period of Kien Lung - Cup and Saucer - 1955.177 - Cleveland Museum of Art (cropped).jpg | **unrecorded** | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:China,_Chinese_Export,_18th_century,_Period_of_Kien_Lung_-_Cup_and_Saucer_-_1955.177_-_Cleveland_Museum_of_Art_(cropped).jpg) | cup |
+| Chozos de ganaderos, El Torno, Cáceres.jpg | No machine-readable author provided. Frobles assumed (based on copyright claims) | Public domain | [link](https://commons.wikimedia.org/wiki/File:Chozos_de_ganaderos,_El_Torno,_C%C3%A1ceres.jpg) | hut |
+| Coleoptera collage.png | Bugboy52.40 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Coleoptera_collage.png) | bug |
+| Containerterminal Altenwerder (Hamburg-Altenwerder).Iris Bolten.4.phb.ajb.jpg | Ajepbah | [CC BY-SA 3.0 de](https://creativecommons.org/licenses/by-sa/3.0/de/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Containerterminal_Altenwerder_(Hamburg-Altenwerder).Iris_Bolten.4.phb.ajb.jpg) | ship |
+| Cup and Saucer LACMA 47.35.6a-b (1 of 3).jpg | Vincennes Porcelain (France, circa 1739–1756), Francois Binet (France, active 17 | Public domain | [link](https://commons.wikimedia.org/wiki/File:Cup_and_Saucer_LACMA_47.35.6a-b_(1_of_3).jpg) | cup |
+| DarkGreenAscotCapOnHead.jpg | No machine-readable author provided. Schaefer~commonswiki assumed (based on copy | Public domain | [link](https://commons.wikimedia.org/wiki/File:DarkGreenAscotCapOnHead.jpg) | hat |
+| Desmodus rotundus A Catenazzi.jpg | Acatenazzi at English Wikipedia | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Desmodus_rotundus_A_Catenazzi.jpg) | bat |
+| Dog - നായ-6.JPG | കാക്കര | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Dog_-_%E0%B4%A8%E0%B4%BE%E0%B4%AF-6.JPG) | dog |
+| Drums for sale at the National Museum of the American Indian.jpg | Quadell | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Drums_for_sale_at_the_National_Museum_of_the_American_Indian.jpg) | drum |
+| Dynastes hercules ecuatorianus MHNT.jpg | Didier Descouens | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Dynastes_hercules_ecuatorianus_MHNT.jpg) | bug |
+| Eastern Cleaner Clingfish (cropped).jpg | Sylke Rohrlach from Sydney | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Eastern_Cleaner_Clingfish_(cropped).jpg) | fish |
+| Elektrische ventilator van het merk Calor - INDUS V09832.JPG | **unrecorded** | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Elektrische_ventilator_van_het_merk_Calor_-_INDUS_V09832.JPG) | fan |
+| Emerita analoga cropped.jpg | Emeritaanaloga.jpg: jkirkhart35 derivative work: Stemonitis (talk) | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Emerita_analoga_cropped.jpg) | crab |
+| Felis catus-cat on snow.jpg | Von.grzanka | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Felis_catus-cat_on_snow.jpg) | cat |
+| Fire ants 01.jpg | Stephen Ausmus | Public domain | [link](https://commons.wikimedia.org/wiki/File:Fire_ants_01.jpg) | ant |
+| Frying pans - Freedom Theatre in Jenin 012 - Aug 2011.jpg | Guillaume Paumier | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Frying_pans_-_Freedom_Theatre_in_Jenin_012_-_Aug_2011.jpg) | pan |
+| Fude pen.jpg | Mariko GODA | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Fude_pen.jpg) | pen |
+| GarbageMonsters.jpg | GabrielleMerk | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:GarbageMonsters.jpg) | bin |
+| GelPen.jpg | PiccoloNamek on en.wikipedia | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:GelPen.jpg) | pen |
+| Giovane guardia al palazzo della regina di Danimarca - panoramio.jpg | patano | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Giovane_guardia_al_palazzo_della_regina_di_Danimarca_-_panoramio.jpg) | hat |
+| Halksockar.JPG | Sockiplast67 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Halksockar.JPG) | sock |
+| Hatari 18 inch fan.jpg | Peachyo | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Hatari_18_inch_fan.jpg) | fan |
+| Hen Comb (cropped).jpg | Tomukatsusu | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Hen_Comb_(cropped).jpg) | hen |
+| Hufflepuff Hat.jpg | anneheathen | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Hufflepuff_Hat.jpg) | cap |
+| Kneehighschooluniformsocks-tokyoarea-jan182020.jpg | Nesnad | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Kneehighschooluniformsocks-tokyoarea-jan182020.jpg) | sock |
+| Land Hemisphere Azimuthal Equidistant Projection Centered at 48°N., 2°W - DPLA - f5b4453072e2427916309ef3a933d31f.jpg | Central Intelligence Agency | Public domain | [link](https://commons.wikimedia.org/wiki/File:Land_Hemisphere_Azimuthal_Equidistant_Projection_Centered_at_48%C2%B0N.,_2%C2%B0W_-_DPLA_-_f5b4453072e2427916309ef3a933d31f.jpg) | map |
+| Liocarcinus vernalis.jpg | Hans Hillewaert | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Liocarcinus_vernalis.jpg) | crab |
+| Litoria tyleri.jpg | LiquidGhoul at English Wikipedia | Public domain | [link](https://commons.wikimedia.org/wiki/File:Litoria_tyleri.jpg) | frog |
+| Lixo-reciclável-UFRN.jpg | Patrick – Patrick | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Lixo-recicl%C3%A1vel-UFRN.jpg) | bin |
+| LTZ1328-19-20241030-160332.jpg | SIA321 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:LTZ1328-19-20241030-160332.jpg) | bus |
+| Male and female chicken sitting together.jpg | Andrei Niemimäki from Turku, Finland | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Male_and_female_chicken_sitting_together.jpg) | hen |
+| Mallard-drake-chicago-march-2024.jpg | Ams100272 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Mallard-drake-chicago-march-2024.jpg) | duck |
+| Mandarin.duck.arp.jpg | Adrian Pingstone | Public domain | [link](https://commons.wikimedia.org/wiki/File:Mandarin.duck.arp.jpg) | duck |
+| MarinoDelNorteEscalante.jpg | TheManFromVisayas | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:MarinoDelNorteEscalante.jpg) | hut |
+| Megaderma spasma.jpg | Piekfrosch | [GFDL](http://www.gnu.org/copyleft/fdl.html) | [link](https://commons.wikimedia.org/wiki/File:Megaderma_spasma.jpg) | bat |
+| Mimela splendens left facing.jpg | Kanegon insect | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Mimela_splendens_left_facing.jpg) | bug |
+| Montreal Expos hat (32297579965).jpg | Coastal Elite from Halifax, Canada | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Montreal_Expos_hat_(32297579965).jpg) | cap |
+| Morgan Sessions 2015-01-22 (Unsplash yGVNt1Aqpp4).jpg | Morgan Sessions morgansessions | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Morgan_Sessions_2015-01-22_(Unsplash_yGVNt1Aqpp4).jpg) | leg |
+| Mug of Tea.JPG | Factorylad | Public domain | [link](https://commons.wikimedia.org/wiki/File:Mug_of_Tea.JPG) | mug |
+| Mug vs cup.jpg | Викидим | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Mug_vs_cup.jpg) | cup |
+| Mugtree1.jpg | maxf | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Mugtree1.jpg) | mug |
+| Myzopoda aurita 13060431.jpg | Dan Riskin | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Myzopoda_aurita_13060431.jpg) | bat |
+| Nao Victoria.jpg | Gnsin | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Nao_Victoria.jpg) | ship |
+| Newly-hatched chickens.jpg | Otwarte Klatki | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Newly-hatched_chickens.jpg) | hen |
+| Orange tabby cat sitting on fallen leaves-Hisashi-01A.jpg | Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01.jpg: Hisashi from Japan der | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg) | cat |
+| Pan frying sausages.jpg | Rene Ehrhardt | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Pan_frying_sausages.jpg) | pan |
+| Parrulo -Muscovy duckling.jpg | Luis Miguel Bugallo Sánchez (Lmbuga Commons)(Lmbuga Galipedia) Publicada por/Pub | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Parrulo_-Muscovy_duckling.jpg) | duck |
+| Patagurus.jpg | Arthur Anker | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Patagurus.jpg) | crab |
+| Payallarfishing.jpg | ozgurmulazimoglu | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Payallarfishing.jpg) | net |
+| Phrygian Cap.jpg | Richard | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Phrygian_Cap.jpg) | cap |
+| Pig farm Vampula 1.jpg | kallerna | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Pig_farm_Vampula_1.jpg) | pig |
+| Pteropus niger three.jpeg | Simon J. Tonge | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Pteropus_niger_three.jpeg) | bat |
+| Rattus rattus - Reid Hardin - 119483853.jpeg | Reid Hardin | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Rattus_rattus_-_Reid_Hardin_-_119483853.jpeg) | rat |
+| Red Ant - March 2025.jpg | Samantha Henneke from Seagrove, North Carolina, USA | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Red_Ant_-_March_2025.jpg) | ant |
+| Red-eyed Leaf Frog (49661076226).jpg | Charlie Jackson | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Red-eyed_Leaf_Frog_(49661076226).jpg) | frog |
+| Reisetasche (fcm).jpg | Photograph: Frank C. Müller, Baden-Baden | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Reisetasche_(fcm).jpg) | bag |
+| Resting hut kambalakonda eco park Visakhapatnam.jpg | Adityamadhav83 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Resting_hut_kambalakonda_eco_park_Visakhapatnam.jpg) | hut |
+| Retriever in water.jpg | Kyfishfishfish | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Retriever_in_water.jpg) | dog |
+| Safety Pin.jpg | Haragayato | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Safety_Pin.jpg) | pin |
+| Scure nel tronco.jpg | Luigi Chiesa | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Scure_nel_tronco.jpg) | log |
+| SF Giants Baseball Hat 4 2019-05-06 (cropped).jpg | FASTILY | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:SF_Giants_Baseball_Hat_4_2019-05-06_(cropped).jpg) | cap |
+| Sheba1.JPG | Dovenetel at Dutch Wikipedia | Public domain | [link](https://commons.wikimedia.org/wiki/File:Sheba1.JPG) | cat |
+| Siam lilacpoint.jpg | Karin Langner-Bahmann, upload von Martin Bahmann | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Siam_lilacpoint.jpg) | cat |
+| Sindhi desert Home.JPG | Khalid Mahmood | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Sindhi_desert_Home.JPG) | hut |
+| Six eggs views from the top on a white background.jpg | TudorTulok | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Six_eggs_views_from_the_top_on_a_white_background.jpg) | egg |
+| Smelly socks.jpg | Colonel Warden | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Smelly_socks.jpg) | sock |
+| Špalek na štípání.jpg | Chmee2 | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:%C5%A0palek_na_%C5%A1t%C3%ADp%C3%A1n%C3%AD.jpg) | log |
+| Spiral Orb Webs.jpg | Bjørn Christian Tørrissen | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Spiral_Orb_Webs.jpg) | web |
+| Standard pin.jpg | **unrecorded** | Public domain | [link](https://commons.wikimedia.org/wiki/File:Standard_pin.jpg) | pin |
+| Staring At Legs (65461151).jpeg | Seika N | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Staring_At_Legs_(65461151).jpeg) | leg |
+| Steam-boiling green asparagus.jpg | W.carter | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Steam-boiling_green_asparagus.jpg) | pot |
+| Sun in fog in Lysekil.jpg | W.carter | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Sun_in_fog_in_Lysekil.jpg) | sun |
+| Tabula Rogeriana 1929 copy by Konrad Miller.jpg | Konrad Miller | Public domain | [link](https://commons.wikimedia.org/wiki/File:Tabula_Rogeriana_1929_copy_by_Konrad_Miller.jpg) | map |
+| Taylor Jacobs 2015 (Unsplash).jpg | Taylor Jacobs taylorjacobs | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Taylor_Jacobs_2015_(Unsplash).jpg) | leg |
+| The Sun in white light.jpg | Matúš Motlo | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:The_Sun_in_white_light.jpg) | sun |
+| Toronto Flyer E700A trolleybus in 1987.jpg | Steve Morgan | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Toronto_Flyer_E700A_trolleybus_in_1987.jpg) | bus |
+| Toyota Hiace H200 505.JPG | 天然ガス | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Toyota_Hiace_H200_505.JPG) | van |
+| Travel mug.jpg | Brugo | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Travel_mug.jpg) | mug |
+| Typical-orb-web-photo.jpg | Chen-Pan Liao | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Typical-orb-web-photo.jpg) | web |
+| Vintage VICTOR Coffee Mug.jpg | Quercus acuta | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Vintage_VICTOR_Coffee_Mug.jpg) | mug |
+| Vulpes vulpes ssp fulvus.jpg | Joanne Redwood | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Vulpes_vulpes_ssp_fulvus.jpg) | fox |
+| White-Box-of-Chocolates.jpg | Evan-Amos | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:White-Box-of-Chocolates.jpg) | box |
+| Wood-ducks-male-female-chicago-march-2024.jpg | Ams100272 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Wood-ducks-male-female-chicago-march-2024.jpg) | duck |
+| World Map 1689.JPG | Gerard van Schagen | Public domain | [link](https://commons.wikimedia.org/wiki/File:World_Map_1689.JPG) | map |
+| Yellow-green toe socks.jpg | The Hurricane | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Yellow-green_toe_socks.jpg) | sock |
+
+All photographs above were **cropped to square, resized to 512 px and re-encoded as JPEG**.
+CC BY and CC BY-SA both require that modifications be indicated; this sentence is that
+indication, and each entry records its own `modified` string in the pack.
 
 ## What these licences oblige
 
@@ -17,13 +144,25 @@ _No third-party photographs in this pack yet._
 | **CC BY-SA** | all of CC BY, **and the adapted image must itself be offered under the same licence** |
 | **GFDL** | attribution, **the full licence text must ship with the work**, and 1.2-only cannot be relicensed as CC BY-SA |
 
-_No share-alike photographs in this pack._
+**2 photograph(s) here are GFDL** (ant, bat). That is the
+heaviest obligation in this pack: the full GNU Free Documentation Licence text would have
+to ship with the app, and a GFDL-1.2-only file cannot be relicensed as CC BY-SA. Harmless
+while this stays a private family app. Before publishing, the cheap answer is to replace
+those pictures — they are the mother's to retake anyway.
+
+**73 of the 120 photographs here are share-alike.** Because the pipeline crops and
+resizes, each of those cropped JPEGs is an adaptation and must itself be available under
+CC BY-SA. That obligation attaches to **the image files, not to the app**: the photographs
+are separate works collected alongside the code, not a derivative of it, so share-alike
+does not reach `src/`. If the owner publishes, the honest discharge is this table in an
+in-app credits screen plus a statement that the photographs are available under their
+original terms.
 
 ## Audio
 
 | Engine | Clips |
 |---|---|
-| `edge-tts:en-US-JennyNeural@-35%` | 110 |
+| `edge-tts:en-US-JennyNeural@-35%` | 112 |
 
 **The audio is the unsettled licensing question, not the photographs.** Every photograph
 above has an explicit, public licence grant. The synthesised clips do not: `edge-tts`

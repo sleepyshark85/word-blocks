@@ -15,6 +15,14 @@
 // same. What the session does carry that it did not is **the current page** (§V), because
 // auto-advance is a rule about state ("the page he is on has nothing live") and not a
 // piece of choreography.
+//
+// **Revision 5.** A prefix is now letters and then a tone, so every view of it goes
+// through the language's `readingOf` — *which letters are one sound, where the onset ends,
+// which word could finish here* — and that reading is taken from the **stored**
+// decomposition of a word that completes the prefix, never from the letter stream
+// (`literacy-vi.md` §0.5, AC C4f). **Undo became the whole strip**, one symbol per tap, on
+// geometry rather than taste: five 72 pt cells need 392 pt and the 360 dp floor has 328
+// (`ui.md` §7.2.6, `gameplay.md` §4.4, AC D4, E8, E9, C10, C11).
 
 import { nextInt, deriveSeed, seedFrom } from './rng.mjs';
 import { langFor } from './lang/index.mjs';
@@ -33,6 +41,16 @@ export function treeOf(game) {
 }
 
 /**
+ * **The reading of the current prefix** — the parse, the completing word, and whether a
+ * letter or a tone can follow. Every selector below takes it rather than re-deriving it,
+ * so there is exactly one place that decides what the letters on the strip mean.
+ */
+export function readingOf(game, state) {
+  const lang = langFor(game.language);
+  return lang.readingOf(game.pack, nodeAt(game.tree, state.prefix), state.prefix);
+}
+
+/**
  * `acceptance-criteria.md` B2, B2a, B3 — the whole table, every character in its
  * permanent cell, and which of them stand up right now.
  *
@@ -45,7 +63,8 @@ export function tableView(game, state) {
   const tree = game.tree;
   const node = nodeAt(tree, state.prefix);
   const live = node ? node.live : new Set();
-  const cells = lang.symbolsFor(game.pack, game.inventory, state.prefix)
+  const reading = lang.readingOf(game.pack, node, state.prefix);
+  const cells = lang.symbolsFor(game.pack, game.inventory, state.prefix, reading)
     .map((symbol) => ({ ...symbol, live: live.has(symbol.id) }));
   return {
     cells,
@@ -77,7 +96,9 @@ export function pageView(game, state) {
         symbolId: first.id,
         glyph: cell ? cell.glyph : first.id,
         role: first.role,
-        kind: first.kind,
+        // V19 — a rail button is drawn with **that character's own** bar and role colour,
+        // so the kind is the character's, not the run's (B2l).
+        kind: cell ? cell.kind : first.kind,
         live: liveByPage.has(i),
         current: state.page === i,
       };
@@ -85,11 +106,40 @@ export function pageView(game, state) {
   };
 }
 
-/** `ui.md` §7.2 / §8 — what the word strip is showing. */
+/** `ui.md` §7.2 / §8 — what the word strip is showing: cells, spans and boundaries. */
 export function stripView(game, state) {
   const lang = langFor(game.language);
-  const word = wordById(game.pack, wordIdOf(game, state.prefix));
-  return lang.stripCells(game.pack, state.prefix, word);
+  return lang.stripCells(game.pack, state.prefix, readingOf(game, state));
+}
+
+/**
+ * `acceptance-criteria.md` E15, E16, N14, D7, C4a–C4b, D1e — **what a tap on this symbol
+ * would say**, live or flat: the clip of the unit it builds, superseding the one playing.
+ * It is resolved here rather than in the state layer because it is a fact about the
+ * pack and the prefix, and the state layer owns only *when*.
+ */
+export function tapAudio(game, state, symbolId) {
+  const lang = langFor(game.language);
+  return lang.tapAudioFor(game.pack, readingOf(game, state), symbolId);
+}
+
+/**
+ * `acceptance-criteria.md` E8, C11 — **what an undo would say: the clip of what is left.**
+ * Undoing `h` from `c h` says `cờ`, not `hờ`. `null` on an empty strip, which is the state
+ * where a tap plays nothing at all (T20, X35).
+ */
+export function undoAudio(game, state) {
+  if (state.prefix.length === 0) return null;
+  const lang = langFor(game.language);
+  const shorter = { ...state, prefix: state.prefix.slice(0, -1) };
+  return lang.remainingAudioFor(game.pack, readingOf(game, shorter));
+}
+
+/** The symbol an undo would return — what flies home (M8). */
+export function lastSymbol(game, state) {
+  if (state.prefix.length === 0) return null;
+  const lang = langFor(game.language);
+  return lang.symbolAt(game.pack, state.prefix, state.prefix.length - 1, readingOf(game, state));
 }
 
 /** `gameplay.md` §6.2 — five slots, each filled with a photograph he just found. */
@@ -333,25 +383,29 @@ export function reduce(game, state, action) {
     }
 
     /**
-     * `gameplay.md` §4.4 — undo is the word strip, and there is no undo button. Tapping
-     * any symbol in the strip returns **that symbol and everything after it**, because a
-     * middle symbol cannot be removed without leaving a prefix that was never on the
-     * tree. One rule, no illegal state (`acceptance-criteria.md` E8, E9, E10).
+     * **`gameplay.md` §4.4 (revision 5) — undo is the whole strip, one symbol per tap.**
+     * Tapping the strip returns the **last** symbol; tapping again returns the one before
+     * it (AC D4, E8, E9, C10, C11).
      *
-     * **V23 — undo is also the way back.** The board slides to that symbol's page as it
-     * returns it, so tapping a character in the strip is how he finds where it lives.
+     * It is not a preference. Per-cell undo needs a 72 pt motor target per cell, five of
+     * those need 392 pt, and the 360 dp floor has 328 pt of content width — so the rule
+     * revision 2 shipped was one the smallest supported phone could never draw, and it is
+     * 58 pt wide on the owner's own device (`ui.md` §7.2.6). Two things fall out and both
+     * are better: *take the last one back* is one rule a 4-year-old can hold, and removing
+     * only the last symbol **cannot** leave a prefix that was never on the tree, so the
+     * illegal state the old rule managed simply cannot arise.
+     *
+     * **V23 / E14 — undo is also the way back.** The board slides to the returned
+     * symbol's page, so the strip is how he finds where a character lives.
      */
-    case 'tapStripCell': {
+    case 'tapStrip': {
       if (state.phase !== 'playing' || state.status !== 'building') return state;
-      const index = action.index;
-      if (!Number.isInteger(index) || index < 0) return state;
-      if (index >= state.prefix.length) {
-        // An empty cell is a touch and nothing more; an empty strip is not even that
-        // (`acceptance-criteria.md` T20).
-        return state.prefix.length === 0 ? state : touched(state);
-      }
-      const home = game.inventory.pageOf(state.prefix[index]);
-      let next = { ...touched(state), prefix: state.prefix.slice(0, index) };
+      // T20 / X35 — a tap on an empty strip does nothing and plays nothing. Not even a
+      // touch: the identical object is returned, so the idle ladder is untouched.
+      if (state.prefix.length === 0) return state;
+      const returned = state.prefix[state.prefix.length - 1];
+      const home = game.inventory.pageOf(returned);
+      let next = { ...touched(state), prefix: state.prefix.slice(0, -1) };
       if (home >= 0 && home !== next.page) {
         next = { ...next, page: home, pageBy: 'self', pageSeq: next.pageSeq + 1 };
       }
@@ -492,19 +546,10 @@ export function motifNotes(state) {
 
 /** `ui.md` §2.2 — the parts of what is currently assembled. Never a completion. */
 export function partsHintSteps(game, state) {
-  return langFor(game.language).partsHint(game.pack, state.prefix);
+  return langFor(game.language).partsHint(game.pack, state.prefix, readingOf(game, state));
 }
 
-/** The symbols an undo to `index` sends home, in the order they fly (E8). */
-export function symbolsFrom(game, state, index) {
-  const lang = langFor(game.language);
-  const out = [];
-  for (let i = state.prefix.length - 1; i >= index; i -= 1) {
-    const sym = lang.symbolAt(game.pack, state.prefix, i);
-    if (sym) out.push(sym);
-  }
-  return out;
-}
+
 
 /** `gameplay.md` §3.3 property 2 — either the prefix is a word, or something is live. */
 export function isStuck(game, state) {

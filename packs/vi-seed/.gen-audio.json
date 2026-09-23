@@ -739,6 +739,56 @@
       "status": "done",
       "detail": "media/aud/fe3d50a9cbfc0863.mp3",
       "at": "2026-09-22T17:21:51.635Z"
+    },
+    "prefix:onset:p:name": {
+      "status": "done",
+      "detail": "media/aud/da50713b9c96c96d.mp3",
+      "at": "2026-09-23T16:02:18.789Z"
+    },
+    "prefix:onset:q:name": {
+      "status": "done",
+      "detail": "media/aud/d6901540d82cd85e.mp3",
+      "at": "2026-09-23T16:02:18.790Z"
+    },
+    "prefix:rime:ac:name": {
+      "status": "done",
+      "detail": "media/aud/a9fbe2df135b01c5.mp3",
+      "at": "2026-09-23T16:02:19.632Z"
+    },
+    "prefix:rime:an:name": {
+      "status": "done",
+      "detail": "media/aud/eba81221b0d2a410.mp3",
+      "at": "2026-09-23T16:02:20.450Z"
+    },
+    "prefix:rime:ă:name": {
+      "status": "done",
+      "detail": "media/aud/1c9eac8c6f417efa.mp3",
+      "at": "2026-09-23T16:02:21.278Z"
+    },
+    "prefix:rime:ăn:name": {
+      "status": "done",
+      "detail": "media/aud/12252dab0afa54b8.mp3",
+      "at": "2026-09-23T16:02:22.116Z"
+    },
+    "prefix:rime:â:name": {
+      "status": "done",
+      "detail": "media/aud/deed711d93083c7b.mp3",
+      "at": "2026-09-23T16:02:22.911Z"
+    },
+    "prefix:rime:uô:name": {
+      "status": "done",
+      "detail": "media/aud/9c727cef81290366.mp3",
+      "at": "2026-09-23T16:02:23.757Z"
+    },
+    "prefix:rime:ư:name": {
+      "status": "done",
+      "detail": "media/aud/5175fda3ebcd8784.mp3",
+      "at": "2026-09-23T16:02:24.587Z"
+    },
+    "prefix:rime:ưn:name": {
+      "status": "done",
+      "detail": "media/aud/44832b7a266960ac.mp3",
+      "at": "2026-09-23T16:02:25.404Z"
     }
   }
 }

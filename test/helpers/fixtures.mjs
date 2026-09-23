@@ -80,17 +80,23 @@ export function packWithADeadSymbol(language, pages = null) {
 }
 
 /**
- * A page plan that really pages, for a pack — the phone case. Revision 4 has two boards
- * to test, not one: a tablet shows the whole inventory at once and never pages, and a
- * test that only ever builds the tablet board would never execute §V at all.
+ * A page plan that really pages, for a pack — the phone case. There are two boards to
+ * test, not one: a tablet shows the whole inventory at once and never pages, and a test
+ * that only ever built the tablet board would never execute §V at all.
  *
- * Returns the iPhone 17 Plus plan for Vietnamese (`ui.md` §4.4, AC V3) and the matching
- * one for English, asserted against the run lengths so it cannot silently stop paging.
+ * **The capacity differs by language in revision 5, and that is the point.** Vietnamese
+ * pages on his own iPhone — 28 cells, `[15, 14, 6]`, `ui.md` §4.4 and AC V3 — but
+ * **English does not**: 26 letters fit one page there, with no rail at all (D1d, V1). So
+ * the English paged case has to be taken from the **360 × 640 floor**, where the capacity
+ * is 16 and the alphabet is `[13, 13]` (P6). Using 28 for both is what made this fixture
+ * silently stop paging English, which is exactly the shape of failure it asserts against.
  */
+const PHONE_CAP = { vi: 28, en: 16 };
+
 export function phonePages(language) {
   const pack = LOAD[language]();
   const runs = langFor(language).runsFor(pack).map((r) => r.ids.length);
-  const cap = 28; // the owner's device, both candidate sizes
+  const cap = PHONE_CAP[language];
   const pages = [];
   for (const len of runs) {
     const k = Math.ceil(len / cap);

@@ -18,6 +18,102 @@ design follows them. **Q4 is superseded**: he overruled its premise. **Q6 is new
 the one thing in revision 3 I genuinely cannot decide for him**, because it turns on a fact
 only he can see — which device his son actually plays on.
 
+**Revision 5, 2026-09-23.** The board became the alphabet and a digraph became two taps
+(`ui.md` §0C). **Everything in it is decided** — the strip's geometry, the span bar, the
+boundary, the re-voice, the fork, and undo moving from the cell to the strip, all of which are
+measured rather than preferred. **Q6 is substantially defused**: a tablet's advantage over his
+iPhone is now three Vietnamese pages versus one, and in English there is no difference at all.
+**Q7 was the one new item, and the owner has answered it.**
+
+## Q7 · Uppercase or lowercase English tiles? — **ANSWERED: UPPERCASE. `A B C D`.**
+
+**Asked 2026-09-23, answered the same day by the owner, against my recommendation.** Recorded
+in full — both sides — because he may want to revisit it once he has watched his son use it,
+and because a decision with its rejected alternative deleted cannot be revisited, only redone.
+
+| | |
+|---|---|
+| **What ships** | **English tiles, strip, page-rail glyphs and the reveal word are UPPERCASE.** `A B C D` … `Z` |
+| **Vietnamese** | **lowercase, unchanged, and this was never in question** — see below |
+| **Mechanism** | a **pack-level glyph-casing flag**, applied at render (`ui.md` §8.2, `acceptance-criteria.md` D17–D20). **No `toUpperCase()` in a component**, no second asset set, no literacy change |
+| **Audio** | **completely unchanged.** `A` still says **/æ/**, not "ay". This is the one way uppercase could do real damage and it is gated (D19) |
+| **Layout** | **no change, and it is measured, not assumed** — see the table below |
+| **To revisit** | **one field in `pack.json`.** No code, no rebuild, no re-record, no re-subset |
+
+### What I recommended, and why it lost
+
+I recommended **lowercase**, on three grounds, and I still think each is true:
+
+1. It is what a 4-year-old meets in a picture book, which is where he will next see these
+   letters.
+2. `literacy-en.md` §2.5 has specified lowercase since revision 1, on the reading that he typed
+   the alphabet in capitals because that is how one writes an alphabet in a sentence — he typed
+   the **Vietnamese** alphabet in capitals in the same message, and Vietnamese has to be
+   lowercase regardless.
+3. Revision 5 makes the two boards look more alike than they ever have — 29 letters in order
+   beside 26 letters in order — and matching case would have completed that symmetry.
+
+**He chose uppercase anyway, and it is a reasonable thing to want.** Capitals are what an
+alphabet chart on a wall shows, what a 4-year-old is likeliest to have already seen, and
+visually the simpler, blockier, more distinguishable set at a glance — `A` and `B` are further
+apart than `a` and `b`, and `I l 1` ambiguity disappears entirely. **He has watched his son
+play and I have not.** That is the whole argument, and it is sufficient.
+
+**It also costs almost nothing to be wrong about**, which is the property that makes deferring
+to him cheap: reversing it is one field, and the 26 clips are *sounds* and do not know what
+case anything is drawn in.
+
+### The asymmetry, stated so nobody "fixes" it
+
+**English is uppercase and Vietnamese is lowercase, deliberately, and they must not be made to
+match.** Vietnamese uppercase is a different and worse problem:
+
+- `mả` / `mã` is already the tightest pair in the §6.1 render gate — **34 px apart at 36 pt**.
+  Stacking marks on capitals compresses them further, against a cap height rather than an
+  x-height, and this is a *correctness* failure, not a cosmetic one (`CLAUDE.md`).
+- The §6.1 fixture carries **7** uppercase Vietnamese letters (`Ă Â Đ Ê Ô Ơ Ư`), not the
+  ~130 precomposed marked forms. **The gate does not currently cover them.** The fonts do
+  (measured: 0 of 25 sampled forms missing from either bundled face), but a font that covers a
+  glyph is not a gate that has rendered it.
+- Vietnamese primary-school material is lowercase.
+
+**So the flag is per-pack, and setting `vi-seed` to uppercase is a change that must extend the
+render fixture first.** That is written into the requirement rather than left as folklore.
+
+### Measured before it was written, because "uppercase is free" is an assumption
+
+Run against the shipped `assets/fonts/BeVietnamPro-SemiBold.ttf` (the tile face per
+`src/ui/typography.js:29`) and `Baloo2-SemiBold.ttf` (the one-line reversal):
+
+| | Be Vietnam Pro SemiBold | Baloo 2 SemiBold |
+|---|---|---|
+| `A`–`Z` present | **26 of 26** | **26 of 26** |
+| Widest uppercase | **`W`, 1.039 em** | `W`, 0.832 em |
+| Widest lowercase (what it replaces) | `m`, 0.895 em | `m`, 0.831 em |
+| Cap height | 740 / 1000 | 602 / 1000 |
+
+**`W` is the binding glyph and it is 16% wider than `m`.** The question is whether it still
+fits, and it does, everywhere, with room:
+
+| | Cell | Glyph | `W` drawn | Slack |
+|---|---|---|---|---|
+| Tile, iPhone 17 Plus (EN, 4 × 7 at 84 pt) | 84 pt | 43 pt | 44.7 pt | **39.3 pt** |
+| Tile, 360 × 640 floor (EN, 4 × 4 at 73 pt) | 73 pt | 36 pt | 37.4 pt | **35.6 pt** |
+| Strip cell, iPhone 17 Plus | 58 pt | 46 pt | 47.8 pt | **10.2 pt** |
+| Strip cell, 360 × 600 floor | 48 pt | 39 pt | 40.5 pt | **7.5 pt** |
+
+**No layout rule changes and none needed to.** The strip's width term is
+`stripFont = floor(stripCellW × 0.82)`, which tolerates a glyph up to **1.22 em**
+(`1 ÷ 0.82`); `W` is 1.039 em, so there is **17% of headroom** against the widest glyph in
+either bundled face. Vertically uppercase is strictly *easier*: no descenders, no marks, cap
+height 0.74 em against a glyph box of 1.55 em that was sized for Vietnamese marks above **and**
+below.
+
+**The tightest number above is 7.5 pt of slack in a strip cell at the 360 × 600 floor**, and it
+is worth naming because it is the one that would bite first if the strip ever grew a seventh
+cell — which F17 already forbids.
+
+
 **Revision 4, 2026-09-23. `Q6 is CLOSED` — he answered it and proposed the remedy himself
 (paging), which turned out to be better than either option Q6 offered him.** **Nothing in this
 document is open.** Q2, Q3 and Q5 remain standing preferences he may exercise at any time; Q1,
@@ -253,7 +349,17 @@ Recorded here so the shape of what was settled is visible without reading three 
 | ·2· One three-note motif, plus a fourth note for a new word | catchy is repetition and anticipation, not novelty | `ui.md` §11.4 |
 | ·2· Optional parent-recorded cheer | the most-heard moment in the app can be his mother's voice, for one editor screen | `ui.md` §13.6 |
 | ·2· A prefix word announces and continues; no commit gesture | a "done" button is a thing he must know to press | `gameplay.md` §5.5 |
-| ·2· Undo = tap the strip; it takes that symbol and everything after it | one rule, no illegal prefix, no button, no glyph | `gameplay.md` §4.4 |
+| ~~·2· Undo = tap the strip; it takes that symbol and everything after it~~ | **Superseded in revision 5.** Tap the strip → **one** symbol returns. Per-cell undo needs a 72 pt cell; five of those need 392 pt and the 360 dp floor has 328 pt. **Geometry, not taste** | `ui.md` §7.2.6, §0C U33 |
+| ·5· The board is the standard alphabet; a digraph is two taps and still one sound | the owner's instruction, twice stated, and `literacy-vi.md` §0 keeps đánh vần underneath it | `ui.md` §0C |
+| ·5· role1/role2/role3 = consonant / vowel / tone, in both languages | a colour that depended on the stage of the word would change under his finger | `ui.md` §5.5 |
+| ·5· Consonant-vs-vowel is gated under CVD; tone is not | the first pair is adjacent in every row and live simultaneously at five onsets; the second is a separate run on a separate page | `ui.md` §5.5 |
+| ·5· The strip is six cells, and six is the ceiling | seven drops the glyph to 31 pt at the 360 dp floor. The editor caps a word at six letters and draws why | `ui.md` §4.2, §13.3a |
+| ·5· Cells never merge; the boundary is marked in three channels | merging is the morph he rejected in revision 3. The only merge left is chant beat 3, after the word is made | `ui.md` §7.2.2 |
+| ·5· The re-voice is a scale pulse on both cells, not a gold face | a `neutralFace` divider measures 1.58–2.12:1 on gold. Caught by extending the sweep, third time | `ui.md` §5.8b, §7.2.3 |
+| ·5· Both "what is missing" affordances are drawn at the three fork points | it is how the board says *this could end here, or go on*, with no text and no voice | `ui.md` §7.2.4 |
+| ·5· The 15/14/6 page split stands, and the 72 pt floor and the 10 pt gap are not shaved for it | 29 letters miss one page by one cell; `a…m ¦ n…y ¦ the hats` is a rule his mother can say out loud | `ui.md` §0C |
+| ·5· **English tiles are UPPERCASE; Vietnamese stays lowercase** | **the owner's answer to Q7, against my recommendation.** He has watched his son play and I have not. Measured free: `W` is 1.039 em against 17% of headroom | `ui.md` §8.2 |
+| ·5· The casing is a **pack field**, not a parent-menu row and not a `toUpperCase()` | it is a one-time property of a language's content, not a play setting. Two sources of truth is how a setting and a pack drift apart | `ui.md` §8.2 |
 | ·2· No rounds. A shelf of five, then the album. | nothing serves him a word, so nothing can end a round — but a parent still needs a stopping point | `gameplay.md` §6.2 |
 | ·2· The idle ladder plays a symbol rather than pointing at an answer | there is no answer to point at, and every live path ends in a word | `gameplay.md` §6.4 |
 | ·2· The zero onset is a pressable empty socket | he must be able to start `ong` himself | `gameplay.md` §4.6 |

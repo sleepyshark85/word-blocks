@@ -11,6 +11,90 @@ squad works), `spike-results.md` (what was measured).
 
 ## Status
 
+> ### 2026-09-24 — **`src/` IS REBUILT TO DESIGN REVISION 5. THE BOARD IS THE ALPHABET AND IT PLAYS.**
+>
+> The app half of revision 5, against `literacy-vi.md` §0, `literacy-en.md` §0, `ui.md` §0C
+> / §7.2 / §8.2 and `acceptance-criteria.md` §0D / §X / §W5. **Input is letter by letter;
+> the model is đánh vần.** `chó` is `c` `h` `o` sắc — four taps, two sounds, five chant
+> beats.
+>
+> | | State |
+> |---|---|
+> | `bash scripts/check.sh` | **ALL GREEN.** `npm test` **320/320** (was 292), both pack validators, the validator suite, the contrast sweep, the layout sweep, the bundle freshness check |
+> | `src/layout/layout.mjs` | **Revision 5 ported.** `stripCellH` / `stripCellW` / `stripRowW` / `stripCells`, the restated **F4** and the new **F15 / F16 / F17**, runs `VI_RUNS [29,6]` and `EN_RUNS [26]`. `test/layout-parity.test.mjs` is green: **16 assertions restated** to the measured revision-5 figures |
+> | A defect found in the Tier-4 tool | `tools/layout-sweep.mjs`'s **`orientationOK` still held revision 4's runs** `[26,35,6]` / `[26,10]` while the sweep below it used revision 5's. The app reads `orientationOK` for P7/P8, so rotation would have been decided against a 67-cell board that no longer exists. Fixed by moving `VI_RUNS`/`EN_RUNS` above it and exporting them; **the sweep still exits 0** |
+> | The engine | `word.letters` + `word.onsetLetterCount` are **validated and turned into spans once, at load** (`src/engine/spans.mjs`). **The onset/rime boundary is read from the stored triple and never from the letter stream** (C4f) — the test that proves it is `gi`/`qu`, where a first-vowel rule gets both wrong |
+> | Tap audio | **Keyed by unit-state**: `tiles` first, then `prefixAudio`. `c` says `cờ`, `h` then says **`chờ`**, superseding it; `s` then `h` says **/ʃ/**. Driven in Chromium: the second tap fetched the `sh` blob, not `h`'s |
+> | Undo | **The whole strip, one symbol per tap** (D4/E8/E9/C10/C11), and the clip is **what is left** — `cho` · `chờ` · `cờ` · nothing. `tapStripCell` is gone from the reducer |
+> | The strip | Rewritten: six slots sized once, **one bar per sound**, the boundary marked three ways (break, pattern, 2 pt divider), the dashed next-cell and the dashed mark-slot, **M22 / M23 / M24**. Cells never merge while building; the only merge left is chant beat 3 |
+> | Q11 / Q12 / Q12a / Q13 | **New font gates, measured on the shipped file**: `A`–`Z` is 26/26 in both bundled faces, the widest capital is **`W` at 1.039 em** against the **1.231 em** the floor's 48 pt strip cell over its 39 pt glyph tolerates (7.5 pt of slack), and `FIXTURE.txt` is asserted to carry **only** the seven unmarked uppercase Vietnamese letters — which is what makes Q13 a gate rather than folklore |
+> | The chant | **A beat lights a SPAN.** `chó` beat 1 lights `c` and `h`; `ship` beat 1 lights `s` and `h`; `egg` beat 2 lights both `g`s |
+> | Q7 | **English glyphs are UPPERCASE.** One pack field — **`display.glyphCase`**, the content-engineer's name and shape (E22, `content-pipeline.md` §3.8) — read once at load through the same `readGlyphCase` the validator uses, and applied at **one** place in the glyph component. **No `toUpperCase()` in any component** (D21, audited). Vietnamese is refused uppercase with a reason (D18, Q13) |
+> | One difference with §3.8, reported not absorbed | its table says the app **obeys** `vi` + `upper` and only the validator objects. **AC D18 says no Vietnamese glyph is ever rendered uppercase anywhere in the app**, so the app refuses it and logs an error his mother can read. The two agree the pack is wrong; they differ only on what is drawn, and this builds to the numbered criterion |
+> | Driven, not asserted | Chromium at **430 × 932** (both languages), **360 × 640** (paged `[15 ¦ 14 ¦ 6]`, rail of 3) and **834 × 1194** (35 cells, 5 × 7, no rail): a word made, chant beat 3 caught mid-flight, the photograph shown, `SHIP` uppercase on the reveal, nothing scrolling or clipped at either extreme |
+> | Fault injections | **16 app-level faults, every one now exit 1 — and two of them were MISSED on the first pass**, which is the process working: the boundary injection was a no-op patch that proved nothing, and nothing anywhere tested a seven-letter word. Both got a real check (`gi`/`qu` in the strip, and a `tooManyLetters` hostile case) and both then failed. The superseding sound, the stored boundary, one-span-per-letter, undo's clip, the chant's span, a `toUpperCase()` in a component, the casing field ignored, Vietnamese allowed uppercase, M22 un-anchored, M23 flattened, a per-cell touch target, the board reverting to 26 onsets, a one-point drift from the tool, a seven-letter word let through, the engine reading a flat top-level key instead of `display.glyphCase`, and a casing typo throwing instead of degrading. Plus **F17 in the tool** (`VI_MAX_LETTERS` 5 → 7): **exit 1, 12 failures**, first at `360×600 pages 15,14,6` |
+> | **Not verified** | **Still never run on a real device.** U23 — *does the superseding sound read as joining or as the app changing its mind?* — is the one thing revision 5 cannot verify below the owner. The eight rime-prefix clips still owe a human listen |
+>
+> **One documentation slip, reported not absorbed.** `acceptance-criteria.md` C12 says "`chó`
+> is six taps and five beats, exactly as `bò` is four taps". By its own model those are
+> **four** and **three** — letters plus one tone — and C4e and `literacy-vi.md` §0.11 (3–6
+> taps, mean 4.08) agree with the code. The point C12 is making is untouched; the arithmetic
+> in the prose is wrong.
+
+> ### 2026-09-23 — **THE CONTENT PACKS ARE REBUILT TO DESIGN REVISION 5.** The board is the alphabet.
+>
+> The owner played revision 4 and said the character table "feel really random and
+> un-organized and doesn't give my son a sense of character order", then specified the
+> standard alphabet with a digraph entered **letter by letter** — *"Choose C and choose H"*.
+> **đánh vần is unchanged**: `ch` is two taps and still one âm đầu. `literacy-vi.md` §0 and
+> `literacy-en.md` §0 are the design; this is the content half of it, and the app half is
+> **not done**.
+>
+> | | State |
+> |---|---|
+> | `packs/vi-seed` / `packs/en-seed` | **Rebuilt and valid, exit 0.** `inventoryOrder` is `{letter, tone}`; the retired `onset`/`rime`/`digraph` runs are gone; both tile inventories are in dictionary order; every word carries a derived `letters` (+ `onsetLetterCount` in Vietnamese) |
+> | Tone order | **`ngang huyền sắc hỏi ngã nặng`** — the set phrase, the **owner's** answer to `open-questions.md` Q11, asked directly. It shipped as frequency order |
+> | Audio | **9 new Vietnamese clips**, 600–840 ms, all decode-clean: the onset state `pờ` and eight rime prefixes `ac an ă ăn â uô ư ưn`. `q` reuses the `qu` blob. **Nothing retired. English needs none** |
+> | **Owed: a human listen** | the eight rime-prefix clips (`literacy-vi.md` §0.9). Several are not real Vietnamese syllables read level, and `ă`/`â` are voiced `á`/`ớ` at confidence `check` |
+> | Validator | **100 cases** (was 62). 38 new, every one seen to fail first; seven rules were deleted in turn to confirm the new cases test their rules and not the weather |
+> | Size | **+54.6 KiB to `vi-seed`, +1.6 KiB to `en-seed`** — +0.6 % and +0.02 %. `content-pipeline.md` §10 |
+> | **Glyph casing (E22)** | **`"display": { "glyphCase": "upper" \| "lower" }`** — top-level, beside `media`. `en-seed` **upper** (the owner's answer to `open-questions-ui.md` Q7), `vi-seed` **lower**. Generated, not hand-written. `content-pipeline.md` §3.8 |
+> | Casing severities | absent → nothing; an unrecognised **value** → warning, pack still valid (AC D23); a malformed **shape** → error. `vi` + `upper` → **error**, until `assets/fonts/FIXTURE.txt` covers the 55 marked capitals `vi-seed` would need (AC **Q13**) — the gate is a computation and lifts by itself when the fixture is extended |
+> | Bundle | `assets/packs/index.js` regenerated. The gate's staleness check is the defect that made the owner see emoji instead of photographs |
+> | **Licensing predicate** | **`tools/lib/licence.mjs` is now the only place this project answers "what does this licence oblige".** `pack-validate.mjs` and `pack-attributions.mjs` had disagreed on the same two public-domain photographs — one passing the pack, the other refusing to publish it. Both import it now. A public-domain work with no author passes; a CC BY / CC BY-SA / GFDL one still fails hard; an **unrecognised** licence is treated as requiring credit |
+> | `ATTRIBUTION.md` | **Both regenerated.** They still said *"No third-party photographs in this pack yet"* while 269 curated photographs were in the packs — a licensing claim that was simply false |
+> | ~~**Not done — the app**~~ | **DONE, 2026-09-24** — see the block above. Liveness over letters, the strip's boundary marker and the unit-state tap audio are built, and `display.glyphCase` is carried in both manifests for Q7 (the field is the content-engineer's — `content-pipeline.md` §3.8 / E22 — and the app reads it through the same `readGlyphCase`) |
+>
+> ~~**`bash scripts/check.sh` is NOT green in the working tree**~~ — **it is green as of
+> 2026-09-24**: `src/layout/layout.mjs` now carries revision 5's law and the two failing
+> layout-parity assertions were restated to the measured figures, along with fourteen others
+> that still compiled and asserted revision 4.
+
+> ### 2026-09-23 — **DESIGN REVISION 5 IS ISSUED. `src/` IMPLEMENTS REVISION 4 AND `npm test` NOW FAILS BY DESIGN.**
+>
+> The owner played the revision-4 build: *"the characters being displayed feel really random and
+> un-organized and doesn't give my son a sense of character order"*, then *"for character
+> combining, he will still going through character by character, even for combine ones like ch,
+> tr (Choose C and choose H)"*. `literacy-vi.md` §0 and `literacy-en.md` §0 settle the model
+> (**letter-by-letter input, đánh vần unchanged**); `ui.md` §0C and `acceptance-criteria.md` §0D
+> are the design half.
+>
+> | | State |
+> |---|---|
+> | `ui.md` / `acceptance-criteria.md` | **Revision 5.** 445 numbered criteria (was 351), no duplicate ids, 30 Tier-5 questions. **New group §X, the word strip**, 40 criteria. **§W5** lists 23 restated ids — those are the ones that still compile and now mean something else |
+> | `tools/layout-sweep.mjs` | **Exit 0.** Runs are `VI [29, 6]` and `EN [26]`; **10 layout rules and 6 plan rules** (F4 restated, F15, F16, F17 new). 34,463,217 layouts + 982,566 page plans, **491,283 served** (up from 489,675) |
+> | `tools/theme-contrast.mjs` | **Exit 0.** role1/role2/role3 re-mapped to **consonant / vowel / tone**; **the first CVD-gated check in the tool** (consonant vs vowel, dE00 ≥ 20, worst measured 23.7). 132 gated checks, 2 logged |
+> | **Measured paging, not predicted** | **iPhone 17 Plus: VI 3 pages `[15 ¦ 14 ¦ 6]` at 3×5, tile 101 pt (A) / 104 (B); EN ONE page, 26 cells, 4×7, NO RAIL.** The 360×640 floor goes 7 pages → 3. **93% of served combinations need no rail** (was 60%) |
+> | The word strip | **Priced for the first time.** Six cells, 58 × 90 on his device, 48 × 61 at the floor. Costs **970 of 492,253 served combinations (0.20%)**, all of them 118 pt-side-inset shapes |
+> | Fault injections | **Four, all exit 1**: F17 (`VI_MAX_LETTERS` 5→7), F15 (strip width cap removed), ADJACENT CVD (gate 20→25 fails at 23.7), the boundary divider in `hairline` (1.30–1.38:1) |
+> | `npm test` | **FAILS: 2 of 18 in `test/layout-parity.test.mjs`** — *"the app layout law is identical to the tool"* and *"V4–V8 the page plan and the fixpoint are identical to the tool"*. **This is correct.** `src/layout/layout.mjs` is revision 4 and does not carry `stripCellH/stripCellW/stripRowW/stripCells`, F15/F16/F17, or the new runs. The test is doing exactly its job: it is the file that says `src/` is behind the design |
+> | Slice 3 (the board) | **Must be rebuilt to revision 5.** `src/engine/table.mjs`, `src/layout/layout.mjs`, `src/ui/CharacterTable.js`, `src/ui/PageRail.js` and the strip component all change; **`src/engine/`'s word representation must NOT change** — `(onset, rime, tone)` is the model and the parse comes from it (`literacy-vi.md` §0.5) |
+> | Packs | **The content-engineer is rebuilding them in parallel** — `inventoryOrder` becomes `{letter, tone}`, a derived `letters` array and `onsetLetterCount` are added, the tone order is corrected, and **9 new Vietnamese clips** are needed (`literacy-vi.md` §0.12). Both packs are currently revision-4 shaped |
+> | **Q7 answered by the owner** | **English glyphs are UPPERCASE — `A B C D`** — against the game-designer's lowercase recommendation. **Vietnamese stays lowercase and must**: `mả`/`mã` is 34 px apart at 36 pt and marks on capitals compress that. Specified as a **pack-level casing field** (`ui.md` §8.2, E22, AC D17–D24) — **no `toUpperCase()` in a component**, and reversing it is one field in `pack.json` |
+> | Uppercase, measured not assumed | `A`–`Z` is **26/26 in both bundled faces**. Widest glyph `W` = **1.039 em**, against a tolerance of **1.231 em** derived from the floor's strip cell. Fits everywhere; tightest slack **7.5 pt**. **Injection at 1.25 em exits 1**, overflowing the floor's strip cell — so the check discriminates. `ui.md` §6.1a records that **the Q-series does NOT gate Vietnamese uppercase**: the fixture carries 7 uppercase Vietnamese letters, not the ~130 marked capitals |
+> | `gameplay.md` | **Revision 5, new §0C.** §4.4 rewritten: **undo is the whole strip, one symbol per tap.** This closes a contradiction that shipped in three documents for two revisions — `ui.md` §2.2 said whole-strip since revision 3 while §7.2, `gameplay.md` §4.4 and criteria D4/E8/E9/C10/C11 said per-cell. **Settled by arithmetic**: five 72 pt cells need 392 pt and the 360 dp floor has 328 |
+> | **Not verified** | **Still never run on a real device.** U23–U27 are new Tier-5 questions and U23 — *does the superseding sound read as joining or as the app changing its mind?* — is the one revision 5 cannot verify below the owner |
+
 > ### 2026-09-23 — **SLICES 2 AND 3 ARE REBUILT TO DESIGN REVISION 4.** `src/` no longer implements revision 2.
 >
 > The owner played the built app (Tier 5), reported four findings, and then answered the one
@@ -102,7 +186,7 @@ below and was verified by execution, not trusted.*
 | **0** | Squad, spike, and approved design | **Closed at revision 2, 2026-09-23** — `gameplay.md`, `ui.md` and `acceptance-criteria.md` rewritten for the discovery mechanic; both design tools re-run, both exit 0 |
 | **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
 | **2** | Engine: **prefix tree, live-set computation** | **Rebuilt for revision 4** (one tree, one constant table, pages in the reducer). `npm test` 291/291; 400 fuzzed sessions per language across **both** board shapes with `checkInvariants` after every action, plus a 4,000-action soak; 0 violations. Previously: **rebuilt for revision 2.** `npm test` 230/230; 800 fuzzed sessions per language with `checkInvariants` after **every** action, plus a 4,000-action soak; 0 violations. Awaiting independent verification |
-| **3** | The game plays, both languages, on a real device | **Rebuilt for revision 4 and driven** in Chromium at 430×932, 440×956, 834×1194 and 360×640, both languages, including the language switch and the gate grace. **Still not run on a real device — Tier 5 is owed.** Previously: **rebuilt for revision 2.** Chrome at iPad portrait + landscape, iPhone 393×852 and the 360×640 Android floor, both languages; five words to the album; the gate opens on a 1.2 s hold. **Not yet run on a real device — Tier 5 is owed.** Awaiting independent verification |
+| **3** | The game plays, both languages, on a real device | **Rebuilt for revision 5 and driven** in Chromium at 430×932 (both languages), 360×640 (paged, rail of 3) and 834×1194 (35 cells, no rail): the letter board, the span bar, the marked boundary, whole-strip undo, the superseding tap sound, uppercase English glyphs and the photograph. `npm test` 317/317; 14 fault injections, all caught. **Still not run on a real device — Tier 5 is owed.** Previously: **rebuilt for revision 4 and driven** in Chromium at 430×932, 440×956, 834×1194 and 360×640, both languages, including the language switch and the gate grace. Previously: **rebuilt for revision 2.** Chrome at iPad portrait + landscape, iPhone 393×852 and the 360×640 Android floor, both languages; five words to the album; the gate opens on a 1.2 s hold. **Not yet run on a real device — Tier 5 is owed.** Awaiting independent verification |
 | **4** | The editor — add / edit / delete a word | Not started |
 | **5** | Polish: motion, sound, accessibility | Not started |
 | **6** | Store readiness, iOS + Android | Not started |

@@ -54,7 +54,7 @@ function rig(pack, over = {}) {
   return { ctl, clock, audio, game, pack: game.pack };
 }
 
-/** The owner's board: Vietnamese across four pages, 28 cells each (AC V3). */
+/** The owner's board: Vietnamese across three pages, 28 cells each (AC V3). */
 function phoneRig(over = {}) {
   return rig(viPack(), { ...over, pages: phonePages('vi') });
 }
@@ -77,11 +77,14 @@ function tap(r, symbolId) {
   r.ctl.symbolUp(symbolId, 10, 10);
 }
 
-/** Build the word `mèo`, which every Vietnamese assertion here uses. */
+/**
+ * Build the word `mèo`, which every Vietnamese assertion here uses. **Revision 5: four
+ * taps, not three** — `m` `e` `o` and the huyền. The model is unchanged; `eo` is still
+ * one vần, reached with two taps (`literacy-vi.md` §0.3).
+ */
+const MEO = ['m', 'e', 'o', 'huyen'];
 function buildMeo(r) {
-  tap(r, 'm');
-  tap(r, 'eo');
-  tap(r, 'huyen');
+  for (const symbol of MEO) tap(r, symbol);
 }
 
 /* --------------------------------------------------------------- pure helpers */
@@ -179,9 +182,10 @@ test('N13 / B2f — there is no ∅ tile and no open sound; a vowel word starts 
   r.audio.drain();
   tap(r, '∅');
   assert.deepEqual(r.audio.drain(), [], 'tapping a tile that does not exist made a sound');
-  // `áo` = ao + sắc: two taps, and the first one is the rime.
-  tap(r, 'ao');
-  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['ao']);
+  // `áo` = `a` `o` sắc: three taps, and the first one is a vowel LETTER (C19).
+  tap(r, 'a');
+  tap(r, 'o');
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['a', 'o']);
   tap(r, 'sac');
   assert.equal(r.ctl.getSnapshot().pending.text, 'áo');
 });
@@ -239,7 +243,8 @@ test('N11 (RESTATED) — every clip the CONSTANT table can produce is resident a
 test('F1 / F4 — the motif fires on the tap that completes the word, four notes when new', () => {
   const r = rig(viPack());
   tap(r, 'm');
-  tap(r, 'eo');
+  tap(r, 'e');
+  tap(r, 'o');
   r.audio.drain();
   tap(r, 'huyen');
   const log = r.audio.drain();
@@ -474,54 +479,69 @@ test('the ladder does not run during the announcement', () => {
 
 /* -------------------------------------------------------------- undo and hints */
 
-test('E8 — undo flies the symbols home 90 ms apart, each with its own clip and one unclick', () => {
+test('D4 / E8 — ONE tap on the strip returns ONE symbol, and says what is left', () => {
+  // **RESTATED in revision 5** (`gameplay.md` §4.4): the strip is one target and a tap
+  // takes back the last symbol. The clip is the clip of **what remains** — undoing `h`
+  // from `c h` says `cờ`, not `hờ` — and one descending unclick sounds under it.
   const r = rig(viPack());
-  tap(r, 'm');
-  tap(r, 'eo');
+  tap(r, 'c');
+  tap(r, 'h');
   r.audio.drain();
   r.ctl.stripDown();
-  r.ctl.stripUp(0);
-  let log = r.audio.drain();
+  r.ctl.stripUp();
+  const log = r.audio.drain();
   assert.equal(log.filter((e) => e.ch === 'ui' && e.source === UI.unclick).length, 1);
-  assert.deepEqual(r.ctl.getSnapshot().returning, ['eo', 'm']);
-  r.clock.advance(1);
-  log = r.audio.drain();
-  assert.equal(log.filter((e) => e.ch === 'speech').length, 1, 'both clips played at once');
-  r.clock.advance(M.flyHomeStagger);
-  log = r.audio.drain();
-  assert.equal(log.filter((e) => e.ch === 'speech').length, 1, 'the second clip did not follow');
-  r.clock.advance(M.flyHome + M.flyHomeStagger);
+  const spoken = log.filter((e) => e.ch === 'speech');
+  assert.equal(spoken.length, 1, 'an undo played more than one clip');
+  assert.equal(spoken[0].source, identityMedia(r.pack.unitAudio.onset.c.short.src),
+    'the undo said the clip of what was taken, not of what is left');
+  assert.deepEqual(r.ctl.getSnapshot().returning, ['h'], 'more than one symbol flew home');
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['c'], 'undo took back more than one');
+  r.clock.advance(M.flyHome);
   assert.deepEqual(r.ctl.getSnapshot().returning, [], 'the returning list never cleared');
+
+  // E9 — emptying it is one tap per symbol, each with its own sound.
+  r.audio.drain();
+  r.ctl.stripDown();
+  r.ctl.stripUp();
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, []);
+  // X35 / T20 — and on an empty strip a tap does nothing and plays nothing.
+  r.audio.drain();
+  r.ctl.stripDown();
+  r.ctl.stripUp();
+  assert.deepEqual(r.audio.drain(), [], 'an empty strip made a sound');
 });
 
-test('M2 / M3 — an 800 ms hold on the strip speaks the parts, and no completion', () => {
+test('M2 / M3 / X36 — an 800 ms hold on the strip speaks the parts, and undoes nothing', () => {
   const r = rig(viPack());
   tap(r, 'm');
-  tap(r, 'eo');
+  tap(r, 'e');
   r.audio.drain();
   r.ctl.stripDown();
   r.clock.advance(800);
   const captions = r.audio.drain().filter((e) => e.ch === 'speech').length;
   r.clock.advance(4000);
   assert.ok(captions >= 1, 'the parts hint said nothing');
-  // The hold consumed the gesture, so the release is not an undo.
-  r.ctl.stripUp(0);
-  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m', 'eo'], 'the hold also undid the word');
+  // X36 — the hold consumed the gesture, so the release is not an undo. The strip keeps
+  // exactly two gestures and there is no third.
+  r.ctl.stripUp();
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m', 'e'], 'the hold also undid the word');
   assert.equal(r.ctl.getSnapshot().hintLevel, 0);
 });
 
-test('T3 — seat a symbol and lift it 120 ms later; both sounds play and it ends on the table', () => {
+test('T3 / X37 — seat a symbol and lift it 120 ms later; both sounds play, it ends on the table', () => {
   const r = rig(viPack());
   r.audio.drain();
-  tap(r, 'm');
+  tap(r, 'c');
   r.clock.advance(120);
+  tap(r, 'h');                       // two letters, so the undo has something to say
   r.ctl.stripDown();
-  r.ctl.stripUp(0);
-  r.clock.advance(M.flyHome + M.flyHomeStagger);
+  r.ctl.stripUp();
+  r.clock.advance(M.flyHome);
   const log = r.audio.drain();
-  assert.ok(log.filter((e) => e.ch === 'speech').length >= 2, 'one of the two sounds was lost');
-  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, []);
+  assert.ok(log.filter((e) => e.ch === 'speech').length >= 3,
+    'one of the three sounds was lost: `cờ`, `chờ`, and `cờ` again as it came back');
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['c']);
 });
 
 /* ------------------------------------------------------- lifecycle and settings */
@@ -570,7 +590,7 @@ test('A10 / R6 — destroy clears every timer and releases every audio handle', 
   assert.equal(r.clock.timers.size(), 0, `timers left: ${r.clock.timers.pending().join(', ')}`);
   assert.equal(r.audio.isDisposed(), true);
   // And nothing it is asked to do afterwards schedules anything new.
-  tap(r, 'eo');
+  tap(r, 'e');
   r.ctl.tapReveal();
   r.ctl.finishSession();
   assert.equal(r.clock.timers.size(), 0);
@@ -602,7 +622,7 @@ test('D7 / D8 / N14 (RESTATED) — a tap ALWAYS plays `short`, first touch or fi
     assert.equal(played[0].source, short, `touch ${i + 1} played the long clip`);
     r.ctl.symbolUp('c', 10, 10);
     r.clock.advance(5000);
-    if (r.ctl.getSnapshot().engine.prefix.length > 0) r.ctl.stripUp(0);
+    while (r.ctl.getSnapshot().engine.prefix.length > 0) r.ctl.stripUp();
     r.clock.advance(2000);
   }
 });
@@ -659,10 +679,8 @@ test('H7 — the fifth slot tips into the album and a four-note phrase plays onc
   const r = rig(viPack());
   const eligible = r.game.tree.eligible.slice(0, 5);
   for (const w of eligible) {
-    const s = w.syllables[0];
-    if (s.onset !== null) tap(r, s.onset);
-    tap(r, s.rime);
-    tap(r, s.tone);
+    // The taps are the word's letters and then its tone (revision 5).
+    for (const symbol of [...w.letters, w.syllables[0].tone]) tap(r, symbol);
     r.clock.advance(30000);
   }
   const snap = r.ctl.getSnapshot();
@@ -705,9 +723,9 @@ test('B8 — the snapshot reports the table, not a filtered live set', () => {
   const r = rig(viPack());
   const before = r.ctl.getSnapshot().table.cells.map((c) => c.id);
   tap(r, 'm');
-  tap(r, 'eo');
+  tap(r, 'e');
   r.ctl.stripDown();
-  r.ctl.stripUp(0);
+  r.ctl.stripUp();
   assert.deepEqual(r.ctl.getSnapshot().table.cells.map((c) => c.id), before,
     'a cell moved, appeared or disappeared');
   // And the engine agrees with the snapshot about what is live.
@@ -720,11 +738,15 @@ test('B2c — the table never morphs: one page bump per slide, and none per repa
   // to sequence; what moves is the window, and only when a page goes dead (V13).
   const r = phoneRig();
   const start = r.ctl.getSnapshot().pageSeq;
+  // `m` and `e` are both on page 1 (`a`…`m`), so seating `m` moves nothing: the board
+  // only slides off a page that has gone dead (V12, V13).
   tap(r, 'm');
-  assert.equal(r.ctl.getSnapshot().pageSeq, start + 1, 'the board did not slide off the dead onset page');
+  assert.equal(r.ctl.getSnapshot().pageSeq, start, 'the board slid while page 1 was still live');
+  tap(r, 'e');
   const atRime = r.ctl.getSnapshot().pageSeq;
+  assert.equal(atRime, start + 1, 'the board did not slide to the page holding `o`');
   // A chant emits several times a second; none of those may restart the slide.
-  tap(r, 'eo');
+  tap(r, 'o');
   const atTone = r.ctl.getSnapshot().pageSeq;
   assert.equal(atTone, atRime + 1);
   r.clock.advance(50);
@@ -750,7 +772,8 @@ test('V24 — a page change sounds, on the UI channel, and it does not cut speec
 test('V24 — the auto-advance sounds the same, and it is the app that is slower', () => {
   const r = phoneRig();
   r.audio.drain();
-  tap(r, 'm');                       // the onset page goes dead; the board slides itself
+  tap(r, 'm');
+  tap(r, 'e');                       // page 1 goes dead; the board slides itself to page 2
   const log = r.audio.drain();
   assert.ok(log.some((e) => e.ch === 'ui' && e.source === UI.page), 'the auto-advance was silent');
   // V11 — his slide is 300 ms, the app's is 420 ms, and the snapshot says which.
@@ -765,8 +788,8 @@ test('V24 — the auto-advance sounds the same, and it is the app that is slower
 test('V30 — thirty rapid rail taps end on the last page, with nothing left half-finished', () => {
   const r = phoneRig();
   r.audio.drain();
-  for (let i = 0; i < 30; i += 1) { r.ctl.tapPage(i % 4); r.clock.advance(5); }
-  assert.equal(r.ctl.getSnapshot().page, 29 % 4);
+  for (let i = 0; i < 30; i += 1) { r.ctl.tapPage(i % 3); r.clock.advance(5); }
+  assert.equal(r.ctl.getSnapshot().page, 29 % 3);
   r.clock.advance(5000);
   assert.deepEqual(r.clock.timers.pending().filter((n) => !n.startsWith('ladder')), [],
     'a page change left a timer behind');
@@ -774,18 +797,20 @@ test('V30 — thirty rapid rail taps end on the last page, with nothing left hal
 
 test('V31 — an auto-advance under a finger seats nothing on the new page', () => {
   const r = phoneRig();
-  // His finger goes down on `m` (page 0) and up: the board slides to page 1. The same
-  // touch must not then seat anything there.
-  r.ctl.symbolDown('m', 10, 10);
-  r.ctl.symbolUp('m', 10, 10);
+  // His finger goes down on `e` (page 0, after `m`) and up: page 0 goes dead and the
+  // board slides to page 1. The same touch must not then seat anything there.
+  tap(r, 'm');
+  r.ctl.symbolDown('e', 10, 10);
+  r.ctl.symbolUp('e', 10, 10);
   assert.equal(r.ctl.getSnapshot().page, 1);
   r.ctl.symbolUp('o', 10, 10);       // the same gesture ending over a tile on page 1
-  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m'], 'the same touch seated twice');
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m', 'e'], 'the same touch seated twice');
 });
 
 test('V26 / V27 — the idle ladder reaches the rail, and the app changes page before it plays', () => {
   const r = phoneRig();
-  tap(r, 'm');                       // now on the rime page; the live set is all rimes
+  tap(r, 'm');
+  tap(r, 'e');                       // now on page 1; the only live letter is `o`
   r.clock.advance(LADDER.step * 2);  // 40 s: something breathes
   const snap = r.ctl.getSnapshot();
   assert.ok(snap.hintSymbolId, 'nothing is breathing at 40 s');
@@ -795,14 +820,15 @@ test('V26 / V27 — the idle ladder reaches the rail, and the app changes page b
 
   // V27 — at 80 s the app changes page first, **then** plays the tile: the slide is the
   // app's 420 ms, and the tap lands after it rather than on a board he cannot see.
+  const before = r.ctl.getSnapshot().engine.prefix;
   r.audio.drain();
   r.clock.advance(LADDER.step * 2);
   if (snap.hintPage !== null) {
     assert.equal(r.ctl.getSnapshot().page, snap.hintPage, 'the app played a tile off screen');
-    assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m'], 'it played before the slide');
+    assert.deepEqual(r.ctl.getSnapshot().engine.prefix, before, 'it played before the slide');
     r.clock.advance(M.pageSlideAuto + 1);
   }
   const after = r.ctl.getSnapshot();
-  assert.equal(after.engine.prefix.length, 2, 'the app never took its turn');
-  assert.equal(after.engine.prefix[1], snap.hintSymbolId, 'it played a different tile');
+  assert.deepEqual(after.engine.prefix, [...before, snap.hintSymbolId],
+    'the app never took its turn, or took a different one');
 });

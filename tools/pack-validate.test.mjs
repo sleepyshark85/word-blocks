@@ -15,10 +15,11 @@
 import { test, before, after, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import * as R from './lib/rules.mjs';
+import * as L from './lib/licence.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const VALIDATE = path.join(ROOT, 'tools', 'pack-validate.mjs');
@@ -108,6 +109,34 @@ function rejects(dir, needle, flags = []) {
   assert.equal(code, 1, `expected exit 1, got ${code}. Output:\n${out}`);
   assert.match(out, needle, `exit 1 was for the wrong reason. Output:\n${out}`);
   return out;
+}
+
+const VENV = path.join(ROOT, 'tools', '.venv', 'bin', 'python');
+
+/**
+ * An unprimed frame-boundary cut: exactly the bug this suite exists to prevent.
+ *
+ * The cut frame is chosen because it PROVABLY cannot decode without its reservoir
+ * history — `part2_3_length` exceeds the bits the frame carries itself. That matters:
+ * an earlier version of this fixture just picked frame 3, which happened to be a frame
+ * whose demand fit in its own bytes, so the decoder never complained and the case
+ * passed against a validator that was doing nothing. Picking on the property rather
+ * than on an index is the difference between a fixture and a coincidence.
+ *
+ * Hoisted to module scope by revision 5, because the new Vietnamese prefix clips have to
+ * pass through the same gate and a second copy of this reasoning is a second place for it
+ * to rot. The `ac` clip in `vi-seed` was cut at frame 6, then 12, then 15 by hand before
+ * this helper was used, and all three decoded cleanly — the first fifteen frames are
+ * gTTS's leading silence, which carries no reservoir. That is exactly the coincidence the
+ * paragraph above is about, observed a second time.
+ */
+async function orphanedCut(srcFile) {
+  const M = await import('./lib/mp3.mjs');
+  const b = readFileSync(srcFile);
+  const t = M.parseFrames(b);
+  const from = t.frames.findIndex((fr, i) => i > 0 && M.sideInfo(b, fr).needsHistory);
+  assert.ok(from > 0, `${srcFile} has no frame that provably needs reservoir history`);
+  return b.subarray(t.frames[from].offset);
 }
 
 /* ============================================================== the baseline ==== */
@@ -719,27 +748,6 @@ describe('clip duration budget', () => {
  * inside the 1500 ms ceiling. The two checks are independent and both are needed.
  */
 describe('clips must decode without decoder diagnostics', () => {
-  const VENV = path.join(ROOT, 'tools', '.venv', 'bin', 'python');
-
-  /**
-   * An unprimed frame-boundary cut: exactly the bug this suite exists to prevent.
-   *
-   * The cut frame is chosen because it PROVABLY cannot decode without its reservoir
-   * history — `part2_3_length` exceeds the bits the frame carries itself. That matters:
-   * an earlier version of this fixture just picked frame 3, which happened to be a frame
-   * whose demand fit in its own bytes, so the decoder never complained and the case
-   * passed against a validator that was doing nothing. Picking on the property rather
-   * than on an index is the difference between a fixture and a coincidence.
-   */
-  async function orphanedCut(srcFile) {
-    const M = await import('./lib/mp3.mjs');
-    const b = readFileSync(srcFile);
-    const t = M.parseFrames(b);
-    const from = t.frames.findIndex((fr, i) => i > 0 && M.sideInfo(b, fr).needsHistory);
-    assert.ok(from > 0, `${srcFile} has no frame that provably needs reservoir history`);
-    return b.subarray(t.frames[from].offset);
-  }
-
   test('a clip whose bit reservoir was orphaned is an ERROR, even though it is short enough', async (t) => {
     if (!existsSync(VENV)) return t.skip('no venv — the decode check needs a decoder');
     const d = copy(SRC_EN, 'orphaned');
@@ -783,5 +791,529 @@ describe('clips must decode without decoder diagnostics', () => {
     const m = spawnSync(VENV, [path.join(ROOT, 'tools', 'audio-measure.py'), '--require-clean', out],
       { encoding: 'utf8' });
     assert.equal(m.status, 0, `the trimmed clip must decode cleanly:\n${m.stdout}`);
+  });
+});
+
+/* ==================================== design revision 5 — the letter board ==== */
+
+/*
+ * The owner played the built app: the character table "feel really random and
+ * un-organized and doesn't give my son a sense of character order", and a digraph is
+ * entered letter by letter — "Choose C and choose H". So `inventoryOrder` became
+ * `{ letter, tone }`, every word carries the letter stream it is tapped as, and ten
+ * reachable partial states that are not tiles got clips of their own.
+ *
+ * Every case below was run against the REAL migrated pack and seen to exit 1 before it
+ * was written down. Three of them were written the other way round first and passed for
+ * the wrong reason — see the frame-cut case, which had to be moved twice before it
+ * produced the underrun it claims to detect.
+ */
+describe('revision 5 — the board is the alphabet', () => {
+  test('a pack that still lists onsets on the board is rejected as un-migrated', () => {
+    const d = copy(SRC_VI, 'r5-onsetrun');
+    breakManifest(d, (m) => { m.inventoryOrder.onset = ['b', 'c']; return m; });
+    rejects(d, /still carries "onset"/);
+  });
+
+  test('a letter missing from the board is an error, not a cosmetic difference', () => {
+    // The revision-4 defect, in its new form: an ordering that omits a symbol makes every
+    // word containing it unbuildable, and nothing else in the report would say so.
+    const d = copy(SRC_VI, 'r5-shortboard');
+    breakManifest(d, (m) => {
+      m.inventoryOrder.letter = m.inventoryOrder.letter.filter((c) => c !== 'ư');
+      return m;
+    });
+    const out = rejects(d, /1 missing: ư/);
+    assert.match(out, /is not on this pack's board/, 'the words that became unbuildable must be named too');
+  });
+
+  test('a digraph put back on the board as a cell is rejected', () => {
+    const d = copy(SRC_VI, 'r5-digraphcell');
+    breakManifest(d, (m) => { m.inventoryOrder.letter.push('ch'); return m; });
+    rejects(d, /is not part of the 29-letter Vietnamese alphabet/);
+  });
+
+  test('English loses its digraph cells too, and keeps the digraph TILES', () => {
+    const d = copy(SRC_EN, 'r5-endigraph');
+    breakManifest(d, (m) => { m.inventoryOrder.letter.push('sh'); return m; });
+    rejects(d, /is not part of the a-z alphabet/);
+    // And the tile is still there, because §0.9 keeps the ten digraph clips: they are
+    // what a re-voiced second tap plays.
+    const man = readJson(path.join(SRC_EN, 'pack.json'));
+    assert.ok(man.tiles.letter.some((t) => t.id === 'sh' && t.audio?.short?.src),
+      'the `sh` tile and its clip must survive revision 5; only the CELL went away');
+  });
+
+  test('the tone order is the set phrase, and the shipped frequency order is caught', () => {
+    // `ngang huyền sắc hỏi ngã nặng` — the owner's answer, asked directly.
+    // A reordering is his mother's right, so it is a warning; `--strict` still fails.
+    const d = copy(SRC_VI, 'r5-toneorder');
+    breakManifest(d, (m) => {
+      m.inventoryOrder.tone = ['ngang', 'sac', 'huyen', 'hoi', 'nang', 'nga'];
+      return m;
+    });
+    const { code, out } = validate(d);
+    assert.equal(code, 0, 'reordering the tones she can read is not corruption');
+    assert.match(out, /not in the standard order.*ngang huyen sac hoi nga nang/);
+    assert.equal(validate(d, '--strict').code, 1, '--strict means "ready for a child"');
+  });
+
+  test('onsetLetterCount that misplaces the digraph boundary is rejected', () => {
+    // The whole reason the boundary is STORED: `chó` is c-h-o, three taps, onset `ch`.
+    // Saying the onset is one letter long would make the chant say `cờ`, not `chờ`.
+    const d = copy(SRC_VI, 'r5-boundary');
+    breakWord(d, 'cho', (w) => { w.onsetLetterCount = 1; return w; });
+    rejects(d, /onsetLetterCount is 1 but the onset "ch" is 2 letter\(s\) long/);
+  });
+
+  test('letters that do not recompose to the stored decomposition are rejected', () => {
+    const d = copy(SRC_VI, 'r5-letters');
+    breakWord(d, 'trang', (w) => { w.letters = ['t', 'r', 'a', 'n', 'g']; return w; });
+    rejects(d, /letters spell "trang" but onset \+ rime is "trăng"/);
+  });
+
+  test('a word with no letters at all is rejected', () => {
+    const d = copy(SRC_VI, 'r5-noletters');
+    breakWord(d, 'meo', (w) => { delete w.letters; return w; });
+    rejects(d, /has no "letters"/);
+  });
+
+  test('`gì`-shaped collapse is allowed, but only when the pack says so', () => {
+    // `gi` + rime `i` is written with one `i` (literacy-vi.md §1.2, §0.5). Nothing in the
+    // seed list does it; his mother can type it tomorrow. The opt-out must exist AND must
+    // not be the default, so this case asserts both directions.
+    const d = copy(SRC_VI, 'r5-gi');
+    const man = readJson(path.join(d, 'pack.json'));
+    assert.ok(man.tiles.onset.some((t) => t.id === 'gi'), 'this pack still has the `gi` onset');
+    assert.ok(man.tiles.rime.some((t) => t.id === 'i'), 'and the rime `i`');
+    const f = path.join(d, 'words', 'gi.json');
+    const word = {
+      id: 'gi',
+      text: 'gì',
+      stage: null,
+      enabled: false,
+      syllables: [{ onset: 'gi', rime: 'i', tone: 'huyen' }],
+      letters: ['g', 'i'],
+      onsetLetterCount: 2,
+      fallbackEmoji: null,
+      images: [],
+      audio: { word: null, blend: null, sentence: null },
+      build: { assetConcept: 'what is that', flags: [], from: 'revision-5 harness' },
+    };
+    writeJson(f, word);
+    // Without the flag it is an error, because 999 times out of 1000 it is a typo.
+    rejects(d, /letters spell "gi" but onset \+ rime is "gii"/);
+    // With it, the stored letters win and the pack is clean again.
+    writeJson(f, { ...word, build: { ...word.build, spellingException: true } });
+    const { code, out } = validate(d);
+    assert.equal(code, 0, `the declared exception must be honoured. Output:\n${out}`);
+  });
+
+  test('a reachable prefix state with no entry is an error — that tap would be silent', () => {
+    const d = copy(SRC_VI, 'r5-prefixgone');
+    breakManifest(d, (m) => {
+      m.prefixAudio.rime = m.prefixAudio.rime.filter((t) => t.id !== 'ăn');
+      return m;
+    });
+    rejects(d, /"ăn" is reachable/);
+  });
+
+  test('prefixAudio may not duplicate a state that is already a tile', () => {
+    const d = copy(SRC_VI, 'r5-prefixdup');
+    breakManifest(d, (m) => {
+      m.prefixAudio.rime.push({ id: 'ao', glyph: 'ao', role: 'rime', label: 'ao', audio: { name: null } });
+      return m;
+    });
+    rejects(d, /"ao" is already a rime tile/);
+  });
+
+  test('prefixAudio may not invent a state no word can reach', () => {
+    const d = copy(SRC_VI, 'r5-prefixbogus');
+    breakManifest(d, (m) => {
+      m.prefixAudio.rime.push({ id: 'ươ', glyph: 'ươ', role: 'rime', label: 'ươ', audio: { name: null } });
+      return m;
+    });
+    rejects(d, /is not a prefix of any rime in this pack/);
+  });
+
+  test('a prefix clip goes through the DURATION gate like every other tap clip', () => {
+    const d = copy(SRC_VI, 'r5-prefixlong');
+    const man = readJson(path.join(d, 'pack.json'));
+    const p = man.prefixAudio.onset.find((t) => t.id === 'p');
+    assert.ok(p?.audio?.name?.src, 'the `pờ` clip must exist to be lengthened');
+    const f = path.join(d, p.audio.name.src);
+    const b = readFileSync(f);
+    writeFileSync(f, Buffer.concat([b, b, b]));   // ~1872 ms against a 1500 ms ceiling
+    rejects(d, /prefixAudio\.onset\[p\]\.name is \d+ ms of audio/);
+  });
+
+  test('a prefix clip goes through the DECODE gate like every other clip', async (t) => {
+    if (!existsSync(VENV)) return t.skip('no venv');
+    const d = copy(SRC_VI, 'r5-prefixdecode');
+    const man = readJson(path.join(d, 'pack.json'));
+    const ac = man.prefixAudio.rime.find((x) => x.id === 'ac');
+    assert.ok(ac?.audio?.name?.src, 'the `ac` clip must exist to be corrupted');
+    const f = path.join(d, ac.audio.name.src);
+    const cut = await orphanedCut(f);
+    writeFileSync(f, cut);
+    const out = rejects(d, /decoder diagnostic/);
+    assert.match(out, /prefixAudio\.rime\[ac\]/, 'the finding must name the prefix state');
+  });
+
+  test('the migrated packs really do carry the new fields — the baseline', () => {
+    const vi = readJson(path.join(SRC_VI, 'pack.json'));
+    assert.deepEqual(Object.keys(vi.inventoryOrder).sort(), ['letter', 'tone']);
+    assert.deepEqual(vi.inventoryOrder.letter, R.VI_ALPHABET);
+    assert.deepEqual(vi.inventoryOrder.tone, R.VI_TONE_IDS);
+    // The prefix states are DERIVED, so the pack is checked against the derivation.
+    assert.deepEqual(vi.prefixAudio.onset.map((t) => t.id),
+      R.prefixStates(vi.tiles.onset.map((t) => t.id)).sort(R.viCollate));
+    assert.deepEqual(vi.prefixAudio.rime.map((t) => t.id),
+      R.prefixStates(vi.tiles.rime.map((t) => t.id)).sort(R.viCollate));
+    for (const g of ['onset', 'rime']) {
+      for (const p of vi.prefixAudio[g]) {
+        assert.ok(p.audio?.name?.src, `prefixAudio.${g}[${p.id}] has no clip`);
+      }
+    }
+    const en = readJson(path.join(SRC_EN, 'pack.json'));
+    assert.deepEqual(Object.keys(en.inventoryOrder), ['letter']);
+    assert.deepEqual(en.inventoryOrder.letter, R.EN_ALPHABET);
+    // And `literacy-vi.md` §0.13's two printed lists, which are a TEST of the collation
+    // rather than its source.
+    assert.equal(vi.tiles.onset.map((t) => t.id).join(' '),
+      'b c ch d đ g gh gi h k kh l m n ng ngh nh ph qu r s t th tr v x');
+    assert.equal(vi.tiles.rime.map((t) => t.id).join(' '),
+      'a ach ai am anh ao at ay ăng ăt ân âu ây e em en eo ê i im it o oa oi on ong ô ơ u ua ui un uôi ưa ưng');
+  });
+});
+
+/* ================================= revision 5 — glyph casing (ui.md §8.2, E22) ==== */
+
+/*
+ * The owner answered `open-questions-ui.md` Q7: **English tiles are UPPERCASE.** The
+ * casing is one pack field, read once at pack load, applied at one place in the glyph
+ * component. The interesting part of this suite is that the three outcomes are
+ * deliberately different — absent is fine, a wrong VALUE is a warning, a wrong SHAPE is
+ * an error — so a test that only checked "exit 1 somewhere" would pass while the
+ * behaviour the owner's decision depends on was broken.
+ */
+describe('revision 5 — glyph casing', () => {
+  const FIXTURE = path.join(ROOT, 'assets', 'fonts', 'FIXTURE.txt');
+
+  test('the seed packs carry the owner\'s answer', () => {
+    assert.equal(readJson(path.join(SRC_EN, 'pack.json')).display.glyphCase, 'upper');
+    assert.equal(readJson(path.join(SRC_VI, 'pack.json')).display.glyphCase, 'lower');
+  });
+
+  test('D23 — an ABSENT field is not a finding at all', () => {
+    const d = copy(SRC_EN, 'case-absent');
+    breakManifest(d, (m) => { delete m.display; return m; });
+    const { code, out } = validate(d);
+    assert.equal(code, 0, `a pack without a casing field is a valid pack. Output:\n${out}`);
+    assert.doesNotMatch(out, /display/, 'absence must not even warn — lowercase is the default');
+  });
+
+  test('D23 — an unrecognised VALUE warns and does not fail the pack', () => {
+    // She typed "uppercase" instead of "upper". The app renders lowercase and starts
+    // (D23); the validator is not the app, and something has to be able to tell her why
+    // her board came back the wrong way round.
+    const d = copy(SRC_EN, 'case-typo');
+    breakManifest(d, (m) => { m.display.glyphCase = 'uppercase'; return m; });
+    const { code, out } = validate(d);
+    assert.equal(code, 0, `an unrecognised value must not refuse the pack. Output:\n${out}`);
+    assert.match(out, /warn +pack\.json display\.glyphCase/);
+    assert.match(out, /renders LOWERCASE and starts normally/);
+  });
+
+  test('D23 — an empty value is the same case', () => {
+    const d = copy(SRC_EN, 'case-empty');
+    breakManifest(d, (m) => { m.display.glyphCase = ''; return m; });
+    const { code, out } = validate(d);
+    assert.equal(code, 0);
+    assert.match(out, /warn +pack\.json display\.glyphCase/);
+  });
+
+  test('a malformed SHAPE is an error, not a silent fallback', () => {
+    const d = copy(SRC_EN, 'case-shape');
+    breakManifest(d, (m) => { m.display = 'upper'; return m; });
+    rejects(d, /display: must be an object/);
+  });
+
+  test('a non-string glyphCase is an error', () => {
+    const d = copy(SRC_EN, 'case-type');
+    breakManifest(d, (m) => { m.display = { glyphCase: true }; return m; });
+    rejects(d, /display\.glyphCase: must be a string/);
+  });
+
+  /*
+   * Q13. `assets/fonts/FIXTURE.txt` carries seven uppercase Vietnamese letters and none
+   * of the precomposed marked capitals, so Q5a would report green and say nothing about
+   * `Ẫ`. Both bundled faces contain the glyphs — and a font that contains a glyph is not
+   * a gate that has rendered it. `mả`/`mã` are 34 px apart at 36 pt and a mark on a
+   * capital sits against cap height, which compresses the pair further.
+   */
+  test('Q13 — a Vietnamese pack cannot be flipped to uppercase', () => {
+    const d = copy(SRC_VI, 'case-vi-upper');
+    breakManifest(d, (m) => { m.display.glyphCase = 'upper'; return m; });
+    const out = rejects(d, /render gate has never drawn/);
+    assert.match(out, /Ẫ/, 'the message must name the characters the fixture does not cover');
+    assert.match(out, /Q13/);
+  });
+
+  test('Q13 — the fixture really does lack the marked capitals, which is why the gate bites', () => {
+    const fx = readFileSync(FIXTURE, 'utf8');
+    const upper = [...new Set([...fx])].filter((c) => c.toLowerCase() !== c);
+    assert.equal(upper.length, 7, `expected exactly the 7 plain uppercase letters, got ${upper.join('')}`);
+    assert.deepEqual(upper.sort(), [...'ĂÂĐÊÔƠƯ'].sort());
+  });
+
+  test('Q13 — the gate is a COMPUTATION and lifts when the fixture covers the forms', () => {
+    // The whole reason it is not a hard-coded `if (lang === 'vi')`: a constant is
+    // something nobody remembers to delete. Extend the fixture, re-run Q1-Q5c, and this
+    // stops complaining by itself.
+    const fx = readFileSync(FIXTURE, 'utf8');
+    const words = ['mả', 'mã', 'ngựa', 'chuối', 'trứng', 'phở'];
+    const gaps = R.viUppercaseGaps(words, fx);
+    assert.ok(gaps.length > 0, 'the shipped fixture must NOT cover these — otherwise the gate is vacuous');
+    assert.deepEqual(R.viUppercaseGaps(words, `${fx}\n${gaps.join(' ')}\n`), [],
+      'extending the fixture with exactly the reported gaps must clear it');
+  });
+
+  test('D20 — nothing stored may be upper-cased instead of the glyph', () => {
+    // The cheap way to give the owner uppercase tiles is to upper-case the DATA, and it
+    // would look right and be wrong four ways at once.
+    const a = copy(SRC_EN, 'case-d20-order');
+    breakManifest(a, (m) => {
+      m.inventoryOrder.letter = m.inventoryOrder.letter.map((c) => c.toUpperCase());
+      return m;
+    });
+    assert.match(rejects(a, /inventoryOrder\.letter contains uppercase/), /AC D20/);
+
+    const b = copy(SRC_EN, 'case-d20-letters');
+    breakWord(b, 'ship', (w) => { w.letters = w.letters.map((c) => c.toUpperCase()); return w; });
+    rejects(b, /letters contains uppercase/);
+
+    const c = copy(SRC_VI, 'case-d20-syllable');
+    breakWord(c, 'cho', (w) => { w.syllables[0].onset = 'CH'; return w; });
+    rejects(c, /syllables contains uppercase/);
+  });
+
+  test('D20 — the shipped packs store nothing uppercase, which is the baseline', () => {
+    const upper = (s) => typeof s === 'string' && [...s].some((ch) => ch !== ch.toLowerCase());
+    for (const dir of [SRC_VI, SRC_EN]) {
+      const man = readJson(path.join(dir, 'pack.json'));
+      for (const run of Object.values(man.inventoryOrder)) {
+        for (const c of run) assert.ok(!upper(c), `${dir}: inventoryOrder holds "${c}"`);
+      }
+      for (const g of Object.keys(man.tiles)) {
+        for (const t of man.tiles[g]) assert.ok(!upper(t.id), `${dir}: tile id "${t.id}"`);
+      }
+      for (const f of readdirSync(path.join(dir, 'words'))) {
+        if (!f.endsWith('.json')) continue;
+        const w = readJson(path.join(dir, 'words', f));
+        assert.ok(!upper(w.id), `${dir}/${f}: id`);
+        for (const c of w.letters ?? []) assert.ok(!upper(c), `${dir}/${f}: letters "${c}"`);
+        for (const c of w.tiles ?? []) assert.ok(!upper(c), `${dir}/${f}: tiles "${c}"`);
+      }
+      for (const kind of ['img', 'aud']) {
+        const md = path.join(dir, 'media', kind);
+        if (!existsSync(md)) continue;
+        for (const f of readdirSync(md)) assert.ok(!upper(f), `${dir}: media name "${f}"`);
+      }
+    }
+  });
+
+  test('D19 — casing reaches no clip key: every tile clip is still keyed by its lowercase id', () => {
+    // `A` says /æ/, never "ay". The clip lookup is by tile id and the id is lowercase, so
+    // there is structurally nowhere for a letter NAME to enter. Asserted rather than
+    // assumed, because "uppercase smuggles letter names back in" is exactly the failure
+    // literacy-en.md §0.4 argues against.
+    const man = readJson(path.join(SRC_EN, 'pack.json'));
+    for (const t of man.tiles.letter) {
+      if (!t.audio?.short?.text) continue;
+      assert.equal(t.audio.short.text, t.sound,
+        `${t.id}: the short clip says "${t.audio.short.text}", not its sound "${t.sound}"`);
+      assert.ok(!/^[A-Z]$/.test(t.audio.short.text), `${t.id}: the clip text is a bare capital`);
+    }
+  });
+});
+
+/* ============================== licensing: one predicate, two tools ============== */
+
+/*
+ * `tools/pack-validate.mjs` and `tools/pack-attributions.mjs` both decide whether an
+ * image can ship, from the same `images[]` entries — **and they used to disagree.** The
+ * validator passed `packs/vi-seed`; the attributions generator refused to let it be
+ * published, over `đèn` and `mũi`, both `"Public domain"` with `creator: null`. The
+ * validator was right: a public-domain work has no attribution obligation, there is no
+ * rights-holder to credit, and a null creator is the honest representation of that rather
+ * than missing data. The generator's rule was `!e.creator`, applied to everything.
+ *
+ * The repair is not "relax the generator". It is that both now read `lib/licence.mjs`, so
+ * they can be wrong together — which is fixable — rather than wrong differently, which is
+ * not detectable. **Every case below runs BOTH binaries and asserts they return the same
+ * verdict**, because a test that only drove one of them is what let this happen.
+ */
+describe('licensing — the shared predicate', () => {
+  function attributions(dir, ...flags) {
+    const r = spawnSync(process.execPath, [path.join(ROOT, 'tools', 'pack-attributions.mjs'), dir, ...flags],
+      { encoding: 'utf8' });
+    return { code: r.status, out: `${r.stdout}${r.stderr}` };
+  }
+
+  /** Both tools, one verdict. Returns the attributions output for message assertions. */
+  function bothAgree(dir, expected, why) {
+    const a = attributions(dir);
+    const v = validate(dir);
+    assert.equal(a.code, expected, `${why}: pack-attributions exited ${a.code}. Output:\n${a.out}`);
+    assert.equal(v.code, expected, `${why}: pack-validate exited ${v.code}. Output:\n${v.out}`);
+    return a.out;
+  }
+
+  /** Change the first image matching `pick`, in place. Returns the word id it hit. */
+  function breakFirstImage(dir, pick, mutate) {
+    for (const f of readdirSync(path.join(dir, 'words')).sort()) {
+      if (!f.endsWith('.json')) continue;
+      const p = path.join(dir, 'words', f);
+      const w = readJson(p);
+      const im = (w.images ?? []).find(pick);
+      if (!im) continue;
+      mutate(im);
+      writeJson(p, w);
+      return w.id;
+    }
+    assert.fail('no image in this pack matched the fixture predicate');
+    return null;
+  }
+
+  test('the shipped packs are publishable, and BOTH tools say so', () => {
+    for (const dir of [SRC_VI, SRC_EN]) bothAgree(dir, 0, path.basename(dir));
+  });
+
+  /* --- the side that must NOT fail ------------------------------------------- */
+
+  test('a public-domain image with no author is not a failure — in either tool', () => {
+    // The exact fault that was blocking `packs/vi-seed`, made worse on purpose: every
+    // public-domain and CC0 image in the pack loses its creator at once.
+    const d = copy(SRC_VI, 'lic-pd');
+    let n = 0;
+    for (const f of readdirSync(path.join(d, 'words'))) {
+      if (!f.endsWith('.json')) continue;
+      const p = path.join(d, 'words', f);
+      const w = readJson(p);
+      let hit = false;
+      for (const im of w.images ?? []) {
+        if (L.licenceObligations(im.license).publicDomain) { im.creator = null; hit = true; n += 1; }
+      }
+      if (hit) writeJson(p, w);
+    }
+    assert.ok(n >= 2, `expected the pack to contain public-domain images; nulled ${n}`);
+    const out = bothAgree(d, 0, 'public domain needs no author');
+    assert.match(out, /no attribution obligation/);
+  });
+
+  test('`Phạm vi công cộng` is public domain too — it is in the pack and was not matched', () => {
+    // vi.wikipedia's own public-domain tag. Before `lib/licence.mjs` it fell into the
+    // attribution-REQUIRED bucket; it happens to carry an author, which is the only
+    // reason nothing failed. A latent false blocker is still a false blocker.
+    assert.equal(L.licenceObligations('Phạm vi công cộng').publicDomain, true);
+    assert.equal(L.licenceObligations('Phạm vi công cộng').attribution, false);
+    const found = readdirSync(path.join(SRC_VI, 'words'))
+      .filter((f) => f.endsWith('.json'))
+      .flatMap((f) => readJson(path.join(SRC_VI, 'words', f)).images ?? [])
+      .some((im) => im.license === 'Phạm vi công cộng');
+    assert.ok(found, 'packs/vi-seed no longer contains this licence string; the case above is now hypothetical');
+  });
+
+  /* --- the side that must STILL fail hard ------------------------------------ */
+
+  for (const [label, licence] of [
+    ['CC BY-SA 4.0', 'CC BY-SA 4.0'],
+    ['CC BY 2.0', 'CC BY 2.0'],
+    ['GFDL 1.2', 'GFDL 1.2'],
+  ]) {
+    test(`a ${label} image with no author fails HARD — in both tools`, () => {
+      const d = copy(SRC_VI, `lic-${licence.replace(/\W+/g, '')}`);
+      const id = breakFirstImage(d, (im) => im.license === licence && im.creator,
+        (im) => { im.creator = null; });
+      const out = bothAgree(d, 1, `${licence} requires an author`);
+      assert.match(out, /cannot be attributed. This pack must not be published/);
+      assert.match(out, new RegExp(`is missing creator`), `the message must name what is missing (word ${id})`);
+    });
+  }
+
+  test('an UNRECOGNISED licence is treated as requiring attribution, not waved through', () => {
+    // The safe direction, and the live example is `Copyrighted free use` — a Commons tag
+    // meaning the holder permits free use, which is not the same as abandoning copyright.
+    assert.equal(L.licenceObligations('Copyrighted free use').attribution, true);
+    assert.equal(L.licenceObligations('Some Bespoke Museum Terms').attribution, true);
+    const d = copy(SRC_VI, 'lic-unknown');
+    breakFirstImage(d, (im) => im.creator, (im) => {
+      im.license = 'Some Bespoke Museum Terms';
+      im.creator = null;
+    });
+    bothAgree(d, 1, 'an unknown licence must not be assumed attribution-free');
+  });
+
+  test('no licence recorded at all fails, whatever else is present', () => {
+    const d = copy(SRC_VI, 'lic-none');
+    breakFirstImage(d, () => true, (im) => { im.license = null; });
+    bothAgree(d, 1, 'an image whose licence nobody recorded cannot be shipped');
+  });
+
+  test('a missing sourceUrl fails even for a public-domain work', () => {
+    // The asymmetry is the point: the claim "this needs no credit" has to be auditable.
+    const d = copy(SRC_VI, 'lic-nourl');
+    breakFirstImage(d, (im) => L.licenceObligations(im.license).publicDomain,
+      (im) => { im.sourceUrl = null; });
+    bothAgree(d, 1, 'the no-credit-needed claim must be checkable');
+  });
+
+  /* --- the predicate itself, so the table is readable in one place ------------ */
+
+  test('the obligation table, stated as a test', () => {
+    const cases = [
+      // licence,                 attribution, shareAlike, licenceText, publicDomain
+      ['CC BY-SA 4.0', true, true, false, false],
+      ['CC BY-SA 3.0 de', true, true, false, false],
+      ['CC BY 2.0', true, false, false, false],
+      ['CC BY 2.5 dk', true, false, false, false],
+      ['GFDL 1.2', true, false, true, false],
+      ['GFDL', true, false, true, false],
+      ['GNU Free Documentation License 1.3', true, false, true, false],
+      ['Public domain', false, false, false, true],
+      ['Phạm vi công cộng', false, false, false, true],
+      ['CC0', false, false, false, true],
+      ['PDM 1.0', false, false, false, true],
+      ['No known copyright restrictions', false, false, false, true],
+      ['Copyrighted free use', true, false, false, false],
+      ['Some Bespoke Museum Terms', true, false, false, false],
+    ];
+    for (const [lic, attribution, shareAlike, licenceText, publicDomain] of cases) {
+      const ob = L.licenceObligations(lic);
+      assert.equal(ob.attribution, attribution, `${lic}: attribution`);
+      assert.equal(ob.shareAlike, shareAlike, `${lic}: shareAlike`);
+      assert.equal(ob.licenceText, licenceText, `${lic}: licenceText`);
+      assert.equal(ob.publicDomain, publicDomain, `${lic}: publicDomain`);
+    }
+    // An unrecorded licence is not public domain and is not silently fine.
+    for (const empty of [null, undefined, '', '   ']) {
+      const ob = L.licenceObligations(empty);
+      assert.equal(ob.recorded, false, `${JSON.stringify(empty)}: recorded`);
+      assert.equal(ob.publicDomain, false, `${JSON.stringify(empty)}: publicDomain`);
+      assert.deepEqual(L.missingCredit({ source: 'commons.wikimedia.org', license: empty }),
+        ['license', 'sourceUrl', 'creator'], `${JSON.stringify(empty)}: everything is required`);
+    }
+    // And our own photographs oblige nothing at all.
+    for (const src of L.OWN_SOURCES) assert.deepEqual(L.missingCredit({ source: src }), []);
+  });
+
+  test('--check still notices a stale ATTRIBUTION.md', () => {
+    const d = copy(SRC_VI, 'lic-stale');
+    assert.equal(attributions(d, '--check').code, 0, 'the committed notice must be current');
+    writeFileSync(path.join(d, 'ATTRIBUTION.md'), '# not what the pack says\n');
+    const { code, out } = attributions(d, '--check');
+    assert.equal(code, 1, `a stale notice must fail --check. Output:\n${out}`);
+    assert.match(out, /out of date/);
   });
 });

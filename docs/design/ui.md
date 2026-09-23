@@ -6,22 +6,35 @@ Owner: game-designer. Read `gameplay.md` first — it defines the loop this docu
 and its **§0 records the mechanic correction** that produced revision 2 of both documents.
 `acceptance-criteria.md` numbers everything here as testable behaviour.
 
-**Revision 4, 2026-09-23 — read §0B first, then §0A.** The owner named his device (an
-**iPhone 17 Plus**) and proposed **paging the table**, which removes revision 3's one real
-cost. §0A records the four findings he reported from playing the built app; one of them (the
-constant character table) rewrote §4, §5.8, §7, §8 and §9, and §0B pages it.
+**Revision 5, 2026-09-23 — read §0C first, then §0B, then §0A.** The owner played the
+revision-4 build and said the table *"feel really random and un-organized and doesn't give my
+son a sense of character order"*. He asked for the **standard alphabet**, and then said that
+his son enters a digraph **letter by letter** — *"even for combine ones like ch, tr (Choose C
+and choose H)"*. `literacy-vi.md` §0 and `literacy-en.md` §0 settle the content model;
+**đánh vần is unchanged**. §0C is what that does to this document. Everything in revisions 2–4
+stands unless §0C overrides it.
 
 Two tools verify the claims in this document and **both exit 0** (re-run 2026-09-23 against
-revision 3):
+revision 5):
 
 | Tool | Verifies | Result |
 |---|---|---|
-| `tools/theme-contrast.mjs` | every (theme × surface × foreground) pair that can co-occur, in all three themes, plus role-hue separation | **PASS**, 0 failing pairs, **36 pairs × 3 themes — 34 gated, 2 logged** |
-| `tools/layout-sweep.mjs` | the **paged constant character-table** law over viewports 360–1400 × 600–1440 pt in steps of 4, × **9** safe-area shapes, × table sizes 1–budget, **plus a page plan for both packs at every served viewport** | **PASS**, **34,445,462 layouts + 979,350 page plans**, 0 failures |
+| `tools/theme-contrast.mjs` | every (theme × surface × foreground) pair that can co-occur, in all three themes, plus role-hue separation **and — new in revision 5 — the consonant/vowel pair under all three dichromacies** | **PASS**, 0 failing pairs, **44 checks × 3 themes = 132 gated, 2 logged** |
+| `tools/layout-sweep.mjs` | the **paged constant character-table** law over viewports 360–1400 × 600–1440 pt in steps of 4, × 9 safe-area shapes, × table sizes 1–budget, plus a page plan for both packs at every served viewport, **and — new in revision 5 — the six-cell word strip** | **PASS**, **34,463,217 layouts + 982,566 page plans**, 0 failures, **10 layout rules + 6 plan rules** |
 
 Nothing in §4 or §5 is asserted. Every number came out of one of those two programs, or —
 in §6 — out of a render of the font that actually ships, or — in §11 — out of the MP3 frame
 headers of the clips in `packs/en-seed`.
+
+**The four faults injected into revision 5's new checks, and what they did** (`CLAUDE.md`:
+never trust a green check you have not seen fail):
+
+| Injection | Into | Result |
+|---|---|---|
+| `VI_MAX_LETTERS` 5 → 7 — his mother adds `nghiêng` | `layout-sweep.mjs` **F17** | **exit 1**, 12 failures, first at `360×600 pages 15,14,6` |
+| the strip cell's width cap deleted (`min(…, stripFitW, …)` → `min(…, TILE_MAX)`) | `layout-sweep.mjs` **F15** | **exit 1**, 12 failures, first at `368×604 cells=1` |
+| `DE_MIN_ADJACENT_CVD` 20 → 25 | `theme-contrast.mjs` **ADJACENT** | **exit 1**, Popsicle consonant vs vowel under protanopia = **23.7** |
+| the boundary divider drawn in `hairline` instead of `neutralFace` | `theme-contrast.mjs` **component** | **exit 1**, 3 failures, **1.30–1.38:1** against a 3.0 gate |
 
 ---
 
@@ -44,6 +57,44 @@ reported, each closed.
 | U9 | **DEFECT CLOSED — "Q10's `a` clause is human-verified, not automated."** Correct, and it cannot honestly be automated. Q10 is now a **human check pinned by the font file's SHA-256**, which is automatable and is the real guarantee. | §6.2, AC Q10 |
 | U10 | **AC CONFLICT SETTLED — B9 vs F2.** Ruled in §9.7 and in `acceptance-criteria.md` §F: **F2 is withdrawn**, because its premise (a veiled prompt photograph that the reveal must not repeat) no longer exists. B9 survives, restated. | §9.7 |
 | U11 | **Found by extending the contrast sweep:** revision 1's chant lit a glyph **gold on white**, which measures **1.60–2.05:1** and was never checked. The chant now takes a **gold face with an ink glyph** — 6.53 / 8.70 / 8.34:1. A real legibility bug, caught because the sweep grew a pair. | §5.9, §10.3 |
+
+---
+
+## 0C. CORRECTION LOG — revision 5, the alphabet, and a word that is now up to six taps
+
+**2026-09-23.** `literacy-vi.md` §0 and `literacy-en.md` §0 have the owner's words and the
+content model. The model changed in exactly two ways — **what a cell is**, and **how many taps
+a word takes** — and everything downstream of those two facts is in this table.
+
+| # | Revision 4 said | **Revision 5** | Where |
+|---|---|---|---|
+| **U28** | The Vietnamese table is three runs — **26 onsets, 35 rimes, 6 tones = 67 cells** — ordered by how many words sit behind each symbol | **Two runs: 29 letters in the owner's alphabet order, then 6 tones = 35 cells.** English is **one run of 26**, `a`–`z`. The frequency sort was the defect he reported and it was a build-time sort nobody had looked at | §4.2, §7, §8 |
+| **U29** | `ch` is one tile, one tap | **`ch` is two taps — `c` then `h` — and is still one âm đầu.** The board is a letter board; the model underneath it is unchanged | §7, §7.2 |
+| **U30** | **role1 = onset, role2 = rime, role3 = tone.** A role is a stage of the word | **role1 = consonant letter, role2 = vowel letter, role3 = tone.** A role is now a permanent property of the glyph, not of his progress. English already wanted this (`literacy-en.md` §3.2); Vietnamese now needs it, because **vowel-initial ≡ rime-initial** is the step-boundary rule (`literacy-vi.md` §0.5) | §5.5, §5.6, §7.1 |
+| **U31** | Role separation under CVD was **printed, not gated**, because "the fixed position of each run" carried it | **The consonant/vowel pair is gated under all three dichromacies**, at dE00 ≥ 20. That argument died with the run boundaries: `a ă â b c d` puts a vowel beside a consonant in every row, and at the five branching onsets a consonant and a vowel are **live at the same time meaning opposite things**. Measured worst case **23.7** (Popsicle, protanopia). Tone stays ungated — it is a separate run and a separate page | §5.5, `tools/theme-contrast.mjs` |
+| **U32** | The strip is **two or three cells** and was never sized against the content width, because three cells always fitted | **The strip is a real layout term for the first time: six cells, `STRIP_CELLS`, `STRIP_GAP` 8, `STRIP_PAD` 8, `STRIP_CELL_MIN` 40, and rules F4/F15/F16/F17.** This is the thing §0 of the literacy documents explicitly did not price | §4.2, §4.3, §4.4, §7.2 |
+| **U33** | Tapping a symbol in the strip returns it **and everything after it** — per-cell undo | **Undo is the whole strip: one tap returns the last symbol, repeated taps walk back.** Not a preference — **geometry**. Five 72 pt cells need 392 pt and the 360 dp floor has 328 pt of content width, so a per-cell motor target is impossible at the floor. `STRIP_CELL_MIN` is therefore a **legibility** floor (40 pt = 34 pt glyph × the 1.15 a `ư` with a horn and a mark needs), not a motor one | §7.2, §9.2 |
+| **U34** | — | **New: the span bar.** Letters that are one sound share **one continuous bar**; a new sound starts a **new bar**. `c` then `h` **grows** the bar; `c` then `a` **starts** a second one behind a divider. That is the whole answer to "he must see that `h` joined `c` rather than followed it" | §7.2, §9.2, §10.3 M22/M24 |
+| **U35** | — | **New: the onset/rime boundary is MARKED and cells NEVER merge.** Three redundant channels: the bar breaks, the bar changes pattern and colour, and a 2 pt divider fades in. The only merge left in the app is **chant beat 3**, after the word is already made | §7.2, §10.4 |
+| **U36** | — | **New: the superseding sound.** `c` says `cờ`; `h` then says `chờ`, replacing it. Visually: the bar grows, then **both cells pulse together** on the first frame of the new clip. The pulse is **scale, not gold** — the gold face is reserved for the chant, and a `neutralFace` divider measures **1.58–2.12:1** on gold (§5.8a) | §7.2, §10.3 M23 |
+| **U37** | — | **New: the "what is missing" affordance has two forms.** A **dashed next-cell** means *another letter goes here*; a **dashed mark-slot above the carrier vowel** means *a mark goes here*. At the three points where both are true — `b`+`o`, `c`+`a`, `m`+`u` — **both are shown at once**, which is how the board says *this could end here, or it could go on* | §7.2, §9.2 |
+| **U38** | The chant's beats light **cells** | **A chant beat lights a SPAN.** One rule, both languages: beat 1 of `chó` lights `c` and `h` together because they are one sound, and beat 1 of `ship` lights `s` and `h` together for the same reason. The beat count is a property of the **model**, not of the taps | §10.4 |
+| **U39** | iPhone 17 Plus: VI **4 pages `[26, 18, 17, 6]`**, 28/page, 4×7 at 75 pt; EN **2 pages `[26, 10]`** | **Measured, not predicted: VI 3 pages `[15, 14, 6]`, 3×5 at 101 pt (A) / 104 pt (B); EN 1 page, no rail at all, 26 cells 4×7 at 84/87 pt.** The floor device goes 7 pages → **3**. Across the whole sweep, **93% of served combinations now need no rail**, up from 60% | §4.4, §7, §8 |
+| **U40** | `zonesFor()` deleted; "served" means a page plan exists | **"Served" also means the word strip fits.** F4/F15/F16 join the fit rule, which costs **970 viewport/inset combinations out of 492,253 (0.20%) — every one of them a shape with 118 pt of left+right safe-area inset, not one real portrait phone.** Net of the smaller runs, served **rises** 489,675 → **491,283** | §4.3, §4.4 |
+
+**The near-miss, recorded so nobody "fixes" it.** 29 letters against a 28-cell page misses a
+single-page Vietnamese alphabet **by one cell** on his device. It is not bought back by shaving
+the 72 pt motor floor (refused for the fifth revision running) or the inter-tile gap (F6 is what
+stops hit rects overlapping). The `15 ¦ 14 ¦ 6` split is a better answer anyway: **page 1 is
+`a`…`m`, page 2 is `n`…`y`, page 3 is the hats** — a rule his mother can say out loud.
+
+**And one cost of that split, found by walking the pack against it and reported rather than
+buried.** `h` lives on page 1 and `n`, `p`, `t` live on page 2, so **`nh`, `ng`, `ph` and `th`
+are cross-page digraphs**: after tapping `t`, the `h` that completes `th` is one page away. This
+is not a defect of paging — it is what an alphabet costs when it does not fit one screen — and
+the rail is exactly the object that answers it: page 1's button stands the moment `h` goes live.
+It is called out because it is the one place revision 5 asks more of him than revision 4 did,
+and because **on a tablet, and in English on his own phone, it does not arise at all.**
 
 ---
 
@@ -215,7 +266,7 @@ Designed across a **continuous range**, not a device list:
 | Supported viewport width | **360 – 1400 pt/dp** |
 | Supported viewport height | **600 – 1440 pt/dp** |
 | Below 360 wide or 600 tall | a parent-facing "this screen is too small" card. No game. |
-| Orientation | whichever serves at least the **20-cell table** (§4.3, F7) |
+| Orientation | whichever can build a page plan **and** the six-cell word strip for both packs (§4.3, F7 / F15 / F16) |
 
 In practice **phones lock to portrait** and **tablets rotate freely**. Evaluated once at
 startup from the screen metrics, never per frame, so the device cannot flip-flop. The sweep
@@ -236,8 +287,9 @@ the cell ceiling, and six points of chrome.
 ```
 INPUT   Wv, Hv           viewport, pt (iOS) / dp (Android)
         insetT/B/L/R     safe-area insets
-        runs             the pack's inventory as run lengths
-                           VI [26 onsets, 35 rimes, 6 tones]   EN [26 letters, 10 digraphs]
+        runs             the pack's inventory as run lengths -- REVISION 5
+                           VI [29 letters, 6 tones]            EN [26 letters]
+        maxLetters       the pack's longest word, in letters (VI 5, EN 4) -- F17
         railRows         rows of page buttons (0 when the table is not paged)
 
 RAIL_GAP = 12    RAIL_MAX_ROWS = 2
@@ -272,7 +324,15 @@ gapY     = clamp(gap + floor(slack / (rows+1)), gap, round(tile*0.45))
 tableH   = rows*tile + (rows-1)*gapY
 rowW     = cols*tile + (cols-1)*gap
 
-stripFont = floor((stripH - 16) / 1.55)
+; ---- THE WORD STRIP.  New terms in revision 5 (U32); the height half is unchanged ----
+STRIP_CELLS = 6    STRIP_GAP = 8    STRIP_PAD = 8    STRIP_CELL_MIN = 40
+
+stripCellH = stripH - 2*STRIP_PAD                     ; == stripH - 16, revision 4's term
+stripFitW  = floor((tableW - (STRIP_CELLS-1)*STRIP_GAP) / STRIP_CELLS)
+stripCellW = min(round(stripCellH * 0.82), stripFitW, 116)
+stripRowW  = STRIP_CELLS*stripCellW + (STRIP_CELLS-1)*STRIP_GAP
+stripFont  = floor(min(stripCellH / 1.55, stripCellW * 0.82))
+
 tileFont  = floor(min(tile * 0.52, (tile - 16) / 1.55))
 shelf     = clamp(floor((CW - 96 - 32 - 24) / 5.4), 0, 44)
 budget(railRows) = the largest `cells` in 1..90 this viewport serves at that rail height
@@ -318,11 +378,30 @@ What changed, and why each one:
   below it. A tile never resizes or reflows when he changes page.
 - **The rail is charged before the table is laid out**, off the top of the available height.
   It costs one row of tiles on his iPhone (32 cells per page → 28), which is the price of
-  reaching all 67 characters instead of 32.
+  reaching all 35 characters instead of 32. **In English on that device it costs nothing at
+  all**, because 26 letters fit one page and there is no rail (§8).
 - **The fixpoint is monotone and therefore terminates**: adding a rail row only lowers
   capacity, and lowering capacity only raises the page count. Measured across the whole sweep,
   it converges in **1 step, worst case** — the wrap is decided on the first pass everywhere
   except the smallest phones, which settle on the second.
+- **The strip is sized for six cells, always, on every device, in both languages** — not for
+  the word he happens to be building. A cell that resized as the word grew would be a morph
+  under his finger, which is the thing revision 3 deleted. Six is the *reserved track*; only
+  the used cells are drawn, and the track is left-aligned from a fixed origin, so **nothing
+  already written ever moves.** This is writing: it starts at the left and grows right.
+- **`STRIP_CELLS = 6` is measured, not chosen.** At seven cells the strip glyph on a 360 dp
+  phone falls to **31 pt** against F4's 34 pt floor (`tableW` 328, `stripCellW` 40). Six is
+  therefore the longest word the smallest supported phone can show legibly, and it is handed
+  to the content-engineer as **the cap the editor must enforce** — F17 is the rule that checks
+  it against the real pack rather than against my arithmetic.
+- **`stripCellH` is exactly revision 4's term** (`stripH − 16`), so the height half of the
+  strip has not moved. What revision 5 adds is the **width** half, and on every phone it is the
+  width that binds: his iPhone lays a 58 × 90 cell, limited by `stripFitW` (58), not by
+  `round(stripCellH × 0.82)` (74).
+- **A strip cell is not a 72 pt motor target and cannot be one** (U33). Five 72 pt cells need
+  `5×72 + 4×8 = 392` pt; a 360 dp phone has 328 pt of content width. `STRIP_CELL_MIN = 40` is
+  a legibility floor instead: 34 pt of glyph (F4) × the 1.15 a `ư` carrying both a horn and a
+  tone mark needs = 39.1, rounded up.
 - There is no caption term, because there is no caption strip (§2.1, correction U4).
 - There is **no `stage` term**, because there are no stages (`gameplay.md` §3.6). `cells` is
   now a property of the pack and the device, decided once at startup.
@@ -338,12 +417,14 @@ up to `budget`:
 | **F1** | `rowW ≤ tableW` | no horizontal scroll, ever |
 | **F2** | `tile ≥ 72` | the motor floor, ≈11.4 mm (§4.5) |
 | **F3** | `slack ≥ 0` | the stack fits |
-| **F4** | `stripFont ≥ 34` | the word he is building reads across a room |
+| **F4** | `stripFont ≥ 34` | the word he is building reads across a room. **Restated in revision 5**: the glyph is now limited by the strip *cell*, not by the strip's height, because six cells across a phone is what binds. Measured: under the old formula F4 was the only failing rule in **0 of 17,321,319** layouts — it never bound. It binds now |
 | **F5** | `tileFont ≥ 24` | `ngh`, `ăng`, `uống` still legible on a tile |
 | **F6** | `gap ≥ 10` | hit rects can never overlap (§4.5) |
 | **F7** | `planFor(v, runs) ≠ null` for **both** packs | **restated in revision 4 (U24).** A served viewport is one that can be *played*, which is a page plan, not a cell count |
 | **F8** | `shelf ≥ 22` | five shelf slots fit the top bar |
 | **F9** | `railCols ≥ 1` | at least one page button fits a rail row |
+| **F15** | `stripRowW ≤ tableW` | **new in revision 5.** Six strip cells and five gaps fit the content width. Revision 4 never asked this, because three cells always fitted |
+| **F16** | `stripCellW ≥ 40` | **new in revision 5.** The legibility floor of a strip cell (U33). Not a motor floor — undo is the whole strip |
 
 Five more rules are about the **page plan** rather than about one layout — the thing revision
 4 adds, and therefore the thing most likely to be wrong:
@@ -355,6 +436,7 @@ Five more rules are about the **page plan** rather than about one layout — the
 | **F11** | `max(pages) ≤ cells ≤ cap` | the one grid really does hold the largest page |
 | **F12** | `sum(pages) = sum(runs)` | **every character is on exactly one page** — nothing dropped, nothing duplicated |
 | **F13** | every page is non-empty | no blank page in the rail |
+| **F17** | `maxLetters ≤ STRIP_CELLS` and `stripFont ≥ 34` at the plan's chosen layout | **new in revision 5, and the only strip rule that is not circular.** F4/F15/F16 also *decide* the cell budget, so for a served size they cannot fail — the same tautology F0 exists to break. F17 asks what the budget cannot: does the **pack's** longest word fit the strip the **device** laid out? Injecting `VI_MAX_LETTERS = 7` — his mother adding `nghiêng` — makes the sweep **exit 1 naming F17** at `360×600 pages 15,14,6` |
 
 `tools/layout-sweep.mjs` is the rule, executable. It is the Tier-4 artefact and it must stay
 green. **Nothing scrolls and nothing is off-screen:** F1 and F3 together mean every character
@@ -369,6 +451,16 @@ wrong. F7 now means "can build a page plan", F14 is gone, and **53,467 more view
 combinations are served than in revision 3** because paging reaches devices truncation could
 not.
 
+**What the strip cost, measured rather than waved at.** Putting F4, F15 and F16 into the fit
+rule means a viewport that cannot show the word he is building is not served — the same move
+U24 made for the page plan, for the same reason: *served* has to mean *can be played*, and a
+board you cannot write on cannot be played. The price is **970 viewport/inset combinations out
+of 492,253 — 0.20%** — and **every one of them has 118 pt of left+right safe-area inset**, i.e.
+an iPhone-landscape shape. `tableW` is 274 there; the strip lands a 39 pt cell and a 31 pt
+glyph. **Not one real portrait phone is lost**, and the 360 × 600 floor keeps 8 pt of margin on
+F16 and 5 pt on F4. Net of revision 5's smaller runs, the served count *rises*: 489,675 →
+**491,283**.
+
 **F0, and why it had to be added.** F1–F8 are used twice: to compute the budget and to check
 each table size. That makes the per-size check circular — a size that fails a rule is simply
 not in the budget. I found this by injecting a fault (raising F4's floor from 34 to 45) and
@@ -380,61 +472,87 @@ green for two revisions.
 ### 4.4 Verified output, representative devices
 
 From `node tools/layout-sweep.mjs --devices` and `--pages`, 2026-09-23, both exit 0.
-`¦` marks a run boundary. **Both candidate sizes for the iPhone 17 Plus are named rows in the
-tool** so the device is never guessed again.
+`¦` marks a run boundary. **These are measurements. `literacy-vi.md` §0.11 and
+`literacy-en.md` §0.2 carry hand-computed predictions and say so; four of their rows are
+wrong in the app's favour and one device is wrong in both directions.**
 
 ```
-device                          per page  VI pages                       EN pages      grid  tile  rail
-Android compact 360x640 (floor)  12       7  9/9/8 ¦ 12/12/11 ¦ 6        3  13/13 ¦ 10  4x3   73    2 rows
-iPhone SE 3     375x667          16       6  13/13 ¦ 12/12/11 ¦ 6        3  13/13 ¦ 10  4x4   72    2 rows
-Android tall    360x800          20       5  13/13 ¦ 18/17 ¦ 6           3  13/13 ¦ 10  4x5   72    2 rows
-iPhone 15/16    393x852          20       5  13/13 ¦ 18/17 ¦ 6           3  13/13 ¦ 10  4x5   76    2 rows
-Android large   412x915          28       4  26 ¦ 18/17 ¦ 6              2  26 ¦ 10     4x7   74    1 row
-iPhone 15 Pro Max 430x932        28       4  26 ¦ 18/17 ¦ 6              2  26 ¦ 10     4x7   75    1 row
-** iPhone 17 Plus (A) 430x932    28       4  26 ¦ 18/17 ¦ 6              2  26 ¦ 10     4x7   75    1 row
-** iPhone 17 Plus (B) 440x956    28       4  26 ¦ 18/17 ¦ 6              2  26 ¦ 10     4x7   77    1 row
-iPad 11" portrait  834x1194      67       -  ONE PAGE, NO RAIL, all 67   -  all 36      7x10  86    none
-iPad 11" landscape 1194x834      67       -  ONE PAGE, NO RAIL, all 67   -  all 36     12x6   81    none
-iPad 13" landscape 1366x1024     67       -  ONE PAGE, NO RAIL, all 67   -  all 36     10x7  100    none
-Android tablet 800x1280 port.    67       -  ONE PAGE, NO RAIL, all 67   -  all 36      7x10  92    none
+device                          cap  VI pages        EN pages      VI grid  tile  strip cell  glyph  rail
+Android compact 360x640 (floor)  16  3  15/14 ¦ 6    2  13/13       4x4      73    48 x 61     39     1 row
+iPhone SE 3     375x667          20  3  15/14 ¦ 6    2  13/13       4x4      76    50 x 64     41     1 row
+Android tall    360x800          24  3  15/14 ¦ 6    1  ALL 26      3x5      84    48 x 72     39     1 row (VI only)
+iPhone 15/16    393x852          24  3  15/14 ¦ 6    1  ALL 26      3x5      89    52 x 77     42     1 row (VI only)
+Android large   412x915          28  3  15/14 ¦ 6    1  ALL 26      3x5     100    55 x 89     45     1 row (VI only)
+iPhone 15 Pro Max 430x932        28  3  15/14 ¦ 6    1  ALL 26      3x5     101    58 x 90     47     1 row (VI only)
+** iPhone 17 Plus (A) 430x932    28  3  15/14 ¦ 6    1  ALL 26      3x5     101    58 x 90     47     1 row (VI only)
+** iPhone 17 Plus (B) 440x956    28  3  15/14 ¦ 6    1  ALL 26      3x5     104    60 x 93     49     1 row (VI only)
+iPad 11" portrait  834x1194      90  -  ONE PAGE 35  -  ALL 26      5x7     116    87 x 106    68     none
+iPad 11" landscape 1194x834      84  -  ONE PAGE 35  -  ALL 26      9x4     108    80 x 97     62     none
+iPad 13" landscape 1366x1024     90  -  ONE PAGE 35  -  ALL 26      7x5     116    87 x 106    68     none
+Android tablet 800x1280 port.    90  -  ONE PAGE 35  -  ALL 26      5x7     116    87 x 106    68     none
 iPhone 15 LANDSCAPE 852x393      LOCKED (fails F7)
 ```
 
-**The two candidate sizes give the same design.** (B) is 440 dp wide and misses a fifth column
-by **4 pt**: five 72 pt tiles need 400 and the content width is exactly 400, but `gap(72)`
-rounds to 11, not 10. Recorded because it is precisely the kind of near-miss somebody later
-"fixes" by shaving the gap — and F6's gap is what stops hit rects overlapping, so it is not
-for shaving.
+**Prediction versus measurement, stated plainly because the difference is the point of
+re-running the tool:**
+
+| | `literacy-vi.md` §0.11 predicted | **Measured** |
+|---|---|---|
+| 360 × 640 floor, VI | 4 pages `10 ¦ 10 ¦ 9 ¦ 6`, 12 per page | **3 pages `15 ¦ 14 ¦ 6`, 16 per page** — better, and for a reason the hand computation could not see: 35 cells needs only **one** rail row where 67 needed two, and the row it gives back raises the capacity from 12 to 16 |
+| iPhone SE 3, VI | 3 pages, cap 16 | 3 pages, **cap 20** |
+| iPhone 17 Plus, VI | 3 pages, cap 28 | 3 pages, cap 28 ✓ — **and a 101 pt tile, not 75** |
+| 360 × 800 and 393 × 852, EN | 2 pages `13 ¦ 13` | **1 page, no rail.** The 26-letter alphabet fits a mid-size Android and an iPhone 15 whole |
+| iPhone 17 Plus, EN | 1 page, no rail | ✓ **confirmed** |
+
+**The tile got much bigger, and that is the largest visible change after the ordering.** One
+grid serves every page and it is sized by the **largest** page, which fell from 26 to 15. On
+his device the Vietnamese board goes **4 × 7 at 75 pt → 3 × 5 at 101 pt** — a 16 mm tile, 79%
+larger in area. The alphabet reads down in threes:
+
+```
+   a  ă  â        page 1, rows 1-5        n  o  ô          page 2
+   b  c  d                                ơ  p  q
+   đ  e  ê                                r  s  t
+   g  h  i                                u  ư  v
+   k  l  m                                x  y
+```
+
+**The tone page holds 6 cells in a 15-cell grid**, top-aligned, with three empty rows below.
+That is deliberate and unchanged from revision 4: *one standing tile on an otherwise empty page
+is the clearest possible final step*, and top-alignment is what keeps row 1 at the same height
+on every page.
 
 Sweep verdict:
 
 ```
 swept viewports 360..1400 x 600..1440 step 4, x 9 safe-area shapes
-  489675 viewport/inset combinations served
-  979350 page plans built (both packs per viewport), 740899 of them needing NO rail
-  paging fixpoint: converged every time, worst case 1 step(s) (F10 allows 3)
+  491283 viewport/inset combinations served
+  982566 page plans built (both packs per viewport), 933590 of them needing NO rail
+  paging fixpoint: converged every time, worst case 0 step(s) (F10 allows 3)
     vi-seed page-count distribution:
-       1 page(s)  291327
-       3 page(s)  142348
-       4 page(s)  27984
-       5 page(s)  20070
-       6 page(s)  4317
-       7 page(s)  3629
-  5964 rejected (F7: no page plan for both packs, or landscape phone)
-  34445462 layouts checked against 8 rules, plus 5 plan rules
-tightest served layout: 360x600 insets {"insetT":0,"insetB":0} cells=13
-  tile 78  grid 3x5  row 258/328  strip 82  table 438  slack 0  shelf 32  margin 0
+       1 page(s)  457433
+       2 page(s)  168
+       3 page(s)  32590
+       4 page(s)  1092
+  4356 rejected (F7: no page plan for both packs, or landscape phone)
+  34463217 layouts checked against 10 rules, plus 6 plan rules
+
+tightest served layout: 360x600 insets {"insetT":0,"insetB":0} cells=1
+  tile 99  grid 3x1  row 327/328  strip 104  table 99  slack 317  shelf 32  margin 0
+  word strip: 6 cells of 48x88pt, row 328/328, glyph 39pt (F4 floor 34, F16 floor 40)
+
 PASS - 0 failing layout(s).
 ```
 
-Read that distribution as the shape of the product: **291,327 of 489,675 served combinations
-(60%) need no pages at all** — every tablet, which shows all 67 characters at once and never
-mentions a page. Vietnamese is never 2 pages, because runs never share one; it is 1, or 3 and
-up. His iPhone is in the 27,984-strong 4-page band.
+Read that distribution as the shape of the product. **457,433 of 491,283 served combinations —
+93% — need no pages at all**, against 60% in revision 4. The Vietnamese board now tops out at
+**4 pages** where revision 4 reached 7, and the fixpoint converges in **0 steps**: the rail
+never wraps, on any served viewport, so `RAIL_MAX_ROWS = 2` is now headroom rather than a
+constraint that binds. The 168 two-page plans are the narrow band where 29 letters fit one page
+but 35 cells do not — `[29] [6]`.
 
-**The limitation revision 3 had is gone.** Revision 3's §4.4 had to record that a phone
-reached 13–21 of 47 words. **Every served device now reaches all 47.** What a bigger screen
-buys is comfort — no rail, no pages, 86–100 pt tiles — not content.
+**What a bigger screen buys is still comfort, not content.** Every served device reaches every
+word in both packs; a tablet simply shows all 35 cells at 116 pt with no rail.
 
 ### 4.4a Why the table **pages** rather than scrolls
 
@@ -452,8 +570,10 @@ below are exactly what a page rail has to answer.
 
 The three original objections, and how paging answers each:
 
-1. **The live set would go off-screen.** The characters that can be pressed are 1–6 of 67 and
-   they are scattered across three runs. A child who cannot see a standing tile has a board
+1. **The live set would go off-screen.** The characters that can be pressed are 1–6 of 35 and
+   they are scattered across two runs.  *(Revision 5: mean live-set size **1.42**, and 84% of
+   decision points have exactly one standing tile — `literacy-vi.md` §0.11. The set is smaller
+   than revision 4's, which makes the rail matter more, not less.)* A child who cannot see a standing tile has a board
    with nothing on it, and he cannot form the hypothesis "there might be more below".
    → **Answered by the rail** (`gameplay.md` §3.9): a page with something live stands its
    button up, in the same visual language as the tiles, and the app never *leaves* him on a
@@ -542,8 +662,9 @@ literacy-designer as a reconcile item against `literacy-vi.md` §8.1's cap of 16
 `literacy-en.md` §6.1's cap of 8.
 
 **Revision 3 deletes the ceiling.** The owner asked for the regular character table, and a
-character table with a cap on it is not one. The table is now `min(pack inventory, device
-budget)`: 36 for English, 67 for Vietnamese, 20–90 by device.
+character table with a cap on it is not one. The table is the pack's whole inventory, paged
+when it does not fit: **revision 5 makes that 26 for English and 35 for Vietnamese**, against a
+device budget of 12–90 cells per page.
 
 **This retires the reconcile item rather than resolving it, and that should be said plainly.**
 Those caps were written for a mechanic in which the palette was a *search* — one tile was
@@ -552,12 +673,22 @@ later, every standing tile is a correct move and the set he must discriminate is
 set, which is 1–6 symbols. The rest of the board is flat, recessive by construction (§5.8),
 and — this is the part the caps cannot speak to — **it is what he asked to see.** The number
 that governs whether 67 cells is too many is not a palette cap from a different mechanic; it
-is `acceptance-criteria.md` **U7a**, and only the child can answer it.
+is `acceptance-criteria.md` **U7a**, and only the child can answer it. **Revision 5 halves the
+number it is asked of** — 67 cells became 35 — and `literacy-vi.md` §0.11 measured that the
+mostly-flat board does not get worse (84% single-live-tile in both models) while the mean live
+set falls from 1.64 to 1.42. U7a is the same Tier-5 question, now asked of a board half the
+size.
 
-**What a tablet buys, now that the ceiling is gone:** the *whole game*. It is not a nicer
-version of the phone board — the phone board is a different, smaller game (`gameplay.md`
-§3.5). That is the sharpest consequence of revision 3 and it is in `open-questions-ui.md` as
-the one thing I would most like the owner to confirm: **which device does he actually play on.**
+**What a tablet buys — and revision 5 mostly answers the question revision 3 asked.** Revision
+3 had to say that the phone board was a *different, smaller game*; revision 4 fixed that with
+paging, and revision 5 makes a tablet's advantage smaller again. **In English on his own iPhone
+there is no difference at all** — one page, 26 letters, no rail — and in Vietnamese the
+difference is three pages versus one and a 101 pt tile versus 116. The open question in
+`open-questions-ui.md` about which device he plays on **is now much less load-bearing**, and
+the answer he already gave (an iPhone 17 Plus) is served well.
+
+**Tile sizes across the range, for scale:** 72–73 pt on the 360 dp floor, **101–104 pt on his
+device**, 116 pt (the cap) on every tablet. The cap is reach, not room.
 
 ## 5. The visual system
 
@@ -669,41 +800,84 @@ unchecked (§5.9).
   its own boundary read.
 - The tile reads as a **toy block** — a coloured cap, a white face, a coloured base.
 
-### 5.5 Role colour does work — and a second, non-colour channel does it too
+### 5.5 Role colour — what a role *is*, restated in revision 5
 
 | Slot | Means | Bar pattern | Popsicle | Sunshine | Playground |
 |---|---|---|---|---|---|
-| `role1` | **onset** (âm đầu) / EN **consonant** | `solid` ▓▓▓▓▓▓ | watermelon | sunset | blue |
-| `role2` | **rime** (vần) / EN **vowel** | `split` ▓▓ ▓▓ | grape | lagoon | orange |
-| `role3` | **tone** (thanh) | `dotted` ▓ ▓ ▓ | green | leaf | teal |
+| `role1` | **consonant letter** — both languages | `solid` ▓▓▓▓▓▓ | watermelon | sunset | blue |
+| `role2` | **vowel letter** — both languages | `split` ▓▓ ▓▓ | grape | lagoon | orange |
+| `role3` | **tone** — Vietnamese only | `dotted` ▓ ▓ ▓ | green | leaf | teal |
 
-**The bar pattern is the point.** Role is carried by three redundant channels: the pattern,
-**the fixed position of each run in the constant table**, and colour. Colour is the redundant
-one. That is what lets the sweep gate hard on normal-sighted separation (ΔE00 ≥ 25, lowest
-measured 33.0) while treating **CVD separation as a printed diagnostic**:
+**Revision 4 said role1 = onset, role2 = rime, role3 = tone.** A role was a *stage of the
+word*. Revision 5 makes it a **permanent property of the glyph**, and that is not a cosmetic
+re-labelling — it is what a constant table of letters requires and what the content model now
+means:
 
-> **Corrected in revision 3 (U20).** The second channel used to be *"the Vietnamese table
-> shows exactly one role at a time"*. That is now false — all three roles are on screen
-> together — so the argument had to be re-made rather than inherited, and the same sentence in
-> `tools/theme-contrast.mjs` was corrected with it. Fixed position is the stronger channel of
-> the two: onsets are always the first run, rimes the middle, tones the last, in cells that
-> never move, and unlike the old channel it does not depend on what he has already tapped.
+1. **A letter is a letter in every word.** `h` is the same tile whether it is finishing `ch`,
+   starting the rime of `hoa`, or sitting in `ship`. A colour that depended on the job it is
+   doing *this time* would change under his finger, which is the morph the owner rejected.
+2. **In Vietnamese, vowel-initial ≡ rime-initial.** `literacy-vi.md` §0.5: every rime begins
+   with a vowel letter and every onset is consonant letters, with `gi` and `qu` the only two
+   deterministic exceptions. So a vowel-coloured tile *is* the board saying "this one starts
+   the next part of the word", with no extra machinery.
+3. **English already required it** (`literacy-en.md` §3.2, §0.10) and now needs it more, with
+   `j q y z` sitting permanently flat among live letters.
+
+**The two exceptions, and why they teach rather than lie.** Tapping `i` after `g` builds the
+onset `gi`; `u` after `q` builds `qu`. The tile stays vowel-coloured — *it is a vowel letter* —
+and **the strip is where the truth goes**: the letter joins the onset's span bar, in the
+consonant colour, rather than starting a new one (§7.2). **The table colours the letter; the
+strip colours the job that letter took.** That is a distinction worth him noticing, and it is
+exactly the two words Vietnamese spells oddly.
+
+**The bar pattern is still the point, and in revision 5 it stops being redundant.** Revision 4
+said role is carried by three channels — pattern, **fixed position**, and colour — and that
+colour was the redundant one, which is why CVD separation was printed and not gated.
+
+> **Corrected in revision 5 (U31).** *Fixed position no longer separates a consonant from a
+> vowel.* `a ă â b c d` puts them side by side in every row of the alphabet, and at the five
+> branching onsets `c g k n t` a consonant and a vowel are **live at the same time, meaning
+> opposite things**: *this letter makes the sound bigger* versus *this letter starts the next
+> part of the word* (`literacy-vi.md` §0.6). Position is silent there. Pattern (solid versus
+> split) still speaks, and **colour is now gated under CVD for that one pair.**
 
 ```
-Popsicle: onset vs tone under deuteranopia = 1.59
-Sunshine: onset vs tone under deuteranopia = 8.58
-Sunshine: onset vs tone under protanopia   = 10.26
+ADJACENT pair: consonant vs vowel, gated at dE00 >= 20 in all three dichromacies
+  Popsicle    protanopia 23.7   deuteranopia 53.6   tritanopia 30.0
+  Sunshine    protanopia 48.4   deuteranopia 58.3   tritanopia 52.5
+  Playground  protanopia 63.4   deuteranopia 72.3   tritanopia 52.2
+```
+
+20 is the largest round number below the measured worst case (23.7), so the gate has 3.7 of
+headroom on the owner's own hexes and is not a number picked to pass. Raising it to 25 makes
+the tool **exit 1**, which is how I know it is a check.
+
+**Tone is deliberately *not* gated under CVD, and the limitation is unchanged from revision 4.**
+Tone is a separate run, on its own page on every phone, never adjacent to a letter, and its
+dotted bar is unique. Popsicle's consonant-vs-tone pair still measures 1.59 under deuteranopia;
+it is printed, named, and carried.
+
+```
+Popsicle: consonant vs tone under deuteranopia = 1.59
+Sunshine: consonant vs tone under deuteranopia = 8.58
+Sunshine: consonant vs tone under protanopia   = 10.26
 ```
 
 **Playground is red-green safe** (worst case 18.1) and is a one-tap change on the album.
 
-### 5.6 English has two tile types, not one
+### 5.6 Two tile types in both languages now, not one language's two and another's three
 
-`literacy-en.md` §3.2 requires vowel tiles to be visually distinct from consonants, so English
-uses the same two slots Vietnamese uses for its first two: consonant → `role1`, solid bar;
-vowel → `role2`, split bar; `role3` is **never rendered in English mode**. `a` in `cat` wears
-the same slot as the rime `eo` in `mèo` — both are the nucleus of the syllable, which is a true
-correspondence rather than a coincidence.
+`literacy-en.md` §3.2 required vowel tiles to be visually distinct from consonants; revision 5
+gives Vietnamese the same rule for the reason in §5.5, so **the two boards are now the same
+visual system with one extra run on the Vietnamese side.** `role3` is never rendered in English
+mode. `a` in `cat` wears the same slot as the `a` of `cam` — both are the nucleus of the
+syllable, in both languages, which is a true correspondence rather than a convenience.
+
+**Vietnamese has ten vowel letters on the board** — `a ă â e ê i o ô ơ u ư y` is twelve, and
+all twelve are in `inventoryOrder` — and **English has five**, `a e i o u`, with `y` a
+consonant in this pack (`literacy-en.md` §0.3, /j/). `y` is therefore `role1` in English and
+`role2` in Vietnamese. That is not an inconsistency to fix: it is each language's own answer,
+and the language never mixes.
 
 ### 5.7 The theme picker
 
@@ -800,6 +974,33 @@ re-proposed.
 first, a 1.60:1 gold glyph at the most important moment in the literacy ritual). That is the
 argument for the sweep being a gate rather than a report, made twice.
 
+### 5.8b Revision 5 — a continuous gold plate behind a chant-lit span, designed and measured out
+
+**The third time.** A chant beat now lights a **span** of up to six cells (§10.4), and the
+obvious drawing is one `reward` plate behind the whole span — gaps included — so that "these
+cells are one sound" is a single shape. I added the pair it creates and it fails in all three
+themes:
+
+| Pair | Popsicle | Sunshine | Playground |
+|---|---|---|---|
+| the boundary divider (`neutralFace`) **on the gold plate** | **1.58 FAIL** | **2.01 FAIL** | **2.12 FAIL** |
+| the same divider **on the ground** (what ships) | 3.02 ok | 3.20 ok | 3.42 ok |
+
+Threshold 3.0 (`component`). The failure is structural again: the divider marking the
+onset/rime boundary would **vanish inside the plate at exactly the moment the chant is
+explaining what the boundary means.**
+
+**Cut. The span lights cell by cell and the gaps stay on the ground**, which is where the
+divider is gated. Two further decisions fall straight out of the same number and are recorded
+here rather than left implicit:
+
+- **The re-voice pulse (M23, `c`+`h` → `chờ`) is motion, not colour** — a scale pulse, never a
+  gold face. A re-voiced span can still be carrying a dashed mark-slot or a divider, both
+  `neutralFace`, both 1.58–2.12:1 on gold. **Gold is reserved for the chant, which only ever
+  runs on a finished word**, by which time neither is on screen.
+- The rejected drawing is a comment in `tools/theme-contrast.mjs` with its numbers, so it is
+  not re-proposed.
+
 ### 5.9 Correction U11 — the chant does not turn the glyph gold
 
 Revision 1 lit each part of the word by cross-fading its **glyph** from `ink` to `reward`. That
@@ -871,10 +1072,13 @@ threshold sits far below every measurement rather than near one; see §6.1.)*
    tightest pair is 365 px at 116 pt against a 200 px floor and 34 px at 36 pt against a 20 px
    floor. Be Vietnam Pro is better here (577 / 87) and that is worth recording, but "better than
    comfortably sufficient" is not a reason to change a shipped font.
-2. **Weight and roundness.** A tile glyph is one large lowercase letter on a white face; weight
-   is what makes it read as a **block letter** rather than a thin line, and it is what makes
-   "bright and fun" work at 36 pt. Be Vietnam Pro is a text face and looks like one on a toy
-   block. This is now the *first* reason rather than the third.
+2. **Weight and roundness.** A tile glyph is one large letter on a white face — **lowercase in
+   Vietnamese, uppercase in English since revision 5 (§8.2)** — and weight is what makes it read
+   as a **block letter** rather than a thin line, and what makes "bright and fun" work at 36 pt.
+   Be Vietnam Pro is a text face and looks like one on a toy block. This is now the *first*
+   reason rather than the third. **Uppercase does not disturb this ranking**: neither face's
+   uppercase is in doubt (26/26 in both, §6.1a) and weight is a property of the face, not of the
+   case.
 3. **Tightest vertical span, 1.017 em against 1.189.** Stacked marks sit closer to the letter, so
    less of a tile's height is spent on headroom and the glyph itself is larger inside the same
    tile. At a 72 pt tile that is real.
@@ -947,7 +1151,41 @@ how much of it there is and is not size-dependent.
 If the bundled face ever fails, the tile face falls back to **Be Vietnam Pro**, which is drawn
 for Vietnamese, is already bundled, and measures better on T3.
 
+### 6.1a Revision 5 — uppercase `A`–`Z`, measured, and what the gate does *not* cover
+
+The owner chose uppercase English glyphs (§8.2), so the render gate's assumptions were checked
+rather than assumed. Measured with `fontTools` against the shipped files:
+
+| | Be Vietnam Pro SemiBold *(the tile face)* | Baloo 2 SemiBold *(the one-line reversal)* |
+|---|---|---|
+| `A`–`Z` present | **26 of 26** | **26 of 26** |
+| Widest uppercase | `W`, **1.039 em** | `W`, 0.832 em |
+| Cap height | 740 / 1000 | 602 / 1000 |
+| 25 sampled precomposed **Vietnamese uppercase** forms (`Ấ Ầ Ẩ Ẫ Ậ Ắ …`) | **0 missing** | **0 missing** |
+
+Two things follow, and the second is the one that matters.
+
+1. **Uppercase English is free and the reversal stays one line.** `W` at the largest English
+   glyph size in the app (43 pt, his iPhone) draws 44.7 pt into an 84 pt tile, and 40.5 pt into
+   a 48 pt strip cell at the floor. §8.2.4 has the full table; no layout rule moves.
+2. **The Q-series does not gate Vietnamese uppercase, and the fixture is why.**
+   `assets/fonts/FIXTURE.txt` carries **7** uppercase Vietnamese letters — `Ă Â Đ Ê Ô Ơ Ư` — and
+   the ~130 precomposed marked capitals are **not in it**. The fonts cover them; **the gate has
+   never rendered them.** That is exactly the distinction `CLAUDE.md` means by *a green check
+   you have not seen fail*: Q5a would report 86/86 and say nothing whatever about `Ẫ`.
+
+> **So §8.2.3's rule is a gate requirement, not a preference: a Vietnamese pack cannot be
+> switched to uppercase until the fixture is extended and the Q-series re-run.** Recorded here,
+> beside the gate it constrains, rather than only in §8.
+
 ### 6.2 The `a`/`g` letterform check is a human check, pinned by a hash (correction U9)
+
+**Revision 5 narrows its scope and it is worth saying so rather than leaving it to be assumed.**
+The single- versus double-storey `a` question is about **lowercase**, so after §8.2 it bears on
+**Vietnamese only** — English tiles are `A`. It is not weakened: Vietnamese is the language with
+29 letters, the tone marks and the tightest minimal pairs, so the check still sits where the
+risk is. **`g` is unaffected either way**, because neither language puts a lowercase `g` on an
+English tile any more and Vietnamese still does.
 
 The Slice-3 developer is right that the single-storey clause of `acceptance-criteria.md` Q10 is
 human-verified rather than automated, and it **cannot honestly be automated**: single- and
@@ -1027,47 +1265,57 @@ the tile is a motor constant and the glyph must fill it. Deliberate exception, r
 
 ## 7. Screen: Ghép Chữ (Vietnamese)
 
-**Two boards, one design.** A tablet shows the whole 67-cell table at once, with no rail and
-no pages. A phone shows it in four windows. The characters, their order and their slots are
-identical; only how much is visible at a time differs.
+**Two boards, one design.** A tablet shows the whole 35-cell table at once — 29 letters and 6
+tones — with no rail and no pages. A phone shows it in three windows. The characters, their
+order and their slots are identical; only how much is visible at a time differs.
 
-**The owner's iPhone 17 Plus** (430 × 932 or 440 × 956 — same plan, `ui.md` §4.4): page 1 of
-4, 4 × 7 at 75 pt, strip 79, rail 1 row of 4 buttons.
+**The owner's iPhone 17 Plus** (430 × 932 or 440 × 956 — same plan): page 1 of 3, **3 × 5 at
+101 pt**, strip 106 with six 58 × 90 cells, rail 1 row of 3 buttons. Drawn at the moment after
+a single tap on `c`, because that is the state the whole revision has to make legible.
 
 ```
 ┌──────────────────────────────────────────────┐
 │▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔│ 4pt role1 rule
 │ Ghép Chữ      [img][ ][ ][ ][ ]         ◔    │ 56pt top bar
 ├──────────────────────────────────────────────┤
-│   ┌───────┬╌╌╌╌╌╌╌┐                          │ word strip, 79 tall
-│   │   b   ┊   ·   ╎                          │ the word SO FAR
-│   └━━━━━━━┴╌╌╌╌╌╌╌┘                          │
+│  ┌──────┬╌╌╌╌╌╌┐                             │ WORD STRIP, 106 tall
+│  │  c   ┊  ·   ╎                             │ six 58x90 slots reserved,
+│  └━━━━━━┴╌╌╌╌╌╌┘                             │ two drawn, left-aligned
+│    SOLID role1 bar.  One cell, one sound.    │ glyph 47pt, ink on white
+│    Spoken: `cờ`                              │
 │                                              │
-│  ┌────┐┌────┐┌────┐┌────┐                    │ ── PAGE 1: THE ONSET RUN
-│  │ m  ││ b  ││ c  │╎ ch ╎                    │    26 characters, 4x7
-│  └────┘└────┘└────┘└ ── ┘                    │    role1, SOLID bars
-│  ╎ s  ╎│ d  │╎ g  ╎╎ h  ╎                    │
-│  ╎ t  ╎╎ tr ╎╎ v  ╎╎ gh ╎                    │    SOLID box = live
-│  ╎ gi ╎╎ k  ╎╎ kh ╎╎ l  ╎                    │    DASHED box = flat
-│  ╎ ng ╎╎ nh ╎╎ qu ╎╎ r  ╎                    │
-│  ╎ th ╎╎ x  ╎╎ đ  ╎╎ n  ╎                    │
-│  ╎ngh ╎╎ ph ╎                                │    26 of 28 slots used;
-│                                              │    the last row is short
+│  ┌───────┐ ┌───────┐ ┌───────┐               │ ── PAGE 1:  a ... m
+│  │▓▓ ▓▓▓▓│ ╎       ╎ ╎       ╎               │    15 cells, 3x5 at 101pt
+│  │   a   │ ╎   ă   ╎ ╎   â   ╎               │
+│  │▓▓ ▓▓▓▓│ ╎       ╎ ╎       ╎               │    `a` LIVE -- cam, cá.
+│  └───────┘ └ ── ── ┘ └ ── ── ┘               │    SPLIT bar, role2 VOWEL:
+│  ╎   b   ╎ ╎   c   ╎ ╎   d   ╎               │    "the vowel starts here"
+│  ╎   đ   ╎ ╎   e   ╎ ╎   ê   ╎               │
+│  ╎   g   ╎ │▓▓▓▓▓▓▓│ ╎   i   ╎               │    `h` LIVE -- chim, chó.
+│  ╎       ╎ │   h   │ ╎       ╎               │    SOLID bar, role1 CONS:
+│  ╎   k   ╎ │▓▓▓▓▓▓▓│ ╎   m   ╎               │    "make the sound bigger"
+│            └───────┘                         │
 ├──────────────────────────────────────────────┤
-│  ┏━━━━┓┌────┐┌ ── ┐┌ ── ┐                    │ ── THE PAGE RAIL
-│  ┃ m  ┃│ ưa ││ i  │╎ ◌̀ ╎                    │    one 72pt button per page
-│  ┗━━━━┛└────┘└ ── ┘└ ── ┘                    │    §7.1b
-│   HERE   live   live   flat                  │
+│  ┌──────┐  ┌──────┐  ┌ ──── ┐                │ ── THE PAGE RAIL
+│  ┃  a   ┃  │  n   │  ╎  ◌   ╎                │    3 buttons, 72pt
+│  ┗━━━━━━┛  └──────┘  └ ──── ┘                │    page 2 STANDS (`u`,`ư`)
+│    HERE     standing    flat                 │    page 3 flat: no tone yet
 └──────────────────────────────────────────────┘
 ```
 
-At this moment — empty strip — page 1 stands (onsets begin words) and **page 2 also stands**,
-because `ao` and `ong` begin the zero-onset words `áo` and `ong`. Page 4's button is flat: no
-tone can be placed yet. **That rail is the only way he could ever discover `áo`**, and it is
-doing it with no text and no number.
+**That one figure is the argument for revision 5's visual system.** After `c`, four letters are
+live — `h` extends the onset, and `a u ư` start a rime (`literacy-vi.md` §0.6). On page 1 that
+is `h` with a **solid consonant bar** and `a` with a **split vowel bar**, side by side, saying
+two opposite things; `u` and `ư` are on page 2, which is why its rail button stands. **Nothing
+here is text, a number or a word**, and in revision 4 the same fork was invisible, because
+every tile on the onset page carried the same solid bar.
 
-The tablet board is the same figure with the rail deleted and all 67 characters in a 7 × 10
-grid at 86 pt (revision 3's §7 wireframe, unchanged).
+**Compare the same board in revision 4**: four pages, 28 cells of 75 pt, and the first page was
+26 onsets sorted `m b c ch s d g h t tr v gh…`. The tile is now 79% larger in area, the order is
+the alphabet, and there is one fewer page.
+
+The tablet board is the same figure with the rail deleted and all 35 characters in a 5 × 7 grid
+at 116 pt.
 
 ### 7.1a Paging is a **slide**, and that is the whole difference from the morph
 
@@ -1098,16 +1346,22 @@ language the child has already been taught, so "there is something for you over 
 no explanation, no icon and no reading.
 
 ```
-  ┏━━━━┓   ┌────┐   ┌ ── ┐         one button per page, 72pt, RAIL_GAP 12,
-  ┃ m  ┃   │ ưa │   ╎ ◌̀ ╎         wrapping to at most 2 rows (F9p)
-  ┗━━━━┛   └────┘   └ ── ┘
+  ┏━━━━┓   ┌────┐   ┌ ── ┐         one button per page, 72pt, RAIL_GAP 12.
+  ┃ a  ┃   │ n  │   ╎ ◌  ╎         Vietnamese is 3 buttons on every phone;
+  ┗━━━━┛   └────┘   └ ── ┘         English is 2, or none at all on his device
   CURRENT  STANDING   FLAT
   reward   white face ground face   glyph = THE FIRST CHARACTER OF THAT PAGE,
-  face,    + role bar + dashed      drawn with that run's bar and role colour --
-  ink      + ink      + inkSoft     a sample of what is over there, not a number
-  raised                            and not a word
+  face,    + role bar + dashed      drawn with that letter's own bar and role
+  ink      + ink      + inkSoft     colour -- a sample of what is over there,
+  raised                            not a number and not a word
   4pt
 ```
+
+**Revision 5 makes the rail read as a sentence.** The three Vietnamese buttons are `a`, `n` and
+the empty `ngang` circle: *the letters from a, the letters from n, and the hats.* Revision 4's
+were `m`, `ưa` and `◌̀` — the first symbols of a frequency-sorted inventory, which named
+nothing. The rail is now something his mother can say out loud, which is the test §0C sets for
+the page split itself.
 
 | State | Drawn as | Means |
 |---|---|---|
@@ -1162,14 +1416,23 @@ a reversal is not pretending the old argument was thin.
 | **2. "Arithmetic. 24 onsets + 24 rimes + 6 tones is 54 cells at ≥ 72 pt. Nothing in the supported range fits that."** | **Wrong, by measurement.** It was true of phones and asserted of everything. The real inventory is 67 cells, and every tablet holds all 67 above the floor — 7 × 10 at 86 pt on an iPad 11", 10 × 7 at 100 pt on an iPad 13". The error was a 6-column cap in the layout law that nobody had questioned, not a fact about screens. This is the one I should have caught myself. |
 | **3. "Two of the three would be entirely disabled — the dead-screen failure the brief forbids."** | **Real, and it is now the standing risk of this design.** It is not refuted; it is answered and then handed to Tier 5. §5.8's flat tile is not a dead tile — full-opacity glyph, speaks when pressed, dips when tapped — and the standing minority is high-ink against a recessive majority. Whether that is enough is `acceptance-criteria.md` **U7a**, and only the child can say. |
 
-**The layout.** One grid, three contiguous runs in one fixed row-major sequence:
-`[onsets][rimes][tones]`. **Revision 4: when the sequence does not fit one screen it is paged
+**The layout — revision 5.** One grid, **two** contiguous runs in one fixed row-major
+sequence: `[29 letters][6 tones]` in Vietnamese, `[26 letters]` in English. **Revision 4: when the sequence does not fit one screen it is paged
 along the run boundaries** (§7.1a–c), so a run boundary is also a page boundary and the board
 he sees is always one run at a time — which, pleasingly, is what revision 2's morph was trying
 to achieve and got wrong by changing the cells instead of moving the window. A run boundary
-inside a page can still fall mid-row and is not marked by a line, a box or a tint — it is marked by the tile's own bar changing from solid to split to dotted (§5.5),
-which is the channel that already survives greyscale and CVD. §5.8a records the tint I tried
-and why the contrast sweep cut it.
+inside a page can still fall mid-row and is not marked by a line, a box or a tint — it is
+marked by the tile's own bar changing to **dotted** (§5.5), which is the channel that already
+survives greyscale and CVD. §5.8a records the tint I tried and why the contrast sweep cut it.
+
+**Revision 5 changes what the bar pattern is doing inside a run, and it is worth being exact
+about it.** In revision 4 the pattern marked the run: everything on the onset page was solid,
+everything on the rime page split. Now the letter run **interleaves** solid and split cell by
+cell, because the pattern marks the *letter* (§5.5). The run boundary is still visible — the
+tone run is the only dotted thing on the board — but the letter run no longer looks uniform,
+and that is the intent: the fork between "another consonant" and "the vowel starts here" is the
+single most frequent decision on this board (five branching onsets, 116 decision points), and
+it is now drawn in every row rather than at one seam.
 
 **How many of each, per device — revision 4: all of them.** Revision 3 divided one screen's
 budget between the three runs with a fixed 0.48 split (`zonesFor()`), which meant a phone
@@ -1179,129 +1442,336 @@ takes:
 
 ```
 capacity = cells per page (28 on the iPhone 17 Plus)
-onsets 26 -> ceil(26/28) = 1 page  [26]
-rimes  35 -> ceil(35/28) = 2 pages [18][17]   balanced, not 28/7
-tones   6 -> ceil(6/28)  = 1 page  [6]
+letters 29 -> ceil(29/28) = 2 pages [15][14]   balanced, not 28/1
+tones    6 -> ceil(6/28)  = 1 page  [6]
+
+  page 1  a ă â b c d đ e ê g h i k l m      "the letters from a"
+  page 2  n o ô ơ p q r s t u ư v x y        "the letters from n"
+  page 3  ngang huyền sắc hỏi ngã nặng       "the hats"
 ```
 
+**29 misses a single page by one cell**, and it is not bought back (§0C). The consequence worth
+naming is that **`h` is on page 1 while `n`, `p` and `t` are on page 2**, so `nh`, `ng`, `ph`
+and `th` are cross-page digraphs: the rail's page-1 button stands the moment `h` goes live, and
+tapping it is the same 72 pt tap as any other. On a tablet, and in English on his own phone,
+this does not arise.
+
 - **Runs never share a page** (`gameplay.md` §3.7). It costs a page and leaves the tone page
-  holding 6 characters in a 28-cell grid, and both are worth it: the rule is one sentence a
+  holding 6 characters in a 15-cell grid, and both are worth it: the rule is one sentence a
   child can hold, and one standing tile on an otherwise empty page is the clearest possible
   final step.
 - **Balanced, not greedy**, so pages keep the same shape as he moves.
 - **Each run is still a prefix-ordered list** (`inventoryOrder`, E12), but the order is no
   longer a *priority* order, because nothing is cut off. It is now purely where things live.
 
-`gameplay.md` §3.5 has the per-device page plans. The words-reachable column is gone from
-it, because the answer is now 47 of 47 everywhere.
+`gameplay.md` §3.5 has the per-device page plans; **§4.4 of this document supersedes their
+numbers for revision 5**, because the runs changed. The words-reachable column stays gone: the
+answer is 47 of 47 everywhere, and was already.
 
-### 7.2 The word strip, and the six tone carriers
+### 7.2 The word strip — spans, the boundary, and the two ways something can be missing
 
-**The strip is the word so far, plus one dashed cell for what is still missing.** Two cells,
-not three. Revision 2's third cell named the tone in words — `m ┊ èo ┊ huyền` — which put a
-word a pre-literate child cannot read on the child's screen, holding something that is not
-part of his word. The owner saw it and said so (U14).
+**Rewritten in revision 5.** Revision 4's strip held an onset, a rime and a tone and was never
+sized against the content width. A word is now **three to six taps**, the onset may be two or
+three of them, and the strip has to say three things it never had to say before: *these letters
+are one sound*, *the next part of the word starts here*, and *this could end now, or it could
+go on*. It has to say all three with **no text**, and **without ever merging a cell into
+another**, which is the morph the owner rejected in revision 3.
 
-```
-  empty        ┌╌╌╌╌╌╌╌╌╌╌╌╌┐                  one dashed cell, 2pt neutralFace,
-               ╎     ·      ╎                  one centred dot
-               └╌╌╌╌╌╌╌╌╌╌╌╌┘
-
-  onset in     ┌──────┬╌╌╌╌╌╌╌╌╌╌╌╌┐           glyph in ink on surface, 13.4:1
-               │  b   ┊     ·      ╎           5pt role1 underline under `b`
-               └━━━━━━┴╌╌╌╌╌╌╌╌╌╌╌╌┘
-
-  rime in      ┌──────┬──────┬╌╌╌╌╌╌┐          a tone is still needed, so the
-               │  b   ┊  o   ┊  ·   ╎          dashed cell stays
-               └━━━━━━┴━━━━━━┴╌╌╌╌╌╌┘          role1 + role2 underlines
-
-  tone in      ┌────────────────────┐          the mark lands ON the rime and the
-               │        bò          │          cells merge. No dashed cell: the
-               └━━━━━━┴┅┅┅┅┅┅━━━━━━━┘          word is complete. The role3 tone is
-                                               a 5pt DOTTED segment under the rime
-                                               -- colour, not a word (§5.5)
-
-  zero onset   ┌──────┬╌╌╌╌╌╌┐                 `ao` starts at the LEFT. There is no
-               │  ao  ┊  ·   ╎                 empty first cell and nothing to tap
-               └━━━━━━┴╌╌╌╌╌╌┘                 to skip the onset (U13)
-
-  announcing   ┌────────────────────┐          see §10.4 -- the chant ACCUMULATES
-               │        bò          │          b -> b o -> bo -> bò
-               └━━━━━━━━━━━━━━━━━━━━┘
-```
-
-**The six tone cells.** They never move and never change role. Their **carrier** changes once
-per word, and only ever while they are disabled:
+#### 7.2.1 The geometry
 
 ```
-  no rime placed (ALWAYS disabled)       rime `eo` placed (live ones stand)
+  ┌────────────────────── tableW (392 on his iPhone) ─────────────────────┐
+  │ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐                │
+  │ │  1   │ │  2   │ │  3   │ │  4   │ │  5   │ │  6   │   reserved      │  stripH 106
+  │ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘   track        │  PAD 8 top/bottom
+  │  58x90    gap 8                                                       │  cell glyph 47pt
+  └───────────────────────────────────────────────────────────────────────┘
+     ^ fixed origin.  The track is centred in tableW; the WORD is left-aligned
+       inside it and only the used slots are drawn.
+```
+
+Six slots, on every device, in both languages, sized once at startup (§4.2, F15/F16/F17).
+Three decisions in that one figure:
+
+- **The track never resizes.** A cell that shrank as the word grew would be the morph again,
+  and it would move letters he had already placed. Slot *k* is at the same x for every word.
+- **Left-aligned, not centred.** Centring would slide every seated letter left on each new tap
+  — motion that says nothing and contradicts "nothing you have placed ever moves". This is
+  writing; writing starts at the left margin and grows rightwards. A two-letter word sits
+  left-of-centre and that is correct.
+- **Six is the measured ceiling** — seven drops the glyph to 31 pt at the 360 dp floor. The
+  content-engineer's validator caps a word at six letters and the editor says so in her
+  language (§13.3).
+
+#### 7.2.2 The span bar — how two letters become one sound without merging
+
+> **Letters that are one sound share one continuous bar. A new sound starts a new bar.**
+
+The bar is revision 4's 5 pt role underline, promoted from a per-cell decoration to a
+**per-span object**. It is the only thing in the strip that knows about sounds, and the cells
+above it never move, never resize and never join.
+
+```
+  c                 ┌──────┬╌╌╌╌╌╌┐        one cell, one bar.  The bar is the
+  taps `c`          │  c   ┊  ·   ╎        width of ONE cell.  role1, SOLID.
+                    └━━━━━━┴╌╌╌╌╌╌┘        Spoken: `cờ`
+                      ^^^^^^
+
+  c h               ┌──────┬──────┬╌╌╌╌╌╌┐ THE BAR GREW.  Same two cells, same
+  taps `h`          │  c   │  h   ┊  ·   ╎ positions, same size -- nothing
+                    └━━━━━━━━━━━━━┴╌╌╌╌╌╌┘ merged.  ONE bar spans both.
+                      ^^^^^^^^^^^^^        Spoken: `chờ`, REPLACING `cờ`
+
+  c h o             ┌──────┬──────┬┃─────┬╌╌╌╌╌┐  THE BAR BROKE, changed
+  taps `o`          │  c   │  h   ┃│  o  │  ·  ╎  pattern and colour, and a
+                    └━━━━━━━━━━━━━┻┅┅┅┅┅┅┴╌╌╌╌╌┘  DIVIDER appeared.
+                      ^^^^^^^^^^^^  ^^^^^^        Spoken: `o` (the rime so far)
+                      role1 solid   role2 split
+```
+
+Three redundant channels mark the onset/rime boundary, and **no cell moves to produce any of
+them**:
+
+| Channel | What it is | Survives |
+|---|---|---|
+| the **break** | a 10 pt gap in the bar, centred on the cell gap | greyscale, blur, CVD |
+| the **pattern and colour change** | `role1` solid → `role2` split (§5.5) | greyscale (pattern), CVD (gated, §5.5) |
+| the **divider** | 2 pt × 0.5 × cellH, `neutralFace`, centred in the cell gap, fading in over 180 ms | greyscale; measured **3.02 / 3.20 / 3.42:1** on the ground |
+
+**The divider means exactly one thing and appears exactly once per word**, which is what makes
+it readable. Revision 4 drew a light hairline between *every* pair of cells (`│ b ┊ o │`); those
+are gone. A line between two letters now says *the next part of the word starts here* and
+nothing else.
+
+**`gi` and `qu`, drawn.** Tapping `i` after `g` grows the **onset** bar — solid, `role1` — even
+though the `i` tile on the table is vowel-coloured. No divider appears, because the rime has
+not started. That is the picture of the exception, and it is available to be noticed:
+
+```
+  g i               ┌──────┬──────┬╌╌╌╌╌╌┐   ONE solid bar across a consonant
+                    │  g   │  i   ┊  ·   ╎   and a vowel.  Spoken: `giờ`
+                    └━━━━━━━━━━━━━┴╌╌╌╌╌╌┘   (literacy-vi.md §0.5, §0.9)
+```
+
+#### 7.2.3 The superseding sound — what he sees when `h` joins `c`
+
+`literacy-vi.md` §0.9 rules that a tap speaks the unit it is building *so far*: `cờ`, then
+`chờ`. The second clip **replaces** the first. The problem that creates is visual, not audible:
+a child must see that `h` **joined** `c` rather than **followed** it, or the two sounds look
+like a contradiction.
+
+| t (ms) | What happens |
+|---|---|
+| 0 | **M1** — the `h` tile in the table presses in, 70 ms. The speech channel cuts `cờ` if it is still running (§11.2) and starts `chờ` within the 60 ms budget |
+| 0 | **M3** — the `h` tile flies to slot 2, 260 ms, 1.06 overshoot |
+| 260 | **M22, the tie** — the span bar, already drawn at its final two-cell width, reveals by `scaleX` from `58/124` to `1` **anchored at its left edge**, 220 ms, `enter`. The bar *grows out from under `c` to under `h`* |
+| 260 | **M23, the re-voice** — **both cells pulse together**, one `scale` 1 → 1.08 → 1 on the span container so they move as one body, 260 ms, `pop`, started on the first audio frame of `chờ` |
+| 480 | **M4** — the dashed next-cell fades into slot 3 |
+
+**M23 is the load-bearing one and it is on `c` as much as on `h`.** A pulse on the new cell
+alone would say *h arrived*; a pulse on both says *this sound is these two, and the one you
+heard a moment ago is gone.* It is the only animation in the app that re-animates something
+already seated, and that is precisely its meaning.
+
+**It is motion, not gold** (§5.8b). The chant's `reward` face is reserved for a finished word,
+and a span being built can still be carrying a `neutralFace` divider or mark-slot, both of
+which measure 1.58–2.12:1 on gold.
+
+**And the opposite outcome is drawn as the opposite motion.** A second tap that does *not*
+extend the sound gets **M24, the break**: the new cell arrives with its **own** bar, in the
+other colour and pattern, and the divider fades in between. One tap, two possible pictures, and
+they look nothing like each other:
+
+```
+   JOINED   ━━━━━━━━━━━━━━━   the bar reaches across.   `c` `h`  ->  chờ
+   BROKEN   ━━━━━━━━┃┅┅┅┅┅┅   a second bar starts.      `c` `a`  ->  a
+```
+
+#### 7.2.4 Two ways something can be missing, and the fork
+
+Revision 4 had one affordance: a dashed cell meaning *something else goes here*. With the tone
+landing **on** the rime rather than in a cell of its own, a dashed *cell* for a missing tone is
+a lie about where it will go. Revision 5 splits it:
+
+```
+  a letter is missing        ┌──────┬──────┬╌╌╌╌╌╌┐   dashed cell, centred dot
+                             │  c   │  h   ┊  ·   ╎   2pt neutralFace, 3.25:1
+                             └━━━━━━━━━━━━━┴╌╌╌╌╌╌┘   "another letter goes here"
+
+  a mark is missing          ┌──────┬──────┬──────┐   NO extra cell.  A dashed
+                             │  c   │  h   │ ˚o˚  │   MARK-SLOT above the carrier
+                             └━━━━━━━━━━━━━┻┅┅┅┅┅┅┘   vowel, 180ms fade-in
+                                                      "a mark goes here"
+
+  BOTH are possible          ┌──────┬──────┬──────┬╌╌╌╌╌╌┐   b o : `bò` needs a
+  (b+o, c+a, m+u)            │  b   │  o˚  ┊      ┊  ·   ╎   mark, `bóng` needs
+                             └━━━━━━┻┅┅┅┅┅┅┴╌╌╌╌╌╌┴╌╌╌╌╌╌┘   more letters.
+                                      ^mark-slot   ^dashed    BOTH are drawn.
+```
+
+**At the three points where a letter and a tone are live at once** — `b`+`o` (`n`→`bóng`,
+huyền→`bò`), `c`+`a` (`m`→`cam`, sắc→`cá`), `m`+`u` (`i`→`mũi`, ngã→`mũ`), measured against the
+real pack in `literacy-vi.md` §0.7 — **both affordances are on screen together**, and that is
+the whole answer to *how does the board show that a word could end here or continue*. It needs
+no text, no arrow and no voice. It is two dashed shapes in one picture, and they are the two
+things he can do.
+
+The board says the same thing a second way, for free, on a phone: **the tone page's rail button
+stands up** while letter tiles are also standing. On a tablet the six tone cells simply stand
+in place beside the letters. The two signals are independent, so one of them is always
+available.
+
+**The same picture with only one affordance is the commoner case and reads as a closed
+question.** 84% of decision points in the pack have exactly one live tile; those show one
+dashed cell, or one mark-slot, and nothing else.
+
+#### 7.2.5 The six tone carriers — unchanged
+
+`literacy-vi.md` §0.8 keeps §5.4 verbatim, and so does this document. The six cells never move
+and never change role; their **carrier** changes once per word, and only ever while they are
+disabled:
+
+```
+  no rime placed (ALWAYS disabled)       rime `eo` complete (live ones stand)
   ┌ ── ┐┌ ── ┐┌ ── ┐┌ ── ┐┌ ── ┐┌ ── ┐   ┌ ── ┐┌────┐┌ ── ┐┌ ── ┐┌ ── ┐┌ ── ┐
   ╎ ◌  ╎╎ ◌̀ ╎╎ ◌́ ╎╎ ◌̉ ╎╎ ◌̃ ╎╎ ◌̣ ╎   ╎ eo ╎│ èo │╎ éo ╎╎ ẻo ╎╎ ẽo ╎╎ ẹo ╎
   └ ── ┘└ ── ┘└ ── ┘└ ── ┘└ ── ┘└ ── ┘   └ ── ┘└────┘└ ── ┘└ ── ┘└ ── ┘└ ── ┘
-   ngang huyền sắc  hỏi   ngã  nặng       `literacy-vi.md` §5.4, exactly as written
-   bare marks on a dotted circle;          -- he sees the OUTCOME of each choice, at
-   ngang is the empty circle               the only moment he is choosing
+   ngang huyền sắc  hỏi   ngã  nặng       he sees the OUTCOME of each choice, at
+   bare marks on a dotted circle          the only moment he is choosing
 ```
 
-- **The bare mark is drawn in `ink`, not `inkSoft`** — a diacritic is thinner than any letter,
-  so it takes the darkest token. Measured 11.96–13.06:1 on the ground, gated as a `glyph` pair
-  in `tools/theme-contrast.mjs`.
-- **A stop-final rime still produces two live tones**, not two cells: all six cells are always
-  there, and `ach` simply leaves `ách` and `ạch` standing with the other four flat. This is a
-  change from revision 2, which rendered *only* the legal forms. **Legality and completability
-  are now both flatness**, which loses `literacy-vi.md` §5.2's neat "the child never sees an
-  option that cannot be right" — he sees it, lying down, which is what the owner asked for
-  everywhere else on this board. The cells for illegal tones show the marked form the
-  orthography would produce, taken from the rime's `toned` map; where that is `null` the cell
-  falls back to the bare mark.
-- **Reversal is free.** Tapping the rime in the strip returns it and the tone carriers go back
-  to bare marks; tapping the onset returns everything after it (`gameplay.md` §4.4).
+- **The order is corrected** to `ngang · huyền · sắc · hỏi · ngã · nặng` (`literacy-vi.md`
+  §0.13). Revision 4 shipped `ngang sắc huyền hỏi nặng ngã`, which was frequency again.
+  `open-questions.md` **Q11** is whether second place is `huyền` or `sắc`; **either answer is
+  one line of `inventoryOrder.tone` and changes no cell of this design**, because the six cells
+  are a run and a run is ordered by the pack.
+- **The carrier is the rime, which is still known**, because đánh vần survived (`literacy-vi.md`
+  §0.3). This is the single largest dividend of not throwing the model away, and it is the
+  reason revision 5 does not touch §5.4 at all.
+- **The carrier swaps when the rime is COMPLETE, not when its first letter lands.** `ăng` is
+  `ă` then `n` then `g`; the tone cells hold bare marks through `ă` and `ăn`, which are
+  pass-through states no tone can ever sit on (`literacy-vi.md` §0.7, eight of them), and swap
+  to `ăng ằng ắng ẳng ẵng ặng` on the `g`. Anything else would flicker three carriers at him
+  inside one rime.
+- **The bare mark is drawn in `ink`**, not `inkSoft` — 11.96–13.06:1, gated as a `glyph` pair.
+- **A stop-final rime still produces two live tones, not two cells** (§5.2). All six are always
+  there; `ach` leaves `ách` and `ạch` standing and the other four flat.
+
+#### 7.2.6 Undo is the strip, not the cell
+
+> **One tap anywhere on the word strip returns the last symbol. Tapping again returns the one
+> before it. The strip is one target.**
+
+**Revision 4 said the opposite** — tap a cell to return it and everything after it — and it is
+overruled by geometry, not by taste. Five 72 pt cells need `5 × 72 + 4 × 8 = 392` pt; the 360 dp
+floor has **328 pt** of content width. **A per-cell motor target is impossible at the floor**,
+and on his own iPhone the cell is 58 pt wide. Shaving the gap to buy it back is the thing F6
+exists to prevent.
+
+Three things fall out, and all three are improvements:
+
+1. **It is a better model for a 4-year-old.** *Take the last one back* is one rule. *Tap the
+   third block to return the third, fourth and fifth* is a model of a model.
+2. **The target is enormous** — the full strip band, 392 × 106 on his phone, 328 × 77 at the
+   floor. The most-used control in the app becomes the easiest thing on the screen to hit.
+3. **`STRIP_CELL_MIN` becomes a legibility floor rather than a motor one**, which is what lets
+   it be 40 pt: 34 pt of glyph (F4) × the 1.15 a `ư` carrying a horn and a tone mark needs.
+
+**What undo does, in full:**
+
+| | |
+|---|---|
+| Returns | exactly one symbol — the last letter, or the tone if one is placed |
+| Motion | **M8**, the symbol flies home to its cell in the table, 300 ms, `exit` |
+| Sound | its own clip, plus the descending two-note unclick |
+| The bar | if the returned letter was the only one in its span, the span and its divider go with it (M24 reversed, 180 ms); if not, the bar **shrinks back** by `scaleX` anchored left, 220 ms — the tie undone the way it was made |
+| The tone carriers | revert to bare marks the moment the rime is no longer complete |
+| The page | the board slides to the returned symbol's page. **Undo is still the way back** (V23) |
+| Empty strip | a tap does nothing and plays nothing (T20) |
+
+**There is no clear-all gesture, and the strip keeps exactly two.** Tap = take the last one
+back; **hold 800 ms = the parts hint** (§2.2), unchanged. A word is at most six symbols, so
+emptying it is at most six taps, each with its own sound and its own flight home — which is
+feedback, not friction. Adding a third gesture to the one object a child taps most would be the
+expensive way to save four taps.
+
+**A document defect this closes.** §2.2 has said since revision 3 that *"a short tap on the
+strip is undo… tap = take it back, hold = say what I have"* — the whole strip, one target —
+while §7.2 and `gameplay.md` §4.4 said tap *a cell* to return it and everything after it. The
+two were never reconciled. Revision 5 resolves it in §2.2's favour, and the reason is
+arithmetic rather than preference. **`gameplay.md` §4.4 and criteria D4, E8, E9, C10 and C11
+inherit the change** (§W5).
+
+#### 7.2.7 The strip, state by state
+
+```
+  empty            ╎  ·   ╎                      one dashed cell, centred dot
+
+  one letter       │  b   ┊  ·   ╎                bar under `b`, role1 solid
+                   ━━━━━━━
+
+  joined sound     │  c   │  h   ┊  ·   ╎         ONE bar across both
+                   ━━━━━━━━━━━━━━
+
+  boundary         │  c   │  h   ┃│  o  ┊  ·  ╎   bar broke, colour and pattern
+                   ━━━━━━━━━━━━━━ ┅┅┅┅┅┅          changed, divider in the gap
+
+  mark missing     │  b   │  o˚  │                mark-slot over the carrier;
+                   ━━━━━━━ ┅┅┅┅┅┅                 no dashed cell
+
+  fork             │  b   │  o˚  ┊  ·   ╎         BOTH: mark-slot AND dashed cell
+
+  complete         │  b   │  ò   │                the mark landed.  Cells still
+                   ━━━━━━━ ┅┅┅┅┅┅                 separate.  No dashed cell.
+
+  announcing       │      b  ò      │             chant beat 3 only: the cells
+                   ━━━━━━━━━━━━━━━━━             close up into one word (§10.4)
+```
+
+**The only merge in the entire app is chant beat 3**, after the word is already made, as a
+reward for making it. During building, nothing ever merges. That sentence is the whole of
+revision 3's correction, carried forward intact.
+
+**English is the same component with one run missing.** No tone, so no mark-slot and no
+`role3`; `ship` is `s` `h` (one span) `i` (new span) `p` (new span), and the divider marks every
+sound boundary rather than only one — which is right, because English has no onset/rime split
+to single out. Four cells, three bars, three dividers.
 
 ---
 
 ## 8. Screen: Word Blocks (English)
 
-**iPhone 17 Plus**, the owner's device: 28 cells per page, so English is **2 pages —
-`[26 letters] [10 digraphs]`**. Page 1 is the whole alphabet, `a`–`z`, in one 4 × 7 grid at
-75–77 pt. That is literally the "regular character table" he asked for, on the device he
-plays on, with nothing missing and nothing off-screen.
+**iPhone 17 Plus**, the owner's device: **one page, no rail at all.** 26 letters, `a`–`z`, in
+one 4 × 7 grid at **84 pt** (430 × 932) or **87 pt** (440 × 956). Revision 4 needed two pages,
+because the board also carried ten digraph tiles; `literacy-en.md` §0.1 deletes them and
+`ship` becomes `s` `h` `i` `p`.
+
+**That is the thing he asked for, delivered rather than approximated:** the standard character
+table, whole, on one screen, on his own phone, with nothing missing, nothing off-screen and no
+page control anywhere in the app.
 
 ```
 ┌──────────────────────────────────────────────┐
 │▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔│
 │ Word Blocks     [img][ ][ ][ ][ ]       ◔    │  shelf: 5 x 37pt
 ├──────────────────────────────────────────────┤
-│   ┌───────┬───────┬╌╌╌╌╌╌╌┐                  │  strip grows to the RIGHT.
-│   │   c   │   a   ┊   ·   ╎                  │  The length is NOT shown --
-│   └━━━━━━━┴━━━━━━━┴╌╌╌╌╌╌╌┘                  │  it is part of the discovery
-│    solid    split   (next)                   │
-│                                              │
-│  ┌────┐┌ ── ┐┌ ── ┐┌ ── ┐                    │  THE ALPHABET, a..z, in order,
-│  │ a  │╎ b  ╎╎ c  ╎╎ d  ╎                    │  every letter always in its cell
-│  └────┘└ ── ┘└ ── ┘└ ── ┘                    │
-│  ┌ ── ┐┌ ── ┐┌ ── ┐┌ ── ┐                    │  after `c` `a`, only n, p, t
-│  ╎ e  ╎╎ f  ╎╎ g  ╎╎ h  ╎                    │  complete a word -- can, cap,
-│  └ ── ┘└ ── ┘└ ── ┘└ ── ┘                    │  cat. Everything else lies flat
-│  ┌ ── ┐┌ ── ┐┌ ── ┐┌ ── ┐                    │  and still says its sound.
-│  ╎ i  ╎╎ j  ╎╎ k  ╎╎ l  ╎                    │
-│  └ ── ┘└ ── ┘└ ── ┘└ ── ┘                    │  `a` stands because it is ALSO
-│  ┌ ── ┐┌────┐┌ ── ┐┌ ── ┐                    │  a vowel tile with a SPLIT bar
-│  ╎ m  ╎│ n  │╎ o  ╎│ p  │                    │  in role2; consonants carry
-│  └ ── ┘└────┘└ ── ┘└────┘                    │  SOLID bars in role1.
-│  ┌ ── ┐┌ ── ┐┌ ── ┐┌────┐                    │
-│  ╎ q  ╎╎ r  ╎╎ s  ╎│ t  │                    │  `q` is on the board and always
-│  └ ── ┘└ ── ┘└ ── ┘└────┘                    │  disabled -- no pack word uses
-│  ┌ ── ┐┌ ── ┐┌ ── ┐┌ ── ┐                    │  it. A missing letter would be
-│  ╎ u  ╎╎ v  ╎╎ w  ╎╎ x  ╎                    │  exactly the inconsistency the
-│  └ ── ┘└ ── ┘└ ── ┘└ ── ┘                    │  owner objected to.
-│  ┌ ── ┐┌ ── ┐                                │
-│  ╎ y  ╎╎ z  ╎                                │  26 letters, 4x7, page 1 of 2
-│  └ ── ┘└ ── ┘                                │
-├──────────────────────────────────────────────┤
-│  ┏━━━━┓┌ ── ┐                                │  THE PAGE RAIL: 2 buttons
-│  ┃ a  ┃╎ ch ╎                                │  page 2 is the 10 digraphs,
-│  ┗━━━━┛└ ── ┘                                │  flat here because none of
-│   HERE   flat                                │  them can follow `c` `a`
+│  ┌──────┬──────┬╌╌╌╌╌╌┐                      │  strip: six 58x72 slots
+│  │  s   │  h   ┊  ·   ╎                      │  reserved, three drawn.
+│  └━━━━━━━━━━━━━┴╌╌╌╌╌╌┘                      │  ONE bar across `s` and `h`:
+│    one span -- /ʃ/, one sound, two letters   │  "s-h says /ʃ/", the standard
+│                                              │  classroom formula, drawn
+│  ┌────┐┌────┐┌ ── ┐┌ ── ┐                    │  THE ALPHABET, a..z, 4x7 at 84pt
+│  │ a  ││ b  │╎ c  ╎╎ d  ╎                    │  ONE PAGE.  NO RAIL.
+│  └────┘└────┘└ ── ┘└ ── ┘                    │
+│  ╎ e  ╎╎ f  ╎╎ g  ╎╎ h  ╎                    │  after `s` `h`, only `i` can
+│  │ i  │╎ j  ╎╎ k  ╎╎ l  ╎                    │  follow -- ship.  `i` stands,
+│  ╎ m  ╎╎ n  ╎╎ o  ╎╎ p  ╎                    │  everything else lies flat and
+│  ╎ q  ╎╎ r  ╎╎ s  ╎╎ t  ╎                    │  still says its sound.
+│  ╎ u  ╎╎ v  ╎╎ w  ╎╎ x  ╎                    │
+│  ╎ y  ╎╎ z  ╎                                │  j q y z: no pack word uses
+│                                              │  them.  Permanently flat, in
+│                                              │  their slots, at full opacity,
+│                                              │  speaking when pressed (§8.1).
 └──────────────────────────────────────────────┘
 ```
 
@@ -1309,12 +1779,23 @@ Differences from Vietnamese, all structural:
 
 | | |
 |---|---|
-| Strip | grows rightwards, **length not shown**. A Vietnamese syllable is always two runs plus a mark and that is worth stating; an English word's length is part of what he is discovering. |
-| Table | **one run**: the alphabet in alphabetical order, then digraphs (`ch ck ff gg ll ng sh ss th zz`). The order he will meet in the alphabet song and the one his mother would expect. |
-| Pages | **2 on his iPhone** — the alphabet, then the digraphs. 3 on smaller phones (`13/13 ¦ 10`). **1, with no rail, on a tablet.** Every device reaches all 40 words. |
-| Ordering | none beyond left-to-right. A tap fills the next empty cell. |
-| Role colours | two of three. `role3` never appears. |
-| Chant | tile `short` clips left to right, then the whole word. |
+| Runs | **one**, not two. `role3` never appears; there is no tone and no mark-slot |
+| Pages | **1 on his iPhone, on a mid-size Android (360 × 800), on an iPhone 15/16, and on every tablet. 2 on the small phones** (`13 ¦ 13`). Revision 4 needed 2–3 everywhere |
+| Strip | grows rightwards, **length not shown**. A Vietnamese syllable is always an onset, a rime and a mark; an English word's length is part of what he is discovering |
+| Spans | **every** sound boundary gets a divider, not only one. English has no onset/rime split to single out, so `SHIP` is three spans and two dividers: `S H ┃ I ┃ P` |
+| **Case** | **UPPERCASE**, where Vietnamese is lowercase. The owner's answer to Q7. It is a **glyph** decision and reaches nothing else — see §8.2 |
+| Ordering | none beyond left-to-right. A tap fills the next empty cell |
+| Chant | one beat per **sound**, each lighting its whole span (§10.4) |
+
+**On ordering, and why the two boards differ on purpose.** English is `a`–`z` and nothing else;
+Vietnamese interleaves its digraphs in the *editor's* vocabulary (`b c ch d đ g gh gi …`)
+because Vietnamese dictionaries genuinely sort that way and English has no such convention
+(`literacy-en.md` §0.7). Neither board shows a digraph tile any more, so this only reaches the
+child through his mother's word list — but it is the rule, and it is each language's own.
+
+**The four permanently flat letters are more visible now**, because the alphabet is the whole
+board rather than page 1 of 2. §8.1 is why that is correct rather than a hole, and `J Q Y Z`
+close the moment his mother adds `jam`, `yak` and `zip`.
 
 ### 8.1 Decision: a character with no words behind it is **shown, and permanently flat**
 
@@ -1345,9 +1826,114 @@ Three reasons this is the right answer rather than the convenient one:
    is a small piece of teaching rather than a hole.
 
 **Consequence handed to the content-engineer (E16):** `en-seed`'s `inventoryOrder.letter` must
-carry all 26 letters in alphabetical order. **`q` has no word behind it today and that is
-fine** — `ngh` is the Vietnamese precedent and it has been fine since revision 1. The validator
-must **not** treat a character with zero words as an error; it is a normal, permanent state.
+carry all 26 letters in alphabetical order. **Revision 5 makes it four, not one** — `j`, `q`,
+`y` and `z` have no word behind them (`literacy-en.md` §0.3) — and the rule is unchanged: the
+validator must **not** treat a character with zero words as an error; it is a normal, permanent
+state. **Vietnamese now has none at all**: all 29 letters appear in at least one `vi-seed` word,
+where revision 4's board carried `ngh` with nothing behind it. The rule survives because it is
+about the board, not about the count.
+
+### 8.2 Decision (revision 5): English glyphs are **UPPERCASE**, and it is a pack field
+
+**The owner answered `open-questions-ui.md` Q7 on 2026-09-23, against my recommendation:
+`A B C D`.** That file records both sides in full, including why I argued for lowercase, so
+that he can revisit it after watching his son use it rather than having to re-derive it.
+
+> **The casing is a property of the PACK, applied at render, and it reaches the glyph and
+> nothing else.**
+
+#### 8.2.1 Where it applies, and where it must not
+
+| Applies | Does **not** apply |
+|---|---|
+| the **table tile** glyph | **any pack data.** `pack.json`, `letters`, `tiles`, `inventoryOrder`, word ids and file names stay exactly as his mother typed them — lowercase |
+| the **strip cell** glyph, including the merged word at chant beat 3 | **audio.** `A` says **/æ/**. Casing is a shape; the whole thesis of §2 is that a tile carries a *sound*, and uppercase must not smuggle letter *names* back in |
+| the **page-rail button** glyph (moot on his device — English has no rail) | **the editor and every parent surface.** She sees what she typed. A form that shouts back at her is a form that looks broken |
+| the **reveal's word** (§9.5) and the album card's word, so the child never sees two alphabets in one session | **ordering.** `inventoryOrder` is still alphabetical over the stored lowercase; nothing re-sorts |
+| **English only** | **Vietnamese.** §8.2.3 |
+
+#### 8.2.2 How it is specified, so it is not hard-coded
+
+**A `toUpperCase()` in a component is a bug**, in exactly the sense §5.1 means when it says a
+colour literal in a component is one: it will be right in one language and wrong in the other,
+and it cannot be reversed without a developer.
+
+| # | Requirement |
+|---|---|
+| 1 | The pack carries **one casing field per pack** — `en-seed` = upper, `vi-seed` = lower. The name and shape are the content-engineer's (**E22**); the UI needs a value it can read at pack load |
+| 2 | It is read **once, at pack load**, into the same place the theme tokens live, and applied at **one** place in the tile/strip glyph component |
+| 3 | **No component anywhere calls `toUpperCase()` or hard-codes a case.** A grep for it in `src/ui/` should return nothing |
+| 4 | Changing it is **one field in `pack.json`** — no code, no rebuild, no re-record, no re-subset. That is the whole reason it is a pack field |
+| 5 | An absent or unrecognised value falls back to **lowercase**, silently. Content is hostile input (`CLAUDE.md`) and a casing flag is never worth refusing to start over |
+
+**No parent-menu row is added, and that is a decision rather than an omission.** Casing is a
+one-time property of a language's content, not a play setting like volume or reduce-motion, and
+putting it in AsyncStorage as well as the pack would create two sources of truth for one glyph
+— which is precisely how a setting and a pack drift apart. The parent menu is already eight
+rows and every one of them is something a parent changes *during* a session.
+
+#### 8.2.3 Vietnamese stays lowercase, and the two must not be made to match
+
+**This asymmetry is deliberate. It is a correctness constraint, not a style preference.**
+
+- **`mả` / `mã` is the tightest pair in the §6.1 render gate — 34 px apart at 36 pt.** Stacking
+  a tone mark on a capital compresses it further, because the mark sits against a cap height
+  (0.74 em) rather than an x-height. `CLAUDE.md` calls a font that renders those two alike a
+  *correctness* failure, and this design will not walk toward one for symmetry.
+- **The gate does not cover it.** `assets/fonts/FIXTURE.txt` carries **7** uppercase Vietnamese
+  letters — `Ă Â Đ Ê Ô Ơ Ư` — not the ~130 precomposed marked forms. Measured on the shipped
+  files, **both bundled faces do cover them** (0 of 25 sampled forms missing), but *a font that
+  contains a glyph is not a gate that has rendered it.*
+- Vietnamese primary-school material is lowercase, which is what his son is being taught from.
+
+> **Setting a Vietnamese pack to uppercase requires extending the §6.1 fixture and re-running
+> the Q-series first.** Written here rather than left as folklore.
+
+#### 8.2.4 It was measured before it was written
+
+"Uppercase is free" is an assumption, so it was checked against the file that actually ships —
+`assets/fonts/BeVietnamPro-SemiBold.ttf`, the tile face per `src/ui/typography.js:29` — and
+against `Baloo2-SemiBold.ttf`, which is the one-line reversal §6.0.1 keeps available.
+
+| | Be Vietnam Pro SemiBold | Baloo 2 SemiBold |
+|---|---|---|
+| `A`–`Z` present | **26 of 26** | **26 of 26** |
+| Widest uppercase | **`W`, 1.039 em** | `W`, 0.832 em |
+| Widest lowercase (what it replaces) | `m`, 0.895 em | `m`, 0.831 em |
+| Cap height | 740 / 1000 | 602 / 1000 |
+
+**`W` is the binding glyph and it is 16% wider than the `m` it replaces.** It still fits
+everywhere, with room:
+
+| | Cell | Glyph | `W` drawn | Slack |
+|---|---|---|---|---|
+| Tile, iPhone 17 Plus (EN, 4 × 7 at 84 pt) | 84 pt | 43 pt | 44.7 pt | **39.3 pt** |
+| Tile, 360 × 640 floor (EN, 4 × 4 at 73 pt) | 73 pt | 36 pt | 37.4 pt | **35.6 pt** |
+| Strip cell, iPhone 17 Plus | 58 pt | 46 pt | 47.8 pt | **10.2 pt** |
+| Strip cell, 360 × 600 floor | 48 pt | 39 pt | 40.5 pt | **7.5 pt** |
+
+**No layout rule changes and none needed to.** The strip's width term is
+`stripFont = floor(stripCellW × 0.82)`, which tolerates a glyph up to **1.22 em** (`1 ÷ 0.82`);
+`W` is 1.039 em, so there is **17% of headroom** against the widest glyph in either bundled
+face. Vertically uppercase is strictly *easier* than what the box was sized for: no descenders,
+no marks, cap height 0.74 em inside a glyph box of 1.55 em that exists for Vietnamese marks
+above **and** below (§6.3).
+
+**The tightest number is 7.5 pt of slack in a strip cell at the 360 × 600 floor**, and it is
+named because it is what would bite first if the strip ever grew a seventh cell — which F17
+already forbids.
+
+**And the check was made to fail before it was believed.** "Uppercase fits" is exactly the kind
+of claim that is green because nobody drew the widest glyph. Re-running the fit arithmetic with
+a hypothetical wider face makes it **exit 1**, overflowing the strip cell at the 360 dp floor
+by 0.8 pt while still fitting every tile — so the check discriminates, and the constraint is
+the strip, not the table. That gives the number a future font swap actually needs:
+
+> **The design tolerates a tile face whose widest glyph is up to `48 ÷ 39 = 1.231 em`.** Be
+> Vietnam Pro SemiBold's `W` is **1.039 em** and Baloo 2 SemiBold's is **0.832 em**, so both
+> bundled faces clear it. **A face wider than 1.231 em breaks English at the 360 dp floor**,
+> and the failure would be a clipped letter in the word he is building — silent, and in the one
+> place it matters most. `acceptance-criteria.md` **Q12** carries the number.
 
 ## 9. Component states
 
@@ -1366,6 +1952,14 @@ Every state, drawn. `t` = `tile`.
  2 role bars    (pressed down)    3pt underbar       IN FULL; the
  ink glyph                        inkSoft glyph      tile does not
                                   dashed outline     move away
+
+ CONSONANT tile (role1)          VOWEL tile (role2)            TONE tile (role3)
+ ┌──────┐  SOLID bars              ┌──────┐  SPLIT bars            ┌──────┐  DOTTED bars
+ │▓▓▓▓▓▓│                          │▓▓  ▓▓│                        │▓ ▓ ▓ │
+ │  b   │  revision 5: the bar     │  a   │  a permanent property  │  ◌̀  │  Vietnamese
+ │▓▓▓▓▓▓│  says WHAT THE LETTER    │▓▓  ▓▓│  of the glyph, not of  │▓ ▓ ▓ │  only; never
+ └──────┘  IS, not what stage      └──────┘  his progress (§5.5)   └──────┘  in English
+           the word is at
 
  standing up (M6)                 lying down (M6)              steady hint       flying
  disabled -> live, 200ms          live -> disabled, 200ms      ┌══════┐          ┌──────┐
@@ -1412,38 +2006,72 @@ Identical geometry to a table tile — 72 pt, same radius, same bar pattern, sam
 because it **is** the same object doing a different job. The glyph is that page's first
 character. There is no fourth state: a button is current, standing or flat.
 
-### 9.2 Strip cell
+### 9.2 Strip cell and span bar
 
 ```
- empty (the next)   filled              chant-lit            merged
- ┌╌╌╌╌╌╌┐           ┌──────┐            ┌──────┐             (dividers gone,
- ╎  ·   ╎           │  m   │            │██m███│              glyphs slid together
- └╌╌╌╌╌╌┘           └──────┘            └──────┘              into one word)
- 2pt dashed         ink on surface      reward FACE,
- neutralFace        13.4:1              ink glyph 6.5:1
- 3.25:1             5pt role underline  + lifts 1.12x
- NOT a character:                       (correction U11 —
- it is not in the                        the GLYPH never
- table and cannot                        turns gold)
+ empty (the next)   filled              chant-lit            mark-slot (r5)
+ ┌╌╌╌╌╌╌┐           ┌──────┐            ┌──────┐             ┌──────┐
+ ╎  ·   ╎           │  m   │            │██m███│             │  ˚o˚ │
+ └╌╌╌╌╌╌┘           └──────┘            └──────┘             └──────┘
+ 2pt dashed         ink on surface      reward FACE,          a dashed diacritic
+ neutralFace        13.4:1              ink glyph 6.5:1       placeholder ABOVE
+ 3.25:1             part of a span      + lifts 1.12x         the carrier vowel,
+ NOT a character:   bar below           (the GLYPH never      neutralFace 3.25:1
+ it is not in the                        turns gold, U11)     on surface.
+ table and cannot                                            "a mark goes here"
  be tapped (U13)
+```
 
- marked (revision 3)     ┌──────┐   the tone does not get a cell. Its mark lands on
-                         │  ò   │   the rime, and a 5pt DOTTED role3 segment joins the
-                         └┅┅┅┅┅┅┘   role2 underline. Colour records the tone; no word does.
+**The span bar — revision 5's new object.** It is not a property of a cell; it is a property of
+a **run of cells that are one sound**, and it is what carries revision 5's whole explanation.
+
+```
+ one cell, one sound      two cells, ONE sound      two sounds
+ ┌──────┐                 ┌──────┬──────┐           ┌──────┬──────┐┃┌──────┐
+ │  b   │                 │  c   │  h   │           │  c   │  h   │┃│  o   │
+ └━━━━━━┘                 └━━━━━━━━━━━━━┘           └━━━━━━━━━━━━━┘┃└┅┅┅┅┅┅┘
+  5pt role1 SOLID          ONE 5pt bar, 124 wide     bar BREAKS (10pt), changes
+  58 wide                  -- the cells did NOT      to role2 SPLIT, and a 2pt
+                           merge, the BAR grew       neutralFace DIVIDER appears
+                                                     in the gap (3.02-3.42:1)
+
+ the tie growing (M22)                     the divider (M24)
+ ┌──────┬──────┐                           2pt wide, 0.5 x cellH tall,
+ │  c   │  h   │   scaleX 0.47 -> 1        vertically centred in the cell gap,
+ └━━━━━━╌╌╌╌╌╌╌┘   ANCHORED LEFT           fades in over 180ms (opacity only)
+   ^^^^^^^^^^^^    220ms, `enter`
+   the bar reaches out from under `c`
+```
+
+| Span-bar state | Drawn as | Means |
+|---|---|---|
+| consonant span | 5 pt **solid** `role1Edge` under its cells | these letters are one consonant sound |
+| vowel / rime span | 5 pt **split** `role2Edge` | these letters are the vowel part |
+| tone | 5 pt **dotted** `role3Edge`, joining the vowel span when the mark lands | a tone was chosen — colour records it, no word does |
+| growing (M22) | `scaleX` from `old/new` to 1, anchored left, 220 ms | *this letter joined the one before it* |
+| breaking (M24) | a second bar fades in with its own colour and pattern, plus the divider | *a new part of the word starts here* |
+
+```
+ marked (revision 3, unchanged)   ┌──────┐   the tone does not get a cell. Its mark lands on
+                                  │  ò   │   the carrier vowel, and a 5pt DOTTED role3 segment
+                                  └┅┅┅┅┅┅┘   joins the vowel span. Colour records the tone.
 ```
 
 ### 9.3 The word strip as a whole
 
 ```
- empty     → building         → announcing                    → cleared
-   ╎·╎        ╎b╎o╎·╎            b  ·  b o  ·  bo  ·  bò         (after the picture
-                                 the word ACCUMULATES, one       flies to the shelf)
-                                 beat at a time -- §10.4
+ empty     → building                    → announcing              → cleared
+   ╎·╎        ╎c╎h╎·╎ → ╎c╎h┃o╎·╎ → ╎c╎h┃ó╎    chờ · o · cho · sắc · chó   (after the
+              one bar    bar breaks,              the word ACCUMULATES,     picture flies
+              across     divider in,              a SPAN at a time          to the shelf)
+              c and h    mark-slot over `o`       -- §10.4
 ```
 
-The strip is the same component in both modes. Vietnamese differs only in that its last
-symbol is a **mark applied to the rime** rather than a new cell, so a completed Vietnamese
-strip has one fewer cell than it had taps.
+The strip is the same component in both modes and is **always six slots wide**, of which only
+the used ones are drawn (§7.2.1). Vietnamese differs in two ways only: its last symbol is a
+**mark applied to the carrier vowel** rather than a new cell, so a completed Vietnamese strip
+has one fewer cell than it had taps; and it has exactly **one** divider, at the onset/rime
+boundary, where English has one at every sound boundary.
 
 ### 9.4 Top bar (56 pt, on the ground, above the strip)
 
@@ -1483,6 +2111,12 @@ and on a flat tablet the point furthest from a seated child's hands. All three a
 
 The picture scales and translates **from the word strip's rectangle** to full screen, so the
 word he made visibly becomes the thing it means. That is the whole design in one motion.
+
+**The large word obeys the pack's casing flag (§8.2)** — `mèo` in Vietnamese, `SHIP` in
+English — because it is the same word the strip was just holding and the motion is a *continuation*
+of that rectangle. Two alphabets across one 420 ms transition would undo the thing the motion
+exists to say. **The sentence below it does not**: it is running prose in Be Vietnam Pro at
+20 pt, it only appears when *Show the word* is on, and it is aimed at the adult reading along.
 
 ### 9.6 Album, end screen, chooser
 
@@ -1568,7 +2202,11 @@ Auditable statically in Tier 1. Consequences, spelled out:
 |---|---|
 | a tile **stands up** or **lies down** | two stacked faces (white-with-bars, ground-with-underbar), cross-faded by **opacity**, plus a 2 pt `translateY` |
 | a glyph goes from `ink` to `inkSoft` | two stacked `Text` layers, cross-faded by **opacity** |
-| a strip cell takes the gold | a `reward` View over the white face, **opacity** 0 → 1 |
+| a strip cell takes the gold | a `reward` View over the white face, **opacity** 0 → 1, **per cell** — never one plate across the span (§5.8b) |
+| **the span bar grows** (M22) | one `scaleX` on a bar already drawn at its final width, `transformOrigin` left. No width animation, no layout |
+| **the boundary divider appears** (M24) | **opacity** 0 → 1 on a 2 pt View already positioned in the cell gap |
+| **the re-voice pulse** (M23) | one `scale` on the span container, so both cells move as one body. No colour change |
+| **the mark-slot appears** | **opacity** 0 → 1 on a dashed placeholder already positioned above the carrier glyph |
 | **the table changes page** (M7a) | one `translateX` on the table container, plus one on the rail marker. No layout, no width, no opacity — the pages are laid out side by side and the window moves |
 | **a tone cell swaps its carrier** (M7; replaces the table morph) | two stacked `Text` layers on that cell, cross-faded by **opacity**. No translate, no layout, nothing else on the board moves |
 | the hairlines dissolve | **opacity** |
@@ -1605,8 +2243,11 @@ to ignore the screen.
 | M7 | **tone carrier swap** (revision 3, replaces the table morph) | 160 ms cross-fade of two `Text` layers, **no movement** | `calm` | *these hats now belong to this word.* The cell, its size, its bar and its position do not change — only the glyph. It is deliberately the quietest transition in the app, because the board must not look like it changed |
 | M8 | **undo — symbols fly home** | 300 ms each, 90 ms stagger | `exit` | *taken back*, with the descending unclick |
 | M9 | **the announcement hop** | 260 ms per symbol, 90 ms stagger, `translateY −14`, `scale 1→1.14→1` | `pop` | ***you made a thing*** |
-| M10 | **merge — beat 3 of the chant** (dividers dissolve, glyphs slide together) | 240 ms slide, 180 ms fade | `enter` | *these are one word.* In Vietnamese this is the toneless blend and it is a **spoken** beat, not just a visual one (`audio.blend`) |
-| M11 | **chant beat** | 320 ms, gold face + 1.0→1.12→1.0 on **everything placed so far**, not on one cell | `calm` | *this much of the word is speaking now.* Revision 2 lit one cell at a time, which showed three parts; lighting the accumulation shows a word being built (U15) |
+| M10 | **merge — beat 3 of the chant** (the divider dissolves, the cells close up their gaps) | 240 ms `translateX`, 180 ms fade | `enter` | *these are one word.* In Vietnamese this is the toneless blend and it is a **spoken** beat (`audio.blend`). **Revision 5: it is the only merge left in the app**, it happens after the word is already made, and each cell translates left by `k × gap` — the leftmost does not move |
+| M11 | **chant beat** | 320 ms, gold face **per cell** + 1.0→1.12→1.0 on **everything placed so far**, not on one cell | `calm` | *this much of the word is speaking now.* **Revision 5: a beat lights a SPAN**, so beat 1 of `chó` lights `c` and `h` together, because they are one sound (§10.4). The gold is per cell and the gaps stay on the ground (§5.8b) |
+| **M22** | **the tie — a letter joins the sound before it** | **220 ms**, `scaleX` from `old/new` to 1, anchored **left** | `enter` | ***h joined c.*** The bar reaches out from under the letter he already placed to under the one he just placed. This is the single most important new animation in revision 5, because without it a superseding sound looks like a contradiction (§7.2.3) |
+| **M23** | **the re-voice — both cells pulse as one body** | **260 ms**, `scale` 1 → 1.08 → 1 on the **span container** | `pop` | ***this sound is these two.*** Started on the first audio frame of the replacing clip. It is the only animation that re-animates something already seated, and that is its meaning: the sound you heard a moment ago is gone, not added to |
+| **M24** | **the break — a new part of the word starts** | **180 ms** opacity on the divider, the new bar fading in with the arriving cell | `enter` | ***a new part starts here.*** Deliberately the visual opposite of M22: M22 reaches across a gap, M24 puts something in it |
 | M12 | **tone mark drop, onto the merged word** | 260 ms, scale 1.8→1, y −10→0, 14% overshoot | `enter` | *this mark is the thing that changed.* It only reads if the word is already whole underneath it, which is why beat 3 merges before beat 4 marks |
 | M13 | **the reveal** | 420 ms scale+translate from the strip to full screen | `enter` | *the thing is real, and it is yours* |
 | M14 | reveal hold | +1400 → +2200 ms, still | — | the say-it-together beat (§2.3) |
@@ -1633,27 +2274,63 @@ to ignore the screen.
 | +2200 → | held indefinitely; each tap replays the word, bounces 1.04× and turns to the next photograph |
 | exit (3000 ms after the last tap) | M15: the picture flies into the shelf; the strip clears — **unless the word is a proper prefix of another**, in which case the strip keeps it (`gameplay.md` §5.5) |
 
-**The Vietnamese chant, beat by beat (U15).** Revision 2 lit three static cells in turn and
-showed `b`, `ò`, `huyền`. Revision 3 builds the word. Gaps come from `pack.chant.gapsMs`,
-shipped as `{onset:250, rime:250, blend:400, tone:250, word:600}`, so they are hers to tune.
+**The Vietnamese chant, beat by beat — restated for revision 5 (U38).** Revision 4's five beats
+were the owner's own request and they are unchanged *as beats*. What changes is what a beat
+lights, because a beat's unit may now be two or three cells.
+
+> **A chant beat lights a SPAN, not a cell. The beats are a property of the model, not of the
+> taps.** `chó` is six taps — `c` `h` `o` and the sắc — and **five beats**, exactly as `bò` is.
+
+Gaps come from `pack.chant.gapsMs`, shipped as
+`{onset:250, rime:250, blend:400, tone:250, word:600}`, so they are hers to tune.
+
+**`bò` — two letters, one span each. Identical to revision 4.**
 
 | Beat | Shown in the strip | Spoken | Motion | Gap after |
 |---|---|---|---|---|
-| 1 | **`b`** | `bờ` (onset name) | M11 on the onset cell | 250 |
-| 2 | **`b` `o`** — two cells, both gold | `o` (rime name) | M11 extends to both cells | 250 |
-| 3 | **`bo`** — dividers dissolve, glyphs slide into one word | **`audio.blend`** — `bo` | **M10** | 400 |
-| 4 | **`bò`** — the mark drops onto the joined word | `huyền` (tone name) | **M12** | 250 |
+| 1 | **`b`** gold | `bờ` | M11 on the onset span (1 cell) | 250 |
+| 2 | **`b` `o`** — both gold, divider still there | `o` | M11 extends to the rime span | 250 |
+| 3 | **`bo`** — the divider dissolves, the cells close up | **`audio.blend`** — `bo` | **M10** | 400 |
+| 4 | **`bò`** — the mark drops onto the joined word | `huyền` | **M12** | 250 |
 | 5 | **`bò`** — held, whole, gold | `audio.word` — `bò` | M11 holds | 600 |
 
-- **Beat 3 is a real beat with real audio** that was already in the packs and already being
-  played; what revision 2 got wrong was showing three parts while speaking a blend.
+**`chó` — the case revision 5 creates. Six taps, still five beats.**
+
+| Beat | Shown in the strip | Spoken | Motion | Gap after |
+|---|---|---|---|---|
+| 1 | **`c` `h`** — *both cells gold at once*, one bar under them | `chờ` | M11 on the **two-cell onset span** | 250 |
+| 2 | **`c` `h` ┃ `o`** — all three gold, the divider still visible | `o` | M11 extends to the rime span | 250 |
+| 3 | **`cho`** — the divider dissolves, three cells close up | **`audio.blend`** — `cho` | **M10**, each cell left by `k × gap` | 400 |
+| 4 | **`chó`** — the mark drops onto `o` | `sắc` | **M12** | 250 |
+| 5 | **`chó`** — held, whole, gold | `audio.word` — `chó` | M11 holds | 600 |
+
+**Beat 1 lighting two cells for one sound is the lesson**, and it is the same picture M22 drew
+when he tapped `h`, replayed as a reward. The two moments reinforce each other: *when you
+tapped, the bar reached across; now, when it speaks, both blocks light together.*
+
+**`chuối` — five letters, the longest word in the pack.** Beat 1 lights `c` `h`; beat 2 lights
+`u` `ô` `i`; beat 3 closes all five up; beat 4 drops the sắc onto `ô`; beat 5 says `chuối`.
+**Still five beats**, and this is exactly why the đánh vần model was worth keeping.
+
 - **`ngang` words skip beat 4** (`chant.skipToneStepFor`): `dê` is `dờ` → `d ê` → `dê` → `dê`.
-- **Zero-onset words skip beat 1**: `áo` is `ao` → `ao` → `áo` → `áo`.
-- **English already accumulated and is unchanged in form**: `short` clips left to right, each
-  letter lighting as it speaks and the lit run growing, then merge, then the whole word.
-- **Every beat boundary is driven by the clip's completion, not by a timer**, with the gap
-  added after it. A 2.2-second clip and a 250 ms gap must not overlap the next beat — which is
-  the same defect as §11.0, in the one place where it would corrupt the lesson itself.
+- **Zero-onset words skip beat 1**: `áo` is `ao` → `ao` → `áo` → `áo`. Its two letters are one
+  span from the first tap, so beat 2 lights both.
+- **Every beat boundary is driven by the clip's completion, not by a timer**, with the gap added
+  after it.
+
+**The English chant, restated by the same rule.** Revision 4 said "each letter lighting as it
+speaks"; that is now wrong for five of the forty words. **One beat per sound; a beat lights its
+span.**
+
+| Word | Beats | What lights |
+|---|---|---|
+| `cat` | `/k/ · /æ/ · /t/ · merge · cat` | one cell each |
+| `ship` | `/ʃ/ · /ɪ/ · /p/ · merge · ship` | **beat 1 lights `s` and `h` together** |
+| `duck` | `/d/ · /ʌ/ · /k/ · merge · duck` | **beat 3 lights `c` and `k` together** |
+| `egg` | `/ɛ/ · /ɡ/ · merge · egg` | **beat 2 lights both `g`s together** — one sound, not two |
+
+That is the same rule as Vietnamese, stated once and applied twice, and it is the standard
+classroom formula in both: *"s-h says /ʃ/"*, *"c and h say chờ"*.
 
 ### 10.5 Reduce motion
 
@@ -1671,6 +2348,10 @@ are unchanged.
 | M13 reveal | 300 ms cross-fade to the full-screen picture. **No scale, no confetti** |
 | **M7a page slide** | a **300 / 420 ms cross-fade** between the two pages, same durations. The rail marker cross-fades too. **Direction is lost, which is a real loss** — so the page sound (§11.3) is what carries "it moved" here, and it is unchanged in both modes |
 | M7 tone carrier swap | unchanged — it is already a cross-fade with no movement |
+| **M22 the tie** | a **220 ms opacity cross-fade** from the one-cell bar to the two-cell bar, same duration. **Direction is lost and the bar's new length is not**, which is the part that carries the meaning — the static end state still says *one bar, two cells* |
+| **M23 the re-voice** | **α 1 → 0.75 → 1 on the span**, 260 ms, no scale. Both cells still pulse **together**, which is the load-bearing half |
+| **M24 the break** | unchanged — it is already opacity only |
+| **M10 the merge** | a 240 ms cross-fade from the spaced cells to the closed-up word, same duration. No slide |
 | M17 shimmer | a single 900 ms α pulse across the live tiles, no sweep |
 | M18 breathe | α only, no scale |
 | M21 gate ring | a static ring that fills in 4 steps |
@@ -1743,12 +2424,24 @@ oldest devices plausibly in this house.
 | the announcement motif begins | **≤ 60 ms** from the touch-down that completes the word |
 | chant beat boundary drift | ≤ 30 ms after the previous clip **ends** |
 
-Achieved by: **every clip the table can produce is decoded and resident.** The table is
-constant, so this is now a one-time cost at pack load rather than a per-tap concern — at most
-67 symbols × 2 variants ≈ 134 clips. At the shipped sizes that is ≈ 2.0 MB decoded-on-demand
-handles for Vietnamese; if that proves too much on the oldest Android, the eviction rule is
-**keep the whole tone run and the current live set resident, evict by least-recently-touched**
-— never evict what is standing.
+Achieved by: **every clip the board can produce is decoded and resident.** The table is
+constant, so this is a one-time cost at pack load rather than a per-tap concern.
+
+**Revision 5 changes what "every clip" means, and it is more clips, not fewer** — stated here
+because the instinct is that a 35-cell board is cheaper audio than a 67-cell one, and it is
+not. Tile audio is keyed by **unit-in-progress**, not by tile: tapping `h` after `c` plays
+`chờ`, and tapping `n` after `ă` plays `ăn`. `literacy-vi.md` §0.12 counts it — **28 onset
+states + 43 rime states + 6 tones = 77 clips, 9 of them new, 0 retired.** English adds and
+retires none: its ten digraph clips change role from *tile* to *re-voicing* (`literacy-en.md`
+§0.9). At the shipped sizes that is ≈ 2.3 MB of Vietnamese handles; the eviction rule is
+unchanged — **keep the whole tone run and the current live set resident, evict by
+least-recently-touched** — never evict what is standing.
+
+**The superseding clip is indexed by the prefix, not by the tile, and that must not be
+re-derived at runtime.** Which clip `h` plays depends on what is already in the strip, and the
+parse comes from the stored `(onset, rime, tone)` triple, never from the letter stream
+(`literacy-vi.md` §0.5). The UI asks the engine "what unit am I building?" and plays that
+unit's clip.
 
 Sound fires on `onPressIn`. Nothing waits on an animation.
 
@@ -1781,6 +2474,8 @@ Consequences, spelled out because each one was wrong before:
 | Rule | |
 |---|---|
 | **A tap always plays `short`.** | No exceptions, no first-touch special case, no 900 ms window. The `long` anchored form is **never** fired by a tile tap — see below. |
+| **REVISION 5: a tap plays the clip of the unit it is building, and a tap that completes a digraph SUPERSEDES the previous clip.** `c` → `cờ`; `h` → **`chờ`**, cutting `cờ` if it is still running. He never hears `cờ` **and** `hờ`. | This is **already** what the cut rule does — a new SPEECH request cuts the old one, synchronously, newest wins — so revision 5 adds **no audio machinery at all**. `literacy-vi.md` §0.9 and `literacy-en.md` §0.6 are the tables of what plays. The only new obligation is visual, and it is M22 + M23 (§7.2.3): a child must *see* that `h` joined `c`, or the replacement sounds like a contradiction. |
+| **A flat tile plays the unit it WOULD build**, on the same rule. | Tapping `h` with `c` seated plays `chờ` whether or not `ch` leads anywhere, because the board never punishes and the sound is true. |
 | **The `long` clip has exactly one trigger: the parts hint** (hold the strip 800 ms, §2.2), which is a gesture an adult knows and a child does not, made when the board is quiet. It is also used in the editor's preview. | "kuh, cat" is curriculum for a parent to use *with* him, not a thing to fire 200 times a minute. This deletes revision 2's long/short state machine entirely (AC D7–D9 withdrawn) and with it the question of what a cut anchored clip sounds like. |
 | **The motif STOPS speech; it does not duck it.** | AC F19 is withdrawn. Ducking was the specification that guaranteed two voices at the loudest moment in the app. |
 | **Channel 2 is non-speech by definition.** No asset on it may contain a voice. | It is the only channel allowed to overlap, so it is the only one where a voice would collide. The **cheer is the single exception and it is deliberate** — it is her voice, on channel 3, layered on the motif, which is the point of it. |
@@ -1795,10 +2490,10 @@ Consequences, spelled out because each one was wrong before:
 
 | Event | Channel | Sound |
 |---|---|---|
-| live tile touched | 1 | its `short` clip, at ≤ 60 ms |
+| live tile touched | 1 | the `short` clip **of the unit it builds** — `cờ` for a bare `c`, `chờ` for `h` after `c` — at ≤ 60 ms, cutting whatever speech is running |
 | symbol seated | 2 | a 90 ms wooden seat click, at −6 dB, over the clip's tail |
 | **flat tile touched** | 2 then 1 | **a 40 ms muted knock at −9 dB at ≤ 60 ms — wood, not drum — and then its own `short` clip in full, starting at +120 ms.** The two do not overlap |
-| **undo** | 1 + 2 | that symbol's clip, plus a **descending two-note unclick**, 140 ms |
+| **undo** (tap the strip) | 1 + 2 | the clip of **what is left after the return** — undoing `h` from `c h` says `cờ`, not `hờ` — plus a **descending two-note unclick**, 140 ms. The rule is the same one going backwards: *say the unit you are building now*. On an empty strip, nothing |
 | **a word forms** | 3 | **speech is stopped**, then the motif, plus the cheer if recorded |
 | chant | 1 | five beats, §10.4, each starting after the previous one **ends** |
 | reveal | 1 | the word, then §2.3's repeat |
@@ -1846,14 +2541,17 @@ optionally.
 |---|---|
 | **Reduce motion** | §10.5. OS-driven, parent-overridable. Audio unchanged, including the motif. |
 | **Audio carries the game** | Every state change has a distinct, non-musical sound except the announcement, which is the one musical event and is therefore unmistakable. A tester must be able to play with the screen face-down and know what happened: which letter was touched, whether it was standing or flat, whether a symbol seated, whether one was taken back, and that a word formed. Acceptance criteria §M. |
-| **No information by colour alone** | Live vs disabled = **ink weight + outline solidity + glyph darkness**, with colour last (§5.8). Role = colour **+ bar pattern + one table at a time**. Nothing anywhere depends on hue. |
+| **No information by colour alone** | Live vs disabled = **ink weight + outline solidity + glyph darkness**, with colour last (§5.8). Role = colour **+ bar pattern**. The onset/rime boundary = **a break in the bar + a pattern change + a 2 pt divider**, three channels of which two survive total colour loss (§7.2.2). Nothing anywhere depends on hue. |
+| **Consonant vs vowel under CVD** | **Newly gated in revision 5** (§5.5, U31), at dE00 ≥ 20 in all three dichromacies, because the two are now adjacent in every row and live simultaneously at the five branching onsets. Measured worst case **23.7**. The bar pattern (solid vs split) is the non-colour channel that makes the gate affordable rather than necessary. |
 | **Greyscale** | S8 is extended in revision 2: live must be separable from disabled with colour removed. The bars do it. |
 | **Contrast** | §5.2, gated in CI. The live glyph is 13.4:1 and **the disabled glyph is 5.4–5.9:1** — a disabled letter is still a letter he is learning. |
 | **Colour-vision deficiency** | Printed diagnostic, honest about Popsicle's weak pair, with **Playground as the red-green-safe theme** and a one-tap switch on the album. |
 | **Dynamic Type** | Parent surfaces scale to 2.0×. **Child surfaces do not** — the tile is a motor constant and the glyph must fill it. Deliberate exception, recorded. |
-| **VoiceOver / TalkBack** | The **board exposes one accessibility element** describing the state ("Building a word. b, o placed. One tone can follow, on page 4."). **The page rail is a second element**, describing pages and which hold something live. Individual tiles are `accessibilityElementsHidden`: letting a screen reader speak letter *names* over a game whose entire thesis is letter *sounds* would teach the opposite of the app. **Parent surfaces are fully and conventionally labelled.** |
+| **Uppercase and screen readers** | The casing flag (§8.2) cannot make a screen reader announce *"capital S"*, because **individual tiles are `accessibilityElementsHidden`** and the board is one element describing the state. The one element's text is authored, not read off the glyphs, so it says *"s, h — one sound"* whatever the tiles are drawn in. Recorded because "uppercase is only a glyph" has to survive contact with assistive tech to be true. |
+| **VoiceOver / TalkBack** | The **board exposes one accessibility element** describing the state — revision 5 makes it describe **spans and the fork**: *"Building a word. c, h — one sound. Three letters can follow. A mark can also finish it, on page 3."* **The page rail is a second element**, describing pages and which hold something live. Individual tiles are `accessibilityElementsHidden`: letting a screen reader speak letter *names* over a game whose entire thesis is letter *sounds* would teach the opposite of the app. **Parent surfaces are fully and conventionally labelled.** |
 | **Handedness** | The table is centred, so handedness does not matter. The gate dot is top-right and the editor's `+` bottom-right, both adult targets. No mirror mode in v1. |
-| **Screen too small** | Below 360 × 600 pt, or any viewport that cannot build a page plan for the chosen pack (F7), a parent-facing card. No half-broken game. **Revision 4 removes the softer case revision 3 had to add:** there is no longer a served device that plays a *smaller* game — every served device reaches every word. A viewport can serve English and not Vietnamese (the 360 × 640 floor needs 7 Vietnamese pages); the card then names the language, and because language is now switchable (§0A, U17) the other mode is two taps away rather than a reinstall. |
+| **Screen too small** | Below 360 × 600 pt, or any viewport that cannot build a page plan **or lay out the six-cell word strip** for the chosen pack (F7, F15, F16), a parent-facing card. No half-broken game. Every served device still reaches every word. **Revision 5 makes the per-language case rarer, not commoner**: the 360 × 640 floor now serves Vietnamese in 3 pages where revision 4 needed 7. The card names the language when only one is served, and language is switchable (§0A, U17). |
+| **Audio with the screen ignored** | Revision 5's new information — *these two letters are one sound* — is carried on the speech channel **for free**, because the superseding clip *is* the statement: he hears `chờ` where two separate sounds would have said `cờ` `hờ`. A child looking away loses the bar and the divider and loses **nothing of the lesson**. That is the test §12 sets, and it is the reason `literacy-vi.md` §0.9's rule is the right one rather than merely a tidy one. |
 
 ---
 
@@ -1984,6 +2682,59 @@ It **never says "invalid"**, it never blocks the save, and it always offers the 
 **Nothing recognised at all?** She still saves: picture + sound, flagged, filed under *Chưa chơi
 được*. The editor never blocks a save.
 
+#### 13.3a Revision 5 — two new things she can hit, and neither of them says "invalid"
+
+**1. A word longer than six letters.** `STRIP_CELLS = 6` is the measured ceiling (§4.2), so
+`nghiêng` (n-g-h-i-ê-n-g) cannot be shown on the smallest supported phone at a legible size.
+This is a **save-time** message, not a typing-time one, and it is phrased as a fact about the
+screen rather than a fault of hers:
+
+```
+ TOO LONG FOR THE BOARD
+ ┌────────────────────────────────────────┐
+ │  `nghiêng` có 7 chữ cái.               │   7 letters.  The board holds 6.
+ │  Bảng chữ chứa được 6.                 │
+ │                                        │   The word is SAVED, with its
+ │  ┌──────┬──────┬──────┬──────┬──────┬──┤   picture and her recording, and
+ │  │  n   │  g   │  h   │  i   │  ê   │n▒│   filed under `Chưa chơi được`.
+ │  └──────┴──────┴──────┴──────┴──────┴──┤   Nothing is lost and nothing is
+ │         the strip, drawn to scale      │   blocked -- §13.4's rule.
+ │                                        │
+ │  ┌──────────────────┐ ┌──────────────┐ │
+ │  │  Lưu để sau      │ │  Sửa từ      │ │
+ │  └──────────────────┘ └──────────────┘ │
+ └────────────────────────────────────────┘
+```
+
+**Drawing the strip to scale with the seventh letter falling off the end is the whole
+explanation**, and it needs no number and no vocabulary. The content-engineer's validator
+enforces the cap; the editor shows it.
+
+**2. The letter decomposition is now hers to confirm, once.** `literacy-vi.md` §0.15 adds a
+derived `letters` array and `onsetLetterCount` to each syllable, **written by the editor and
+never composed at runtime**. She does not type them. The editor derives them from the
+`(onset, rime, tone)` she has already confirmed, and shows them as the strip she has just seen:
+
+```
+ ┌────────────────────────────────────────┐
+ │  `chó`  =  ch  +  o  +  sắc            │   what she already confirmed
+ │                                        │
+ │  Bé sẽ bấm:                            │   "he will tap:"
+ │  ┌──────┬──────┬──────┬──────┐         │
+ │  │  c   │  h   │  o   │  ´   │         │   FOUR taps
+ │  └━━━━━━━━━━━━━┻┅┅┅┅┅┅┴┅┅┅┅┅┅┘         │   with the same span bars the
+ │                                        │   board will draw
+ │            ┌──────────┐                │
+ │            │   Xong   │                │
+ │            └──────────┘                │
+ └────────────────────────────────────────┘
+```
+
+One screen, one confirm, no new vocabulary, and it is the **same picture the child will see** —
+which is the only way a non-technical adult can check a decomposition she did not author. It
+appears **only** when the decomposition is not one letter per unit, i.e. when a digraph or `gi`
+/ `qu` is involved; `bò` skips it entirely.
+
 ### 13.4 Edit, delete, recover
 
 - **Edit**: tap a row → the same five steps as tabs, any one editable, same autosave.
@@ -1997,10 +2748,16 @@ It **never says "invalid"**, it never blocks the save, and it always offers the 
 ### 13.5 "This letter is not on the board yet" — and revision 3 makes it load-bearing
 
 A word can be linguistically perfect and still unreachable, because its character is not in
-the pack's `inventoryOrder` at all. **Revision 4 returns this to a true edge case** (U27).
-Revision 3 made it the normal state of every phone — a 360 × 640 Android held 20 of 67
-characters — and paging holds all 67 on every served device, so the *only* remaining cause is
-a character the pack does not know about.
+the pack's `inventoryOrder` at all. **Revision 4 returned this to a true edge case** (U27), and
+**revision 5 makes it rarer still**: the Vietnamese board is the whole 29-letter alphabet and
+the English board is the whole 26-letter alphabet, so there is no Vietnamese letter and no
+English letter she can type that is off the board. The screen now fires only for a character
+outside both alphabets — a Latin letter Vietnamese does not use (`f j w z`), or a digit, or
+punctuation.
+
+**That is a real simplification and it is worth taking.** `Đưa chữ lên bảng` now means
+*extend the alphabet*, which is a decision a parent should make deliberately and rarely, rather
+than *make room on this phone*, which was a chore the device imposed on her.
 
 ```
  ┌────────────────────────────────────────┐
@@ -2085,7 +2842,12 @@ changed in revision 2.**
 | **E13** | **NEW — a derived, cacheable prefix tree** over the eligible words: the live set for a prefix, and "is this prefix a word", both in O(1) at tap time to hold the 60 ms budget. The UI does not care how it is stored; it cares that it is **rebuilt atomically when she saves a word**, so a word she just added is discoverable without an app restart |
 | **E14** | **NEW — one optional `cheer` clip per pack** (§13.6): ≤ 2 s, her recording, removable, and **not** per word |
 | **E15** | **NEW in revision 3 — every tile needs a `short` clip that is a sound, not an utterance of one.** ≤ **700 ms** of audio, ≤ 40 ms leading silence, ≤ 120 ms tail. Shipped today: **2016–2784 ms** for English (§11.0). The UI cannot fix this; the cut rule on a 2.2 s clip is what the owner heard. A validator gate on clip duration is the content-engineer's to design |
-| **E16** | **The English inventory must be the alphabet**: all 26 letters, `a`–`z`, in order, then digraphs. `en-seed` omits `q`. **Revision 4 settles the general rule in §8.1:** every character in `inventoryOrder` is drawn, always, whether or not any word uses it; one with none is permanently flat and still speaks. **The validator must not flag a zero-word character as an error** — `ngh` has been that way since revision 1 |
+| **E16** | **The English inventory must be the alphabet**: all 26 letters, `a`–`z`, in order. **Revision 5 deletes `inventoryOrder.digraph`** (`literacy-en.md` §0.10) — the ten digraph *clips* are kept and re-keyed as re-voicing audio. `en-seed` omits `q`. **Revision 4 settles the general rule in §8.1:** every character in `inventoryOrder` is drawn, always, whether or not any word uses it; one with none is permanently flat and still speaks. **The validator must not flag a zero-word character as an error** — `ngh` has been that way since revision 1 |
+| **E22** | **NEW in revision 5 — one glyph-casing field per pack**: `en-seed` **upper**, `vi-seed` **lower** (§8.2). Read once at pack load, applied at one place in the glyph component, **never as a `toUpperCase()` in a component**. It reaches the tile, strip, rail and reveal glyph and **nothing else** — not the stored data, not the audio, not `inventoryOrder`'s sort, not any parent surface. An absent or unrecognised value falls back to **lowercase** silently. Changing it must be **one field in `pack.json`**, no code |
+| **E18** | **NEW in revision 5 — `inventoryOrder` becomes `{ letter: […], tone: […] }`.** Vietnamese: 29 letters in the owner's alphabet order, then 6 tones in `ngang huyền sắc hỏi ngã nặng` (`literacy-vi.md` §0.13 — the shipped order is frequency and is wrong). English: 26 letters, one run. `.onset`, `.rime` and `.digraph` leave `inventoryOrder`; the onset and rime vocabularies **stay in `pack.tiles`**, because they are the model and the editor's vocabulary, and they should be ordered properly there too — his mother reads them |
+| **E19** | **NEW in revision 5 — a derived `letters` array and `onsetLetterCount` per syllable**, written by the editor, **never composed at runtime**. The engine walks `letters`; it reads the parse from the stored `(onset, rime, tone)`. §13.3a is the one screen where she confirms it |
+| **E20** | **NEW in revision 5 — `letters.length ≤ 6`.** The word strip holds six cells on the smallest supported phone (§4.2, F17); seven drops the glyph to 31 pt against a 34 pt floor. The validator enforces it at save time and §13.3a draws it |
+| **E21** | **NEW in revision 5 — tile audio is keyed by unit-STATE, not by tile.** Vietnamese needs 28 onset states + 43 rime states + 6 tones = 77 clips, **9 of them new** (`literacy-vi.md` §0.12); English needs none added and none retired, with the ten digraph clips re-keyed (`literacy-en.md` §0.9). Every rime-prefix clip needs a **human listening check** before it ships, because several are not real Vietnamese syllables read level. **Nobody on this team can hear** (`CLAUDE.md`) |
 | **E17** | **NEW in revision 3 — the Vietnamese rime entry's `toned` map is now read for *illegal* tones too.** All six tone cells are always drawn; a rime's illegal tones are rendered flat, showing the marked form the orthography would produce, and falling back to the bare mark where the map holds `null` (§7.2) |
 
 ---
@@ -2096,7 +2858,7 @@ changed in revision 2.**
 |---|---|---|---|---|
 | S1 | Language chooser (+ theme buttons) | parent | yes — **the one screen with both languages** | first launch, **and parent menu → Language at any time (revision 3)**. Same screen, same code path; the confirm step is dropped behind the gate |
 | S2 | **Board — Ghép Chữ** (strip + character table) | child | the letters only | launch, after a reveal |
-| S3 | **Board — Word Blocks** | child | the letters only | launch, after a reveal |
+| S3 | **Board — Word Blocks** | child | the letters only, **uppercase** (§8.2) | launch, after a reveal |
 | S4 | **Announcement + reveal** (a full-screen overlay on S2/S3) | child | the word, large; the sentence if `Show the word` is on | a word forms |
 | S5 | Album — the collection | child | none | the shelf fills; or the album card |
 | S6 | End screen | both | none | parent menu → Finish session |
@@ -2106,14 +2868,18 @@ changed in revision 2.**
 | S10 | Add/edit word, steps 1–5 | parent | yes | S9 → `+`, or S8 → Add a word |
 | S11 | Decomposition help | parent | yes | S10 step 3, on failure |
 | S12 | Add-a-rime | parent | yes | S11 |
-| S13 | **Not on the board yet / swap a symbol** | parent | yes | S9, S10 step 3 |
+| S13 | **Not on the board yet** (revision 5: only for a character outside the alphabet) | parent | yes | S9, S10 step 3 |
+| S19 | **Confirm the taps** (§13.3a) — the strip drawn as the child will see it | parent | yes | S10, only when a digraph, `gi` or `qu` is involved |
+| S20 | **Too long for the board** (§13.3a) — six letters is the ceiling | parent | yes | S10, on save |
 | S14 | **Record the cheer** | parent | yes | after her first save; S8 → Voice & pace |
 | S15 | Recently deleted | parent | yes | S9 |
 | S16 | Voice & pace / Motion & sound | parent | yes | S8. **Language is no longer a screen of its own** — row 2 opens S1 |
 | S17 | About & attributions | parent | yes | S8 |
-| S18 | Screen-too-small card | parent | yes | viewport < 360 × 600, or fewer than 20 cells |
+| S18 | Screen-too-small card | parent | yes | viewport < 360 × 600, no page plan (F7), or no six-cell strip (F15/F16) |
 
-Eighteen screens. Three of them are the child's, and he never navigates between them.
+**Twenty screens. Three of them are the child's, and he never navigates between them.**
 
-**Revision 3 removes none and adds none.** It changes what S1 is reachable from, what S2/S3
-contain, and it makes S13 a screen a phone-using parent will actually meet.
+**Revision 3 removed none and added none. Revision 5 adds two, both his mother's**, both
+one-screen, both drawn as the strip the child will see rather than described in words. It also
+makes S13 **rarer** than revision 4 did: with the whole alphabet on the board, a character she
+can type is almost never missing from it.

@@ -18,7 +18,12 @@
  * The flat, fixed sequence of every character in the pack, in run order, each carrying
  * the page and slot it will occupy for ever.
  *
- * @param {{role:string, kind?:string, ids:string[]}[]} runs  the pack's runs, in order
+ * **`kind` is the character's permanent role** — consonant, vowel or tone (`ui.md` §5.5,
+ * AC B2l, C15, D5, S5). Revision 4 took it from the run, because a run *was* a role;
+ * revision 5's letter run holds both kinds interleaved (`a ă â b c d`), so the run asks
+ * the character instead. It is a pure function of the id and never of his progress.
+ *
+ * @param {{role:string, kind?:string, kindOf?:(id:string)=>string, ids:string[]}[]} runs
  * @param {number[]|null} pageSizes  the plan from `layout.planFor`, or null for one page
  */
 export function buildInventory(runs, pageSizes = null) {
@@ -27,7 +32,11 @@ export function buildInventory(runs, pageSizes = null) {
     const run = runs[runIndex];
     for (const id of run.ids) {
       symbols.push({
-        id, role: run.role, kind: run.kind ?? run.role, runIndex, index: symbols.length,
+        id,
+        role: run.role,
+        kind: run.kindOf ? run.kindOf(id) : (run.kind ?? run.role),
+        runIndex,
+        index: symbols.length,
       });
     }
   }

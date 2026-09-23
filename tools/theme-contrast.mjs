@@ -15,8 +15,24 @@
 //   2. SWEEPS every (theme x surface x foreground) pair that can co-occur on screen,
 //      with a threshold per pair TYPE rather than one global number.
 //
-//   3. Checks the three Vietnamese ROLE hues stay mutually distinguishable in every
-//      theme, including under simulated protanopia, deuteranopia and tritanopia.
+//   3. Checks the three ROLE hues stay mutually distinguishable in every theme, including
+//      under simulated protanopia, deuteranopia and tritanopia.
+//
+// REVISED 2026-09-23, DESIGN REVISION 5.  What a role MEANS changed, and that changed what
+// this tool has to gate.  The board is no longer three runs of onsets, rimes and tones; it
+// is ONE run of letters (29 in Vietnamese, 26 in English) plus a run of six tones, and the
+// owner enters `ch` as `c` then `h`.  So:
+//
+//   role1 = CONSONANT letter, role2 = VOWEL letter, role3 = TONE.
+//
+// That mapping is a permanent property of the glyph rather than of the child's progress,
+// which is what lets it be a constant table at all.  It also creates a pair this tool had
+// never had to check: in revision 4 a role1 tile and a role2 tile met at ONE run boundary,
+// so "fixed position" carried the distinction and CVD separation was logged, not gated.
+// In revision 5 `a ă â b c d` puts a vowel tile beside a consonant tile in every row, and
+// position carries nothing.  The ADJACENT check below is therefore newly NECESSARY -- and
+// it turns out to be affordable: the worst case over three themes and three dichromacies
+// is 23.7 (Popsicle, consonant vs vowel, protanopia) against a gate of 20.
 //
 // Design note: role separation is guaranteed by CONSTRUCTION, not by luck.  The three
 // role faces are forced onto a fixed CIE L* ladder (LADDER below), so they differ in
@@ -124,6 +140,9 @@ const THEMES = {
    onset / rime / tone -- so colour is never the sole signal, which is what lets the
    CVD threshold sit at 12 rather than 18 without hiding anything.                   */
 
+// Revision 5: solid = consonant, split = vowel, dotted = tone.  This is the non-colour
+// channel, and it is now load-bearing rather than redundant, because consonant and vowel
+// tiles are adjacent in every row of the table.
 const PATTERN = { role1:'solid', role2:'split', role3:'dotted' };
 const perms = a => a.length <= 1 ? [a] : a.flatMap((x,i) =>
   perms([...a.slice(0,i), ...a.slice(i+1)]).map(p => [x, ...p]));
@@ -205,19 +224,35 @@ const PAIRS = [
   // the identity bars are the owner's bright hex; their INNER EDGE against the white
   // face is carried by a 1.5pt roleDeep keyline, so a bright hue never has to be dulled
   // to make its own boundary read (ui.md 5.4)
-  ['component','tileFace','role1Deep','onset / EN-consonant identity-bar keyline on the tile'],
-  ['component','tileFace','role2Deep','rime / EN-vowel identity-bar keyline on the tile'],
+  ['component','tileFace','role1Deep','CONSONANT identity-bar keyline on the tile'],
+  ['component','tileFace','role2Deep','VOWEL identity-bar keyline on the tile'],
   ['component','tileFace','role3Deep','tone identity-bar keyline on the tile'],
   // the tile silhouette on the play ground.  The SAME token draws the live tile's 2pt
   // outline and the disabled tile's 3pt underbar, so both read on the ground.
-  ['component','ground','role1Edge','onset / EN-consonant tile outline, and disabled underbar, on the ground'],
-  ['component','ground','role2Edge','rime / EN-vowel tile outline, and disabled underbar, on the ground'],
+  ['component','ground','role1Edge','CONSONANT tile outline, and disabled underbar, on the ground'],
+  ['component','ground','role2Edge','VOWEL tile outline, and disabled underbar, on the ground'],
   ['component','ground','role3Edge','tone tile outline, and disabled underbar, on the ground'],
   ['component','ground','inkSoft','assembled-word strip outline on the ground'],
   ['component','ground','neutralFace','gate dot on the ground'],
   ['component','ground','inkSoft','shelf slot ring, empty, on the ground'],
   ['component','ground','rewardEdge','announcement burst / just-filled shelf slot, on the ground'],
-  ['component','surface','neutralFace','empty strip cell, dashed outline'],
+  ['component','surface','neutralFace','empty strip cell, dashed outline -- and the dashed MARK-SLOT drawn above a carrier vowel when a tone is what is missing (ui.md §7.2, revision 5)'],
+  // REVISION 5.  The strip now marks the onset/rime boundary with a 2pt vertical divider
+  // in the gap between two cells, and each span of letters that is one sound carries one
+  // continuous bar.  The divider sits in the GAP, whose background is the play ground.
+  ['component','ground','neutralFace','onset/rime boundary divider in the word strip (revision 5)'],
+  ['component','ground','role1Edge','the CONSONANT span bar under the strip cells'],
+  ['component','ground','role2Edge','the VOWEL (rime) span bar under the strip cells'],
+  // A CONTINUOUS GOLD PLATE BEHIND A CHANT-LIT SPAN WAS DESIGNED AND THEN REJECTED BY THIS
+  // SWEEP, 2026-09-23.  A chant beat now lights a SPAN of up to six cells (revision 4 lit
+  // one or two), and the obvious drawing is one `reward` plate behind the whole span,
+  // gaps included.  Adding the pair it creates fails in all three themes: the boundary
+  // divider, `neutralFace`, measures 1.58 / 2.01 / 2.12 : 1 on `reward`, far under the 3.0
+  // component gate -- the divider vanishes inside the plate exactly when the chant is
+  // explaining what the divider means.  So the span lights CELL BY CELL and the gaps stay
+  // on the ground, where the divider is gated at 3.02-3.42:1 by the pair above.  Third time
+  // this sweep has cut a drawing by measuring it (cf. U11, U19).  Kept as a comment so it
+  // is not re-proposed.
   ['largeText','role1Soft','role1Deep','table header chip label on its role tint'],
   ['largeText','role2Soft','role2Deep','table header chip label on its role tint'],
   ['largeText','role3Soft','role3Deep','table header chip label on its role tint'],
@@ -235,6 +270,11 @@ const PAIRS = [
   ['shade','role3','role3Deep','keyline against its own identity bar'],
   ['shade','reward','rewardEdge','celebration badge edge'],
   ['shade','tileFace','reward','chant highlight: the gold face over the white face of ONE tile'],
+  // REVISION 5.  The re-voice pulse -- `c` then `h` becoming `chờ` -- is MOTION, not
+  // colour: scale, not a gold face.  The reason is arithmetic, not taste.  A re-voiced
+  // span can still be carrying a dashed mark-slot or a boundary divider, and both are
+  // `neutralFace`, which measures 1.58-2.12:1 on `reward` (see the note above).  Gold is
+  // reserved for the chant, which only ever runs on a finished word.
   ['decor','surface','hairline','strip cell divider hairline'],
   ['decor','ground','surface','LIVE tile face on the ground -- 1.06-1.13:1, so the white face is NOT the live/disabled discriminator; the bars, the outline weight and the glyph ink are (ui.md 5.8)'],
 ];
@@ -260,6 +300,28 @@ const THRESHOLD = { glyph:4.5, bodyText:4.5, largeText:3.0, component:3.0, shade
 // property (bright and fun) for a redundant one.  So the number is printed, named, and
 // carried as a known limitation rather than hidden behind a lowered threshold.
 const DE_MIN_NORMAL = 25;
+
+// REVISION 5 -- THE FIRST CVD-GATED CHECK IN THIS TOOL, and it is gated because the design
+// stopped being able to lean on position.
+//
+// The claim revision 4 made was: role is carried by three channels -- the bar pattern, the
+// FIXED POSITION of each run, and colour; colour is the redundant one, so CVD separation is
+// printed and not gated.  The first half of that is now false for ONE pair.  A consonant
+// tile and a vowel tile are adjacent in every row of a 29-letter alphabet, and at the five
+// branching onsets (`c` `g` `k` `n` `t`) a consonant and a vowel are LIVE AT THE SAME TIME
+// and mean opposite things -- "this letter makes the sound bigger" versus "this letter
+// starts the next part of the word" (literacy-vi.md §0.6).  Position separates nothing
+// there.  Pattern (solid vs split) still does, and colour must too.
+//
+// So consonant-vs-vowel is gated under all three dichromacies.  Tone is NOT: it is a
+// separate run, on its own page on every phone, and it is never adjacent to a letter.
+// Popsicle's consonant-vs-tone pair measures 1.6 under deuteranopia and stays a logged
+// limitation, unchanged from revision 4.
+//
+// 20 is chosen as the largest round number below the measured worst case (23.7, Popsicle
+// consonant vs vowel under protanopia).  It is a gate with 3.7 of headroom on the owner's
+// own hexes, not a number picked to pass.
+const DE_MIN_ADJACENT_CVD = 20;
 const resolve = (t,k) => k === 'WHITE' ? WHITE : t[k];
 
 let failures = 0; const out = [], decorNotes = [], cvdWeak = [];
@@ -268,7 +330,7 @@ for (const [key,t] of Object.entries(THEMES)) {
   out.push(`  ground ${t.ground}  groundAlt ${t.groundAlt}  surface ${t.surface}  ink ${t.ink}  inkSoft ${t.inkSoft}`);
   out.push(`  tileFace ${t.tileFace}  tileGlyph ${t.tileGlyph}   (identical in all three themes)`);
   for (const i of [1,2,3]) out.push(
-    `  role${i} ${['onset  / EN consonant','rime   / EN vowel   ','tone                '][i-1]}  ${t['role'+i+'Name'].padEnd(11)}` +
+    `  role${i} ${['CONSONANT letter    ','VOWEL letter        ','TONE                '][i-1]}  ${t['role'+i+'Name'].padEnd(11)}` +
     ` ${t['role'+i]} (owner, unchanged)  bars ${t['role'+i+'Pattern'].padEnd(6)}` +
     ` outline ${t['role'+i+'Edge']}  soft ${t['role'+i+'Soft']}  deep ${t['role'+i+'Deep']}`);
   out.push(`  reward ${t.reward} edge ${t.rewardEdge}   accentFace ${t.accentFace}   neutralFace ${t.neutralFace}   hairline ${t.hairline}`);
@@ -283,9 +345,9 @@ for (const [key,t] of Object.entries(THEMES)) {
   out.push('  -- bar patterns (the non-colour role channel) --');
   const pats = [t.role1Pattern, t.role2Pattern, t.role3Pattern];
   if (new Set(pats).size !== 3) failures++;
-  out.push(`  ${new Set(pats).size===3?'ok  ':'FAIL'} onset=${pats[0]}  rime=${pats[1]}  tone=${pats[2]}  (must be three distinct patterns)`);
-  out.push('  -- Vietnamese role hue distinguishability --');
-  const roles = [['onset',t.role1],['rime',t.role2],['tone',t.role3]];
+  out.push(`  ${new Set(pats).size===3?'ok  ':'FAIL'} consonant=${pats[0]}  vowel=${pats[1]}  tone=${pats[2]}  (must be three distinct patterns)`);
+  out.push('  -- role hue distinguishability --');
+  const roles = [['consonant',t.role1],['vowel',t.role2],['tone',t.role3]];
   for (let i=0;i<3;i++) for (let j=i+1;j<3;j++) {
     const [na,ca]=roles[i], [nb,cb]=roles[j];
     const d = dE00(ca,cb); if (d < DE_MIN_NORMAL) failures++;
@@ -296,6 +358,13 @@ for (const [key,t] of Object.entries(THEMES)) {
       out.push(`  diag dE00 ${r2(dc).toFixed(1).padStart(5)}  ${na} vs ${nb} under ${kind}  (not gated - see DE_MIN_NORMAL note)`);
     }
     out.push(`       dL* ${r2(Math.abs(Lstar(ca)-Lstar(cb))).toFixed(1)}   bar patterns ${PATTERN['role'+(i+1)]} vs ${PATTERN['role'+(j+1)]} (redundant, non-colour cue)`);
+  }
+  // REVISION 5: the one pair that is ADJACENT on the board, gated under CVD.
+  out.push('  -- ADJACENT pair: consonant vs vowel, side by side in every row (revision 5) --');
+  for (const kind of Object.keys(CVD)) {
+    const d = dE00(simulate(t.role1,kind), simulate(t.role2,kind));
+    if (d < DE_MIN_ADJACENT_CVD) failures++;
+    out.push(`  ${d>=DE_MIN_ADJACENT_CVD?'ok  ':'FAIL'} dE00 ${r2(d).toFixed(1).padStart(5)} (>=${DE_MIN_ADJACENT_CVD})  consonant vs vowel under ${kind}`);
   }
 }
 if (process.argv.includes('--tokens')) { console.log(JSON.stringify(THEMES,null,2)); process.exit(0); }

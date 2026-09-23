@@ -65,7 +65,10 @@ function fuzzOne(pack, seed, steps, pages = null) {
         ? { type: 'partsHint' }
         : { type: 'tapSymbol', symbolId: pool[pick(pool.length)].id };
     } else if (roll < 74) {
-      action = { type: 'tapStripCell', index: pick(4) };
+      // **Undo: the whole strip, one symbol per tap** (revision 5). It carries no index
+      // any more, so a stray one must be ignored rather than obeyed — which is what the
+      // extra field here is for.
+      action = { type: 'tapStrip', index: pick(4) };
     } else if (roll < 82) {
       action = { type: 'autoPlay' };
     } else if (roll < 88) {
@@ -76,7 +79,9 @@ function fuzzOne(pack, seed, steps, pages = null) {
     } else if (roll < 94) {
       // Actions that cannot apply here. They must be no-ops, not corruptions.
       action = [{ type: 'advance' }, { type: 'leaveAlbum' }, { type: 'nonsense' },
-        { type: 'tapSymbol', symbolId: 'not-a-symbol' }][pick(4)];
+        { type: 'tapSymbol', symbolId: 'not-a-symbol' },
+        // The retired revision-4 action: it must be a no-op, not a second undo path.
+        { type: 'tapStripCell', index: 0 }][pick(5)];
     } else {
       action = { type: 'partsHint' };
     }

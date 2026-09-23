@@ -84,7 +84,7 @@ test('a duplicated tile id yields one tile, not two cells sharing one id', () =>
   const state = createSession(game, { seed: 'duptile' });
   const cells = tableView(game, state).cells.map((c) => c.id);
   assert.equal(new Set(cells).size, cells.length, 'one symbol occupies two cells');
-  assert.deepEqual(pack.inventoryOrder.onset, [...new Set(pack.inventoryOrder.onset)]);
+  assert.deepEqual(pack.inventoryOrder.letter, [...new Set(pack.inventoryOrder.letter)]);
   assert.deepEqual(checkInvariants(game, state), []);
 });
 

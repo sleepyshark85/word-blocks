@@ -22,6 +22,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 
 import { ThemeProvider, themeTokens, DEFAULT_THEME } from './theme';
+import { CasingProvider } from './ui/Text';
 import { FONT_ASSETS } from './ui/typography';
 import { stringsFor, chooserPanels } from './i18n';
 import { loadPack, emojiSource, sampleWordSource } from './content/loadPack';
@@ -58,7 +59,18 @@ function attributionsOf(pack) {
 }
 
 /** One language's board, plus everything that can sit over it. */
-function Game({
+function Game(props) {
+  // **`ui.md` §8.2 / AC D17, D21, D22, E22 — the glyph casing, read once at pack load.**
+  // One field, one provider, applied at one place in the glyph component. Changing it is
+  // one field in `pack.json`: no code, no rebuild, no re-record (D22).
+  return (
+    <CasingProvider casing={props.pack.glyphCase}>
+      <GameBoard {...props} />
+    </CasingProvider>
+  );
+}
+
+function GameBoard({
   pack, mediaSource, audio, settings, setSettings, themeId, setThemeId,
   onSwitchLanguage, seed, progress, onProgress, graceUntil,
 }) {

@@ -2,9 +2,9 @@
 //
 // A separate screen from the other language's board, by `ui.md` §3.2. The differences are
 // all structural: the strip grows rightwards and its **length is never shown**, the table
-// is the alphabet `a`–`z` then the digraphs (two runs, so **two pages on his iPhone —
-// page 1 is the whole alphabet**), and `role3` is **never rendered**
-// (`acceptance-criteria.md` D6). Nothing in this file names a tone.
+// is the alphabet `a`–`z` and **nothing else** — one run of 26, which on the owner's
+// iPhone is a single page with **no rail at all** (D1d) — and `role3` is **never
+// rendered** (`acceptance-criteria.md` D6). Nothing in this file names a tone.
 //
 // `q` is on the board like every other letter, permanently flat, and it speaks when
 // pressed (`ui.md` §8.1, AC D1a/D1b). Nothing here special-cases it.
@@ -18,34 +18,32 @@ import { WordStrip, arriveMsFor } from '../WordStrip';
 import { CharacterTable } from '../CharacterTable';
 import { PageRail } from '../PageRail';
 import { Reveal } from '../Reveal';
-import { TOP_BAR, GAP_STRIP, PAD_BOTTOM } from '../../layout/layout.mjs';
+import {
+  TOP_BAR, GAP_STRIP, PAD_BOTTOM, STRIP_GAP,
+} from '../../layout/layout.mjs';
 
-/** `ui.md` §5.6 — consonant → `role1`/solid, vowel → `role2`/split. Two of three. */
-const roleOf = (cell) => (cell.isVowel ? 'role2' : 'role1');
+/**
+ * `ui.md` §5.5, §5.6 / AC D5, D6, S5 — consonant → `role1`/solid, vowel → `role2`/split.
+ * Two of three: English never renders `role3`, because it has no tone. `y` is /j/ in this
+ * pack and therefore a consonant here, where it is a vowel letter in Vietnamese — each
+ * language's own answer, and the language never mixes.
+ */
+const ROLE_OF = { consonant: 'role1', vowel: 'role2' };
 
 export function BoardEn({
   snapshot, controller, strings, settings, reduced, sourceFor, layout: L, insets, onOpenGate,
 }) {
   const theme = useTheme();
 
-  // The strip grows to the right. It is capped at the table's width so a long word never
-  // pushes a cell off screen; beyond six cells the cells share what there is.
-  const stripW = L.rowW ?? 0;
+  // **X1 — the strip is six cells, sized once by the layout law**, identical to the
+  // Vietnamese one: the same component, with one run missing. `ship` is `s` `h` (one
+  // span) `i` (new span) `p` (new span) — four cells, three bars, two dividers (X19).
   const cells = snapshot.strip;
-  const n = Math.max(1, cells.length);
-  const even = Math.min(Math.round((L.stripH ?? 0) * 0.94), Math.floor((stripW - (n - 1) * 4) / n));
-  const widths = cells.map((c) => (c.merged ? stripW : even));
   const arriveMs = arriveMsFor(Boolean(snapshot.autoPlacedId));
+  const trackW = L.stripRowW ?? 0;
 
   const stripCentreY = insets.top + 4 + TOP_BAR + GAP_STRIP + (L.stripH ?? 0) / 2;
-  const stripRect = { width: even * n, y: stripCentreY - (L.H ?? 0) / 2 };
-
-  // The strip's underline takes the role of the tile that seated there, which is a
-  // property of the letter and not of the position.
-  const roleOfStripCell = (cell, i) => {
-    const tile = snapshot.table.cells.find((c) => c.glyph === cell.glyph);
-    return cell.filled && tile ? roleOf(tile) : (i === 0 ? 'role1' : 'role2');
-  };
+  const stripRect = { width: trackW, y: stripCentreY - (L.H ?? 0) / 2 };
 
   return (
     <View style={[styles.root, {
@@ -73,20 +71,23 @@ export function BoardEn({
 
       <View style={{ height: GAP_STRIP }} />
 
-      <View style={{ alignItems: 'center' }} onTouchStart={controller.stripDown}>
+      {/* `ui.md` §7.2.6 — **one target**: tap = take the last one back, hold = say what
+          I have. There is no per-cell undo in either language (D4, E8, E9). */}
+      <View style={{ alignItems: 'center' }}>
         <WordStrip
           cells={cells}
-          widths={widths}
-          height={L.stripH}
+          cellW={L.stripCellW}
+          cellH={L.stripCellH}
+          gap={STRIP_GAP}
+          slots={L.stripCells}
           fontSize={L.stripFont}
-          roleOf={roleOfStripCell}
           lit={snapshot.chant ? snapshot.chant.lit : null}
           arriveMs={arriveMs}
           hopSeq={snapshot.hopSeq}
           merged={snapshot.merged}
           reduced={reduced}
-          onCellDown={controller.stripDown}
-          onCellUp={controller.stripUp}
+          onStripDown={controller.stripDown}
+          onStripUp={controller.stripUp}
         />
       </View>
 
@@ -107,7 +108,7 @@ export function BoardEn({
           pageSeq={snapshot.pageSeq}
           pageSlideMs={snapshot.pageSlideMs}
           layout={L}
-          roleOf={roleOf}
+          roleOf={(cell) => ROLE_OF[cell.kind]}
           radius={0.32}
           hintSymbolId={snapshot.hintSymbolId}
           hintLevel={snapshot.hintLevel}
@@ -132,7 +133,7 @@ export function BoardEn({
         <PageRail
           rail={snapshot.rail}
           railCols={L.railCols}
-          roleOf={(button) => (button.kind === 'digraph' ? 'role1' : 'role2')}
+          roleOf={(button) => ROLE_OF[button.kind]}
           radius={0.32}
           reduced={reduced}
           shimmerSeq={snapshot.shimmerSeq}

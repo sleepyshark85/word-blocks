@@ -8,10 +8,10 @@
 // Four things on screen and nothing else (`acceptance-criteria.md` B1, §3.1):
 //
 //     top bar      mode title · the shelf of five · the gate dot
-//     word strip   the word so far, plus one dashed cell
-//     the TABLE    every character in the pack. Live ones stand up; the rest lie flat.
+//     word strip   the word so far — one cell per letter, one bar per sound
+//     the TABLE    29 letters then 6 tones. Live ones stand up; the rest lie flat.
 //     the RAIL     one button per page — **only when the table is paged** (V1, V2).
-//                  Absent entirely on a tablet, which shows all 67 at once.
+//                  Absent entirely on a tablet, which shows all 35 at once.
 //
 // **No picture, no picture frame, no veil, no caption strip.** The picture is the reward
 // and it is not on the board.
@@ -25,28 +25,34 @@ import { WordStrip, arriveMsFor } from '../WordStrip';
 import { CharacterTable } from '../CharacterTable';
 import { PageRail } from '../PageRail';
 import { Reveal } from '../Reveal';
-import { TOP_BAR, GAP_STRIP, PAD_BOTTOM } from '../../layout/layout.mjs';
+import {
+  TOP_BAR, GAP_STRIP, PAD_BOTTOM, STRIP_GAP,
+} from '../../layout/layout.mjs';
 
-/** `ui.md` §5.5 — onset is `role1`/solid, rime `role2`/split, tone `role3`/dotted. */
-const ROLE_OF = { onset: 'role1', rime: 'role2', tone: 'role3' };
+/**
+ * `ui.md` §5.5 / AC B2l, C15, S5 — **a role is a permanent property of the glyph**:
+ * consonant `role1`/solid, vowel `role2`/split, tone `role3`/dotted. Revision 4 keyed it
+ * on the run (onset, rime, tone); the letter run now holds both kinds interleaved, and at
+ * the five branching onsets `c g k n t` a consonant and a vowel are live at the same time
+ * meaning opposite things — which is why colour is now CVD-gated for that pair (S15).
+ */
+const ROLE_OF = { consonant: 'role1', vowel: 'role2', tone: 'role3' };
 
 export function BoardVi({
   snapshot, controller, strings, settings, reduced, sourceFor, layout: L, insets, onOpenGate,
 }) {
   const theme = useTheme();
 
-  const stripW = L.rowW ?? 0;
+  // **X1 / X5 — the strip is six cells, sized once by the layout law**, identical in both
+  // languages and independent of the word being built. On his iPhone that is six 58 × 90
+  // cells with an 8 pt gap and a 47 pt glyph.
   const cells = snapshot.strip;
-  const n = Math.max(1, cells.length);
-  // A merged word takes the whole strip; otherwise the cells share it evenly, capped so
-  // that a two-cell strip does not stretch into two slabs.
-  const even = Math.min(Math.round((L.stripH ?? 0) * 1.25), Math.floor((stripW - (n - 1) * 4) / n));
-  const widths = cells.map((c) => (c.merged ? stripW : even));
   const arriveMs = arriveMsFor(Boolean(snapshot.autoPlacedId));
+  const trackW = L.stripRowW ?? 0;
 
   // Where the strip sits, so the reveal can scale out of its rectangle (M13).
   const stripCentreY = insets.top + 4 + TOP_BAR + GAP_STRIP + (L.stripH ?? 0) / 2;
-  const stripRect = { width: stripW, y: stripCentreY - (L.H ?? 0) / 2 };
+  const stripRect = { width: trackW, y: stripCentreY - (L.H ?? 0) / 2 };
 
   return (
     <View style={[styles.root, {
@@ -75,28 +81,24 @@ export function BoardVi({
 
       <View style={{ height: GAP_STRIP }} />
 
-      <View
-        style={{ alignItems: 'center' }}
-        // `ui.md` §2.2 — press and hold the strip for 800 ms to hear the parts of what is
-        // assembled. A short tap on a cell is undo; both live on the same object, and the
-        // child-discoverable one is the harmless one.
-        onTouchStart={controller.stripDown}
-      >
+      {/* `ui.md` §2.2, §7.2.6 — **the strip is one target**: a short tap is undo (one
+          symbol, the last), an 800 ms hold speaks the parts of what is assembled, and
+          there is no third gesture. The child-discoverable one is the harmless one. */}
+      <View style={{ alignItems: 'center' }}>
         <WordStrip
           cells={cells}
-          widths={widths}
-          height={L.stripH}
+          cellW={L.stripCellW}
+          cellH={L.stripCellH}
+          gap={STRIP_GAP}
+          slots={L.stripCells}
           fontSize={L.stripFont}
-          // The dashed cell has no run (`role: 'next'`), and no underline is drawn for
-          // it; `role2` is simply what its unused tokens resolve to.
-          roleOf={(cell) => ROLE_OF[cell.role] ?? 'role2'}
           lit={snapshot.chant ? snapshot.chant.lit : null}
           arriveMs={arriveMs}
           hopSeq={snapshot.hopSeq}
           merged={snapshot.merged}
           reduced={reduced}
-          onCellDown={controller.stripDown}
-          onCellUp={controller.stripUp}
+          onStripDown={controller.stripDown}
+          onStripUp={controller.stripUp}
         />
       </View>
 
@@ -118,7 +120,7 @@ export function BoardVi({
           pageSeq={snapshot.pageSeq}
           pageSlideMs={snapshot.pageSlideMs}
           layout={L}
-          roleOf={(cell) => ROLE_OF[cell.role]}
+          roleOf={(cell) => ROLE_OF[cell.kind]}
           radius={0.22}
           hintSymbolId={snapshot.hintSymbolId}
           hintLevel={snapshot.hintLevel}
@@ -143,7 +145,7 @@ export function BoardVi({
         <PageRail
           rail={snapshot.rail}
           railCols={L.railCols}
-          roleOf={(button) => ROLE_OF[button.role]}
+          roleOf={(button) => ROLE_OF[button.kind]}
           radius={0.22}
           reduced={reduced}
           shimmerSeq={snapshot.shimmerSeq}

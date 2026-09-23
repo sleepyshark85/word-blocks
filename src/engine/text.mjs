@@ -32,3 +32,22 @@ export function isNonEmptyString(value) {
 export function glyphLength(value) {
   return typeof value === 'string' ? [...value.normalize('NFC')].length : 0;
 }
+
+/**
+ * **`ui.md` §8.2 / AC D17–D24 — the glyph casing, applied at render and nowhere else.**
+ *
+ * The owner answered `open-questions-ui.md` Q7: English glyphs are uppercase, `A B C D`.
+ * It is one field per pack, read once at load (`pack.mjs`), and this is the single
+ * function that acts on it — `ui.md` §8.2.2 item 3 is explicit that a `toUpperCase()` in
+ * a component is a bug, in exactly the sense a colour literal in a component is one: it
+ * would be right in one language and wrong in the other, and unreversible without a
+ * developer.
+ *
+ * It reaches the **glyph** and nothing else: not the stored data (D20), not an audio key
+ * (D19), not `inventoryOrder`'s order, and not one parent surface (D24). An unrecognised
+ * value is lowercase, silently (D23).
+ */
+export function applyCasing(value, casing) {
+  if (typeof value !== 'string' || casing !== 'upper') return value;
+  return value.toUpperCase();
+}

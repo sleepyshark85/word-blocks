@@ -8,7 +8,7 @@
 // `ui.md` §4.1: rotating mid-word changes only pixels. These recompute on a dimension
 // change and nothing else; the engine state they draw is untouched, so seated symbols
 // stay seated, the live set is unchanged and the chant continues (P9, P10, T14). On a
-// tablet the page plan is `[67]` in **both** orientations, so rotating does not even
+// tablet the page plan is `[35]` in **both** orientations, so rotating does not even
 // change the plan's identity and the game object survives it.
 
 import { useMemo } from 'react';
@@ -35,10 +35,12 @@ export function useViewport() {
 /**
  * The page plan for one pack on this device (`ui.md` §4.2, AC V1–V3, V9).
  *
- * `runLengths` is the pack's inventory as run lengths — VI `[onsets, rimes, tones]`, EN
- * `[letters, digraphs]`. The result is `null` when this viewport cannot serve this pack
- * (F7), which is the screen-too-small card for **that language** (V35): the other mode
- * may still be served, and the language is switchable, so nobody is stuck.
+ * `runLengths` is the pack's inventory as run lengths — VI `[29 letters, 6 tones]`, EN
+ * `[26 letters]` (revision 5). The result is `null` when this viewport cannot serve this
+ * pack — **which now includes laying out the six-cell word strip**, F4/F15/F16 as well as
+ * F7 (`ui.md` §4.3, AC A11) — and that is the screen-too-small card for **that language**
+ * (V35): the other mode may still be served, and the language is switchable, so nobody is
+ * stuck.
  */
 export function usePagePlan(runLengths) {
   const v = useViewport();

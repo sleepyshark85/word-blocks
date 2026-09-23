@@ -19,6 +19,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { readManifest, readWords, packPaths } from './lib/pack.mjs';
+import { isOurs, licenceObligations, missingCredit } from './lib/licence.mjs';
 
 const argv = process.argv.slice(2);
 let packDir = null;
@@ -36,9 +37,6 @@ const read = readManifest(packDir);
 if (!read) { console.error(`cannot read ${packDir}/pack.json`); process.exit(2); }
 const manifest = read.manifest;
 
-/** Sources that are ours and carry no third-party obligation. */
-const OURS = new Set(['camera', 'own-work', 'generated']);
-
 const entries = new Map(); // src -> record
 const engines = new Map(); // engine label -> count
 let ourImages = 0;
@@ -46,7 +44,7 @@ let ourImages = 0;
 for (const { word } of readWords(packDir).ok) {
   for (const im of word.images ?? []) {
     if (!im?.src) continue;
-    if (OURS.has(im.source)) { ourImages += 1; continue; }
+    if (isOurs(im.source)) { ourImages += 1; continue; }
     if (!entries.has(im.src)) {
       entries.set(im.src, {
         src: im.src,
@@ -86,9 +84,12 @@ if (asJson) {
 }
 
 // CC BY-SA and GFDL are both copyleft; GFDL is the heavier of the two and arrives on
-// Commons looking like any other free licence.
-const shareAlike = list.filter((e) => /by-sa/i.test(e.license ?? ''));
-const gfdl = list.filter((e) => /\bGFDL\b|GNU Free Documentation/i.test(e.license ?? ''));
+// Commons looking like any other free licence. Both classifications come from
+// `lib/licence.mjs` so that this file and `pack-validate.mjs` cannot drift on what
+// counts as share-alike or as GFDL either.
+const shareAlike = list.filter((e) => licenceObligations(e.license).shareAlike);
+const gfdl = list.filter((e) => licenceObligations(e.license).licenceText);
+const publicDomain = list.filter((e) => licenceObligations(e.license).publicDomain);
 
 const md = `# Attributions — ${manifest.name} (\`${manifest.id}\`)
 
@@ -167,9 +168,35 @@ if (check) {
 writeFileSync(outFile, md);
 console.log(`${outFile}: ${list.length} third-party photograph(s), ${ourImages} own, ${engines.size} audio engine(s)`);
 for (const [lic, n] of [...byLicence].sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(4)}  ${lic}`);
-const unattributed = list.filter((e) => !e.license || !e.creator || !e.sourceUrl);
+/*
+ * CAN THIS PACK BE PUBLISHED? Asked through `lib/licence.mjs`, which is the same
+ * predicate `pack-validate.mjs` asks, because this file and that one used to disagree.
+ *
+ * It refused to publish `packs/vi-seed` over `đèn` and `mũi` — both `"Public domain"`
+ * with `creator: null` — by requiring an author from every image unconditionally. **A
+ * public-domain work has no attribution obligation**: there is no rights-holder to
+ * credit, and a null creator is the correct, honest representation of that rather than
+ * missing data. It was a false blocker on the one screen where a false blocker is
+ * expensive, because the way to clear it is to invent an author.
+ *
+ * What stays strict, and is the reason this is not simply relaxed: a CC BY, CC BY-SA or
+ * GFDL image with no creator still fails hard, an unrecorded licence still fails hard,
+ * and **a licence string nobody recognises is treated as requiring attribution** rather
+ * than waved through.
+ */
+const unattributed = list.filter((e) => missingCredit(e).length > 0);
+const needCredit = list.filter((e) => licenceObligations(e.license).attribution);
+console.log(`  ${String(needCredit.length).padStart(4)}  require credit — all ${needCredit.length - unattributed.length} credited`);
+if (publicDomain.length) {
+  console.log(`  ${String(publicDomain.length).padStart(4)}  public domain / CC0 — no attribution obligation (${publicDomain.filter((e) => !e.creator).length} with no author, which is correct)`);
+}
+if (gfdl.length) {
+  console.log(`  ${String(gfdl.length).padStart(4)}  GFDL — the full licence text must ship with the work`);
+}
 if (unattributed.length) {
   console.error(`\n${unattributed.length} photograph(s) cannot be attributed. This pack must not be published:`);
-  for (const e of unattributed) console.error(`  ${e.src} (${e.words.join(', ')})`);
+  for (const e of unattributed) {
+    console.error(`  ${e.src} (${e.words.join(', ')}) — ${JSON.stringify(e.license ?? null)} is missing ${missingCredit(e).join(', ')}`);
+  }
   process.exit(1);
 }

@@ -147,6 +147,66 @@ being wrong has already been designed out.
 
 ---
 
+## Q9 · Is his son being taught đánh vần? **(ANSWERED — kept as a record)**
+
+**Asked 2026-09-23, during revision 5. His answer, verbatim:**
+
+> yes, he's learning đánh vần and using vietnamese characters, including combined characters
+> like ch, tr ...
+
+**This question is kept rather than deleted because two designs were built before it was
+asked, and both were wrong in opposite directions.** The first deleted the digraphs and
+abandoned đánh vần; the second kept digraph tiles and read his complaint as being only about
+ordering. He then clarified a second time — *"for character combining, he will still going
+through character by character, event for combine ones like ch, tr …(Choose C and choose H
+…). This to keep the table consistent"* — and the settled answer is **letter-by-letter input
+over an unchanged đánh vần model** (`literacy-vi.md` §0).
+
+**The lesson for whoever reads his original message next:** it describes a *surface*, and both
+wrong answers came from silently inferring a *model* from it. Ask.
+
+---
+
+## Q10 · English tiles: letter **sounds** or letter **names**? **(decided — free to reverse)**
+
+A standard 26-letter alphabet table is, in most of the world, a *naming* artefact — a child
+points at `c` and an adult says *"see"*. Now that the English board is exactly that chart, it
+is fair to ask whether the tiles should say names.
+
+**Recommendation, and what is built: sounds.** The reasoning is in `literacy-en.md` §0.4 and
+§2 — names do not blend (`"see-ay-tee"` is nothing), and sounds make `c` mean the same thing
+in both languages, where names would make it mean two unrelated things to one child.
+
+**If the owner disagrees after hearing it, reversing costs 26 clip replacements and no code
+change.** Tile audio is per-tile pack data. This is deliberately the cheapest reversal in the
+app.
+
+**A separate, smaller question in the same area:** he typed the alphabet in capitals. That is
+read as ordinary prose, not as a request for uppercase tiles — `literacy-en.md` §2.5 keeps
+lowercase, because uppercase is a second unrelated grapheme set at no gain at age 4. If he
+actually wants capitals it is a glyph-casing switch in the pack and not a literacy change.
+
+---
+
+## Q11 · What order does his son recite the six tones in?
+
+The pack ships `ngang · sắc · huyền · hỏi · nặng · ngã`, which is **frequency order** — `sắc`
+is the commonest tone in the seed list — and it is the same defect he spotted in the letter
+order (`literacy-vi.md` §0.2). It is being corrected; the only question is to what.
+
+| Candidate | Order | Note |
+|---|---|---|
+| **Recitation (recommended, and built)** | `ngang · huyền · sắc · hỏi · ngã · nặng` | *"huyền, sắc, hỏi, ngã, nặng"* is a set phrase Vietnamese speakers say as a unit, with `ngang` (`không dấu`) before it |
+| Dictionary collation | `ngang · huyền · hỏi · ngã · sắc · nặng` | the order a Vietnamese dictionary sorts in — `ba bà bả bã bá bạ`. Differs only in where `sắc` sits |
+
+**Recommendation: recitation order.** The board is a teaching surface, not an index, and the
+recitation is what he hears in class. **Confidence `check` on `huyền` vs `sắc` in second
+place** — both orders are in real use and I am not certain which his son's book prints. This
+is a one-glance answer for a Vietnamese parent whose son is in đánh vần lessons right now, and
+it is a fixed sequence a child memorises, so it is worth getting right rather than guessing.
+
+---
+
 ## What is *not* in this file
 
 Decided, not asked. Listed so the owner can see the shape of what was settled without
@@ -162,3 +222,13 @@ reading three documents:
 | English is CVC-only first, then digraphs, then blends; magic-e is post-v1 | `literacy-en.md` §5.2 |
 | ≤6 tiles per Vietnamese row / ≤16 on screen; ≤8 in English | `literacy-vi.md` §8, `literacy-en.md` §6 |
 | 40–50 words per language, not 150 | `word-list.md` §2 |
+
+**Revision 5 additions to that list** (`literacy-vi.md` §0, `literacy-en.md` §0):
+
+| Decision | Where |
+|---|---|
+| The table is the 29-letter Vietnamese alphabet / the 26-letter English alphabet, in dictionary order | `literacy-vi.md` §0.4, `literacy-en.md` §0.3 |
+| A digraph is **two taps and still one sound**; the second tap re-voices to the digraph | `literacy-vi.md` §0.9, `literacy-en.md` §0.6 |
+| The onset/rime boundary is **stored, never derived at runtime** — it is the first vowel letter, with `gi` and `qu` the only exceptions | `literacy-vi.md` §0.5 |
+| Tone stays a run of six cells, live once the rime is complete; tone-marked vowels in the table would need 89 cells | `literacy-vi.md` §0.8 |
+| English does **not** interleave its digraphs into the alphabet; Vietnamese does. Each language follows its own dictionary order | `literacy-en.md` §0.7 |

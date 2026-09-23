@@ -1,4 +1,4 @@
-// The motion table of `ui.md` §10.3, as data — revision 4.
+// The motion table of `ui.md` §10.3, as data — revision 5.
 //
 // Every duration in the app comes from here, so a timing that an acceptance criterion
 // names (§F, O7, O8, O10) has exactly one place it can be wrong.
@@ -30,7 +30,18 @@ export const M = {
   hopStagger: 90, // M9
   hopLiftPt: 14, // M9
   merge: 240, // M10 — the glyphs slide together
-  mergeFade: 180, // M10 — the hairlines dissolve
+  mergeFade: 180, // M10 — the dividers dissolve
+  // **M22 — the tie.** The span bar reveals by `scaleX` anchored LEFT, from the old
+  // extent to the new one: *h joined c*. Without it a superseding sound looks like the
+  // app changing its mind (`ui.md` §7.2.3, AC X12, X18).
+  spanGrow: 220,
+  // **M23 — the re-voice.** Both cells of the span pulse together, one scale on the span
+  // container, started on the first audio frame of the replacing clip (X13).
+  revoice: 260,
+  // **M24 — the break.** The divider, and a new bar with the arriving cell (X15, X20).
+  dividerFade: 180,
+  // X33 — the dashed mark-slot above the carrier vowel, opacity only.
+  markSlotFade: 180,
   chantLight: 320, // M11 — a gold face, never a gold glyph (U11)
   toneDrop: 260, // M12
   breatheOn: 1200, // M18 / G3

@@ -21,10 +21,16 @@
 //      that beat, so the presentation replays a resolved state rather than deriving one.
 //   3. **The page** (§V): the page sound on every change, the slide's two durations, and
 //      the idle ladder reaching the rail.
+//
+// **Revision 5 changes two things here, and both are audio.** A tap plays the clip of the
+// **unit it builds** — `c` says `cờ`, then `h` says `chờ`, superseding it — which the
+// engine resolves per cell per prefix, so this layer still just plays `cell.audio.short`
+// (AC E15, E16, N14). And **undo is the whole strip**: one symbol flies home and the clip
+// is the clip of **what is left** (`gameplay.md` §4.4, AC E8, C11).
 
 import {
   createSession, reduce, tableView, pageView, stripView, shelfView, chantSteps, motifNotes,
-  partsHintSteps, symbolsFrom, hintSymbol, glyphLength, progressOf,
+  partsHintSteps, hintSymbol, glyphLength, progressOf, tapAudio, undoAudio, lastSymbol,
 } from '../engine/index.mjs';
 import { createTimerBag } from './timers.mjs';
 import {
@@ -200,9 +206,12 @@ export function createGameController(options) {
     // set, and looking the symbol up afterwards to play its clip is how the app's turn
     // once happened in silence.
     const symbol = symbolOnTable(chosen);
+    // The clip is captured **before** the dispatch: seating changes the prefix, and the
+    // unit a tap builds is a fact about the prefix it was tapped in.
+    const spoken = symbol ? tapAudio(game, engine, chosen) : null;
     dispatch({ type: 'autoPlay' });
     view.autoPlacedId = chosen;
-    if (symbol) playSymbol(symbol);
+    if (spoken) audio.playSpeech(clip(spoken.short));
     timers.set('autoPlaceClear', () => { view.autoPlacedId = null; emit(); }, M.autoPlaceFly);
     // `acceptance-criteria.md` G6 — the ladder restarts at 20 s. The engine's `resetSeq`
     // bump does that through `syncToEngine`.
@@ -237,14 +246,19 @@ export function createGameController(options) {
   }
 
   /**
-   * `ui.md` §11.2, §11.3 / AC D7, N14 — **a tap always plays `short`.** No first-touch
-   * special case, no 900 ms window, and the `long` anchored clip is never fired by a tile
-   * tap: "kuh, cat" is 3 seconds of two utterances, and a 4-year-old taps every 300–600
-   * ms, so it was always cut mid-word. That is what "voices mixed up with each other"
-   * was, and the fix is this line.
+   * `ui.md` §11.2, §11.3 / AC D7, N14, E15, E16 — **a tap always plays `short`, and it is
+   * the `short` of the unit the tap builds.** `c` says `cờ`; `h` after it says `chờ`,
+   * *superseding* rather than adding `hờ` (`literacy-vi.md` §0.9). The engine resolves
+   * which clip that is, against the prefix the board is in **now**, because "what does
+   * this tap say" is a fact about the pack and this layer owns only *when*.
+   *
+   * The `long` anchored clip is never fired by a tile tap: "kuh, cat" is 3 seconds of two
+   * utterances and a 4-year-old taps every 300–600 ms, so it was always cut mid-word.
+   * That is what "voices mixed up with each other" was.
    */
-  function playSymbol(symbol) {
-    audio.playSpeech(clip(symbol.audio.short));
+  function playTap(symbolId) {
+    const spoken = tapAudio(game, engine, symbolId);
+    audio.playSpeech(clip(spoken && spoken.short));
   }
 
   /* ------------------------------------------------------- the announcement */
@@ -379,16 +393,24 @@ export function createGameController(options) {
   /**
    * `acceptance-criteria.md` N11 (RESTATED) — **every clip the constant table can produce
    * is decoded and resident before the first tap is possible.** The table never changes,
-   * so this is a one-time cost at pack load rather than a per-tap concern: at most 67
-   * symbols × 2 variants. The word clips go with them, because the reveal speaks a word
-   * about a second after the tap that makes it and a decode in that window is audible.
+   * so this is a one-time cost at pack load rather than a per-tap concern: 77 Vietnamese
+   * unit states × 2 variants, 36 English. The word clips go with them, because the reveal
+   * speaks a word about a second after the tap that makes it and a decode in that window
+   * is audible.
    */
   function preloadForTable() {
     const sources = [];
     const push = (s) => { if (s) sources.push(s); };
-    for (const cell of tableView(game, engine).cells) {
-      push(clip(cell.audio.long));
-      push(clip(cell.audio.short));
+    // **Every clip the board can produce**, which after revision 5 is every *unit state*
+    // — 26 onsets and the two onset steps, 35 rimes and the eight pass-through prefixes,
+    // the six tones (`content-pipeline.md` §3.7) — rather than one per cell. A tap on `h`
+    // can say `chờ`, `ghờ`, `khờ`, `ngờ`, `nhờ`, `phờ`, `thờ` or `hờ`, and a decode inside
+    // the 60 ms budget is not available (N11).
+    for (const table of Object.values(pack.unitAudio)) {
+      for (const a of Object.values(table)) {
+        push(clip(a.long));
+        push(clip(a.short));
+      }
     }
     for (const key of ['motif3', 'motif4', 'cheer', 'seat', 'knock', 'unclick', 'page', 'shelfBell', 'shelfTip']) {
       push(ui[key] ?? null);
@@ -531,7 +553,7 @@ export function createGameController(options) {
       touch.holdRepeats = 0;
 
       if (symbol.live) {
-        playSymbol(symbol);
+        playTap(symbolId);
       } else {
         // **E2 — the knock PRECEDES its letter.** A 40 ms muted knock at −9 dB within
         // 60 ms, then the tile's own `short` clip in full at +120 ms, and the two do not
@@ -543,7 +565,9 @@ export function createGameController(options) {
         // A per-tap name, so twenty taps play twenty clips (E13) instead of each one
         // cancelling the last. Two taps closer together than 120 ms still cut, because
         // the cut rule is the cut rule.
-        timers.set(`flat${touch.flatSeq}`, () => playSymbol(symbol), M.flatClipAfter);
+        // E16 — a flat tile speaks the unit it *would* build, on the same rule: tapping
+        // `h` with `c` seated says `chờ` whether or not `ch` leads anywhere from here.
+        timers.set(`flat${touch.flatSeq}`, () => playTap(symbolId), M.flatClipAfter);
       }
 
       view.pressedId = symbolId;
@@ -555,7 +579,7 @@ export function createGameController(options) {
         if (touch.ownerId !== symbolId) return;
         touch.holdRepeats += 1;
         if (touch.holdRepeats > HOLD.maxRepeats) return;
-        playSymbol(symbol);
+        playTap(symbolId);
         timers.set('hold', repeat, HOLD.repeatMs);
       }, HOLD.startMs);
 
@@ -623,31 +647,33 @@ export function createGameController(options) {
       }, PARTS_HINT_HOLD);
     },
 
-    stripUp(index) {
+    /**
+     * **`gameplay.md` §4.4 / AC D4, E8, E9, C10, C11 — one tap, one symbol back.** The
+     * strip is one target, not one target per cell: five 72 pt cells need 392 pt and the
+     * 360 dp floor has 328 (`ui.md` §7.2.6).
+     */
+    stripUp() {
       if (destroyed) return;
       timers.clear('stripHint');
       if (touch.stripHintFired) return;
       if (engine.phase !== 'playing' || engine.status !== 'building') return;
-      if (!Number.isInteger(index) || index >= engine.prefix.length) {
-        dispatch({ type: 'tapStripCell', index });
-        return;
-      }
-      // `gameplay.md` §4.4 — the removed symbols fly home one at a time, 90 ms apart,
-      // each playing its own clip, under one descending two-note unclick. It is the only
-      // descending motif in the app, so it can never be confused with the announcement.
-      const leaving = symbolsFrom(game, engine, index);
-      view.returning = leaving.map((s) => s.id);
+      // X35 / T20 — an empty strip is not a control: nothing happens and nothing plays.
+      if (engine.prefix.length === 0) return;
+      const leaving = lastSymbol(game, engine);
+      // **E8 — the clip is the clip of WHAT IS LEFT**, not of what was taken: undoing `h`
+      // from `c h` says `cờ`. Captured before the dispatch, for the same reason the tap
+      // clip is.
+      const remains = undoAudio(game, engine);
+      view.returning = leaving ? [leaving.id] : [];
       audio.playUi(ui.unclick ?? null);
-      leaving.forEach((symbol, i) => {
-        timers.set(`unseat${i}`, () => playSymbol(symbol), i * M.flyHomeStagger);
-      });
+      if (remains && remains.short) audio.playSpeech(clip(remains.short));
       timers.set('returningClear', () => {
         view.returning = [];
         emit();
-      }, M.flyHome + M.flyHomeStagger * Math.max(0, leaving.length - 1));
-      // V23 — the board slides to that symbol's page as it returns it, so undo is also
-      // the way back to where a character lives. The engine decides the page.
-      dispatch({ type: 'tapStripCell', index });
+      }, M.flyHome);
+      // V23 / E14 — the board slides to the returned symbol's page, so undo is also the
+      // way back to where a character lives. The engine decides the page.
+      dispatch({ type: 'tapStrip' });
     },
 
     /** `acceptance-criteria.md` F10, T13 — each tap replays the word and advances the photo. */

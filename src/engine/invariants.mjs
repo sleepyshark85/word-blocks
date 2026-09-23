@@ -13,10 +13,20 @@
 // **Revision 4** replaces the stage checks — there are no stages — with the constant
 // table's own guarantees (B2a: every character in its permanent cell) and the paging
 // guarantees (V6, V7, V14).
+//
+// **Revision 5** adds the two properties the letter board creates: a cell's **kind** is a
+// permanent property of its glyph (B2l), and **the strip agrees with the prefix cell for
+// cell and span for span** — every filled cell belongs to a span, no span is empty, and
+// the spans are the stored ones (X3, X10, C4f).
 
 import { langFor } from './lang/index.mjs';
 import { nodeAt } from './tree.mjs';
+import { MAX_WORD_LETTERS } from './rules.mjs';
 import { tableView, stripView, pageHasLive, SHELF_SLOTS } from './session.mjs';
+
+/** `ui.md` §0C U28 — the board's two runs, and the three kinds a cell can be. */
+const BOARD_ROLES = ['letter', 'tone'];
+const KINDS = ['consonant', 'vowel', 'tone'];
 
 export function checkInvariants(game, state, context = {}) {
   const bad = [];
@@ -45,7 +55,11 @@ export function checkInvariants(game, state, context = {}) {
     const cell = table.cells[i];
     if (ids.has(cell.id)) fail('duplicateTableCell', cell.id);
     ids.add(cell.id);
-    if (!lang.tileGroups.includes(cell.role)) fail('foreignRole', `${cell.id}:${cell.role}`);
+    // B2l — a board cell is a letter or a tone, and its kind is a permanent property of
+    // the glyph rather than of his progress.
+    if (!BOARD_ROLES.includes(cell.role)) fail('foreignRole', `${cell.id}:${cell.role}`);
+    if (!KINDS.includes(cell.kind)) fail('foreignKind', `${cell.id}:${cell.kind}`);
+    if (cell.kind !== game.inventory.symbols[i].kind) fail('kindChanged', cell.id);
     if (cell.index !== i) fail('cellMoved', `${cell.id} at ${cell.index}, expected ${i}`);
     if (cell.id !== game.inventory.symbols[i].id) fail('cellMoved', `${cell.id} is not in its slot`);
     if (cell.page !== game.inventory.symbols[i].page) fail('cellChangedPage', cell.id);
@@ -91,16 +105,39 @@ export function checkInvariants(game, state, context = {}) {
     if (anyLive) fail('strandedOnDeadPage', `page ${state.page}`);
   }
 
-  /* --- the strip agrees with the prefix ---------------------------------------- */
+  /* --- the strip agrees with the prefix, cell for cell and span for span -------- */
   const strip = stripView(game, state);
   const filled = strip.filter((c) => c.filled).length;
   const merged = strip.some((c) => c.merged);
-  if (!merged && filled !== state.prefix.length) {
-    fail('stripDisagrees', `${filled} filled vs prefix ${state.prefix.length}`);
+  // **A cell per LETTER** — the tone is a mark on the carrier vowel and never a cell of
+  // its own (U14, C20), so a strip holding a tone has one fewer cell than it had taps.
+  const tones = state.prefix.filter((id) => pack.tileById.tone && pack.tileById.tone[id]).length;
+  if (!merged && filled !== state.prefix.length - tones) {
+    fail('stripDisagrees', `${filled} filled vs ${state.prefix.length - tones} letters`);
   }
   if (strip.some((c) => c.role === 'tone')) {
     fail('stripHasAToneCell', 'the tone is a mark on the rime, never a cell (U14)');
   }
+  // X1 / X6 — six slots, and a word that needs a seventh would be clipped in front of
+  // him. `pack.mjs` withholds one; this is the assertion that it did.
+  if (filled > MAX_WORD_LETTERS) fail('stripOverflows', `${filled} cells`);
+  // X3 / X10 — every filled cell belongs to exactly one span, spans are contiguous from
+  // zero, and at most one cell carries the mark-slot.
+  let expected = 0;
+  let span = -1;
+  for (const cell of strip) {
+    if (!cell.filled) continue;
+    if (cell.merged) continue;
+    if (cell.index !== expected) fail('stripCellMoved', `${cell.glyph} at ${cell.index}`);
+    expected += 1;
+    if (cell.span !== span && cell.span !== span + 1) fail('spanOutOfOrder', String(cell.span));
+    span = cell.span;
+    if (cell.index < cell.spanStart || cell.index >= cell.spanEnd) {
+      fail('cellOutsideItsSpan', `${cell.glyph}`);
+    }
+    if (cell.dividerBefore && cell.index !== cell.spanStart) fail('dividerInsideASound', cell.glyph);
+  }
+  if (strip.filter((c) => c.markSlot).length > 1) fail('twoCarriers', 'more than one mark-slot');
 
   /* --- the announcement is armed iff the prefix is a word ---------------------- */
   const isWord = node ? node.wordId !== null : false;

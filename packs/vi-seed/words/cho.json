@@ -55,5 +55,11 @@
     "flags": [],
     "note": "",
     "from": "word-list.md §4 Stage 3 — + nặng, digraph and zero onsets, nasal finals (13)"
-  }
+  },
+  "letters": [
+    "c",
+    "h",
+    "o"
+  ],
+  "onsetLetterCount": 2
 }

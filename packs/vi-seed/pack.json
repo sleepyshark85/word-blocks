@@ -3,11 +3,14 @@
   "id": "vi-seed",
   "language": "vi",
   "name": "Ghép Chữ",
-  "revision": 2,
+  "display": {
+    "glyphCase": "lower"
+  },
+  "revision": 1,
   "origin": "seed",
   "generator": {
     "tool": "tools/build-seed-pack.mjs",
-    "builtAt": "2026-09-22T18:02:25.682Z",
+    "builtAt": "2026-09-23T17:39:36.395Z",
     "sources": [
       "docs/design/word-list.md",
       "docs/design/literacy-vi.md"
@@ -36,6 +39,295 @@
       "leadTargetMs": 40,
       "tailTargetMs": 120
     }
+  },
+  "inventoryOrder": {
+    "letter": [
+      "a",
+      "ă",
+      "â",
+      "b",
+      "c",
+      "d",
+      "đ",
+      "e",
+      "ê",
+      "g",
+      "h",
+      "i",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "ô",
+      "ơ",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "ư",
+      "v",
+      "x",
+      "y"
+    ],
+    "tone": [
+      "ngang",
+      "huyen",
+      "sac",
+      "hoi",
+      "nga",
+      "nang"
+    ]
+  },
+  "prefixAudio": {
+    "onset": [
+      {
+        "id": "p",
+        "glyph": "p",
+        "role": "onset",
+        "label": "pờ",
+        "extendsTo": [
+          "ph"
+        ],
+        "audio": {
+          "name": {
+            "src": "media/aud/da50713b9c96c96d.mp3",
+            "bytes": 4992,
+            "ms": 624,
+            "leadMs": 50,
+            "tailMs": 100,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "pờ",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:18.789Z"
+          }
+        }
+      },
+      {
+        "id": "q",
+        "glyph": "q",
+        "role": "onset",
+        "label": "quờ",
+        "extendsTo": [
+          "qu"
+        ],
+        "sameAs": "onset:qu",
+        "audio": {
+          "name": {
+            "src": "media/aud/d6901540d82cd85e.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "quờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:59.098Z",
+            "sameAs": "onset:qu"
+          }
+        }
+      }
+    ],
+    "rime": [
+      {
+        "id": "ac",
+        "glyph": "ac",
+        "role": "rime",
+        "label": "ac",
+        "extendsTo": [
+          "ach"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/a9fbe2df135b01c5.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "leadMs": 75,
+            "tailMs": 110,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ac",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:19.632Z"
+          }
+        }
+      },
+      {
+        "id": "an",
+        "glyph": "an",
+        "role": "rime",
+        "label": "an",
+        "extendsTo": [
+          "anh"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/eba81221b0d2a410.mp3",
+            "bytes": 4992,
+            "ms": 624,
+            "leadMs": 70,
+            "tailMs": 95,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "an",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:20.450Z"
+          }
+        }
+      },
+      {
+        "id": "ă",
+        "glyph": "ă",
+        "role": "rime",
+        "label": "á",
+        "extendsTo": [
+          "ăng",
+          "ăt"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/1c9eac8c6f417efa.mp3",
+            "bytes": 4992,
+            "ms": 624,
+            "leadMs": 55,
+            "tailMs": 110,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "á",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:21.278Z"
+          }
+        }
+      },
+      {
+        "id": "ăn",
+        "glyph": "ăn",
+        "role": "rime",
+        "label": "ăn",
+        "extendsTo": [
+          "ăng"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/12252dab0afa54b8.mp3",
+            "bytes": 4800,
+            "ms": 600,
+            "leadMs": 65,
+            "tailMs": 100,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ăn",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:22.116Z"
+          }
+        }
+      },
+      {
+        "id": "â",
+        "glyph": "â",
+        "role": "rime",
+        "label": "ớ",
+        "extendsTo": [
+          "ân",
+          "âu",
+          "ây"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/deed711d93083c7b.mp3",
+            "bytes": 5376,
+            "ms": 672,
+            "leadMs": 70,
+            "tailMs": 110,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ớ",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:22.911Z"
+          }
+        }
+      },
+      {
+        "id": "uô",
+        "glyph": "uô",
+        "role": "rime",
+        "label": "uô",
+        "extendsTo": [
+          "uôi"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/9c727cef81290366.mp3",
+            "bytes": 5184,
+            "ms": 648,
+            "leadMs": 70,
+            "tailMs": 115,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "uô",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:23.757Z"
+          }
+        }
+      },
+      {
+        "id": "ư",
+        "glyph": "ư",
+        "role": "rime",
+        "label": "ư",
+        "extendsTo": [
+          "ưa",
+          "ưng"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/5175fda3ebcd8784.mp3",
+            "bytes": 4992,
+            "ms": 624,
+            "leadMs": 70,
+            "tailMs": 95,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ư",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:24.587Z"
+          }
+        }
+      },
+      {
+        "id": "ưn",
+        "glyph": "ưn",
+        "role": "rime",
+        "label": "ưn",
+        "extendsTo": [
+          "ưng"
+        ],
+        "needsListen": true,
+        "audio": {
+          "name": {
+            "src": "media/aud/44832b7a266960ac.mp3",
+            "bytes": 4800,
+            "ms": 600,
+            "leadMs": 65,
+            "tailMs": 100,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ưn",
+            "by": null,
+            "addedAt": "2026-09-23T16:02:25.404Z"
+          }
+        }
+      }
+    ]
   },
   "dialect": "unset",
   "rules": {
@@ -118,42 +410,6 @@
             "text": "cờ",
             "by": null,
             "addedAt": "2026-09-22T17:20:58.361Z"
-          }
-        },
-        "source": "literacy-vi.md §2"
-      },
-      {
-        "id": "k",
-        "glyph": "k",
-        "label": "cờ",
-        "audio": {
-          "name": {
-            "src": "media/aud/404f8a0e826e8677.mp3",
-            "bytes": 6720,
-            "ms": 840,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "cờ",
-            "by": null,
-            "addedAt": "2026-09-22T17:20:58.730Z"
-          }
-        },
-        "source": "literacy-vi.md §2"
-      },
-      {
-        "id": "qu",
-        "glyph": "qu",
-        "label": "quờ",
-        "audio": {
-          "name": {
-            "src": "media/aud/d6901540d82cd85e.mp3",
-            "bytes": 6336,
-            "ms": 792,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "quờ",
-            "by": null,
-            "addedAt": "2026-09-22T17:20:59.098Z"
           }
         },
         "source": "literacy-vi.md §2"
@@ -280,6 +536,24 @@
             "text": "hờ",
             "by": null,
             "addedAt": "2026-09-22T17:21:01.673Z"
+          }
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "k",
+        "glyph": "k",
+        "label": "cờ",
+        "audio": {
+          "name": {
+            "src": "media/aud/404f8a0e826e8677.mp3",
+            "bytes": 6720,
+            "ms": 840,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "cờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:58.730Z"
           }
         },
         "source": "literacy-vi.md §2"
@@ -424,6 +698,24 @@
             "text": "phờ",
             "by": null,
             "addedAt": "2026-09-22T17:21:04.571Z"
+          }
+        },
+        "source": "literacy-vi.md §2"
+      },
+      {
+        "id": "qu",
+        "glyph": "qu",
+        "label": "quờ",
+        "audio": {
+          "name": {
+            "src": "media/aud/d6901540d82cd85e.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "quờ",
+            "by": null,
+            "addedAt": "2026-09-22T17:20:59.098Z"
           }
         },
         "source": "literacy-vi.md §2"
@@ -813,6 +1105,167 @@
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
       {
+        "id": "ăng",
+        "glyph": "ăng",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ăng",
+          "huyen": "ằng",
+          "sac": "ắng",
+          "hoi": "ẳng",
+          "nga": "ẵng",
+          "nang": "ặng"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/04f4dc3d248cb827.mp3",
+            "bytes": 5376,
+            "ms": 672,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ăng",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:18.553Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ăt",
+        "glyph": "ăt",
+        "legalTones": [
+          "sac",
+          "nang"
+        ],
+        "toned": {
+          "ngang": null,
+          "huyen": null,
+          "sac": "ắt",
+          "hoi": null,
+          "nga": null,
+          "nang": "ặt"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/e24e449ecd63f102.mp3",
+            "bytes": 4992,
+            "ms": 624,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ăt",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:18.942Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ân",
+        "glyph": "ân",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ân",
+          "huyen": "ần",
+          "sac": "ấn",
+          "hoi": "ẩn",
+          "nga": "ẫn",
+          "nang": "ận"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/2480e7814c0b820f.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ân",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:16.643Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "âu",
+        "glyph": "âu",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "âu",
+          "huyen": "ầu",
+          "sac": "ấu",
+          "hoi": "ẩu",
+          "nga": "ẫu",
+          "nang": "ậu"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/3504db0737289ac7.mp3",
+            "bytes": 6336,
+            "ms": 792,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "âu",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:17.039Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ây",
+        "glyph": "ây",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ây",
+          "huyen": "ầy",
+          "sac": "ấy",
+          "hoi": "ẩy",
+          "nga": "ẫy",
+          "nang": "ậy"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/e095d4af12890355.mp3",
+            "bytes": 5568,
+            "ms": 696,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ây",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:17.408Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
         "id": "e",
         "glyph": "e",
         "legalTones": [
@@ -940,6 +1393,39 @@
             "text": "eo",
             "by": null,
             "addedAt": "2026-09-22T17:21:11.629Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ê",
+        "glyph": "ê",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ê",
+          "huyen": "ề",
+          "sac": "ế",
+          "hoi": "ể",
+          "nga": "ễ",
+          "nang": "ệ"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/bbfa5c853bb69789.mp3",
+            "bytes": 5760,
+            "ms": 720,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ê",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:17.828Z"
           }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
@@ -1205,6 +1691,72 @@
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
       },
       {
+        "id": "ô",
+        "glyph": "ô",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ô",
+          "huyen": "ồ",
+          "sac": "ố",
+          "hoi": "ổ",
+          "nga": "ỗ",
+          "nang": "ộ"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/84ad6ff0dc47e3a7.mp3",
+            "bytes": 6144,
+            "ms": 768,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ô",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:18.192Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
+        "id": "ơ",
+        "glyph": "ơ",
+        "legalTones": [
+          "ngang",
+          "huyen",
+          "sac",
+          "hoi",
+          "nga",
+          "nang"
+        ],
+        "toned": {
+          "ngang": "ơ",
+          "huyen": "ờ",
+          "sac": "ớ",
+          "hoi": "ở",
+          "nga": "ỡ",
+          "nang": "ợ"
+        },
+        "audio": {
+          "name": {
+            "src": "media/aud/17409c58430dd4fa.mp3",
+            "bytes": 5952,
+            "ms": 744,
+            "engine": "gtts:vi",
+            "voice": null,
+            "text": "ơ",
+            "by": null,
+            "addedAt": "2026-09-22T17:21:19.321Z"
+          }
+        },
+        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
+      },
+      {
         "id": "u",
         "glyph": "u",
         "legalTones": [
@@ -1365,266 +1917,6 @@
             "text": "uôi",
             "by": null,
             "addedAt": "2026-09-22T17:21:16.265Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "ân",
-        "glyph": "ân",
-        "legalTones": [
-          "ngang",
-          "huyen",
-          "sac",
-          "hoi",
-          "nga",
-          "nang"
-        ],
-        "toned": {
-          "ngang": "ân",
-          "huyen": "ần",
-          "sac": "ấn",
-          "hoi": "ẩn",
-          "nga": "ẫn",
-          "nang": "ận"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/2480e7814c0b820f.mp3",
-            "bytes": 5760,
-            "ms": 720,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "ân",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:16.643Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "âu",
-        "glyph": "âu",
-        "legalTones": [
-          "ngang",
-          "huyen",
-          "sac",
-          "hoi",
-          "nga",
-          "nang"
-        ],
-        "toned": {
-          "ngang": "âu",
-          "huyen": "ầu",
-          "sac": "ấu",
-          "hoi": "ẩu",
-          "nga": "ẫu",
-          "nang": "ậu"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/3504db0737289ac7.mp3",
-            "bytes": 6336,
-            "ms": 792,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "âu",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:17.039Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "ây",
-        "glyph": "ây",
-        "legalTones": [
-          "ngang",
-          "huyen",
-          "sac",
-          "hoi",
-          "nga",
-          "nang"
-        ],
-        "toned": {
-          "ngang": "ây",
-          "huyen": "ầy",
-          "sac": "ấy",
-          "hoi": "ẩy",
-          "nga": "ẫy",
-          "nang": "ậy"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/e095d4af12890355.mp3",
-            "bytes": 5568,
-            "ms": 696,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "ây",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:17.408Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "ê",
-        "glyph": "ê",
-        "legalTones": [
-          "ngang",
-          "huyen",
-          "sac",
-          "hoi",
-          "nga",
-          "nang"
-        ],
-        "toned": {
-          "ngang": "ê",
-          "huyen": "ề",
-          "sac": "ế",
-          "hoi": "ể",
-          "nga": "ễ",
-          "nang": "ệ"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/bbfa5c853bb69789.mp3",
-            "bytes": 5760,
-            "ms": 720,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "ê",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:17.828Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "ô",
-        "glyph": "ô",
-        "legalTones": [
-          "ngang",
-          "huyen",
-          "sac",
-          "hoi",
-          "nga",
-          "nang"
-        ],
-        "toned": {
-          "ngang": "ô",
-          "huyen": "ồ",
-          "sac": "ố",
-          "hoi": "ổ",
-          "nga": "ỗ",
-          "nang": "ộ"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/84ad6ff0dc47e3a7.mp3",
-            "bytes": 6144,
-            "ms": 768,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "ô",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:18.192Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "ăng",
-        "glyph": "ăng",
-        "legalTones": [
-          "ngang",
-          "huyen",
-          "sac",
-          "hoi",
-          "nga",
-          "nang"
-        ],
-        "toned": {
-          "ngang": "ăng",
-          "huyen": "ằng",
-          "sac": "ắng",
-          "hoi": "ẳng",
-          "nga": "ẵng",
-          "nang": "ặng"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/04f4dc3d248cb827.mp3",
-            "bytes": 5376,
-            "ms": 672,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "ăng",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:18.553Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "ăt",
-        "glyph": "ăt",
-        "legalTones": [
-          "sac",
-          "nang"
-        ],
-        "toned": {
-          "ngang": null,
-          "huyen": null,
-          "sac": "ắt",
-          "hoi": null,
-          "nga": null,
-          "nang": "ặt"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/e24e449ecd63f102.mp3",
-            "bytes": 4992,
-            "ms": 624,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "ăt",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:18.942Z"
-          }
-        },
-        "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
-      },
-      {
-        "id": "ơ",
-        "glyph": "ơ",
-        "legalTones": [
-          "ngang",
-          "huyen",
-          "sac",
-          "hoi",
-          "nga",
-          "nang"
-        ],
-        "toned": {
-          "ngang": "ơ",
-          "huyen": "ờ",
-          "sac": "ớ",
-          "hoi": "ở",
-          "nga": "ỡ",
-          "nang": "ợ"
-        },
-        "audio": {
-          "name": {
-            "src": "media/aud/17409c58430dd4fa.mp3",
-            "bytes": 5952,
-            "ms": 744,
-            "engine": "gtts:vi",
-            "voice": null,
-            "text": "ơ",
-            "by": null,
-            "addedAt": "2026-09-22T17:21:19.321Z"
           }
         },
         "source": "derived from word-list.md; see literacy-vi.md §3.2, §5.2, §5.4"
@@ -1811,81 +2103,6 @@
         },
         "source": "literacy-vi.md §5.1"
       }
-    ]
-  },
-  "inventoryOrder": {
-    "onset": [
-      "m",
-      "b",
-      "c",
-      "ch",
-      "s",
-      "d",
-      "g",
-      "h",
-      "t",
-      "tr",
-      "v",
-      "gh",
-      "gi",
-      "k",
-      "kh",
-      "l",
-      "ng",
-      "nh",
-      "qu",
-      "r",
-      "th",
-      "x",
-      "đ",
-      "n",
-      "ngh",
-      "ph"
-    ],
-    "rime": [
-      "ưa",
-      "a",
-      "o",
-      "ê",
-      "ao",
-      "ong",
-      "ô",
-      "ăng",
-      "ach",
-      "ai",
-      "am",
-      "anh",
-      "at",
-      "ay",
-      "e",
-      "em",
-      "en",
-      "eo",
-      "i",
-      "im",
-      "it",
-      "oa",
-      "oi",
-      "u",
-      "ua",
-      "ui",
-      "uôi",
-      "ân",
-      "âu",
-      "ây",
-      "ăt",
-      "ơ",
-      "ưng",
-      "on",
-      "un"
-    ],
-    "tone": [
-      "ngang",
-      "sac",
-      "huyen",
-      "hoi",
-      "nang",
-      "nga"
     ]
   }
 }

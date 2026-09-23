@@ -33,6 +33,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import * as R from './lib/rules.mjs';
+import * as L from './lib/licence.mjs';
 import { parseFrames } from './lib/mp3.mjs';
 import {
   SCHEMA, LANGUAGES, ID_RE, packPaths, readManifest, readWords, listMedia,
@@ -146,6 +147,158 @@ if (manifest && LANGUAGES.includes(lang)) {
   }
 }
 
+/* --- the render policy: display.glyphCase, revision 5 (ui.md §8.2, E22) --------- */
+
+/*
+ * The owner answered `open-questions-ui.md` Q7: **English tiles are UPPERCASE.** The
+ * casing is a property of the pack, read once at pack load and applied at one place in
+ * the glyph component — never as a `toUpperCase()` in a component (AC D21).
+ *
+ * THE SEVERITIES ARE NOT UNIFORM, AND THE SPLIT IS THE WHOLE POINT.
+ *
+ *   absent                 no finding. Lowercase is the default and is right for most
+ *                          packs. AC D23: the app starts normally.
+ *   an unrecognised VALUE  WARNING. D23 says the app renders lowercase *silently*, and it
+ *                          does — but the validator is not the app. She typed
+ *                          "uppercase" instead of "upper" and her board came back
+ *                          lowercase; something has to be able to tell her why. Under
+ *                          `--strict` ("ready for a child") it fails.
+ *   a malformed SHAPE      ERROR. `"display": "upper"` or `glyphCase: true` is not a typo,
+ *                          it is a broken writer. The runtime survives it (that is what
+ *                          D23 guarantees) and surviving it is not the same as it being
+ *                          acceptable — the same line this file already draws for a
+ *                          dangling media reference.
+ *   vi + upper             ERROR, unless the font gate actually covers it. See below.
+ */
+let glyphCase = R.DEFAULT_GLYPH_CASE;
+if (manifest && LANGUAGES.includes(lang)) {
+  glyphCase = R.readGlyphCase(manifest);
+  const d = manifest.display;
+  if (d !== undefined) {
+    if (!d || typeof d !== 'object' || Array.isArray(d)) {
+      err('pack.json display', `must be an object, got ${JSON.stringify(d)}. The render policy lives under "display" so that the boundary is structural: nothing in it may reach stored data, audio or ordering (ui.md §8.2, AC D20). The app falls back to lowercase and starts (D23); this pack is still wrong.`);
+    } else if (d.glyphCase !== undefined) {
+      if (typeof d.glyphCase !== 'string') {
+        err('pack.json display.glyphCase', `must be a string, one of ${R.GLYPH_CASES.join(' / ')} — got ${JSON.stringify(d.glyphCase)}`);
+      } else if (!R.GLYPH_CASES.includes(d.glyphCase)) {
+        warn('pack.json display.glyphCase', `${JSON.stringify(d.glyphCase)} is not one of ${R.GLYPH_CASES.join(' / ')}, so the app renders LOWERCASE and starts normally (AC D23). If uppercase was intended, the value is exactly "upper".`);
+      }
+    }
+  }
+}
+
+/*
+ * THE Q13 GATE — a Vietnamese pack may not be switched to uppercase until the render gate
+ * covers it, and this is that rule as a COMPUTATION rather than a constant.
+ *
+ * `ui.md` §8.2.3: `assets/fonts/FIXTURE.txt` carries seven uppercase Vietnamese letters
+ * and none of the ~130 precomposed marked capitals. Both bundled faces contain those
+ * glyphs — and **a font that contains a glyph is not a gate that has rendered it.**
+ * `mả` and `mã` are 34 px apart at 36 pt and a mark on a capital sits against cap height
+ * rather than x-height, so the pair gets tighter, and `CLAUDE.md` calls rendering those
+ * two alike a *correctness* failure rather than a cosmetic one.
+ *
+ * Banning the combination with a hard-coded `if (lang === 'vi')` would be a constant
+ * nobody remembers to delete. Instead the check asks what THIS pack would actually have
+ * to draw and whether the fixture covers it, so extending the fixture and re-running
+ * Q1-Q5c lifts the gate by itself — which is the only way the rule stays true.
+ *
+ * IT FAILS CLOSED. If the fixture cannot be found, the flag cannot be cleared, and that
+ * is an error rather than a skipped check: unlike the decode gate — where fail-closed
+ * would block every honest offline validation — nobody has a legitimate reason to set a
+ * Vietnamese pack to uppercase outside this repo.
+ */
+const FIXTURE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'fonts', 'FIXTURE.txt');
+if (lang === 'vi' && glyphCase === 'upper') {
+  if (!existsSync(FIXTURE)) {
+    err('pack.json display.glyphCase', `"upper" on a Vietnamese pack, and the render-gate fixture (assets/fonts/FIXTURE.txt) is not here, so the gate cannot be cleared. AC Q13: a Vietnamese pack may not be switched to uppercase until the fixture is extended and Q1-Q5c re-run. mả/mã are 34 px apart at 36 pt and a tone mark on a capital sits against cap height — CLAUDE.md calls rendering them alike a correctness failure.`);
+  } else {
+    const seen = [];
+    for (const g of Object.keys(tileById)) for (const [, t] of tileById[g]) {
+      if (typeof t.glyph === 'string') seen.push(t.glyph);
+      if (t.toned && typeof t.toned === 'object') {
+        for (const v of Object.values(t.toned)) if (typeof v === 'string') seen.push(v);
+      }
+    }
+    // The words are read again below for the main pass; this second read only ever
+    // happens on the error path of a combination that must not ship anyway.
+    for (const { word } of readWords(packDir).ok) {
+      if (word && typeof word.text === 'string') seen.push(word.text);
+    }
+    const gaps = R.viUppercaseGaps(seen, readFileSync(FIXTURE, 'utf8'));
+    if (gaps.length) {
+      err('pack.json display.glyphCase', `"upper" on a Vietnamese pack would render ${gaps.length} character(s) the §6.1 render gate has never drawn: ${gaps.join(' ')}. assets/fonts/FIXTURE.txt carries the seven plain uppercase letters (Ă Â Đ Ê Ô Ơ Ư) and none of the precomposed marked capitals, so Q5a would report green and say nothing about these. AC Q13: extend the fixture and re-run Q1-Q5c first. The fonts do contain the glyphs; a font that contains a glyph is not a gate that has rendered it.`);
+    }
+  }
+}
+
+/* --- the board: inventoryOrder, revision 5 -------------------------------------- */
+
+/*
+ * `ui.md` §13.7 E12: **the inventory order IS the board.** Revision 5 changed what it
+ * holds. The owner played the built app and said the table "feel really random and
+ * un-organized and doesn't give my son a sense of character order", then specified the
+ * standard alphabet with digraphs entered letter by letter — so `inventoryOrder` is now
+ * `{ letter, tone }` (Vietnamese) or `{ letter }` (English), and `onset`, `rime` and
+ * `digraph` are gone from it. They live on in `tiles`, which is the MODEL and the
+ * editor's vocabulary; nothing on the board is an onset or a rime any more.
+ *
+ * Three different severities here, deliberately:
+ *
+ *   a leftover `onset`/`rime`/`digraph` key     ERROR   — an un-migrated pack. The app
+ *                                                         would draw the revision-4 board.
+ *   a letter missing, unknown or duplicated     ERROR   — a letter she cannot reach is
+ *                                                         words she cannot build, which is
+ *                                                         the defect revision 4 shipped
+ *                                                         (22 of 47 words unbuildable).
+ *   a different ORDER of the same letters       warning — his mother may reorder her own
+ *                                                         board; she may not lose a letter.
+ */
+const BOARD_RUNS = {
+  vi: { letter: R.VI_ALPHABET, tone: R.VI_TONE_IDS },
+  en: { letter: R.EN_ALPHABET },
+};
+const RETIRED_RUNS = ['onset', 'rime', 'digraph'];
+
+if (manifest && LANGUAGES.includes(lang)) {
+  const io_ = manifest.inventoryOrder;
+  if (!io_ || typeof io_ !== 'object' || Array.isArray(io_)) {
+    err('pack.json inventoryOrder', `must be an object of board runs (${Object.keys(BOARD_RUNS[lang]).join(', ')}). ui.md E12: this list IS the board, and without it the app falls back to declaration order — which is how 22 of 47 Vietnamese words became unbuildable once already.`);
+  } else {
+    for (const g of RETIRED_RUNS) {
+      if (g in io_) {
+        err('pack.json inventoryOrder', `still carries "${g}". Revision 5 put the standard alphabet on the board and a digraph is entered as its letters (literacy-vi.md §0.3, literacy-en.md §0.1) — ${g}s remain in "tiles" as the model and the editor's vocabulary, but nothing on the board is one. This pack has not been migrated.`);
+      }
+    }
+    const want = BOARD_RUNS[lang];
+    const gotRuns = Object.keys(io_).filter((k) => !RETIRED_RUNS.includes(k)).sort();
+    if (gotRuns.join(',') !== Object.keys(want).sort().join(',')) {
+      err('pack.json inventoryOrder', `a ${lang} board has exactly the runs ${Object.keys(want).join(', ')} — got ${gotRuns.join(', ') || '(none)'}`);
+    }
+    for (const [run, canonical] of Object.entries(want)) {
+      const got = io_[run];
+      if (!Array.isArray(got)) { err(`pack.json inventoryOrder.${run}`, 'must be an array'); continue; }
+      const seen = new Set();
+      for (const c of got) {
+        const k = typeof c === 'string' ? c.normalize('NFC') : null;
+        if (k === null) { err(`pack.json inventoryOrder.${run}`, `${JSON.stringify(c)} is not a string`); continue; }
+        if (seen.has(k)) err(`pack.json inventoryOrder.${run}`, `"${k}" appears twice — one symbol cannot occupy two cells`);
+        seen.add(k);
+        if (!canonical.includes(k)) {
+          err(`pack.json inventoryOrder.${run}`, `"${k}" is not part of the ${run === 'tone' ? 'six tones' : `${lang === 'vi' ? '29-letter Vietnamese alphabet' : 'a-z alphabet'}`}. The board is the standard character table (literacy-${lang}.md §0); a digraph is entered as its letters, not as a cell.`);
+        }
+      }
+      const missing = canonical.filter((c) => !seen.has(c));
+      if (missing.length) {
+        err(`pack.json inventoryOrder.${run}`, `${missing.length} missing: ${missing.join(' ')}. A letter that is not on the board is every word containing it made unbuildable, and nothing else in this report would say so.`);
+      }
+      if (got.length === canonical.length && !missing.length && got.map((c) => String(c).normalize('NFC')).join(' ') !== canonical.join(' ')) {
+        warn(`pack.json inventoryOrder.${run}`, `holds every ${run} but not in the standard order. Expected: ${canonical.join(' ')}`);
+      }
+    }
+  }
+}
+
 /* --- Vietnamese tile rules: literacy-vi.md §5.2 and §5.4 ------------------------ */
 
 if (lang === 'vi' && tileById.rime) {
@@ -179,6 +332,66 @@ if (lang === 'vi' && tileById.rime) {
   }
   if (manifest.dialect === 'unset') {
     warn('pack.json dialect', 'not chosen yet (open-questions.md Q1). The palette is using the conservative union of both dialects\' merged sets.');
+  }
+}
+
+/* --- the prefix states: literacy-vi.md §0.12 ------------------------------------ */
+
+/*
+ * Revision 5 re-keys tile audio from units to **unit-states**. `c` alone is a state (it
+ * says `cờ`) and so is `ch` (it says `chờ`), and every tap must answer (§0.9). Most
+ * states are tiles; ten are not — the onset steps `p` and `q`, and the eight
+ * pass-through rime prefixes `ac an uô â ă ăn ư ưn`. Those ten live in `prefixAudio`.
+ *
+ * The set is DERIVED from the inventory, so it is checked by re-deriving it: a state
+ * that exists on the board and has no clip is a tap that says nothing, which
+ * `gameplay.md` §4.3 forbids.
+ */
+const prefixEntries = []; // {group, id, entry} — collected for the media pass
+if (lang === 'vi' && tileIds.onset && tileIds.rime) {
+  const pa = manifest.prefixAudio;
+  const wanted = {
+    onset: R.prefixStates([...tileIds.onset]).sort(R.viCollate),
+    rime: R.prefixStates([...tileIds.rime]).sort(R.viCollate),
+  };
+  if (pa === undefined) {
+    err('pack.json prefixAudio', `missing. Revision 5 makes the child tap a digraph letter by letter, so ${wanted.onset.length + wanted.rime.length} partial state(s) (${[...wanted.onset, ...wanted.rime].join(' ')}) are reachable that no tile speaks for. Without them those taps are silent (literacy-vi.md §0.12).`);
+  } else if (!pa || typeof pa !== 'object' || Array.isArray(pa)) {
+    err('pack.json prefixAudio', 'must be an object of { onset: [], rime: [] }');
+  } else {
+    for (const [g, want] of Object.entries(wanted)) {
+      const list = pa[g];
+      if (!Array.isArray(list)) { err(`pack.json prefixAudio.${g}`, 'must be an array'); continue; }
+      const seen = new Set();
+      list.forEach((t, i) => {
+        const at = `pack.json prefixAudio.${g}[${i}]`;
+        if (!t || typeof t !== 'object' || typeof t.id !== 'string' || !t.id) { err(at, 'must be an object with a non-empty id'); return; }
+        const id = t.id.normalize('NFC');
+        if (seen.has(id)) err(at, `duplicate prefix state ${JSON.stringify(id)}`);
+        seen.add(id);
+        if (tileIds[g].has(id)) {
+          err(at, `"${id}" is already a ${g} tile, so it has a clip of its own. prefixAudio is only for states that are NOT tiles (literacy-vi.md §0.12).`);
+          return;
+        }
+        if (!want.includes(id)) {
+          err(at, `"${id}" is not a prefix of any ${g} in this pack — it is a state the child can never be in. Expected: ${want.join(' ')}`);
+          return;
+        }
+        if (typeof t.label !== 'string' || !t.label) {
+          warn(at, `"${id}" has no label, so nothing records what it is supposed to SAY. §0.9: a rime state reads itself aloud (\`ăn\` -> "ăn") and \`ă\`/\`â\` cannot be said level at all, so they are voiced \`á\` and \`ớ\`.`);
+        }
+        if (typeof t.sameAs === 'string') {
+          const [sg, sid] = t.sameAs.split(':');
+          if (!tileIds[sg]?.has(sid)) err(at, `sameAs ${JSON.stringify(t.sameAs)} does not name a tile in this pack`);
+        }
+        prefixEntries.push({ group: g, id, index: i, entry: t });
+      });
+      for (const id of want) {
+        if (!seen.has(id)) {
+          err(`pack.json prefixAudio.${g}`, `"${id}" is reachable — the child taps its letters on the way to ${g === 'onset' ? 'an onset' : 'a rime'} — and this pack has no entry for it. That tap would be silent (literacy-vi.md §0.12, gameplay.md §4.3).`);
+        }
+      }
+    }
   }
 }
 
@@ -401,12 +614,107 @@ const takesRef = (ref, at, where) => {
   return true;
 };
 
+/*
+ * THE DERIVED LETTER STREAM — revision 5, `literacy-vi.md` §0.5 / `literacy-en.md` §0.5.
+ *
+ * The board is 29 letters (or `a`-`z`), so the engine walks LETTERS. But a word is still
+ * stored as its MODEL — `{onset, rime, tone}` in Vietnamese, the sound decomposition
+ * `tiles` in English — and revision 5's load-bearing rule is:
+ *
+ *     **the onset/rime boundary is STORED, never derived at runtime.**
+ *
+ * `gì` is onset `gi` + rime `i` written with a single `i`, and the letter stream `g` `i`
+ * cannot express that; nothing in the seed list does it, but his mother can type `gì`
+ * tomorrow. So `letters` and `onsetLetterCount` are written once, by the editor, and
+ * checked here against the model they came from.
+ *
+ * They are checked HARD in one direction and softly in the other, and the asymmetry is
+ * the point: the onset prefix must match exactly (that is the boundary the engine will
+ * trust), while the remainder may legitimately disagree with the rime for a word that
+ * declares `build.spellingException` — which is the same opt-out §1.2 already gives the
+ * composed spelling, for the same orthographic reason.
+ */
+const boardLetters = new Set(
+  Array.isArray(manifest?.inventoryOrder?.letter)
+    ? manifest.inventoryOrder.letter.filter((c) => typeof c === 'string').map((c) => c.normalize('NFC'))
+    : [],
+);
+
+/*
+ * AC **D20** — **nothing stored is uppercase.** The casing is applied at render, and this
+ * is the check that keeps it there.
+ *
+ * It exists because the cheap way to satisfy "the owner wants uppercase tiles" is to
+ * upper-case the DATA — `inventoryOrder`, `letters`, `tiles` — and it would look right on
+ * the board and be wrong everywhere else at once: the clip key `media/aud/...` is looked
+ * up by tile id, `inventoryOrder`'s alphabetical sort is over the stored lowercase, word
+ * ids are file names on a case-preserving-but-case-insensitive filesystem, and the editor
+ * would show his mother text she did not type (D24). One `toUpperCase()` in the wrong
+ * place does all four.
+ *
+ * `word.text` is deliberately NOT checked: D20 lists ids, media names, `inventoryOrder`,
+ * `letters` and `tiles`, and a spelling is hers — `Hà Nội` is a legitimate thing to type.
+ */
+const hasUpper = (v) => typeof v === 'string' && [...v].some((c) => c !== c.toLowerCase());
+
+function checkStoredCase(where, label, values) {
+  const bad = values.filter(hasUpper);
+  if (bad.length) {
+    err(where, `${label} contains uppercase: ${bad.slice(0, 8).map((b) => JSON.stringify(b)).join(', ')}${bad.length > 8 ? `, and ${bad.length - 8} more` : ''}. The glyph casing is a RENDER property (pack.json display.glyphCase, ui.md §8.2) and nothing stored may carry it (AC D20). Upper-casing the data instead breaks the clip lookup, the alphabetical sort, the word file names and the editor's own text all at once.`);
+  }
+}
+
+function checkLetters(word, rel, dErr, expectJoined, onsetLen) {
+  const letters = word.letters;
+  if (!Array.isArray(letters) || letters.length === 0) {
+    dErr(rel, 'has no "letters". Revision 5 puts the standard alphabet on the board and the child taps a digraph letter by letter, so every word needs its letter stream stored (literacy-vi.md §0.5). It is derived from the decomposition by the editor, never recomputed at runtime.');
+    return;
+  }
+  for (let i = 0; i < letters.length; i += 1) {
+    const c = letters[i];
+    if (typeof c !== 'string' || [...c.normalize('NFC')].length !== 1) {
+      dErr(rel, `letters[${i}] is ${JSON.stringify(c)}; every entry must be exactly one letter — the board has one cell per letter.`);
+      return;
+    }
+    const k = c.normalize('NFC');
+    if (boardLetters.size && !boardLetters.has(k)) {
+      dErr(rel, `letters[${i}] is "${k}", which is not on this pack's board (inventoryOrder.letter). There is no cell for it, so this word could never be built.`);
+    }
+  }
+  const joined = letters.join('').normalize('NFC');
+  if (onsetLen !== null) {
+    if (!Number.isInteger(word.onsetLetterCount) || word.onsetLetterCount < 0 || word.onsetLetterCount > letters.length) {
+      dErr(rel, `onsetLetterCount must be an integer from 0 to ${letters.length}, got ${JSON.stringify(word.onsetLetterCount)}. It is where the onset ends and the rime begins, and the engine is forbidden to work that out for itself (literacy-vi.md §0.5).`);
+      return;
+    }
+    if (word.onsetLetterCount !== onsetLen.count) {
+      dErr(rel, `onsetLetterCount is ${word.onsetLetterCount} but the onset ${JSON.stringify(onsetLen.onset ?? '')} is ${onsetLen.count} letter(s) long. The strip would draw the boundary in the wrong place and the đánh vần chant would name the wrong âm đầu.`);
+      return;
+    }
+    const gotOnset = letters.slice(0, word.onsetLetterCount).join('').normalize('NFC');
+    if (gotOnset !== (onsetLen.onset ?? '')) {
+      dErr(rel, `the first ${word.onsetLetterCount} letter(s) spell ${JSON.stringify(gotOnset)}, but the onset is ${JSON.stringify(onsetLen.onset ?? '')}.`);
+      return;
+    }
+  }
+  if (joined !== expectJoined.value && word.build?.spellingException !== true) {
+    dErr(rel, `letters spell ${JSON.stringify(joined)} but ${expectJoined.what} is ${JSON.stringify(expectJoined.value)}. ${expectJoined.hint}`);
+  }
+}
+
 for (const { file, word } of wordsOk) {
   const rel = path.relative(packDir, file);
   const stem = path.basename(file, '.json');
 
   if (!word || typeof word !== 'object' || Array.isArray(word)) { err(rel, 'must be a JSON object'); continue; }
   if (typeof word.id !== 'string' || !ID_RE.test(word.id)) { err(rel, `id ${JSON.stringify(word.id)} must match ${ID_RE}`); continue; }
+  // AC D20. `ID_RE` already forbids an uppercase id, so this covers the decomposition.
+  checkStoredCase(rel, 'letters', Array.isArray(word.letters) ? word.letters : []);
+  checkStoredCase(rel, 'tiles', Array.isArray(word.tiles) ? word.tiles : []);
+  if (Array.isArray(word.syllables)) {
+    checkStoredCase(rel, 'syllables', word.syllables.flatMap((sy) => (sy && typeof sy === 'object'
+      ? [sy.onset, sy.rime].filter((x) => typeof x === 'string') : [])));
+  }
   if (word.id !== stem) err(rel, `id ${JSON.stringify(word.id)} does not match the filename ${JSON.stringify(stem)}`);
   if (seenId.has(word.id)) err(rel, `duplicate word id ${JSON.stringify(word.id)}`);
   seenId.add(word.id);
@@ -474,6 +782,15 @@ for (const { file, word } of wordsOk) {
       // (`gi`+`i` = `gì`), so an entry may opt out with build.spellingException.
       if (word.syllables.length === 1) {
         const s = word.syllables[0];
+        const onset = typeof s.onset === 'string' ? s.onset.normalize('NFC') : null;
+        const rime = typeof s.rime === 'string' ? s.rime.normalize('NFC') : '';
+        checkLetters(word, rel, dErr,
+          {
+            value: `${onset ?? ''}${rime}`,
+            what: 'onset + rime',
+            hint: 'If this is a genuine orthographic collapse — `gi` + rime `i` is written `gì` with one `i` (literacy-vi.md §1.2, §0.5) — set build.spellingException = true and the stored letters win.',
+          },
+          { onset, count: [...(onset ?? '')].length });
         const rimeTile = tileById.rime?.get(s.rime);
         const toned = rimeTile?.toned?.[s.tone];
         if (typeof toned === 'string') {
@@ -514,6 +831,12 @@ for (const { file, word } of wordsOk) {
       // English IS letter-by-letter (literacy-en.md §1), so this is exact, not advisory.
       const joined = word.tiles.join('');
       if (joined !== word.text) dErr(rel, `tiles spell "${joined}" but text is "${word.text}"`);
+      // `literacy-en.md` §0.5: every English grapheme prefix is itself a grapheme, so the
+      // letters ARE the spelling, character for character — and they must also recompose
+      // to `tiles`, which is the sound decomposition and stays (`duck` = `d` `u` `ck`).
+      checkLetters(word, rel, dErr,
+        { value: word.text.normalize('NFC'), what: 'the spelling', hint: 'English concatenates exactly (literacy-en.md §1), so these can never legitimately differ.' },
+        null);
     }
   }
 
@@ -548,7 +871,7 @@ for (const { file, word } of wordsOk) {
     }
     // `own-work` and `camera` are the mother's own photographs, `generated` is ours.
     // Everything else is somebody else's work and carries an attribution obligation.
-    const ours = ['camera', 'own-work', 'generated'].includes(im.source);
+    const ours = L.isOurs(im.source);
     if (!ours) {
       // A missing AUTHOR is only a breach for licences that require attribution. Public
       // domain, PDM and CC0 require none, and demanding one there is not "safe" -- it
@@ -556,27 +879,29 @@ for (const { file, word } of wordsOk) {
       // image under `cam` and two more under `đèn` and `mũi` before it was noticed.
       // `licence` and `sourceUrl` are still required for every third-party image, because
       // without them nobody can check the claim that attribution is unnecessary.
+      //
+      // THE PREDICATE MOVED TO `lib/licence.mjs` AND IS NOW SHARED. It used to live here
+      // as a regex and a ternary, and `pack-attributions.mjs` carried its own stricter
+      // version -- so the two tools reached different verdicts on the same two
+      // photographs, one passing the pack and the other refusing to let it be published.
+      // Two tools disagreeing about the same evidence is how a licensing claim gets made
+      // twice with different answers.
       const lic = String(im.license ?? '');
-      const attributionFree = /public domain|^\s*pdm\b|\bcc0\b|no known copyright/i.test(lic);
-      const required = attributionFree
-        ? ['license', 'sourceUrl']
-        : ['license', 'sourceUrl', 'creator'];
-      for (const k of required) {
-        if (!im[k]) {
-          err(rel, `${at} came from ${JSON.stringify(im.source)} and has no "${k}". A CC BY or CC BY-SA image shipped without author, licence and a link back is a licence breach, and the attributions screen is generated from the pack — there is nowhere else for this to come from.`);
-        }
+      const ob = L.licenceObligations(im.license);
+      for (const k of L.missingCredit(im)) {
+        err(rel, `${at} came from ${JSON.stringify(im.source)} and has no "${k}". A CC BY or CC BY-SA image shipped without author, licence and a link back is a licence breach, and the attributions screen is generated from the pack — there is nowhere else for this to come from.`);
       }
-      if (attributionFree && !im.creator) {
+      if (ob.publicDomain && !im.creator) {
         warn(rel, `${at} is ${lic || 'public domain'} and names no author, which that licence does not require. Recorded so the attributions screen can credit it anyway where a name is known.`);
       }
       if (!im.modified) {
         warn(rel, `${at} does not record what was changed. CC BY and CC BY-SA both require that modifications be indicated, and this pipeline always crops and re-encodes.`);
       }
     }
-    if (/\bnd\b|NoDeriv/i.test(im.license ?? '')) {
+    if (L.licenceObligations(im.license).noDerivatives) {
       err(rel, `${at} is licensed ${im.license}. The pipeline crops and resizes, which a NoDerivatives term forbids (image-sourcing.md §Licensing).`);
     }
-    if (/\bnc\b|noncommercial|non-commercial/i.test(im.license ?? '')) {
+    if (L.licenceObligations(im.license).nonCommercial) {
       warn(rel, `${at} is licensed ${im.license}. Publishing to a store is still open (decisions.md "Still open" #5) and a NonCommercial term would have to be unpicked first.`);
     }
     // GFDL is a heavier obligation than CC BY-SA and arrives looking like just another
@@ -584,7 +909,7 @@ for (const { file, word } of wordsOk) {
     // CC BY-SA, and the licence requires the FULL licence text to travel with the work —
     // which for an app means shipping the GFDL itself, not a line in a credits table.
     // Harmless for a private family app; a real decision before publishing.
-    if (/\bGFDL\b|GNU Free Documentation/i.test(im.license ?? '')) {
+    if (L.licenceObligations(im.license).licenceText) {
       warn(rel, `${at} is licensed ${im.license}. GFDL requires the full licence text to ship with the work, and 1.2-only cannot be relicensed as CC BY-SA. Fine privately; replace it before publishing (open-questions-content.md C5).`);
     }
   });
@@ -631,6 +956,31 @@ for (const g of Object.keys(tileById)) {
       if (takesRef(m.ref, m.at, 'pack.json')) { any = true; checkClip(m, 'pack.json', `${g}[${id}]`); }
     }
     if (!any) warn(`tiles.${g}[${id}]`, 'no audio — the tile is silent when pressed. The round still works; the chant loses a step.');
+  }
+}
+
+/* --- D20: nothing stored is uppercase ------------------------------------------- */
+
+for (const [run, list] of Object.entries(manifest?.inventoryOrder ?? {})) {
+  if (Array.isArray(list)) checkStoredCase('pack.json', `inventoryOrder.${run}`, list);
+}
+for (const g of Object.keys(tileById)) {
+  checkStoredCase('pack.json', `tiles.${g} ids`, [...tileById[g].keys()]);
+}
+for (const m of listMedia(packDir)) {
+  if (hasUpper(path.basename(m.ref))) {
+    err('media/', `${m.ref} has an uppercase file name. Media names are content-addressed lowercase hex; an uppercase one resolves on this filesystem and not on the phone's (AC D20).`);
+  }
+}
+
+/* --- prefix-state audio: same references, same budget, same decode gate --------- */
+for (const { group, id, index, entry } of prefixEntries) {
+  let any = false;
+  for (const m of tileMediaRefs(entry, `prefixAudio.${group}`, index)) {
+    if (takesRef(m.ref, m.at, 'pack.json')) { any = true; checkClip(m, 'pack.json', `prefixAudio.${group}[${id}]`); }
+  }
+  if (!any) {
+    warn(`prefixAudio.${group}[${id}]`, `no audio — the tap that puts the child into the "${id}" state says nothing. ${entry.sameAs ? `It is marked sameAs ${entry.sameAs}; gen-audio copies that clip.` : 'Generate it: node tools/gen-audio.mjs --pack <pack> --only tiles'}`);
   }
 }
 

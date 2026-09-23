@@ -7,6 +7,18 @@
 //   node tools/layout-sweep.mjs --devices   # the representative-device table for ui.md
 //   node tools/layout-sweep.mjs --pages     # the PAGE PLAN per device (runs -> pages)
 //
+// REVISED 2026-09-23 (design revision 5) for the LETTER-BY-LETTER BOARD.  The owner:
+// "the characters being displayed feel really random and un-organized and doesn't give my
+// son a sense of character order in the table ... display the full standard character
+// table", and then "for character combining, he will still going through character by
+// character, event for combine ones like ch, tr (Choose C and choose H)".  So the runs
+// change -- VI [29 letters, 6 tones], EN [26 letters] -- and, because a word is now up to
+// SIX taps rather than three, the WORD STRIP becomes a real layout term for the first
+// time.  Revision 4 never sized it horizontally; it held at most three cells and always
+// fitted.  STRIP_CELLS, STRIP_GAP, STRIP_PAD, STRIP_CELL_MIN and the rules F4 / F15 / F16
+// / F17 are that pricing, and F17 is the one that is not circular: it asks whether the
+// PACK's longest word fits the strip the DEVICE laid out.
+//
 // REVISED 2026-09-23 (design revision 4) for PAGING, which the owner proposed after
 // playing revision 3 on an iPhone: "if the screen is too small, maybe paging the table
 // probably do it".  A page is a WINDOW onto the constant table, never a rearrangement of
@@ -63,6 +75,26 @@ export const MAX_TABLE = 90;   // the search ceiling; no pack inventory is large
  * wraps when the buttons do not fit the content width, and each wrapped row costs a row
  * of table.  RAIL_MAX_ROWS caps it: a viewport needing a third rail row is not served. */
 export const RAIL_GAP = 12, RAIL_MAX_ROWS = 2;
+
+/* ---------------- the word strip (design revision 5) ----------------
+ * Revision 4's strip held an onset, a rime and a tone -- three cells, never more, and it
+ * was never checked against the content width because three cells always fitted.
+ * Revision 5 builds a word letter by letter, so the strip holds up to SIX cells:
+ * `trường` is t-r-u-o-n-g, and `chuối` is five letters plus, while it is incomplete, one
+ * dashed cell for the letter that is still missing.
+ *
+ * STRIP_CELLS = 6 is a MEASURED ceiling, not a preference.  At seven cells the strip
+ * glyph on a 360 dp phone falls to 31 pt against F4's 34 pt floor (measured: tableW 328,
+ * cellW 40, font 31).  Six is therefore the longest word the smallest supported phone can
+ * show at a legible size, and it is handed to the content-engineer as the cap the editor
+ * must enforce -- see F17, which is the rule that checks it against the real pack.
+ *
+ * A strip cell is NOT a 72 pt motor target.  It cannot be: five 72 pt cells need
+ * 5*72 + 4*8 = 392 pt and a 360 dp phone has 328 pt of content width, so per-cell undo is
+ * geometrically impossible at the floor.  Undo is the whole strip instead (ui.md §7.2), so
+ * STRIP_CELL_MIN is a LEGIBILITY floor: 34 pt of glyph (F4) times the 1.15 width a `ư`
+ * with a horn and a tone mark needs is 39.1, rounded up to 40.                          */
+export const STRIP_CELLS = 6, STRIP_GAP = 8, STRIP_PAD = 8, STRIP_CELL_MIN = 40;
 export const railCols  = CW => Math.max(1, Math.floor((CW + RAIL_GAP) / (TILE_MIN + RAIL_GAP)));
 export const railH = rows => rows === 0 ? 0 : rows * TILE_MIN + (rows - 1) * RAIL_GAP + RAIL_GAP;
 
@@ -134,14 +166,23 @@ export function layout({ Wv, Hv, insetT = 0, insetB = 0, insetL = 0, insetR = 0,
   const tableHy  = rows*tile + (rows-1)*gapY;
   const slackY   = H - CHROME - stripH - tableHy;
   const rowW     = cols*tile + (cols-1)*gap;
-  const stripFont = Math.floor((stripH - 16) / 1.55);
+  // THE WORD STRIP.  `stripCellH` is exactly revision 4's term -- stripH - 2*STRIP_PAD is
+  // stripH - 16 -- so the height half of the strip is unchanged.  What revision 5 adds is
+  // the WIDTH half: six cells and five gaps have to fit the content width, and on a phone
+  // that is what binds, not the height.
+  const stripCellH = stripH - 2 * STRIP_PAD;
+  const stripFitW  = Math.floor((tableW - (STRIP_CELLS - 1) * STRIP_GAP) / STRIP_CELLS);
+  const stripCellW = Math.min(Math.round(stripCellH * 0.82), stripFitW, TILE_MAX);
+  const stripRowW  = STRIP_CELLS * stripCellW + (STRIP_CELLS - 1) * STRIP_GAP;
+  const stripFont  = Math.floor(Math.min(stripCellH / 1.55, stripCellW * 0.82));
   const tileFont  = Math.floor(Math.min(tile * 0.52, (tile - 16) / 1.55));
   // top bar: mode title (~96) + five shelf slots + gate dot (32) + padding (24)
   const shelf = clamp(Math.floor((CW - 96 - 32 - 24) / 5.4), 0, 44);
 
   return { W,H,gutter,CW,tableW,cols,rows,cells,tile,gap,gapY,stripH,tableH:tableHy,
            slack:slackY,rowW,stripFont,tileFont,shelf,railRows,railH:railH(railRows),
-           railCols:railCols(CW) };
+           railCols:railCols(CW),
+           stripCellH, stripCellW, stripRowW, stripCells: STRIP_CELLS };
 }
 
 /* ---------------- the fit rule ---------------- */
@@ -149,7 +190,13 @@ export const RULES = [
   ['F1 table row fits the content width',   L => L.rowW <= L.tableW],
   ['F2 tile >= 72 (motor floor, ~11.4 mm)', L => L.tile >= TILE_MIN],
   ['F3 the stack fits (slack >= 0)',        L => L.slack >= 0],
+  // F4 is revision 4's rule with revision 5's formula.  The glyph is now limited by the
+  // strip CELL, not by the strip's height, because six cells across a phone is the
+  // binding constraint.  Measured: it never bound under the old formula (0 layouts in
+  // 17,321,319 where F4 was the only failing rule), and it binds under the new one.
   ['F4 assembled word >= 34pt',             L => L.stripFont >= 34],
+  ['F15 the 6-cell word strip fits the content width', L => L.stripRowW <= L.tableW],
+  ['F16 strip cell >= 40 (legibility, not motor)',     L => L.stripCellW >= STRIP_CELL_MIN],
   ['F5 tile glyph >= 24pt',                 L => L.tileFont  >= 24],
   ['F6 gap >= 10 (hit rects cannot overlap)', L => L.gap >= 10],
   ['F8 five shelf slots >= 22pt',           L => L.shelf >= 22],
@@ -167,8 +214,17 @@ export const PLAN_RULES = [
   ['F12  every character is on exactly one page', (P, runs) =>
       P.pages.reduce((a,b)=>a+b,0) === runs.reduce((a,b)=>a+b,0)],
   ['F13  no page is empty', (P) => P.pages.every(n => n > 0)],
+  // F17 is the only strip rule that is NOT circular.  F4/F15/F16 also DECIDE the cell
+  // budget, so for a served table size they cannot fail -- the same tautology F0 exists to
+  // break.  F17 asks a question the budget cannot answer: does the PACK's longest word fit
+  // the strip the DEVICE laid out?  It fails the moment a pack grows a word longer than
+  // STRIP_CELLS letters, which is the real-world failure mode -- his mother adding
+  // `nghiêng` (n-g-h-i-ê-n-g, seven letters) in the editor.
+  ['F17  the pack\'s longest word fits the strip', (P, runs, maxLetters) =>
+      maxLetters <= P.L.stripCells && P.L.stripFont >= 34],
 ];
-export const planFits = (P, runs) => P !== null && PLAN_RULES.every(([,f]) => f(P, runs));
+export const planFits = (P, runs, maxLetters = 1) =>
+  P !== null && PLAN_RULES.every(([,f]) => f(P, runs, maxLetters));
 export const fits = L => L !== null && RULES.every(([,f]) => f(L));
 
 /**
@@ -217,13 +273,36 @@ export function planFor(v, runs) {
   return null;   // a third rail row: not served
 }
 
+/* MOVED ABOVE `orientationOK` in revision 5, and EXPORTED, because it had been left
+   holding revision 4's runs while the sweep below used revision 5's -- the app reads
+   `orientationOK` for P7/P8 and would have decided rotation against a 67-cell board that
+   no longer exists.  One source for the run lengths, used by both. */
+// The two shipped inventories as RUN LENGTHS -- DESIGN REVISION 5.
+//   vi-seed: 29 letters (a ă â b c d đ e ê g h i k l m n o ô ơ p q r s t u ư v x y) then
+//            6 tones.  The onset and rime runs are gone: nothing on the board is an onset
+//            or a rime any more, because `ch` is entered as `c` then `h`.
+//   en-seed: 26 letters, a-z.  ONE run: the ten digraph tiles are gone for the same
+//            reason (`ship` is s-h-i-p).
+// literacy-vi.md §0.13, literacy-en.md §0.3.
+export const VI_RUNS = [29, 6];
+export const EN_RUNS = [26];
+
+// The longest word in each pack, in LETTERS -- the thing the word strip has to hold.
+//   vi-seed: `chuối` / `trăng` / `trứng`, 5 letters (literacy-vi.md §0.11)
+//   en-seed: `ship` / `fish` / `duck` / `sock`, 4 letters (literacy-en.md §0.2)
+// F17 checks these against the strip the device lays out.  Raise VI_MAX_LETTERS to 7 --
+// his mother adding `nghiêng` -- and the sweep exits 1 naming F17.  That is the fault
+// injection this rule exists to survive.
+const VI_MAX_LETTERS = 5;
+const EN_MAX_LETTERS = 4;
+
 /* An orientation is supported iff it can serve a PAGE PLAN for both packs (F7).
    Revision 3 tested a cell count; that is no longer the right question, because a
-   viewport can hold 16 cells and still be unable to page 67 characters into a rail that
+   viewport can hold 16 cells and still be unable to page 35 characters into a rail that
    fits.  "Served" has to mean "can actually be played".  A landscape phone is locked out
    here, as before. */
 export const orientationOK = v =>
-  planFor(v, [26, 35, 6]) !== null && planFor(v, [26, 10]) !== null;
+  planFor(v, VI_RUNS) !== null && planFor(v, EN_RUNS) !== null;
 
 /* `zonesFor()` and its 0.48 onset share are DELETED in revision 4.  They existed to
    decide which characters to leave OFF a board that could not hold them all.  Paging
@@ -243,11 +322,6 @@ const INSETS = [                         // representative safe-area shapes, pt/
   { insetT:  0, insetB: 21, insetL: 59, insetR: 59 }, // iPhone landscape (rejected anyway)
 ];
 
-// The two shipped inventories as RUN LENGTHS.  vi-seed: 26 onsets, 35 rimes, 6 tones.
-// en-seed: 26 letters (a-z, `q` included -- ui.md §8) + 10 digraphs.
-const VI_RUNS = [26, 35, 6];
-const EN_RUNS = [26, 10];
-
 function sweep() {
   const fail = [], worst = new Map(), pageHist = new Map();
   let tested = 0, rejected = 0, served = 0, planned = 0, unpaged = 0, maxSteps = 0;
@@ -263,6 +337,7 @@ function sweep() {
         // --- the PAGE PLAN, for both packs, is the revision-4 claim ---
         for (let i = 0; i < 2; i++) {
           const runs = i === 0 ? VI_RUNS : EN_RUNS, P = plans[i];
+          const maxLetters = i === 0 ? VI_MAX_LETTERS : EN_MAX_LETTERS;
           planned++;
           if (!P.paged) unpaged++;
           maxSteps = Math.max(maxSteps, P.steps);
@@ -271,7 +346,7 @@ function sweep() {
             pageHist.set(k, (pageHist.get(k) || 0) + 1);
           }
           for (const [name, f] of PLAN_RULES) {
-            if (!f(P, runs)) { if (fail.length < 12) fail.push({ name, Wv, Hv, ins, cells: P.pages.join(','), L: P.L }); }
+            if (!f(P, runs, maxLetters)) { if (fail.length < 12) fail.push({ name, Wv, Hv, ins, cells: P.pages.join(','), L: P.L }); }
           }
         }
         // --- every table size up to the unpaged budget still obeys F0-F9 ---
@@ -290,7 +365,8 @@ function sweep() {
             if (!f(L)) { if (fail.length < 12) fail.push({ name, Wv, Hv, ins, cells, L }); }
           }
           const margin = Math.min(L.tableW - L.rowW, L.slack, L.tile - TILE_MIN,
-                                  L.stripFont - 34, L.tileFont - 24, L.shelf - 22);
+                                  L.stripFont - 34, L.tileFont - 24, L.shelf - 22,
+                                  L.tableW - L.stripRowW, L.stripCellW - STRIP_CELL_MIN);
           if (!worst.has('tightest') || margin < worst.get('tightest').margin)
             worst.set('tightest', { margin, Wv, Hv, ins, cells, L });
         }
@@ -318,7 +394,7 @@ const DEVICES = [
 ];
 
 if (process.argv.includes('--devices')) {
-  const hdr = ['device','orient','unpaged','VI pages','per page','grid','tile','rail','strip','glyph w/t'];
+  const hdr = ['device','orient','unpaged','VI pages','per page','grid','tile','rail','strip','glyph w/t'];  // strip = band height; glyph w/t = strip glyph / tile glyph
   const wid = [40,7,9,10,10,7,6,6,7,10];
   console.log(hdr.map((h,i)=>h.padEnd(wid[i])).join(''));
   for (const [label, v] of DEVICES) {
@@ -333,7 +409,7 @@ if (process.argv.includes('--devices')) {
       `${L.cols}x${L.rows}`.padEnd(7) + String(L.tile).padEnd(6) +
       String(L.railH).padEnd(6) + String(L.stripH).padEnd(7) +
       `${L.stripFont}/${L.tileFont}`.padEnd(10) +
-      (planFits(P, VI_RUNS) ? '' : '  <-- PLAN FAILS'));
+      (planFits(P, VI_RUNS, VI_MAX_LETTERS) ? '' : '  <-- PLAN FAILS'));
   }
   process.exit(0);
 }
@@ -346,14 +422,16 @@ if (process.argv.includes('--pages')) {
     const mc = maxCells(v, 0);
     if (mc < MIN_TABLE) { console.log(label + '\n    LOCKED\n'); continue; }
     console.log(label);
-    for (const [name, runs] of [['vi-seed  onsets 26 / rimes 35 / tones 6', VI_RUNS],
-                                ['en-seed  letters 26 / digraphs 10', EN_RUNS]]) {
+    for (const [name, runs] of [['vi-seed  letters 29 / tones 6', VI_RUNS],
+                                ['en-seed  letters 26', EN_RUNS]]) {
       const P = planFor(v, runs);
       if (P === null) { console.log(`    ${name.padEnd(40)} NOT SERVED`); continue; }
       const detail = P.paged
         ? `${P.pages.length} pages [${P.pages.join(' | ')}]  cap ${P.cap}  rail ${P.railRows} row(s) of ${P.L.railCols}  tile ${P.L.tile}`
         : `1 page, NO RAIL, all ${P.cells} at once  tile ${P.L.tile}`;
       console.log(`    ${name.padEnd(40)} ${detail}`);
+      console.log(`    ${''.padEnd(40)} grid ${P.L.cols}x${P.L.rows}  strip ${STRIP_CELLS} cells of ` +
+                  `${P.L.stripCellW}x${P.L.stripCellH} (row ${P.L.stripRowW}/${P.L.tableW}), glyph ${P.L.stripFont}pt`);
     }
     console.log('');
   }
@@ -376,6 +454,8 @@ const w = r.worst.get('tightest');
 console.log(`\ntightest served layout: ${w.Wv}x${w.Hv} insets ${JSON.stringify(w.ins)} cells=${w.cells}`);
 console.log(`  tile ${w.L.tile}  grid ${w.L.cols}x${w.L.rows}  row ${w.L.rowW}/${w.L.tableW}  strip ${w.L.stripH}` +
             `  table ${w.L.tableH}  slack ${w.L.slack}  shelf ${w.L.shelf}  margin ${w.margin}`);
+console.log(`  word strip: ${STRIP_CELLS} cells of ${w.L.stripCellW}x${w.L.stripCellH}pt, ` +
+            `row ${w.L.stripRowW}/${w.L.tableW}, glyph ${w.L.stripFont}pt (F4 floor 34, F16 floor ${STRIP_CELL_MIN})`);
 if (r.fail.length) {
   console.log('\nFAILURES:');
   for (const f of r.fail) console.log(`  ${f.name}  at ${f.Wv}x${f.Hv} ${JSON.stringify(f.ins)} cells=${f.cells}`);

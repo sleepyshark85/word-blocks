@@ -74,10 +74,92 @@ test('every kind of broken decomposition withholds exactly one word, with a reas
   }
 });
 
+test('the LETTERS are validated as hard as the parts, and a bad one costs one word', () => {
+  // **Revision 5's new derived data** (`content-pipeline.md` §3.7). `letters` is what he
+  // taps and `onsetLetterCount` is where the onset ends; the engine trusts both, so both
+  // are checked, and the onset half is checked harder than the rime half — see below.
+  const cases = [
+    ['no letters at all', { letters: undefined }, 'noLetters'],
+    ['letters is junk', { letters: 'meo' }, 'noLetters'],
+    ['a two-character letter', { letters: ['me', 'o'] }, 'badLetter'],
+    ['a letter that is not on the board', { letters: ['m', 'e', 'w'] }, 'letterNotOnBoard'],
+    ['no onsetLetterCount', { onsetLetterCount: undefined }, 'badOnsetLetterCount'],
+    ['onsetLetterCount past the end', { onsetLetterCount: 9 }, 'badOnsetLetterCount'],
+    ['the letters do not spell the onset', { onsetLetterCount: 2 }, 'lettersDoNotSpellOnset'],
+    ['the letters do not spell the rime', { letters: ['m', 'e', 'u'] }, 'lettersDoNotSpellRime'],
+    // **X6 / E20 — six letters is the strip.** A seventh would be a letter clipped off
+    // the end of the word he is building, which is silent and in the one place it
+    // matters most, so the word is withheld with a reason she can read instead.
+    ['seven letters', { letters: ['m', 'e', 'o', 'a', 'e', 'o', 'a'] }, 'tooManyLetters'],
+  ];
+  for (const [name, patch, code] of cases) {
+    const pack = resolvePack({ language: 'vi', ...mutate(viInput(), 'meo', patch) });
+    assert.equal(pack.words.length, 46, name);
+    const entry = pack.catalogue.find((c) => c.id === 'meo');
+    assert.equal(entry.playable, false, name);
+    assert.equal(entry.reason.code, code, `${name}: got ${entry.reason.code}`);
+    assert.ok(entry.reason.message.length > 5, name);
+    // And the app still opens on the other 46 (K9).
+    const { game, state } = open(pack, name);
+    assert.ok(tableView(game, state).cells.some((c) => c.live), `${name}: nothing is live`);
+  }
+});
+
+test('the rime half of the letters can be waived, and the onset half cannot', () => {
+  // `gì` is the onset `gi` plus the rime `i`, written with a **single** `i`
+  // (`literacy-vi.md` §0.5): its letters cannot spell its rime, and that is orthography
+  // rather than an error. `build.spellingException` is the opt-out §1.2 already gives the
+  // composed spelling — and an escape hatch nobody has watched open is not an escape
+  // hatch, so both directions are driven here.
+  const gi = (extra) => resolvePack({
+    language: 'vi',
+    ...mutate(viInput(), 'meo', {
+      id: 'meo', text: 'gì', syllables: [{ onset: 'gi', rime: 'i', tone: 'huyen' }],
+      letters: ['g', 'i'], onsetLetterCount: 2, ...extra,
+    }),
+  });
+  assert.equal(gi({}).catalogue.find((c) => c.id === 'meo').reason.code, 'lettersDoNotSpellRime');
+  const waived = gi({ build: { spellingException: true } });
+  assert.equal(waived.catalogue.find((c) => c.id === 'meo').playable, true,
+    'the exception did not open the gate');
+  // The onset half is NOT waivable: it is the boundary the engine will trust.
+  const bad = gi({ build: { spellingException: true }, onsetLetterCount: 1 });
+  assert.equal(bad.catalogue.find((c) => c.id === 'meo').reason.code, 'lettersDoNotSpellOnset');
+});
+
 test('an English word whose tiles do not spell it is withheld (content-pipeline §3.3)', () => {
   const pack = resolvePack({ language: 'en', ...mutate(enInput(), 'cat', { tiles: ['c', 'a', 'p'] }) });
   assert.equal(pack.words.length, 39);
   assert.equal(pack.catalogue.find((c) => c.id === 'cat').reason.code, 'spellingMismatch');
+});
+
+test('an English word whose letters do not spell its tiles is withheld', () => {
+  // The English half of the same rule (`literacy-en.md` §0.5): `tiles` is the sound
+  // decomposition, `letters` is what he taps, and the two must recompose. `duck` is
+  // `d` `u` `ck` and `d` `u` `c` `k`.
+  const duck = resolvePack({ language: 'en', ...enInput() }).wordById.duck;
+  assert.deepEqual(duck.tiles, ['d', 'u', 'ck']);
+  assert.deepEqual(duck.letters, ['d', 'u', 'c', 'k']);
+  assert.deepEqual(duck.spans.map((sp) => [sp.start, sp.end]), [[0, 1], [1, 2], [2, 4]]);
+  for (const [name, patch, code] of [
+    ['letters do not spell the text', { letters: ['d', 'u', 'k'] }, 'lettersMismatch'],
+    ['a letter outside a-z', { letters: ['d', 'u', 'c', 'ư'] }, 'letterNotOnBoard'],
+    ['seven letters', {
+      text: 'ducduck',
+      tiles: ['d', 'u', 'c', 'd', 'u', 'ck'],
+      letters: ['d', 'u', 'c', 'd', 'u', 'c', 'k'],
+    }, 'tooManyLetters'],
+    // The tiles-recompose rule sits behind `spellingMismatch`, which catches the same
+    // input earlier: with `tiles.join('') === text` and `letters.join('') === text`, the
+    // two cannot disagree about a string. It is kept as defence for the day `letters` is
+    // authored independently of `tiles`, and **it is recorded here as unreachable today
+    // rather than left as a green check nobody has watched fail.**
+    ['letters and tiles disagree', { letters: ['d', 'u', 'k'], text: 'duk' }, 'spellingMismatch'],
+  ]) {
+    const pack = resolvePack({ language: 'en', ...mutate(enInput(), 'duck', patch) });
+    assert.equal(pack.words.length, 39, name);
+    assert.equal(pack.catalogue.find((c) => c.id === 'duck').reason.code, code, name);
+  }
 });
 
 test('an English word putting a final-only tile first is withheld (literacy-en §3.3)', () => {

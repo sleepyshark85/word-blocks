@@ -6,24 +6,159 @@ way, from the live pack, so pictures added on the phone appear there too.
 
 ## Photographs
 
-14 third-party photograph(s).
+149 third-party photograph(s).
 
 | Picture | Author | Licence | Source | Used for |
 |---|---|---|---|---|
+| 103 Hanover.jpg | ProfReader | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:103_Hanover.jpg) | nhà |
+| 12 - Copy.jpg | Prabaharanece | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:12_-_Copy.jpg) | đèn |
+| 13-08-31-Kochtreffen-Wien-RalfR-N3S 7849-024.jpg | Ralf Roletschek | [GFDL 1.2](http://www.gnu.org/licenses/old-licenses/fdl-1.2.html) | [link](https://commons.wikimedia.org/wiki/File:13-08-31-Kochtreffen-Wien-RalfR-N3S_7849-024.jpg) | bánh |
+| 140111 Azuki Museum Himeji Hyogo pref Japan12n.jpg | 663highland | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5) | [link](https://commons.wikimedia.org/wiki/File:140111_Azuki_Museum_Himeji_Hyogo_pref_Japan12n.jpg) | kem |
+| 20100807- DSC9802 (4871423283).jpg | Yannick Bammert | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:20100807-_DSC9802_(4871423283).jpg) | cửa |
+| 2016 Singapur, Jurong Bird Park (027).jpg | Marcin Konsek | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:2016_Singapur,_Jurong_Bird_Park_(027).jpg) | chim |
 | 2021-07-10-vanino-dog-with-diverse-eyes-7182.jpg | I13Robin | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:2021-07-10-vanino-dog-with-diverse-eyes-7182.jpg) | chó |
 | 2023-04-03-Leghorn mit Ostereiern-4250.jpg | Superbass | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:2023-04-03-Leghorn_mit_Ostereiern-4250.jpg) | gà |
+| 23 1-2-Fuji Reala pushed 2 stops (5826165749).jpg | DARREN ST0NE | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:23_1-2-Fuji_Reala_pushed_2_stops_(5826165749).jpg) | cửa |
+| 248 Ashley Ave - 2017.jpg | ProfReader | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:248_Ashley_Ave_-_2017.jpg) | nhà |
+| 28052006(013).jpg | **unrecorded** | Public domain | [link](https://commons.wikimedia.org/wiki/File:28052006(013).jpg) | đèn |
+| 4 Bananes.jpg | JeanLed11 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:4_Bananes.jpg) | chuối |
+| 720 King - door.JPG | ProfReader | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:720_King_-_door.JPG) | cửa |
+| A cat crossing the ditch in Nara.jpg | takato marui from Osaka, Japan | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:A_cat_crossing_the_ditch_in_Nara.jpg) | mèo |
+| A cheval en estivage près de l'Ar du Tsan DSC 0766 (51406676097).jpg | Pierre-Marie Epiney | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0766_(51406676097).jpg) | ngựa |
+| A cheval en estivage près de l'Ar du Tsan DSC 0770 (51408404830).jpg | Pierre-Marie Epiney | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0770_(51408404830).jpg) | ngựa |
+| A cheval en estivage près de l'Ar du Tsan DSC 0785 (51407425426).jpg | Pierre-Marie Epiney | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0785_(51407425426).jpg) | ngựa |
+| A cheval en estivage près de l'Ar du Tsan DSC 0791 (51408404355).jpg | Pierre-Marie Epiney | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0791_(51408404355).jpg) | ngựa |
+| A Jar for a Lamp (8974378966).jpg | cogdogblog | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:A_Jar_for_a_Lamp_(8974378966).jpg) | đèn |
+| African elephant warning raised trunk.jpg | Muhammad Mahdi Karim Facebook The making of this document was supported by Wikim | [GFDL 1.2](http://www.gnu.org/licenses/old-licenses/fdl-1.2.html) | [link](https://commons.wikimedia.org/wiki/File:African_elephant_warning_raised_trunk.jpg) | voi |
+| Anas platyrhynchos domesticus 001.jpg | Luis García (Zaqarbal) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_domesticus_001.jpg) | vịt |
+| Anas platyrhynchos male female quadrat.jpg | This picture was realized by Richard Bartz by using a Canon EF 70-300mm f/4-5.6  | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5) | [link](https://commons.wikimedia.org/wiki/File:Anas_platyrhynchos_male_female_quadrat.jpg) | vịt |
+| Apis mellifera Tanzania.jpg | Muhammad Mahdi Karim | [GFDL 1.2](http://www.gnu.org/licenses/old-licenses/fdl-1.2.html) | [link](https://commons.wikimedia.org/wiki/File:Apis_mellifera_Tanzania.jpg) | ong |
 | Arian chicken - مرغ آرین.jpg | Unknown authorUnknown author | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Arian_chicken_-_%D9%85%D8%B1%D8%BA_%D8%A2%D8%B1%DB%8C%D9%86.jpg) | gà |
 | Ashaz Company Welcome photo 123.jpg | Ashaz18209 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Ashaz_Company_Welcome_photo_123.jpg) | cá |
+| Avocado Hass - single and halved.jpg | Ivar Leidus | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Avocado_Hass_-_single_and_halved.jpg) | bơ |
 | Ayam putih dan ayam coklat.jpg | Erlina Susanti (ina susan) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Ayam_putih_dan_ayam_coklat.jpg) | gà |
+| Balance-schiene-am-patienten-1.jpg | F-Schau | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Balance-schiene-am-patienten-1.jpg) | răng |
+| Balance-schiene-am-patienten-2.jpg | F-Schau | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Balance-schiene-am-patienten-2.jpg) | răng |
+| Ball, പന്ത്.JPG | കാക്കര | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Ball,_%E0%B4%AA%E0%B4%A8%E0%B5%8D%E0%B4%A4%E0%B5%8D.JPG) | bóng |
+| Ball.agr.jpg | ArnoldReinhold | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Ball.agr.jpg) | bóng |
+| BaNa... (3806777363).jpg | Basheer Olakara | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:BaNa..._(3806777363).jpg) | chuối |
+| Banana (2).jpg | Ferdous | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Banana_(2).jpg) | chuối |
+| Banana and cross section.jpg | fir0002 flagstaffotos [at] gmail.com Canon 20D + Sigma 150mm f/2.8 | [GFDL 1.2](http://www.gnu.org/licenses/old-licenses/fdl-1.2.html) | [link](https://commons.wikimedia.org/wiki/File:Banana_and_cross_section.jpg) | chuối |
+| Baseball (crop).jpg | Tage Olsin | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Baseball_(crop).jpg) | bóng |
+| Bautroigoisong.jpg | Thanhminh2000 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Sky_from_a_Vietnamese_land_2.jpg) | mây |
+| Bazaar in Iran 2019 05.jpg | Mehdi Marizad | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Bazaar_in_Iran_2019_05.jpg) | áo |
+| Bear black.JPG | PGIATHUY | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Bear_black.JPG) | gấu |
+| Beating the Heat.jpg | Tarun802 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Beating_the_Heat.jpg) | khỉ |
+| Beautiful eye (2148898387).jpg | Helgi Halldórsson from Reykjavík, Iceland | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Beautiful_eye_(2148898387).jpg) | mắt |
+| Bee Collecting Pollen 2004-08-14.jpg | Jon Sullivan | Public domain | [link](https://commons.wikimedia.org/wiki/File:Bee_Collecting_Pollen_2004-08-14.jpg) | ong |
+| Bee on Geraldton Wax Flower.JPG | TTaylor | Public domain | [link](https://commons.wikimedia.org/wiki/File:Bee_on_Geraldton_Wax_Flower.JPG) | ong |
+| Blue crab on market in Piraeus - Callinectes sapidus Rathbun 20020819-317.jpg | wpopp | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Blue_crab_on_market_in_Piraeus_-_Callinectes_sapidus_Rathbun_20020819-317.jpg) | cua |
+| Brown Eyes Arabic Gene Red Coloring.jpg | Adina Voicu | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Brown_Eyes_Arabic_Gene_Red_Coloring.jpg) | mắt |
+| Bun Rieu close-up - Dakao Hoang.jpg | Alpha from Melbourne, Australia | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Bun_Rieu_close-up_-_Dakao_Hoang.jpg) | bún |
+| Cái ghế gỗ sơn đỏ hồng ng16th10n2022 (2).jpg | Phương Huy | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:C%C3%A1i_gh%E1%BA%BF_g%E1%BB%97_s%C6%A1n_%C4%91%E1%BB%8F_h%E1%BB%93ng_ng16th10n2022_(2).jpg) | ghế |
+| Cam Vinh - một loại cam đặc sản Nghệ An.JPG | Hangphuong86 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Cam_Vinh_-_m%E1%BB%99t_lo%E1%BA%A1i_cam_%C4%91%E1%BA%B7c_s%E1%BA%A3n_Ngh%E1%BB%87_An.JPG) | cam |
+| Capra aegagrus hircus 2.JPG | Petruss | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Capra_aegagrus_hircus_2.JPG) | dê |
+| Cat November 2010-1a.jpg | Alvesgaspar | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Cat_November_2010-1a.jpg) | mèo |
+| Cat watching on floor.jpg | Ivan Radic | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Cat_watching_on_floor.jpg) | mèo |
+| Ceiling fan with lamp.jpg | Hans Olav Lien | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Ceiling_fan_with_lamp.jpg) | quạt |
+| Cherry ice cream.png | Tiia Monto | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Cherry_ice_cream.png) | kem |
+| Chicken eggs.jpg | Fir0002 | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Chicken_eggs.jpg) | trứng |
+| Child nose.jpg | **unrecorded** | Public domain | [link](https://commons.wikimedia.org/wiki/File:Child_nose.jpg) | mũi |
+| Chuck Taylors.jpg | Kris from Seattle, USA | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Chuck_Taylors.jpg) | giày |
+| Cloud.jpg | Michael Jastremski | [CC BY 1.0](https://creativecommons.org/licenses/by/1.0) | [link](https://commons.wikimedia.org/wiki/File:Cloud.jpg) | mây |
+| Coconut 4.jpg | HRajib | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Coconut_4.jpg) | dừa |
+| Coconut face.jpg | Petey21 | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Coconut_face.jpg) | dừa |
+| Coconut Palm Cola Bay Goa Jan19 DSC00303.jpg | This Photo was taken by Timothy A. Gonsalves. Feel free to use my photos, but pl | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Coconut_Palm_Cola_Bay_Goa_Jan19_DSC00303.jpg) | dừa |
+| Conical hat, Viet, Thanh Oai, Hanoi, 1999, palm leaves with bamboo frame - Vietnamese Women's Museum - Hanoi, Vietnam - DSC03996.JPG | Daderot | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Conical_hat,_Viet,_Thanh_Oai,_Hanoi,_1999,_palm_leaves_with_bamboo_frame_-_Vietnamese_Women%27s_Museum_-_Hanoi,_Vietnam_-_DSC03996.JPG) | nón |
+| Conical hat.jpg | Andrew J. Rosenthal | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:Conical_hat.jpg) | nón |
 | Contemplating a drink on a hot summer day by nagarjun.jpg | Kandukuru Nagarjun | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Contemplating_a_drink_on_a_hot_summer_day_by_nagarjun.jpg) | hổ |
+| Darkoakadelaidesside.jpg | ASuitableWardrobe | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Darkoakadelaidesside.jpg) | giày |
+| Deras-TreeHouse.JPG | Guguly18 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Deras-TreeHouse.JPG) | nhà |
+| Domestic goat May 2006.jpg | fir0002 flagstaffotos [at] gmail.com Canon 20D + Canon 17-40mm f/4 L | [GFDL 1.2](http://www.gnu.org/licenses/old-licenses/fdl-1.2.html) | [link](https://commons.wikimedia.org/wiki/File:Domestic_goat_May_2006.jpg) | dê |
+| Earrr.JPG | אני (Transferred by חיים 7/Originally uploaded by צביה) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Earrr.JPG) | tai |
+| Eggs 001.jpg | Flixtey | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Eggs_001.jpg) | trứng |
+| Eggs in basket 2020 G1.jpg | George Chernilevsky | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Eggs_in_basket_2020_G1.jpg) | trứng |
+| Elephant at Indianapolis Zoo.jpg | Jim Bowen | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Elephant_at_Indianapolis_Zoo.jpg) | voi |
+| Elephant in Tanzania 0882 Nevit.jpg | Nevit Dilmen (talk) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Elephant_in_Tanzania_0882_Nevit.jpg) | voi |
+| European honey bee extracts nectar.jpg | John Severns (Severnjc) | Public domain | [link](https://commons.wikimedia.org/wiki/File:European_honey_bee_extracts_nectar.jpg) | ong |
+| Fabian Blank 2016 (Unsplash).jpg | Fabian Blank blankerwahnsinn | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Fabian_Blank_2016_(Unsplash).jpg) | khỉ |
 | Feline grace by nagarjun.jpg | Kandukuru Nagarjun | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Feline_grace_by_nagarjun.jpg) | hổ |
+| Five Heads - panoramio.jpg | Dg-505 | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Five_Heads_-_panoramio.jpg) | dê |
+| Flowers of Iran گلهای ایران 27.jpg | Mostafameraji | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Flowers_of_Iran_%DA%AF%D9%84%D9%87%D8%A7%DB%8C_%D8%A7%DB%8C%D8%B1%D8%A7%D9%86_27.jpg) | hoa |
+| Four loaves.jpg | tom burke from Morgan Hill, CA, USA | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Four_loaves.jpg) | bánh |
+| Four pears.jpg | Rhododendrites | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Four_pears.jpg) | lê |
+| FullMoon2010.jpg | Gregory H. Revera | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:FullMoon2010.jpg) | trăng |
+| Gecarcinus quadratus (Nosara).jpg | (Bhny) | Public domain | [link](https://commons.wikimedia.org/wiki/File:Gecarcinus_quadratus_(Nosara).jpg) | cua |
 | Georgia_Aquarium_-_Giant_Grouper_edit.jpg (vi.wikipedia.org lead image for "Cá") | Taken by Diliff Edited by Fir0002. | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5) | [link](https://commons.wikimedia.org/wiki/File:Georgia_Aquarium_-_Giant_Grouper_edit.jpg) | cá |
+| Gillie Backlit (5646498382).jpg | Dwight Sipler from Stow, MA, USA | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Gillie_Backlit_(5646498382).jpg) | mèo |
+| Glass of Milk (33657535532).jpg | NIAID | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Glass_of_Milk_(33657535532).jpg) | sữa |
+| Glass of milk.jpg | Santeri Viinamäki | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Glass_of_milk.jpg) | sữa |
+| Gorra logotipo millionaires.png | Cm1186 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Gorra_logotipo_millionaires.png) | mũ |
+| Gouldian Finch (8952067299).jpg | Bernard Spragg. NZ from Christchurch, New Zealand | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Gouldian_Finch_(8952067299).jpg) | chim |
+| Hard rain on a roof.jpg | W.carter | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Hard_rain_on_a_roof.jpg) | mưa |
+| HK NP 北角 North Point 電照街 Tin Chiu Street 渣華道 Java Road 海璇 Victoria Harbour 北角匯 North shopping mall Uniqlo clothing shop spring February 2022 Px3 45.jpg | Buptoua DAHON LAWZREN | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:HK_NP_%E5%8C%97%E8%A7%92_North_Point_%E9%9B%BB%E7%85%A7%E8%A1%97_Tin_Chiu_Street_%E6%B8%A3%E8%8F%AF%E9%81%93_Java_Road_%E6%B5%B7%E7%92%87_Victoria_Harbour_%E5%8C%97%E8%A7%92%E5%8C%AF_North_shopping_mall_Uniqlo_clothing_shop_spring_February_2022_Px3_45.jpg) | áo |
+| HK TKO 將軍澳 Tseung Kwan O PopCorn mall shop Uniqlo Clothing Store May 2022 Px3 35.jpg | HSGTLAEHRE 3041 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:HK_TKO_%E5%B0%87%E8%BB%8D%E6%BE%B3_Tseung_Kwan_O_PopCorn_mall_shop_Uniqlo_Clothing_Store_May_2022_Px3_35.jpg) | áo |
 | HML 8946 (final).jpg | Himel140 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:HML_8946_(final).jpg) | hổ |
+| Hội sách mùa xuân.jpg | Buihaidang192 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:H%E1%BB%99i_s%C3%A1ch_m%C3%B9a_xu%C3%A2n.jpg) | sách |
+| House sparrow04.jpg | Fir0002 | [GFDL 1.2](http://www.gnu.org/licenses/old-licenses/fdl-1.2.html) | [link](https://commons.wikimedia.org/wiki/File:House_sparrow04.jpg) | chim |
+| Ice cream with whipped cream, chocolate syrup, and a wafer (cropped).jpg | Nicolas Ettlin | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Ice_cream_with_whipped_cream,_chocolate_syrup,_and_a_wafer_(cropped).jpg) | kem |
+| Instant pudding mix and milk.jpg | Amy Stephenson | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Instant_pudding_mix_and_milk.jpg) | sữa |
+| Khanom Chin - Thai rice noodles.JPG | User:Mattes | Public domain | [link](https://commons.wikimedia.org/wiki/File:Khanom_Chin_-_Thai_rice_noodles.JPG) | bún |
 | Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (1).jpg | Phương Huy | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Khe_Sanh_th%E1%BB%8B_tr%E1%BA%A5n,_th5n2023_(b%E1%BB%AFa_s%C3%A1ng,_t%C3%B4_ph%E1%BB%9F_b%C3%B2_t%C3%A1i)_(1).jpg) | phở |
 | Khe Sanh thị trấn, th5n2023 (bữa sáng, tô phở bò tái) (2).jpg | Phương Huy | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Khe_Sanh_th%E1%BB%8B_tr%E1%BA%A5n,_th5n2023_(b%E1%BB%AFa_s%C3%A1ng,_t%C3%B4_ph%E1%BB%9F_b%C3%B2_t%C3%A1i)_(2).jpg) | phở |
+| Lâmpadas.jpg | Marcello Casal Jr/Agência Brasil | [CC BY 3.0 br](https://creativecommons.org/licenses/by/3.0/br/deed.en) | [link](https://commons.wikimedia.org/wiki/File:L%C3%A2mpadas.jpg) | đèn |
 | Male_and_female_chicken_sitting_together.jpg (vi.wikipedia.org lead image for "Gà") | Andrei Niemimäki from Turku, Finland | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Male_and_female_chicken_sitting_together.jpg) | gà |
+| Mandarin.duck.arp.jpg | Adrian Pingstone | Public domain | [link](https://commons.wikimedia.org/wiki/File:Mandarin.duck.arp.jpg) | vịt |
+| Neus1.jpg | LHOON | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Neus1.jpg) | mũi |
+| Nez d'homme.jpg | Jeremie63 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Nez_d%27homme.jpg) | mũi |
+| Nón lá đồ chơi.jpg | terence from Singapore | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:N%C3%B3n_l%C3%A1_%C4%91%E1%BB%93_ch%C6%A1i.jpg) | nón |
+| Ocypode quadrata (Martinique).jpg | Patrick Verdier, Free On Line Photos | Copyrighted free use | [link](https://commons.wikimedia.org/wiki/File:Ocypode_quadrata_(Martinique).jpg) | cua |
+| Oranges - whole-halved-segment.jpg | Ivar Leidus | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Oranges_-_whole-halved-segment.jpg) | cam |
+| Oryctolagus cuniculus Rcdo.jpg | JM Ligero Loarte | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Oryctolagus_cuniculus_Rcdo.jpg) | thỏ |
+| Oryctolagus cuniculus Tasmania 2.jpg | JJ Harrison (https://www.jjharrison.com.au/) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Oryctolagus_cuniculus_Tasmania_2.jpg) | thỏ |
+| Ouă.jpg | Bogdan29roman | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Ou%C4%83.jpg) | trứng |
 | Panthera_tigris_altaica_in_Lodz_Zoo_2.jpg (vi.wikipedia.org lead image for "Hổ") | Chrumps | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Panthera_tigris_altaica_in_Lodz_Zoo_2.jpg) | hổ |
+| Paonroue.JPG | Jebulon | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Paonroue.JPG) | chim |
+| Paris Chaises jardin des Tuileries 2014.jpg | JLPC | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Paris_Chaises_jardin_des_Tuileries_2014.jpg) | ghế |
+| Park Pekins.jpg | SaltySemanticSchmuck | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Park_Pekins.jpg) | vịt |
+| Pear tree in Hamedan Iran.jpg | Alborzagros | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Pear_tree_in_Hamedan_Iran.jpg) | lê |
+| PearLaFrance.jpg | Fg2 | Public domain | [link](https://commons.wikimedia.org/wiki/File:PearLaFrance.jpg) | lê |
+| Pears.jpg | Keith Weller | Public domain | [link](https://commons.wikimedia.org/wiki/File:Pears.jpg) | lê |
+| Persea americana fruit 2.JPG | B.navez | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Persea_americana_fruit_2.JPG) | bơ |
 | Phở bò, Cầu Giấy, Hà Nội.jpg (vi.wikipedia.org lead image) | Codename5281 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Ph%E1%BB%9F_b%C3%B2,_C%E1%BA%A7u_Gi%E1%BA%A5y,_H%C3%A0_N%E1%BB%99i.jpg) | phở |
+| Phoenix Cloud.JPG | Nguyễn Quang Tiến | Phạm vi công cộng | [link](https://vi.wikipedia.org/wiki/T%E1%BA%ADp_tin:Phoenix_Cloud.JPG) | mây |
+| Porte ouverte.jpg | Fawzi Demmane | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Porte_ouverte.jpg) | cửa |
+| Quả bơ bán tại chợ Đà Lạt, Vietnam.JPG | Hungda | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Qu%E1%BA%A3_b%C6%A1_b%C3%A1n_t%E1%BA%A1i_ch%E1%BB%A3_%C4%90%C3%A0_L%E1%BA%A1t,_Vietnam.JPG) | bơ |
+| Ranina ranina.jpg | Kzhr | [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5) | [link](https://commons.wikimedia.org/wiki/File:Ranina_ranina.jpg) | cua |
+| Rice 02.jpg | Oliver Spalt | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Rice_02.jpg) | nón |
+| Rice vermicelli.jpg | Popo le Chien | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Rice_vermicelli.jpg) | bún |
+| Rocking Chair (32443140351).jpg | Sheila Sund from Salem, United States | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:Rocking_Chair_(32443140351).jpg) | ghế |
+| Set of fourteen side chairs MET DP110780.jpg | Thomas Chippendale | [CC0](http://creativecommons.org/publicdomain/zero/1.0/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Set_of_fourteen_side_chairs_MET_DP110780.jpg) | ghế |
+| Shoes and Fruit (p365 20).jpg | Joe Hastings | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Shoes_and_Fruit_(p365_20).jpg) | giày |
+| Starry Night at La Silla.jpg | ESO/H. Dahle | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Starry_Night_at_La_Silla.jpg) | sao |
+| Strawbeerry kulfi.JPG | Kalaiselvi Murugesan | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Strawbeerry_kulfi.JPG) | kem |
+| Sun Bear 7.jpg | Ryan E. Poplin | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Sun_Bear_7.jpg) | gấu |
+| Tamperefloral.jpg | Tamperetunnetuksiry | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0) | [link](https://commons.wikimedia.org/wiki/File:Tamperefloral.jpg) | hoa |
+| Tanzanian Elephant.jpg | Taken by Schuyler Shepherd | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5) | [link](https://commons.wikimedia.org/wiki/File:Tanzanian_Elephant.jpg) | voi |
+| Tender coconut, one part.jpg | Sidheeq | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Tender_coconut,_one_part.jpg) | dừa |
+| The hunch (2628229806).jpg | Karunakar Rayker from India | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) | [link](https://commons.wikimedia.org/wiki/File:The_hunch_(2628229806).jpg) | khỉ |
+| Toyota C-HR Hybrid 001.jpg | JustAnotherCarDesigner | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Toyota_C-HR_Hybrid_001.jpg) | xe |
+| TOYOTA FCHV 01.jpg | Photo by Gnsin | [CC BY-SA 3.0](http://creativecommons.org/licenses/by-sa/3.0/) | [link](https://commons.wikimedia.org/wiki/File:TOYOTA_FCHV_01.jpg) | xe |
+| Toyota Fortuner 4x4 Legender (LTD) 2-Tone White Pearl-Black.jpg | Captainmorlypogi1959 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Toyota_Fortuner_4x4_Legender_(LTD)_2-Tone_White_Pearl-Black.jpg) | xe |
+| Twosome Monkeys.JPG | Tanuja R Y | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Twosome_Monkeys.JPG) | khỉ |
+| Ursus thibetanus 3 (Wroclaw zoo).JPG | Guérin Nicolas (messages) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Ursus_thibetanus_3_(Wroclaw_zoo).JPG) | gấu |
+| Urval av de bocker som har vunnit Nordiska radets litteraturpris under de 50 ar som priset funnits (2).jpg | Johannes Jansson | [CC BY 2.5 dk](https://creativecommons.org/licenses/by/2.5/dk/deed.en) | [link](https://commons.wikimedia.org/wiki/File:Urval_av_de_bocker_som_har_vunnit_Nordiska_radets_litteraturpris_under_de_50_ar_som_priset_funnits_(2).jpg) | sách |
+| Vache Froment du Léon, Écomusée du pays de Rennes, France.jpg | Trizek derivative work: Justlettersandnumbers | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Vache_Froment_du_L%C3%A9on,_%C3%89comus%C3%A9e_du_pays_de_Rennes,_France.jpg) | bò |
+| Ventilador Electrico Piso.jpg | Jorge Barrios | Public domain | [link](https://commons.wikimedia.org/wiki/File:Ventilador_Electrico_Piso.jpg) | quạt |
+| Volkswagen Polo Sedan.JPG | Milhouse35 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Volkswagen_Polo_Sedan.JPG) | xe |
+| Warm Cinnamon Rolls (45-366) (24928477932).jpg | Tim Sackton from Somerville, MA | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) | [link](https://commons.wikimedia.org/wiki/File:Warm_Cinnamon_Rolls_(45-366)_(24928477932).jpg) | bánh |
+| What's Up Doc.jpg | Jessie Eastland | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:What%27s_Up_Doc.jpg) | thỏ |
+| Where Heaven and Earth Collide.jpg | ESO/B. Tafreshi (twanight.org) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:Where_Heaven_and_Earth_Collide.jpg) | sao |
+| White and yellow flower.JPG | Two+two=4 | Public domain | [link](https://commons.wikimedia.org/wiki/File:White_and_yellow_flower.JPG) | hoa |
+| Wit katoenen motorkapje met kinbandje en gesp, objectnr 74366.JPG | Museum Rotterdam | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) | [link](https://commons.wikimedia.org/wiki/File:Wit_katoenen_motorkapje_met_kinbandje_en_gesp,_objectnr_74366.JPG) | mũ |
+| WomanFeet.png | 2021duet | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:WomanFeet.png) | chân |
+| Ziegenkopf.jpg | Perennis | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) | [link](https://commons.wikimedia.org/wiki/File:Ziegenkopf.jpg) | dê |
+| Паранальские ночи.jpg | ESO/Y. Beletsky | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0) | [link](https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D1%80%D0%B0%D0%BD%D0%B0%D0%BB%D1%8C%D1%81%D0%BA%D0%B8%D0%B5_%D0%BD%D0%BE%D1%87%D0%B8.jpg) | sao |
 
 All photographs above were **cropped to square, resized to 512 px and re-encoded as JPEG**.
 CC BY and CC BY-SA both require that modifications be indicated; this sentence is that
@@ -38,7 +173,13 @@ indication, and each entry records its own `modified` string in the pack.
 | **CC BY-SA** | all of CC BY, **and the adapted image must itself be offered under the same licence** |
 | **GFDL** | attribution, **the full licence text must ship with the work**, and 1.2-only cannot be relicensed as CC BY-SA |
 
-**9 of the 14 photographs here are share-alike.** Because the pipeline crops and
+**6 photograph(s) here are GFDL** (bánh, voi, ong, chuối, dê, chim). That is the
+heaviest obligation in this pack: the full GNU Free Documentation Licence text would have
+to ship with the app, and a GFDL-1.2-only file cannot be relicensed as CC BY-SA. Harmless
+while this stays a private family app. Before publishing, the cheap answer is to replace
+those pictures — they are the mother's to retake anyway.
+
+**89 of the 149 photographs here are share-alike.** Because the pipeline crops and
 resizes, each of those cropped JPEGs is an adaptation and must itself be available under
 CC BY-SA. That obligation attaches to **the image files, not to the app**: the photographs
 are separate works collected alongside the code, not a derivative of it, so share-alike

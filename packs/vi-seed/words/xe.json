@@ -102,5 +102,10 @@
       "article": 7,
       "at": "2026-09-22T19:26:04.631Z"
     }
-  }
+  },
+  "letters": [
+    "x",
+    "e"
+  ],
+  "onsetLetterCount": 1
 }

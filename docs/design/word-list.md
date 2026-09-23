@@ -2,6 +2,15 @@
 
 Owner: literacy-designer. Companion to `literacy-vi.md` and `literacy-en.md`.
 
+**Revision 5, 2026-09-23 — this document needed no correction, and that is the point.** The
+owner moved the character table to the 29-letter alphabet, but the **model is unchanged**:
+a Vietnamese word is still `onset | rime | tone` and an English word is still a sequence of
+sounds. Only the *input* changed — `ch` is now entered as `c` then `h`, and is still one âm
+đầu (`literacy-vi.md` §0). **Every Decomposition below is still correct.** What changed is
+the tap count: Vietnamese words now take 3–6 taps (mean 4.08) instead of 2–3, and 5 English
+words (`ship` `fish` `duck` `sock` `egg`) take one more tap than their tile count.
+**50 of 50 Vietnamese and 40 of 40 English words remain buildable; none becomes absurd.**
+
 **This is a seed, not a universe.** His mother adds, edits and deletes words without a
 developer (`docs/development-process.md` §4). Everything below exists to give her a correct
 pattern to copy, and to give the app enough content to be playable on day one.

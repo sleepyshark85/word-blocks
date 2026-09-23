@@ -21,10 +21,12 @@
 // in `catalogue` with a machine code and a reason, which is what the editor renders
 // (`acceptance-criteria.md` K8, J2).
 
-import { nfc, isNonEmptyString } from './text.mjs';
+import { nfc, isNonEmptyString, glyphLength } from './text.mjs';
 import {
   viCheckSpellingRule, viLegalTones, viHomophoneSets,
   enPositionOf, enSlotIsLegal, EN_HOMOPHONE_SETS,
+  VI_ALPHABET, EN_ALPHABET, VI_VOWEL_LETTERS, MAX_WORD_LETTERS,
+  GLYPH_CASES, readGlyphCase,
 } from './rules.mjs';
 
 /** The highest `pack.json.schema` this build understands (`content-pipeline.md` §7). */
@@ -32,8 +34,29 @@ export const SCHEMA_SUPPORTED = 1;
 
 export const LANGUAGES = ['vi', 'en'];
 
-/** The tile groups each language's manifest must carry, and no others. */
+/**
+ * The tile groups each language's manifest must carry, and no others.
+ *
+ * **Revision 5 splits `tiles` from the board.** `tiles` is still onset/rime/tone and
+ * letter/digraph — it is **the model**, the editor's vocabulary and what a unit of sound
+ * is called (`content-pipeline.md` §3.7). What changed is that nothing on the *board* is
+ * an onset or a rime any more: `BOARD_RUNS` is what `inventoryOrder` may hold.
+ */
 const TILE_GROUPS = { vi: ['onset', 'rime', 'tone'], en: ['letter'] };
+
+/** `literacy-vi.md` §0.13, `literacy-en.md` §0.3 — the runs of the board itself. */
+const BOARD_RUNS = { vi: ['letter', 'tone'], en: ['letter'] };
+
+/** The alphabet each board is made of. A letter is a glyph, not a tile id. */
+const ALPHABET = { vi: VI_ALPHABET, en: EN_ALPHABET };
+
+/**
+ * The retired revision-4 runs. A pack still declaring one has not been migrated, and
+ * drawing its board would be drawing revision 4's — 67 cells of onsets and rimes — so it
+ * is an **error** his mother can be shown, not a silent ignore (`content-pipeline.md`
+ * §3.7, "three severities in the validator, deliberately").
+ */
+const RETIRED_RUNS = ['onset', 'rime', 'digraph'];
 
 function issue(level, where, code, message) {
   return { level, where, code, message };
@@ -80,6 +103,51 @@ function resolveWordAudio(raw, hasMedia) {
       : null;
   };
   return { word: keep(a.word), blend: keep(a.blend), sentence: keep(a.sentence) };
+}
+
+/**
+ * `content-pipeline.md` §3.7 — **tile audio is keyed by unit-STATE, not by unit.** `c`
+ * alone is a state and says `cờ`; `ch` is a state and says `chờ`; every tap answers
+ * (`gameplay.md` §4.3). Most states are tiles. Ten Vietnamese ones are not — the onset
+ * steps `p` and `q`, and the eight pass-through rime prefixes `ac an ă ăn â uô ư ưn` —
+ * and those live in `prefixAudio`, which is the second half of the one lookup the app
+ * does at a tap:
+ *
+ *     state -> tiles[group][state]          26 onsets, 35 rimes, 6 tones
+ *           -> prefixAudio[group][state]    2 + 8
+ *
+ * Tiles win, so a state that is both is never two different clips.
+ */
+function resolveUnitAudio(language, manifest, tiles, hasMedia, issues) {
+  const units = {};
+  for (const group of TILE_GROUPS[language]) {
+    units[group] = Object.create(null);
+    for (const tile of tiles[group] ?? []) units[group][tile.id] = tile.audio;
+  }
+  const raw = manifest && manifest.prefixAudio && typeof manifest.prefixAudio === 'object'
+    && !Array.isArray(manifest.prefixAudio)
+    ? manifest.prefixAudio
+    : {};
+  for (const [group, list] of Object.entries(raw)) {
+    if (!TILE_GROUPS[language].includes(group)) {
+      issues.push(issue('error', `prefixAudio.${group}`, 'foreignPrefixGroup',
+        `"${group}" is not a unit group of this language; it was ignored`));
+      continue;
+    }
+    for (const entry of Array.isArray(list) ? list : []) {
+      if (!entry || !isNonEmptyString(entry.id)) continue;
+      const id = nfc(entry.id);
+      // A prefix state that is ALSO a tile would be two clips for one tap. The tile is
+      // the model, so it wins, and she is told rather than left to wonder which plays.
+      if (units[group][id]) {
+        issues.push(issue('warning', `prefixAudio.${group}[${id}]`, 'prefixShadowsTile',
+          `"${id}" is already a tile; the tile's own sound was used`));
+        continue;
+      }
+      units[group][id] = resolveTileAudio(entry.audio, hasMedia);
+    }
+  }
+  return units;
 }
 
 /* ---------------------------------------------------------------------- tiles */
@@ -275,6 +343,160 @@ function resolveEnDecomposition(raw, tileById) {
   return { tiles: out };
 }
 
+/* ------------------------------------------------------- letters and spans */
+
+/**
+ * The shared half of `letters`: it is an array of **single characters**, every one of
+ * them on this board's alphabet, and there are between one and six of them.
+ *
+ * Six is `MAX_WORD_LETTERS` — the strip holds six cells on the smallest supported phone
+ * and a seventh drops the glyph below F4's 34 pt floor (`ui.md` §4.2, AC X6, E20). A
+ * longer word is **withheld with a reason his mother can read**, exactly as a word with no
+ * photograph is: the alternative is a letter clipped off the end of the word he is
+ * building, which is silent and in the one place it matters most.
+ */
+function readLetters(raw, alphabet) {
+  const list = raw.letters;
+  if (!Array.isArray(list) || list.length === 0) {
+    return { error: reason('noLetters', 'this word has not been broken into letters yet') };
+  }
+  if (list.length > MAX_WORD_LETTERS) {
+    return {
+      error: reason('tooManyLetters',
+        `this word is ${list.length} letters and the board holds ${MAX_WORD_LETTERS}`),
+    };
+  }
+  const letters = [];
+  for (const entry of list) {
+    const letter = isNonEmptyString(entry) ? nfc(entry) : null;
+    if (letter === null || glyphLength(letter) !== 1) {
+      return { error: reason('badLetter', 'every letter must be a single character') };
+    }
+    if (!alphabet.includes(letter)) {
+      return {
+        error: reason('letterNotOnBoard', `"${letter}" is not a letter of this board`),
+      };
+    }
+    letters.push(letter);
+  }
+  return { letters };
+}
+
+/**
+ * **Vietnamese: the onset/rime boundary, read from the store and never from the stream.**
+ * `literacy-vi.md` §0.5, `acceptance-criteria.md` C4f.
+ *
+ * The two directions are checked with **different strengths, and the asymmetry is the
+ * design** (`content-pipeline.md` §3.7): the onset half is the boundary the engine will
+ * trust, so it must recompose exactly; the rime half may be waived by
+ * `build.spellingException`, because `gì` is the onset `gi` plus the rime `i` written with
+ * a single `i` and no letter stream can express that.
+ */
+function resolveViLetters(raw, syllable) {
+  const read = readLetters(raw, VI_ALPHABET);
+  if (read.error) return read;
+  const { letters } = read;
+  const n = raw.onsetLetterCount;
+  if (!Number.isInteger(n) || n < 0 || n > letters.length) {
+    return { error: reason('badOnsetLetterCount', 'this word does not say where its first part ends') };
+  }
+  const onset = syllable.onset ?? '';
+  if (letters.slice(0, n).join('') !== onset) {
+    return {
+      error: reason('lettersDoNotSpellOnset',
+        `the first ${n} letter(s) spell "${letters.slice(0, n).join('')}", not "${onset || '(none)'}"`),
+    };
+  }
+  const rest = letters.slice(n).join('');
+  const waived = raw.build && raw.build.spellingException === true;
+  if (rest !== syllable.rime && !waived) {
+    return {
+      error: reason('lettersDoNotSpellRime',
+        `the remaining letters spell "${rest}", not "${syllable.rime}"`),
+    };
+  }
+  const spans = [];
+  if (n > 0) {
+    spans.push({
+      start: 0, end: n, group: 'onset', unit: onset, kind: 'consonant',
+    });
+  }
+  if (letters.length > n) {
+    spans.push({
+      start: n, end: letters.length, group: 'rime', unit: syllable.rime, kind: 'vowel',
+    });
+  }
+  return { letters, onsetLetterCount: n, spans };
+}
+
+/**
+ * **English: the sounds are `tiles`, the taps are `letters`.** `duck` is `d` `u` `ck` —
+ * three sounds — and `d` `u` `c` `k` — four taps (`literacy-en.md` §0.5). The spans are
+ * the tiles measured in letters, so the letters of `ck` are one span and a chant beat
+ * lights both of them.
+ */
+function resolveEnLetters(raw, tiles, tileById) {
+  const read = readLetters(raw, EN_ALPHABET);
+  if (read.error) return read;
+  const { letters } = read;
+  if (letters.join('') !== nfc(raw.text)) {
+    return {
+      error: reason('lettersMismatch', `the letters spell "${letters.join('')}", not "${nfc(raw.text)}"`),
+    };
+  }
+  const spans = [];
+  let at = 0;
+  for (const tileId of tiles) {
+    const len = glyphLength(tileId);
+    if (letters.slice(at, at + len).join('') !== tileId) {
+      return {
+        error: reason('lettersDoNotSpellTiles', `the letters do not spell the part "${tileId}"`),
+      };
+    }
+    const tile = tileById.letter[tileId];
+    spans.push({
+      start: at,
+      end: at + len,
+      group: 'letter',
+      unit: tileId,
+      kind: tile && tile.isVowel ? 'vowel' : 'consonant',
+    });
+    at += len;
+  }
+  if (at !== letters.length) {
+    return { error: reason('lettersDoNotSpellTiles', 'the parts and the letters are different lengths') };
+  }
+  return { letters, spans };
+}
+
+/**
+ * Which letter of a rime wears the tone mark — read out of the rime's **stored** toned
+ * forms, never placed by a rule (`literacy-vi.md` §5.4, AC K5). It is what the dashed
+ * mark-slot sits above while he is choosing (`ui.md` §7.2.4, AC X28).
+ *
+ * It is read by comparing two **stored** spellings, `oa` against `òa`: the character that
+ * differs is the one wearing the mark. Nothing is decomposed and nothing is composed.
+ */
+function carrierOffsetOf(rime) {
+  const plain = [...String(rime.glyph)];
+  for (const [toneId, form] of Object.entries(rime.toned ?? {})) {
+    if (toneId === 'ngang' || !isNonEmptyString(form)) continue;
+    const marked = [...form];
+    if (marked.length !== plain.length) continue;
+    for (let i = 0; i < plain.length; i += 1) {
+      // The one character that differs between `uôi` and `uối` **is** the carrier. This
+      // is a comparison of two spellings the pack stores, not a decomposition and not a
+      // rule: `literacy-vi.md` §5.4 puts mark placement in the editor, in front of a
+      // human, and `test/purity.test.mjs` keeps even the decomposed form out of here.
+      if (plain[i] !== marked[i]) return i;
+    }
+  }
+  // No usable marked form to read: the first vowel letter, which is what §0.14
+  // recommends writing anyway.
+  const at = plain.findIndex((c) => VI_VOWEL_LETTERS.includes(c));
+  return at < 0 ? 0 : at;
+}
+
 /**
  * `content-pipeline.md` §5 — the degradation table, implemented exactly.
  * Returns `{ art }` or `{ error }`.
@@ -297,29 +519,6 @@ function resolveArt(raw, hasMedia) {
     return { error: reason('noWordAudio', 'this word needs a recording of the word') };
   }
   return { art: { images, fallbackEmoji, audio } };
-}
-
-/**
- * The order the board uses when the manifest does not declare one.
- *
- * English is **specified**: `acceptance-criteria.md` D1 and `ui.md` §8 require the letter
- * inventory in **alphabetical order** — "the order he will meet in the alphabet song and
- * the one his mother would expect" — with the digraph tiles appended after the single
- * letters. Sorted by codepoint rather than by a collator, because `Intl` is not something
- * this engine may depend on: Hermes ships a reduced ICU and a board that reorders itself
- * between a browser and a phone would break B7.
- *
- * Vietnamese has no specified order, so it keeps the order the pack declares
- * (`gameplay.md` §6.1: "the cells are filled from the pack's inventory order"). That
- * order is the content-engineer's to change, and it is the only thing that decides which
- * symbol sits in which cell.
- */
-function defaultOrder(language, group, groupTiles) {
-  const ids = groupTiles.map((t) => t.id);
-  if (language !== 'en') return ids;
-  const singles = ids.filter((id) => [...id].length === 1).sort();
-  const rest = ids.filter((id) => [...id].length !== 1).sort();
-  return [...singles, ...rest];
 }
 
 /* ------------------------------------------------------------------ the pack */
@@ -411,6 +610,59 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     }
     tiles[group] = kept;
   }
+
+  /**
+   * **`ui.md` §8.2 / `content-pipeline.md` §3.8 / AC D17–D24 — the glyph casing, read
+   * once here, applied at one place in the glyph component.**
+   *
+   * The owner answered `open-questions-ui.md` Q7 with `A B C D`. The field's name and
+   * shape are the content-engineer's (E22): `display.glyphCase`, nested so that D20's
+   * boundary — *nothing under `display` reaches stored data, audio, ordering or a parent
+   * surface* — is structural rather than remembered. `readGlyphCase` is the same function
+   * `tools/lib/rules.mjs` exports, and `test/rules-parity.test.mjs` keeps them identical.
+   *
+   * Two defences, and both are this project's standing rules rather than taste:
+   *
+   *   1. **Absent, empty, misspelled or the wrong shape is lowercase, silently** (D23).
+   *      A casing flag is never worth refusing to start over. The *validator* is harsher
+   *      — a typo is a warning and a broken shape is an error — and the split is the
+   *      point: the app coping is not the same as the pack being right.
+   *   2. **A Vietnamese pack may not be uppercase** (D18, Q13, `ui.md` §8.2.3). `mả`/`mã`
+   *      is the tightest pair in the §6.1 render gate at 34 px, a mark on a capital sits
+   *      against a cap height rather than an x-height, and `FIXTURE.txt` carries seven
+   *      uppercase Vietnamese letters rather than the ~130 marked capitals — so the gate
+   *      has never rendered what the flag would ask for. **D18 says no Vietnamese glyph is
+   *      ever rendered uppercase anywhere in the app**, so it is refused here with a
+   *      reason rather than obeyed. (`content-pipeline.md` §3.8's table says the app
+   *      obeys and only the validator objects; D18 is the numbered criterion, so this
+   *      builds to D18 and the difference is reported rather than absorbed.)
+   */
+  let glyphCase = readGlyphCase(m);
+  const display = m ? m.display : undefined;
+  const wellFormed = display !== undefined && display !== null
+    && typeof display === 'object' && !Array.isArray(display);
+  if (display !== undefined && display !== null && !wellFormed) {
+    // A wrong *shape* is not a typo, it is a broken writer (`content-pipeline.md` §3.8).
+    issues.push(issue('error', 'pack.json', 'badDisplayShape',
+      '"display" is not a group of render settings; the letters are shown as they are stored'));
+  } else if (wellFormed && display.glyphCase !== undefined) {
+    const raw = display.glyphCase;
+    if (typeof raw !== 'string') {
+      issues.push(issue('error', 'pack.json', 'badGlyphCase',
+        '"display.glyphCase" is not a word; expected "lower" or "upper"'));
+    } else if (!GLYPH_CASES.includes(raw)) {
+      // A typo is a typo: it costs the owner's choice, and it is named rather than guessed.
+      issues.push(issue('warning', 'pack.json', 'unknownGlyphCase',
+        `"${raw}" is not a casing this app knows; expected "lower" or "upper"`));
+    }
+  }
+  if (glyphCase === 'upper' && language === 'vi') {
+    glyphCase = 'lower';
+    issues.push(issue('error', 'pack.json', 'viCannotBeUppercase',
+      'a Vietnamese pack cannot be shown in capitals: the font gate has never rendered the marked capitals (ui.md §8.2.3, AC Q13, D18)'));
+  }
+
+  const unitAudio = resolveUnitAudio(language, m, tiles, hasMedia, issues);
 
   // The never-together sets are read from the manifest as data (`content-pipeline.md`
   // §3.1) so that changing `dialect` changes them without a rebuild. A missing or
@@ -516,6 +768,19 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
       continue;
     }
 
+    // **The letters, and the spans they make** — what he taps, and which of them are one
+    // sound (`literacy-vi.md` §0.5, `literacy-en.md` §0.5). Derived data, stored by the
+    // editor and validated here, never recomputed from the spelling at runtime.
+    const shape = language === 'vi'
+      ? resolveViLetters(raw, decomp.syllables[0])
+      : resolveEnLetters(raw, decomp.tiles, tileById);
+    if (shape.error) {
+      entry.reason = shape.error;
+      catalogue.push(entry);
+      issues.push(issue('error', `words/${id}`, shape.error.code, shape.error.message));
+      continue;
+    }
+
     const word = {
       id,
       text,
@@ -523,9 +788,18 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
       fallbackEmoji: art.art.fallbackEmoji,
       images: art.art.images,
       audio: art.art.audio,
+      letters: shape.letters,
+      spans: shape.spans,
     };
-    if (language === 'vi') word.syllables = decomp.syllables;
-    else word.tiles = decomp.tiles;
+    if (language === 'vi') {
+      word.syllables = decomp.syllables;
+      word.onsetLetterCount = shape.onsetLetterCount;
+      // Where the mark lands, read from the rime's stored toned forms (X28, C6).
+      const rimeTile = tileById.rime[decomp.syllables[0].rime];
+      word.carrierOffset = rimeTile ? carrierOffsetOf(rimeTile) : 0;
+    } else {
+      word.tiles = decomp.tiles;
+    }
 
     const key = language === 'vi' ? keyOfVi(word.syllables[0]) : keyOfEn(word.tiles);
     if (index.has(key)) {
@@ -545,6 +819,8 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
   }
 
   playable.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const wordById = Object.create(null);
+  for (const w of playable) wordById[w.id] = w;
   catalogue.sort((a, b) => {
     const x = a.id ?? '';
     const y = b.id ?? '';
@@ -566,22 +842,44 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     && !Array.isArray(m.inventoryOrder)
     ? m.inventoryOrder
     : null;
-  for (const group of TILE_GROUPS[language]) {
+  // A pack still declaring `onset`, `rime` or `digraph` has not been migrated to
+  // revision 5. Drawing it would draw revision 4's 67-cell board, so it is an error she
+  // can act on and the run is ignored (`content-pipeline.md` §3.7).
+  for (const run of RETIRED_RUNS) {
+    if (declaredOrder && Array.isArray(declaredOrder[run])) {
+      issues.push(issue('error', `inventoryOrder.${run}`, 'retiredInventoryRun',
+        `"${run}" is not a run of the board any more; the board is the alphabet`));
+    }
+  }
+  for (const group of BOARD_RUNS[language]) {
     const listed = declaredOrder && Array.isArray(declaredOrder[group]) ? declaredOrder[group] : null;
+    // A letter run is checked against the **alphabet**, a tone run against the pack's own
+    // tone tiles. A letter is a glyph, not a tile id: six of the 29 Vietnamese letters
+    // have no tile of their own and nothing is wrong with that, because what a tap says
+    // depends on the state it creates rather than on the cell (`content-pipeline.md`
+    // §3.7).
+    const complete = group === 'tone'
+      ? tiles.tone.map((t) => t.id)
+      : ALPHABET[language];
+    const known = new Set(complete);
     const order = [];
     const seen = new Set();
     for (const raw of listed ?? []) {
-      const tileId = isNonEmptyString(raw) ? nfc(raw) : null;
-      if (tileId === null || !tileById[group][tileId]) {
+      const id = isNonEmptyString(raw) ? nfc(raw) : null;
+      if (id === null || !known.has(id)) {
         issues.push(issue('warning', `inventoryOrder.${group}`, 'unknownInventoryEntry',
-          `"${isNonEmptyString(raw) ? raw : '?'}" is not a tile this pack has; it was left off the board`));
+          `"${isNonEmptyString(raw) ? raw : '?'}" is not part of this board; it was left off`));
         continue;
       }
-      if (seen.has(tileId)) continue;
-      seen.add(tileId);
-      order.push(tileId);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      order.push(id);
     }
-    for (const t of defaultOrder(language, group, tiles[group])) if (!seen.has(t)) order.push(t);
+    // **Every missing entry is put back.** A letter she deleted by accident is every word
+    // containing it made unbuildable, which is the defect revision 4 actually shipped, so
+    // a truncated or half-written list degrades to a complete board rather than to a
+    // board with a hole in it (AC B2n, C18a, D1a).
+    for (const id of complete) if (!seen.has(id)) order.push(id);
     inventoryOrder[group] = order;
   }
 
@@ -598,11 +896,15 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     readOnly,
     dialect,
     neverTogether,
+    glyphCase,
     chant: m && m.chant && typeof m.chant === 'object' ? m.chant : {},
     tiles,
     tileById,
+    /** Every unit-state's clip: the tiles, then the prefix states (`content-pipeline.md` §3.7). */
+    unitAudio,
     inventoryOrder,
     words: playable,
+    wordById,
     catalogue,
     index,
     issues,

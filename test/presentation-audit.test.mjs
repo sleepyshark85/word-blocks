@@ -139,6 +139,61 @@ test('S7 — nothing in the app renders a failure state', () => {
   }
 });
 
+test('M22 / M23 / M24 / X12–X18 — the strip\'s new motion is transform and opacity only', () => {
+  // The three animations revision 5 adds are the ones that explain a superseding sound,
+  // and each has a shape a screenshot cannot check: **M22** must be `scaleX` anchored at
+  // the LEFT edge (a bar that grew from its centre would say *both letters changed*),
+  // **M23** must be one scale on the **span container** rather than on the new cell, and
+  // **M24** must be opacity so the divider fades rather than pops.
+  const strip = code(path.join(SRC, 'ui', 'WordStrip.js'));
+  assert.ok(/scaleX:\s*grow/.test(strip), 'M22 does not animate scaleX');
+  assert.ok(/translateX:\s*anchored/.test(strip),
+    'M22 is not anchored: `transformOrigin` is not portable, so the anchor is a half-width translate');
+  assert.ok(!/\bwidth:\s*(?:grow|pulse|slide)\b/.test(strip), 'the bar animates a layout property (O3)');
+  // M23 — the pulse is on the group, and it is scale, never the reward gold (X14).
+  const group = strip.slice(strip.indexOf('function SpanGroup'), strip.indexOf('export function WordStrip'));
+  assert.ok(group.length > 200, 'the span-group component could not be found to audit');
+  assert.ok(/1\.08/.test(group), 'M23 is not a 1.08 pulse');
+  assert.ok(!/reward/.test(group), 'X14 — the re-voice takes the reward gold');
+  // X40 — under reduce-motion M23 is an opacity pulse of the SAME duration, so audio
+  // sync and every criterion above still hold.
+  assert.ok(/0\.75/.test(group), 'X40 — reduce-motion has no opacity pulse');
+
+  // Every duration comes from the motion table, never a literal in the component.
+  for (const name of ['spanGrow', 'revoice', 'dividerFade', 'markSlotFade']) {
+    assert.ok(new RegExp(`M\\.${name}`).test(strip), `${name} is not read from the motion table`);
+  }
+  const durations = JSON.parse(readFileSync(path.join(SRC, 'motion', 'durations.mjs'), 'utf8')
+    .match(/export const M = \{([\s\S]*?)\n\};/)[1]
+    .split('\n')
+    .filter((l) => /^\s{2}\w+:/.test(l))
+    .reduce((acc, l) => {
+      const [, k, v] = l.match(/^\s{2}(\w+):\s*([\d.]+)/) ?? [];
+      return k ? `${acc}${acc === '{' ? '' : ','}"${k}":${v}` : acc;
+    }, '{') + '}');
+  assert.equal(durations.spanGrow, 220, 'M22 is not 220 ms');
+  assert.equal(durations.revoice, 260, 'M23 is not 260 ms');
+  assert.equal(durations.dividerFade, 180, 'M24 is not 180 ms');
+  assert.equal(durations.markSlotFade, 180, 'X33 — the mark-slot is not 180 ms');
+  assert.equal(durations.merge, 240);
+  assert.equal(durations.mergeFade, 180);
+});
+
+test('X9 / X11 — the strip is ONE target and no cell is pressable', () => {
+  const strip = code(path.join(SRC, 'ui', 'WordStrip.js'));
+  // One `Pressable`, and it is the band: five 72 pt cells need 392 pt and the 360 dp
+  // floor has 328, so a per-cell target is not a thing this app can draw (`ui.md` §7.2.6).
+  assert.equal((strip.match(/<Pressable\b/g) ?? []).length, 1,
+    'the strip has more than one touch target');
+  // The boards hand it whole-strip handlers, with no index.
+  for (const board of ['BoardVi.js', 'BoardEn.js']) {
+    const c = code(path.join(SRC, 'ui', 'screens', board));
+    assert.ok(/onStripDown=\{controller\.stripDown\}/.test(c), `${board}: no strip press`);
+    assert.ok(/onStripUp=\{controller\.stripUp\}/.test(c), `${board}: no strip release`);
+    assert.ok(!/onCellUp|undoTo|stripUp\(\d/.test(c), `${board}: a per-cell undo survives`);
+  }
+});
+
 /* ---------------------------------------------------------------- §R language */
 
 test('R4 — only `i18n/index.js` and `content/packIds.js` name both languages', () => {
@@ -164,14 +219,49 @@ test('R4 — only `i18n/index.js` and `content/packIds.js` name both languages',
 });
 
 test('R1/R2 — neither board screen can reach the other language', () => {
+  // **RESTATED in revision 5.** `letter`, `vowel` and `consonant` used to be English-only
+  // words, and a Vietnamese board naming one was a leak. They are now the **shared**
+  // vocabulary of both boards: the Vietnamese table is 29 letters, and a role is
+  // consonant / vowel / tone in both languages (`ui.md` §5.5, AC B2l, C15, D5, S5). What
+  // is still one language's alone is the **tone** — and the digraph, which lost its cell
+  // in English and never had one in Vietnamese.
   const viFile = path.join(SRC, 'ui', 'screens', 'BoardVi.js');
   const enFile = path.join(SRC, 'ui', 'screens', 'BoardEn.js');
-  assert.ok(!/BoardEn|\bletter\b|\bvowel\b|consonant/.test(code(viFile)),
+  assert.ok(!/BoardEn|\bdigraph\b|Word Blocks/.test(code(viFile)),
     'the Vietnamese board names an English concept');
-  assert.ok(!/BoardVi|\bonset\b|\brime\b|\btone\b|role3/.test(code(enFile)),
+  assert.ok(!/BoardVi|\bonset\b|\brime\b|\btone\b|role3|Ghép/.test(code(enFile)),
     'the English board names a Vietnamese concept');
   // D6 — `role3` is never rendered in English mode.
   assert.ok(!/role3/.test(code(enFile)));
+  // And the shared words really are in both, so the assertion above is not vacuous.
+  for (const f of [viFile, enFile]) {
+    assert.ok(/consonant/.test(code(f)) && /vowel/.test(code(f)),
+      `${rel(f)} stopped naming the shared roles — this check now proves nothing`);
+  }
+});
+
+test('D21 — no component calls `toUpperCase()` or hard-codes a case', () => {
+  // `ui.md` §8.2.2 item 3: **a `toUpperCase()` in a component is a bug**, in exactly the
+  // sense §5.1 means for a colour literal — right in one language, wrong in the other,
+  // and unreversible without a developer. The casing is one pack field, read once at load
+  // and applied at one place in the glyph component.
+  const applied = [];
+  for (const f of APP_FILES) {
+    const c = code(f);
+    assert.ok(!/\.toUpperCase\(|\.toLocaleUpperCase\(/.test(c),
+      `${rel(f)} upper-cases a glyph in a component`);
+    assert.ok(!/textTransform/.test(c), `${rel(f)} hard-codes a case in a style`);
+    if (/applyCasing/.test(c)) applied.push(path.relative(SRC, f));
+  }
+  // Exactly one place applies it, and it is the glyph component (D17, D18, D22).
+  assert.deepEqual(applied, [path.join('ui', 'Text.js')]);
+  const text = code(path.join(SRC, 'ui', 'Text.js'));
+  assert.equal((text.match(/applyCasing\(/g) ?? []).length, 1,
+    'the casing is applied in more than one place in the glyph component');
+  // D24 — the parent surfaces show her exactly what she typed, so neither parent text
+  // component may consume it.
+  const parentText = text.slice(text.indexOf('export function AppText'), text.indexOf('export function Glyph'));
+  assert.ok(!/applyCasing/.test(parentText), 'a parent surface upper-cases her words');
 });
 
 test('R4 — no coalescing onto the other language anywhere in the app layer', () => {

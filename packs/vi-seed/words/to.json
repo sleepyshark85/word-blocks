@@ -33,5 +33,10 @@
     "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)",
     "searchTitle": "Bát",
     "searchTitleWhy": "no article is a food bowl, but the disambiguation page links photographed ones"
-  }
+  },
+  "letters": [
+    "t",
+    "ô"
+  ],
+  "onsetLetterCount": 1
 }

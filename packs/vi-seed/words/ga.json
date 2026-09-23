@@ -97,5 +97,10 @@
     "flags": [],
     "note": "",
     "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
-  }
+  },
+  "letters": [
+    "g",
+    "a"
+  ],
+  "onsetLetterCount": 1
 }

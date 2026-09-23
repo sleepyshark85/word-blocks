@@ -24,6 +24,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { REPO } from './helpers/load.mjs';
+import { layout as appLayout, maxCells as appMaxCells } from '../src/layout/layout.mjs';
 
 const FONTS = path.join(REPO, 'assets', 'fonts');
 
@@ -103,6 +104,60 @@ test('Q1 / Q5a — the bundled tile font covers every character of the fixture',
   // And the text face too — `ui.md` §6.1 names it as the fallback if the tile face fails.
   const haveText = new Set(probe(TEXT, 'print(json.dumps(sorted(cmap.keys())))'));
   assert.deepEqual(CHARS.filter((c) => !haveText.has(c.codePointAt(0))), []);
+});
+
+test('Q11 / Q12 / Q12a — uppercase `A`–`Z` is covered, and `W` fits the strip cell', () => {
+  // **New in revision 5, because the owner answered Q7 with `A B C D`** (`ui.md` §6.1a,
+  // §8.2.4). "Uppercase is free" is an assumption, so it is measured against the file that
+  // actually ships — and the binding constraint is the **strip cell at the floor**, not
+  // the tile.
+  const ROMAN = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
+  for (const face of [TILE, path.join(FONTS, 'Baloo2-SemiBold.ttf')]) {
+    const have = new Set(probe(face, 'print(json.dumps(sorted(cmap.keys())))'));
+    const missing = ROMAN.filter((c) => !have.has(c.codePointAt(0)));
+    assert.deepEqual(missing, [], `${path.basename(face)} is missing ${missing.join('')}`);
+  }
+  // Q12 — the widest uppercase glyph, in em, from the font's own advance widths.
+  const widths = probe(TILE, `
+print(json.dumps({'upm': upm, 'widths': {c: font['hmtx'][cmap[ord(c)]][0] / upm
+    for c in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' if ord(c) in cmap}}))
+`);
+  const widest = Object.entries(widths.widths).sort((a, b) => b[1] - a[1])[0];
+  assert.equal(widest[0], 'W', `the widest capital is ${widest[0]}, not W`);
+  assert.ok(widest[1] <= 1.231,
+    `Q12a — the widest glyph is ${widest[1].toFixed(3)} em, over the 1.231 em the strip cell tolerates`);
+
+  // **Q12, the arithmetic that number comes from.** At the 360 x 600 floor the strip cell
+  // is 48 pt and the glyph 39 pt (`layout-parity.test.mjs` measures both), so a capital
+  // may be at most 48/39 = 1.231 em wide before it is clipped in the word he is building.
+  const floor = appLayout({ Wv: 360, Hv: 600, cells: appMaxCells({ Wv: 360, Hv: 600 }) });
+  assert.equal(floor.stripCellW, 48);
+  assert.equal(floor.stripFont, 39);
+  assert.equal(Number((floor.stripCellW / floor.stripFont).toFixed(3)), 1.231);
+  const drawn = widest[1] * floor.stripFont;
+  assert.ok(drawn <= floor.stripCellW,
+    `W draws ${drawn.toFixed(1)} pt into a ${floor.stripCellW} pt cell`);
+  assert.ok(floor.stripCellW - drawn >= 7, `only ${(floor.stripCellW - drawn).toFixed(1)} pt of slack`);
+
+  // **And the check is made to fail before it is believed** (`CLAUDE.md`): a hypothetical
+  // face whose widest capital is 1.25 em overflows the floor's strip cell — while every
+  // tile still fits, which is why the constraint is named as the strip and not the table.
+  assert.ok(1.25 * floor.stripFont > floor.stripCellW, 'the 1.231 em limit discriminates nothing');
+  assert.ok(1.25 * floor.tileFont <= floor.tile, 'the tile is not the binding constraint');
+});
+
+test('Q13 — the fixture does NOT cover the marked capitals, so it cannot gate them', () => {
+  // `ui.md` §6.1a / §8.2.3: `FIXTURE.txt` carries seven uppercase Vietnamese letters and
+  // **none** of the ~130 precomposed marked capitals. The fonts do contain them — *a font
+  // that contains a glyph is not a gate that has rendered it* — so a Vietnamese pack may
+  // not be switched to uppercase until the fixture is extended and Q1–Q5c re-run. This is
+  // the assertion that keeps that sentence from being folklore.
+  const upperVi = CHARS.filter((c) => /\p{Lu}/u.test(c) && c.codePointAt(0) > 0x7f);
+  assert.deepEqual(upperVi.sort(), ['Ă', 'Â', 'Ê', 'Ô', 'Ơ', 'Ư', 'Đ'].sort(),
+    'the fixture changed: re-read ui.md §6.1a before relying on Q13');
+  for (const marked of ['Ấ', 'Ằ', 'Ể', 'Ộ', 'Ự', 'Ỹ']) {
+    assert.equal(CHARS.includes(marked), false, `${marked} is in the fixture now`);
+  }
 });
 
 test('Q5c — the tile font is a subset of Latin + Vietnamese, and <= 150 KB', () => {
