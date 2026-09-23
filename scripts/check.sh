@@ -26,5 +26,22 @@ run "pack en-seed"          node tools/pack-validate.mjs packs/en-seed
 run "pack validator tests"  node --test tools/pack-validate.test.mjs
 run "theme contrast sweep"  node tools/theme-contrast.mjs
 run "layout sweep"          node tools/layout-sweep.mjs
+
+# The app bundles a SNAPSHOT of packs/, because Metro cannot enumerate a directory at
+# runtime. Nothing forced that snapshot to be rebuilt when the packs changed, so the owner
+# played a build whose bundle was nine hours older than the photographs and saw the emoji
+# fallback for every English word. He reported it as "a lot of drawing picture".
+#
+# The generator is deterministic, so regenerating and diffing IS the check: if the
+# committed bundle differs from what packs/ produces now, it was stale.
+before=$(sha256sum assets/packs/index.js 2>/dev/null | cut -d" " -f1)
+node scripts/build-pack-bundle.mjs >/dev/null 2>&1
+after=$(sha256sum assets/packs/index.js 2>/dev/null | cut -d" " -f1)
+if [ "$before" = "$after" ]; then
+  printf '  ok    bundled pack snapshot is current\n'
+else
+  printf '  FAIL  bundled pack snapshot was STALE - regenerated it; commit assets/packs/index.js\n'
+  fail=1
+fi
 if [ "$fail" = 0 ]; then echo "ALL GREEN"; else echo "NOT GREEN — do not commit"; fi
 exit "$fail"

@@ -4,6 +4,7 @@
 //   node tools/gen-audio.mjs --pack packs/vi-seed
 //   node tools/gen-audio.mjs --pack packs/en-seed --reuse samples/audio/en-final
 //   node tools/gen-audio.mjs --pack packs/vi-seed --only tiles --dry-run
+//   node tools/gen-audio.mjs --pack packs/en-seed --no-trim     # the raw engine output
 //
 // The engines are settled (`decisions.md` §"Audio — closed") and this tool does not
 // revisit them:
@@ -25,9 +26,10 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
-import { readManifest, readWords, writeManifest, writeWord } from './lib/pack.mjs';
+import { readManifest, readWords, writeManifest, writeWord, writeFileAtomic } from './lib/pack.mjs';
 import { importAudio } from './lib/media.mjs';
 import { RunState } from './lib/http.mjs';
+import { cutVerified, measureFiles } from './audio-trim.mjs';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const PY = path.join(ROOT, 'tools', '.venv', 'bin', 'python');
@@ -43,6 +45,7 @@ let only = 'all';
 let dryRun = false;
 let reuseDir = null;
 let force = false;
+let noTrim = false;
 for (let i = 0; i < argv.length; i += 1) {
   const a = argv[i];
   if (a === '--pack') packDir = argv[++i];
@@ -50,6 +53,7 @@ for (let i = 0; i < argv.length; i += 1) {
   else if (a === '--reuse') reuseDir = argv[++i];
   else if (a === '--dry-run') dryRun = true;
   else if (a === '--force') force = true;
+  else if (a === '--no-trim') noTrim = true;
   else { console.error(`unknown option ${a}`); process.exit(2); }
 }
 if (!packDir) { console.error('usage: gen-audio.mjs --pack DIR [--only tiles|words] [--reuse DIR] [--dry-run]'); process.exit(2); }
@@ -140,7 +144,8 @@ if (reuseDir && existsSync(path.join(reuseDir, 'manifest.json'))) {
 
 const state = new RunState(path.join(packDir, '.gen-audio.json'));
 const tmpDir = path.join(packDir, '.tmp-audio');
-mkdirSync(tmpDir, { recursive: true });
+// A dry run does not write, so it must not leave a directory behind either.
+if (!dryRun) mkdirSync(tmpDir, { recursive: true });
 
 const wordById = new Map(words.map(({ word }) => [word.id, word]));
 const tileOf = (group, id) => manifest.tiles[group].find((t) => t.id === id);
@@ -154,6 +159,8 @@ let made = 0;
 let reused = 0;
 let skipped = 0;
 let failed = 0;
+let trimmed = 0;
+let trimmedMs = 0;
 let bytes = 0;
 let ms = 0;
 const listen = [];
@@ -190,10 +197,58 @@ for (const job of jobs) {
     }
   }
 
+  /*
+   * TRIM THE PAD BEFORE THE CLIP ENTERS THE PACK.
+   *
+   * Microsoft's read-aloud endpoint returns a FIXED block of silence around every
+   * utterance — measured at ~285 ms before and ~1320 ms after, the same on every clip
+   * whatever the text. That is 1.6 s of nothing on a clip whose speech is 400–600 ms,
+   * and it is why the shipped `short` clips were 1896–2832 ms against `ui.md` E15's
+   * budget of 700 ms. The owner heard it as "the sounds when picking English characters
+   * are not good enough, voices seem to be mixed up with each other": a child taps every
+   * 300–600 ms, the cut rule then cut every clip inside its first 20%, and what he got
+   * was stubs of a slow adult voice. gTTS does not do this — Vietnamese clips carry only
+   * ~120 ms of pad — so it is the endpoint, not the pipeline.
+   *
+   * edge-tts adds none of it (the raw websocket stream IS the saved file), so there is
+   * nothing to configure upstream and the generator has to cut it. The cut is
+   * frame-aligned and therefore LOSSLESS, which matters most for the reused clips: those
+   * are the ones the owner approved by ear in round 3, and re-encoding them would throw
+   * that approval away. `cutVerified` decodes the result and compares it sample by
+   * sample against the original before it is accepted.
+   *
+   * A duration is still only a proxy. It cannot say whether a clip is intelligible —
+   * only the owner's ear can (CLAUDE.md, "amplitude is not intelligibility").
+   */
+  let leadMs = null;
+  let tailMs = null;
+  let clipMs = info?.ms ?? null;
+  if (!noTrim) {
+    try {
+      const [m] = measureFiles([srcFile]);
+      const { plan, after } = cutVerified(srcFile, m, {});
+      if (plan.buf) {
+        const cut = path.join(tmpDir, `cut_${key.replace(/[^a-zA-Z0-9]+/g, '_')}.mp3`);
+        writeFileAtomic(cut, plan.buf);
+        trimmed += 1;
+        trimmedMs += plan.beforeMs - after.ms;
+        if (srcFile.startsWith(tmpDir)) rmSync(srcFile);
+        srcFile = cut;
+        clipMs = after.ms; leadMs = after.leadMs; tailMs = after.tailMs;
+      } else {
+        clipMs = m.ms ?? clipMs; leadMs = m.leadMs ?? null; tailMs = m.tailMs ?? null;
+      }
+    } catch (e) {
+      console.error(`${key}: could not trim (${e.message.split('\n')[0]}) — importing as generated`);
+    }
+  }
+
   const media = importAudio(packDir, srcFile, {
     engine: eng.label,
     text: job.text,
-    ms: info?.ms ?? null,
+    ms: clipMs,
+    leadMs,
+    tailMs,
   });
   bytes += media.bytes;
   ms += media.ms ?? 0;
@@ -227,7 +282,8 @@ if (!dryRun) {
 const kb = (n) => `${(n / 1024).toFixed(1)} KiB`;
 console.log(`
 ${jobs.length} clip(s) needed: ${made} generated, ${reused} reused, ${skipped} already present, ${failed} failed
-${kb(bytes)} written, ${(ms / 1000).toFixed(1)} s of audio`);
+${kb(bytes)} written, ${(ms / 1000).toFixed(1)} s of audio
+${trimmed} clip(s) trimmed, ${(trimmedMs / 1000).toFixed(1)} s of padding removed`);
 if (listen.length) {
   console.log(`
 ${listen.length} toneless step-3 blend(s) NEED A HUMAN LISTEN before this pack ships.

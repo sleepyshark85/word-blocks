@@ -35,8 +35,48 @@ UI and closes six document defects.
 - **`F2` is retired outright and is not reassigned**, because it is the one the tester raised
   as a contradiction and its absence should be visible in the numbering.
 
-**Count: 269 numbered criteria in §A–§T, 14 Tier-5 questions in §U, and 24 withdrawn groups in
-§W.**
+~~**Count: 269 numbered criteria in §A–§T, 14 Tier-5 questions in §U, and 24 withdrawn groups
+in §W.**~~ *(revision 2's count; see §0A for revision 3's)*
+
+---
+
+## 0B. REVISION 4 — the owner named his device and proposed paging
+
+**2026-09-23.** `gameplay.md` §0B has his words. Paging **removes** revision 3's compromise
+rather than trading against it, so most of what changes here is a relaxation: criteria that
+asserted a truncated board now assert a complete one.
+
+- **New group §V · Paging.** The page plan, the rail, auto-advance and cross-page liveness.
+  A new group rather than additions to §B, because paging is a distinct surface a tester can
+  exercise on its own, and because it does not exist at all on a tablet.
+- **§W4** lists what revision 3 ids became. The dangerous ones are again the **restated**
+  ones — C21, C22, K11, K12, K14, P4, P5, P6 all still compile and now mean something else.
+- **§8.1's rule closes the `q` question**: every character in `inventoryOrder` is drawn
+  always; one with no words behind it is permanently flat and still speaks. D1a and D12 carry
+  it, and **S14** makes "the validator must not call that an error" testable.
+
+**Count: 351 numbered criteria in §A–§V (316 in §A–§T, 35 in §V; no duplicate ids), 25 Tier-5
+questions in §U, 24 withdrawn revision-1 groups in §W, 28 revision-2 ids in §W3 and 11
+revision-3 ids in §W4.**
+
+---
+
+## 0A. REVISION 3 — the owner played it, and four things changed
+
+**2026-09-23.** `gameplay.md` §0A has the four findings verbatim; `ui.md` §0A has what they
+did to the UI. This section is the id policy for the criteria.
+
+- **Group letters are stable, again.** §B is still the board, §F is still the payoff, §N is
+  still audio. Most of §A, §G, §H (except the stage rows), §I, §J, §L, §M, §O, §P, §Q, §S and
+  §T are untouched.
+- **Every id revision 3 retires is listed in §W3 with the reason**, and **ids are never
+  reassigned across revisions**. A test citing one should be deleted, not repointed.
+- **Ids revision 3 *changes in place*** — same id, same subject, different assertion — are
+  listed in §W3 too, marked **RESTATED**, because those are the dangerous ones: a test citing
+  them will still compile and will now be testing the wrong thing.
+
+~~**Count: 314 numbered criteria in §A–§T, 20 Tier-5 questions in §U…**~~ *(revision 3's
+count; see §0B for revision 4's)*
 
 ---
 
@@ -52,7 +92,16 @@ UI and closes six document defects.
 | A6 | **Given** any state, **when** the app is relaunched, **then** the previously chosen theme is active, read from AsyncStorage. | 3 |
 | A7 | **Given** the app is running, **when** the content pack is inspected, **then** no pack data has been written to AsyncStorage. AsyncStorage holds settings only. | 2 |
 | A8 | **Given** a viewport smaller than 360 × 600 pt, **when** the app opens, **then** the screen-too-small card is shown and no board is mounted. | 4 |
-| A9 | **Given** parent menu → Language, **when** the other language is confirmed, **then** the game unmounts, the pack reloads, the prefix tree rebuilds, and the board of the new language is shown. | 3 |
+| A9 | **Given** parent menu → **Language (row 2)**, **when** the other language is tapped **once**, **then** the language switches immediately — no second confirm — the game unmounts, the pack reloads, the prefix tree rebuilds, and the board of the new language is shown. *(RESTATED: revision 2 required a two-touch confirm here.)* | 3 |
+| A12 | **Given** the parent menu, **then** **Language is the second row**, directly under *Add a word*, and opens the same chooser screen the first launch shows. | 3 |
+| A13 | **Given** a correct gate answer, **when** the gate dot is held again within **180 s**, **then** the parent menu opens **without** a multiplication; **when** it is held after 180 s, **then** the multiplication is asked. | 3 |
+| A14 | **Given** an open gate grace, **when** the board is returned to or the app is backgrounded, **then** the grace **ends immediately** and the next hold asks the multiplication. | 3 |
+| A15 | **Given** a language switch, **then** all audio stops **within 120 ms** — a hard stop, **not** the 800 ms *Finish session* fade — and no clip of the previous language is audible after the new board appears. | 3 |
+| A16 | **Given** a partly assembled word, **when** the language is switched, **then** the strip is empty on the new board and nothing is restored. | 3 |
+| A17 | **Given** a running chant or a held reveal, **when** the language is switched, **then** it is abandoned, no picture flies to the shelf, and the new board is shown with an empty strip and an empty shelf. | 3 |
+| A18 | **Given** words discovered in Vietnamese, **when** the language is switched to English and back, **then** the Vietnamese album is unchanged, including each word's encounter count (so B9 resumes where it left off). | 2 |
+| A19 | **Given** a language switch, **then** the shelf is empty on the new board, and the theme is unchanged. | 3 |
+| A20 | **Given** a language switch, **then** the new language is persisted immediately; **when** the app is force-killed and relaunched, **then** it opens in the new language. | 2 |
 | A10 | **Given** a language switch has completed, **when** memory is inspected, **then** no board component, tile, clip handle or tree node from the previous language is retained. | 1 |
 | A11 | **Given** a viewport that serves fewer than 20 table cells (`ui.md` §4.3 F7), **when** the app opens, **then** the screen-too-small card is shown and no board is mounted. | 4 |
 
@@ -61,13 +110,22 @@ UI and closes six document defects.
 | # | Given / When / Then | Tier |
 |---|---|---|
 | B1 | **Given** the board is shown, **then** it contains exactly three things: the top bar, the word strip and the character table. **No picture, no picture frame, no veil, no caption strip.** | 3 |
-| B2 | **Given** the board is shown with an empty strip, **then** the table contains the first `cells` symbols of the pack's `inventoryOrder` for that position, where `cells` is the current stage's table size (8 / 12 / 16 / 20 / 24). | 1 |
+| B2 | **Given** the board is shown, **then** the table contains, in one fixed row-major sequence, a **prefix of each run** of the pack's `inventoryOrder` — Vietnamese `[onsets][rimes][tones]`, English `[letters][digraphs]` — sized by the device's cell budget and, for Vietnamese, the allocation in `ui.md` §7.1. *(RESTATED: revision 2 sized it by a stage of 8/12/16/20/24 and held one run at a time.)* | 1 |
+| B2a | **Given** any two moments in any session, **then** **every character is in the same cell**. The table's contents and cell assignment are a pure function of the pack's `inventoryOrder` and the device's cell budget, and of nothing else — not the strip, not the position, not the word list, not the session, not a random source. | 1 |
+| B2b | **Given** a Vietnamese board, **then** all three runs — onsets, rimes and tones — are on screen **simultaneously**, at every position, from the first launch. *(This is the exact inverse of revision 2's C16, which is withdrawn.)* | 3 |
+| B2c | **Given** any sequence of taps, **then** **no character ever changes cell, size, bar pattern or role.** The only per-tap change to the table is which tiles are live, plus the tone-carrier swap of B2d. | 3 |
+| B2d | **Given** a Vietnamese board with no rime placed, **then** each of the six tone cells shows its **bare mark on a dotted circle** (`ngang` an empty circle) and **every one of them is disabled**; **given** a rime is placed, **then** each tone cell shows **that rime with its mark applied** and the completing, legal ones are live. | 3 |
+| B2e | **Given** the bare-mark form of a tone cell, **then** it is rendered in **`ink`**, not `inkSoft`, and measures ≥ 4.5:1 against the ground in every theme. | 2 |
+| B2f | **Given** the board, **then** there is **no `∅` tile, no empty socket and no placeholder character** anywhere in the table. | 3 |
+| B2g | **Given** an empty strip in Vietnamese, **then** the live set is every **onset** that begins a word **plus** every **rime** that begins a zero-onset word, so `áo` is started by tapping `ao`. | 1 |
+| B2h | **Given** the board, **then** the table does **not scroll**, has no scroll affordance, and every character it holds is on screen at once. | 4 |
+| B2i | **Given** a run boundary in the table, **then** it is marked by **no line, box, tint or label** — only by the tile's bar pattern changing (solid → split → dotted). | 3 |
 | B3 | **Given** any prefix, **then** a table symbol is **live** iff the eligible word set contains at least one word beginning with `prefix + symbol`, and **disabled** otherwise. | 1 |
 | B4 | **Given** an empty strip, **then** the live set is exactly the symbols that **begin** some eligible word, and every other symbol on the table is disabled. | 1 |
 | B5 | **Given** any sequence of taps on **live** symbols only, **then** the resulting prefix always has at least one completion in the eligible word set. Garbage is unreachable. | 1 |
 | B6 | **Given** any reachable state, **then** either the strip's contents are a word, or at least one table symbol is live, or both. There is no third case. | 1 |
-| B7 | **Given** the same table, **when** the app is relaunched, **then** every symbol is in the same cell. Cell position is a pure function of `inventoryOrder` and the grid, never of a word, a session or a random source. | 1 |
-| B8 | **Given** a tap that changes the live set, **then** the table's tile **size and cell positions do not change** — only the live/disabled rendering of each cell. | 4 |
+| B7 | **Given** the same device, **when** the app is relaunched, **then** every character is in the same cell as before. | 1 |
+| B8 | **Given** a tap that changes the live set, **then** the table's tile **size and cell positions do not change** — only the live/disabled rendering of each cell, and the tone carriers (B2d). | 4 |
 | B9 | **Given** the *k*-th encounter of a word with *n* images (`k` from 0), **then** the reveal shows `images[k mod n]`. | 1 |
 | B10 | **Given** a word with exactly 1 image, **when** it is discovered repeatedly, **then** that image is shown every time and nothing errors. | 3 |
 | B11 | **Given** a word with exactly 2 images, **when** it is discovered three times, **then** the reveals show `images[0]`, `images[1]`, `images[0]`. *(This is the case the old B9/F2 pair could not satisfy — see §W.)* | 1 |
@@ -78,52 +136,62 @@ UI and closes six document defects.
 
 ## C · Vietnamese assembly
 
+**Rewritten in revision 3.** The table no longer morphs and the strip no longer has a tone
+cell; C2, C3, C4, C5, C10, C11 and C16 are withdrawn or restated — see §W3.
+
 | # | Given / When / Then | Tier |
 |---|---|---|
-| C1 | **Given** a Vietnamese board with an empty strip, **then** the table shows the **onset inventory** and the strip has **three cells**: onset ┊ rime ┊ tone. | 3 |
-| C2 | **Given** the Vietnamese onset table, **then** its last cell is the **∅ tile**, drawn as a dashed empty socket, and it is live iff some eligible word has no onset. | 3 |
-| C3 | **Given** the ∅ tile is tapped while live, **then** it seats in the onset cell, plays the low wooden *open* sound and **not** a speech clip, and the table morphs to rimes. | 3 |
-| C4 | **Given** the onset table, **when** a live onset is tapped, **then** it seats in the onset cell and the table cross-fades to the **rime inventory** within 280 ms. | 3 |
-| C5 | **Given** the rime table, **when** a live rime is tapped, **then** it seats in the rime cell and the table cross-fades to that rime's **toned forms**. | 3 |
-| C6 | **Given** the tone table, **then** each cell renders **the chosen rime with that tone's mark applied** (`eo èo éo ẻo ẽo ẹo`), never a bare diacritic. | 3 |
-| C7 | **Given** a rime ending in `p`, `t`, `c` or `ch`, **when** the tone table appears, **then** it contains exactly **two** cells (`sắc`, `nặng`) and no others — illegal tones are **not rendered at all**, as distinct from rendered-and-disabled. | 1 |
+| C1 | **Given** a Vietnamese board with an empty strip, **then** the table shows **all three runs at once** — onsets, then rimes, then tones — and the strip shows **one dashed cell**. *(RESTATED: revision 2 showed the onset table and a three-cell strip.)* | 3 |
+| C4 | **Given** a live onset is tapped, **then** it seats in the strip's first cell, a new dashed cell appears to its right, and **the table's cell contents do not change** — only which tiles are standing. | 3 |
+| C5 | **Given** an onset is placed, **when** a live rime is tapped, **then** it seats to the right of the onset, the six tone cells swap their carrier to that rime (B2d) within 160 ms, and the dashed cell remains because a tone is still needed. | 3 |
+| C6 | **Given** a rime is placed, **then** each of the six tone cells renders **that rime with that tone's mark applied** (`eo èo éo ẻo ẽo ẹo`), never a bare diacritic. *(Unchanged in substance — `literacy-vi.md` §5.4 holds at the moment he is choosing.)* | 3 |
+| C7 | **Given** a rime ending in `p`, `t`, `c` or `ch`, **when** its tone carriers are shown, **then** **all six cells are still present**, the illegal four are **disabled**, and each shows the marked form from the rime's `toned` map, falling back to the bare mark where that is `null`. *(RESTATED: revision 2 rendered only the two legal cells. Legality and completability are now both flatness — `ui.md` §7.2 states what that costs.)* | 1 |
 | C8 | **Given** `ngang` completes a word, **then** it is a live tile he presses, and the strip shows the unmarked form. `ngang` is never implicit. | 1 |
-| C9 | **Given** any (onset, rime) with exactly one completing tone, **then** that tone tile is live, the rest are disabled, and **the word is not auto-committed**. He taps it. | 1 |
-| C10 | **Given** a seated rime, **when** the rime cell is tapped, **then** the rime and any tone return to the table and the table morphs back to **rimes**. | 3 |
-| C11 | **Given** a seated onset, **when** the onset cell is tapped, **then** the onset, rime and tone all return and the table morphs back to **onsets**. | 3 |
-| C12 | **Given** a Vietnamese word forms, **then** the chant plays `onset · rime · toneless-blend · tone · word`, with the tone step **omitted** for `ngang` and the onset step omitted for a zero onset. | 3 |
-| C13 | **Given** the chant reaches the toneless blend, **then** the strip's hairlines dissolve and the glyphs slide together. | 3 |
-| C14 | **Given** the chant reaches the tone step, **then** the marked form cross-fades in and the mark animates down into place. | 3 |
-| C15 | **Given** a Vietnamese board, **then** onset tiles carry a **solid** bar in `role1`, rime tiles a **split** bar in `role2`, tone tiles a **dotted** bar in `role3`. | 3 |
-| C16 | **Given** any point in a Vietnamese session, **then** **exactly one** of the three roles is on the table. The three are never shown together. | 3 |
-| C17 | **Given** any palette position, **then** the table never contains both of `{c,k}`, `{g,gh}`, `{ng,ngh}` as **live** symbols for the same prefix, and no dialect homophone pair for the pack's `dialect` is live together (`literacy-vi.md` §6.1). | 1 |
-| C18 | **Given** the onset table contains `ngh` and the current tree has no `ngh` word, **then** `ngh` is rendered, disabled, and speaks its đánh vần name when tapped. | 3 |
+| C9 | **Given** any (onset, rime) with exactly one completing tone, **then** that tone tile is live, the other five are disabled, and **the word is not auto-committed**. He taps it. | 1 |
+| C10 | **Given** a seated rime, **when** it is tapped in the strip, **then** it and any tone return, and the six tone cells revert to **bare marks**. | 3 |
+| C11 | **Given** a seated onset, **when** it is tapped in the strip, **then** the onset, rime and tone all return and the strip is empty. | 3 |
+| C12 | **Given** a Vietnamese word forms, **then** the chant plays five beats — `onset name · rime name · **toneless blend** · tone name · whole word` — with beat 4 omitted for `ngang` and beat 1 omitted for a zero onset. | 3 |
+| C12a | **Given** the chant, **then** what is **shown** accumulates: beat 1 `b`, beat 2 `b` `o`, beat 3 `bo` (merged), beat 4 `bò` (marked), beat 5 `bò` held. **At no beat is anything on screen that is not part of the word** — in particular **the tone's name is never rendered**. | 3 |
+| C12b | **Given** chant beat 3, **then** the clip played is the word's **`audio.blend`**, and the strip's dividers dissolve and the glyphs slide together on that same beat. | 3 |
+| C12c | **Given** any chant beat, **then** it begins **after the previous clip has ended**, plus that beat's gap from `pack.chant.gapsMs`, with ≤ 30 ms drift. Two chant clips are never audible at once. | 3 |
+| C12d | **Given** `pack.chant.gapsMs` is edited, **then** the chant's timing changes accordingly with no code change. | 2 |
+| C14 | **Given** chant beat 4, **then** the mark animates down onto **the already-merged word** (M12), not onto a separate tile or cell. | 3 |
+| C15 | **Given** a Vietnamese board, **then** onset tiles carry a **solid** bar in `role1`, rime tiles a **split** bar in `role2`, tone tiles a **dotted** bar in `role3`, and the three runs are contiguous and in that order. | 3 |
+| C17 | **Given** any prefix, **then** the table never has both of `{c,k}`, `{g,gh}`, `{ng,ngh}` **live** at the same time, and no dialect homophone pair for the pack's `dialect` is live together (`literacy-vi.md` §6.1). *(They are all always **present**; this is about liveness.)* | 1 |
+| C18 | **Given** the table contains `ngh` and the current tree has no `ngh` word, **then** `ngh` is rendered, disabled, and speaks its đánh vần name when tapped. | 3 |
+| C19 | **Given** a zero-onset word such as `áo`, **then** it is built in **two taps** — the rime, then the tone — and the strip never shows an empty leading cell. | 3 |
+| C20 | **Given** a completed Vietnamese word, **then** the strip shows **one merged word with the mark applied**, no dashed cell, and a 5 pt **dotted `role3`** segment under the rime recording that a tone was chosen. | 3 |
+| C21 | **Given** any served device, **then** **every onset, every rime and every tone in the pack is on the board** — across pages if need be. No run is truncated and `zonesFor()` does not exist. *(RESTATED — revision 3 required the opposite: a 0.48 split of a truncated board. §W4.)* | 1 |
+| C22 | **Given** his mother adds or edits a word or a rime, **then** **no character changes page or cell.** The page plan depends only on the run lengths and the device, never on the word list. | 1 |
 
 ## D · English assembly
 
 | # | Given / When / Then | Tier |
 |---|---|---|
-| D1 | **Given** an English board with an empty strip, **then** the table shows the letter inventory in **alphabetical order** and the strip shows **one empty cell**. | 3 |
+| D1 | **Given** an English board with an empty strip, **then** the table shows **the alphabet, `a`–`z`, in alphabetical order**, followed by digraphs as far as the device's cell budget reaches, and the strip shows **one dashed cell**. | 3 |
+| D1a | **Given** an English board on **any** served device, **then** **all 26 letters are on the board**, `a`–`z`, including `q` — on page 1 where a page holds 26, across pages otherwise. | 2 |
+| D1b | **Given** `q`, which no pack word uses, **then** it is rendered in its slot at full glyph opacity, is **permanently flat in every state**, and **plays its sound when pressed**. It is never hidden, never removed, and never an error. | 3 |
 | D2 | **Given** a live tile is tapped, **then** it seats in the next empty strip cell and **a new empty cell appears to its right**. | 3 |
 | D3 | **Given** any English strip state, **then** the number of cells shown is the number of symbols placed plus one. **The target length is never shown.** | 3 |
 | D4 | **Given** a seated tile, **when** its strip cell is tapped, **then** that tile **and every tile after it** returns to the table. | 3 |
 | D5 | **Given** any English board, **then** vowel tiles carry a **split** bar in `role2` and consonant tiles a **solid** bar in `role1`, and the two are distinguishable with the screen desaturated. | 3 |
 | D6 | **Given** any English board, **then** **no tile carries `role3`**. | 3 |
-| D7 | **Given** a tile is touched for the **first** time in a session, **then** its `long` clip plays ("kuh, cat"). | 3 |
-| D8 | **Given** a tile is touched again in the same session, **then** its `short` clip plays ("kuh"). | 3 |
-| D9 | **Given** any tile was touched in the previous 900 ms, **when** any tile is touched, **then** the `short` clip plays regardless of whether it is that tile's first touch. | 3 |
+| D7 | **Given** any tile is touched, live or flat, first time or five-hundredth, **then** its **`short`** clip plays. *(RESTATED — this is the inverse of revision 2's D7. The `long` anchored clip is **never** fired by a tile tap; see N14. `ui.md` §11.0 is why.)* | 3 |
+| D8 | **Given** a full session of play, **then** **no `long` clip is ever played by a tile tap**, in either language. | 3 |
+| D9 | **Given** the word strip is held for 800 ms in English, **then** the **`long`** anchored clips are what the parts hint speaks — the only place in the app they are heard. | 3 |
 | D10 | **Given** an English word forms, **then** the chant uses `short` clips left to right, then the whole word — never the `long` anchored form. | 3 |
 | D11 | **Given** any prefix, **then** `c` and `k` are never both live. | 1 |
-| D12 | **Given** an empty strip, **then** `ck`, `ll`, `ss`, `ff`, `zz`, `ng` and `x` are **disabled**, because no pack word begins with them. This is B4 doing `literacy-en.md` §3.3's job for free. | 1 |
+| D12 | **Given** an empty strip, **then** `ck`, `ll`, `ss`, `ff`, `zz`, `ng`, `x` and `q` are **present on the board and disabled**, because no pack word begins with them. This is B4 doing `literacy-en.md` §3.3's job for free. | 1 |
 | D13 | **Given** the prefix `c` `a`, **then** the live set is exactly the letters that complete a pack word (`n`, `p`, `t` in `en-seed`), and every other letter on the table is disabled. | 1 |
-| D14 | **Given** a digraph tile is on the table at stage 6 or 7, **then** it renders as one tile with its two letters, shrunk to 82% of the tile width, never below 24 pt. | 4 |
+| D14 | **Given** a digraph tile is on the table, **then** it renders as one tile with its two letters, shrunk to 82% of the tile width, never below 24 pt. *(RESTATED: there are no stages.)* | 4 |
 
 ## E · Live, disabled, and undo
 
 | # | Given / When / Then | Tier |
 |---|---|---|
 | E1 | **Given** a **live** tile is tapped, **then** its sound plays, it flies to the strip over 260 ms, a 90 ms seat click plays, and the table restands within 200 ms. | 3 |
-| E2 | **Given** a **disabled** tile is tapped, **then** **its own clip plays in full**, the tile dips 2 pt and returns over 120 ms, a muted knock plays at −9 dB, and **nothing else changes**: no seat, no strip change, no table change. | 3 |
+| E2 | **Given** a **disabled** tile is tapped, **then** a 40 ms muted knock plays at −9 dB **within 60 ms**, **then its own `short` clip plays in full starting at +120 ms** — the two do **not** overlap — the tile dips 2 pt and returns over 120 ms, and **nothing else changes**: no seat, no strip change, no table change. *(RESTATED: revision 2 played the clip and the knock together. `ui.md` §11.0.)* | 3 |
+| E2a | **Given** a disabled tile is tapped, **then** the knock and the clip are on **different channels in the specified order**, and at no instant are two speech clips audible. | 5 |
 | E3 | **Given** a disabled tile is tapped, **then** nothing red, nothing grey-to-illegible, no X, no shake, no buzzer and no error glyph is rendered anywhere. | 3 |
 | E4 | **Given** a disabled tile, **then** its glyph is rendered at **full opacity** in `inkSoft` and measures **≥ 4.5:1** against the ground in every theme. | 2 |
 | E5 | **Given** a disabled tile, **then** it carries **no identity bars**, a 3 pt `roleEdge` underbar, and a 1.5 pt dashed outline — and a live tile carries two bars, a solid 2 pt outline and a white face. | 3 |
@@ -143,7 +211,7 @@ UI and closes six document defects.
 | F1 | **Given** a tap completes a word, **then** the announcement motif begins **within 60 ms of that touch-down** — before the chant, not after it. | 5 |
 | F3 | **Given** the announcement, **then** the strip's symbols hop in sequence 90 ms apart, the hairlines dissolve at 300 ms, and confetti fires at 350 ms. | 3 |
 | F4 | **Given** the word is **new to this child**, **then** the motif is four notes (three rising plus one an octave above the root at 390 ms). | 3 |
-| F5 | **Given** the word has been discovered before, **then** the motif is three notes and **the parts chant is skipped** — the whole word is spoken and the picture follows. | 3 |
+| F5 | **Given** the word has been discovered before, **then** the motif is three notes and **chant beats 1–4 are skipped** — the whole word is spoken and the picture follows. | 3 |
 | F6 | **Given** the pack has a recorded cheer, **then** it plays at t = 0 over the motif; **given** it does not, the motif plays alone and nothing else differs. | 3 |
 | F7 | **Given** the chant ends, **then** the picture scales and translates **from the word strip's rectangle** to full screen over 420 ms. | 3 |
 | F8 | **Given** the reveal, **then** the word is spoken ~200 ms after the picture is full screen. | 3 |
@@ -157,7 +225,7 @@ UI and closes six document defects.
 | F16 | **Given** a prefix-word continuation is on screen, **then** tapping the strip still undoes normally (E8/E9), so he is never trapped in it. | 3 |
 | F17 | **Given** Vietnamese, **then** case F15 never arises, because every word is exactly three symbols. | 1 |
 | F18 | **Given** the announcement motif, **then** it is **byte-identical in both language modes** and contains no speech. | 2 |
-| F19 | **Given** the motif plays, **then** tile audio is ducked to −18 dB for its duration and resumes afterwards. | 5 |
+| F19 | **Given** a word forms, **then** any speech clip still playing is **stopped** before the motif begins, and **no speech is audible under the motif**. *(RESTATED — the inverse of revision 2's F19, which required ducking to −18 dB. Ducked speech under music is two voices by specification; `ui.md` §11.0 item 2.)* | 5 |
 
 ## G · No fail state, and the idle ladder
 
@@ -172,7 +240,7 @@ UI and closes six document defects.
 | G7 | **Given** a symbol is seated, **then** the idle timer resets to 0. | 1 |
 | G8 | **Given** a disabled tile is tapped, **then** the idle timer does **not** reset, but the next escalation is deferred by 4 s. | 1 |
 | G9 | **Given** any touch anywhere, **then** no auto-play fires within the following 4 s. | 3 |
-| G10 | **Given** an auto-play occurred, **then** that discovery does not count toward stage advancement. | 1 |
+| G10 | **Given** an auto-play occurred, **then** **nothing is recorded about it** — there is no assist counter, because there is no stage for it to hold back (`gameplay.md` §3.6). *(RESTATED — revision 2 required the opposite: that it be recorded.)* | 1 |
 | G11 | **Given** the tile the ladder chooses, **then** it is drawn by the seeded RNG from the **live** set, preferring a symbol whose subtree holds an undiscovered word — and the same seed and history choose the same tile. | 1 |
 | G12 | **Given** an auto-play completes a word, **then** the full announcement runs exactly as if he had tapped it. Nothing in the child's UI says the app did it. | 3 |
 
@@ -180,10 +248,10 @@ UI and closes six document defects.
 
 | # | Given / When / Then | Tier |
 |---|---|---|
-| H1 | **Given** stage *s*, **then** the table shows `[8,12,16,20,24][s-1]` cells, capped by the viewport's `maxCells`. | 4 |
-| H2 | **Given** 8 new words discovered at the current stage with no auto-play assist, **then** the stage advances by one and the table gains four cells. | 1 |
-| H3 | **Given** stage advancement occurs, **then** **no level-up screen, banner, sound, badge or message is shown.** | 3 |
-| H4 | **Given** any sequence of play, **then** the stage never decreases. | 1 |
+| H1 | **Given** any amount of play, **then** the table's size **never changes**. It is `min(pack inventory, device cell budget)` from the first launch. *(RESTATED — the inverse of revision 2's H1, which grew it in five stages.)* | 4 |
+| H2 | **Given** the whole app, **then** there is **no stage, level, unlock, badge, star, streak or progress number of any kind**, in any screen, child-facing or parent-facing. | 3 |
+| H3 | **Given** the source, **then** there is no `globalStage`, no stage-advancement rule and no assist counter. | 1 |
+| H4 | **Given** any sequence of play, **then** the only thing that accumulates is the **album**, and it never shrinks. | 1 |
 | H5 | **Given** a word is discovered for the **first** time, **then** exactly one shelf slot fills, with that word's photograph. | 3 |
 | H6 | **Given** a word is **re-**discovered, **then** no shelf slot fills and the word's album card bounces instead. | 3 |
 | H7 | **Given** the fifth shelf slot fills, **then** the shelf tips into the album, the album is shown, and **play does not resume by itself**. | 3 |
@@ -249,11 +317,12 @@ UI and closes six document defects.
 | K7 | **Given** nothing at all is recognised, **then** she can still save picture + sound, and the word is filed as not-yet-playable. | 3 |
 | K8 | **Given** the validator rejects an entry, **then** it returns a **reason string the UI renders**, not a boolean. | 2 |
 | K9 | **Given** a pack with one corrupt entry, **when** the app loads it, **then** the app runs with the remaining words and the corrupt entry is listed as not-yet-playable. **The child never sees a blank screen.** | 2 |
-| K10 | **Given** a linguistically valid word whose symbol is **not in `inventoryOrder`**, **then** the editor says so in one sentence, draws that symbol as a flat tile, and offers **Add it to the board**. | 3 |
-| K11 | **Given** she taps **Add it to the board**, **then** the symbol is appended to `inventoryOrder`, the word becomes playable, and the change survives a restart. | 2 |
-| K12 | **Given** `inventoryOrder` already holds 24 symbols for that position, **then** the editor says the board is full, lists the inventory with the number of words behind each symbol, and offers a **swap**. | 3 |
+| K10 | **Given** a linguistically valid word whose character is **not on this device's board** — either absent from `inventoryOrder` or beyond the prefix this device holds — **then** the editor says so in one sentence, draws that character as a flat tile, and offers **Move it onto the board**. | 3 |
+| K11 | **Given** she taps **Add it to the alphabet**, **then** the character is **appended to the end of its run** in `inventoryOrder`, the word becomes playable **on every device**, **no character already in that run changes page or slot**, and the change survives a restart. *(RESTATED again — revision 3 promoted it into a truncated prefix. There is no prefix now, and append is the operation that cannot disturb a slot he has learned.)* | 2 |
+| K11a | **Given** any device, **then** the editor **never offers a swap and never says the board is full**, because paging means it cannot be. *(RESTATED — the inverse of revision 3's K11a.)* | 3 |
+| K12 | **Given** a character that **is** in `inventoryOrder`, **then** the not-on-the-board screen is **never shown for it** on any device — it is on a page, and that is enough. | 3 |
 | K13 | **Given** a symbol is retired from the board, **then** **no word is deleted** — the affected words move to *not yet playable* with a one-line reason, and return unchanged if the symbol is put back. | 2 |
-| K14 | **Given** the not-on-the-board screen, **then** it states how many cells the board has and how many are used. | 3 |
+| K14 | **Given** the not-on-the-board screen, **then** it names the character, draws it as a flat tile, and offers one tap to add it. **It states no cell count and no device limit**, because there is none. | 3 |
 
 ## L · Editor — delete and recovery
 
@@ -265,14 +334,14 @@ UI and closes six document defects.
 | L4 | **Given** a seed word is deleted, **then** the prefix tree is rebuilt without it and no live symbol leads to it. | 2 |
 | L5 | **Given** the app is killed mid-delete, **then** on relaunch the word is either fully present or fully in Recently deleted — never half-written. | 2 |
 | L6 | **Given** every word has been deleted, **then** the game shows a parent-facing empty-state card, not a crash and not a table with nothing live. | 2 |
-| L7 | **Given** a deletion leaves a symbol with no words behind it, **then** that symbol stays on the table and is simply always disabled. The board does not reshuffle. | 1 |
+| L7 | **Given** a deletion leaves a character with no words behind it, **then** that character stays on its page, in its cell, permanently flat, and still speaks when pressed. **The board never reshuffles in response to the word list** (`ui.md` §8.1). | 1 |
 
 ## M · Co-play, and playing with the screen ignored
 
 | # | Given / When / Then | Tier |
 |---|---|---|
 | M1 | **Given** the board, **then** the assembled word is legible from across a room: `stripFont ≥ 34 pt`. | 4 |
-| M2 | **Given** the word strip is **held for 800 ms**, **then** the *parts of what is currently assembled* are spoken, and no completion, suggestion or whole word is spoken. | 3 |
+| M2 | **Given** the word strip is **held for 800 ms**, **then** the *parts of what is currently assembled* are spoken — in English the **`long` anchored clips** (N14) — and no completion, suggestion or whole word is spoken. | 3 |
 | M3 | **Given** the parts hint has been used, **then** the idle ladder is unchanged and no assist is recorded. | 1 |
 | M4 | **Given** the board, **then** there is **no caption strip**. | 3 |
 | M5 | **Given** a full session played with the screen face-down, **then** the audio alone conveys: which letter was touched, whether it was live or disabled, that a symbol seated, that one was taken back, and that a word formed. | 5 |
@@ -285,17 +354,24 @@ UI and closes six document defects.
 |---|---|---|
 | N1 | **Given** any tile, live or disabled, **when** it is touched, **then** its sound begins within **60 ms of touch-down** — not touch-up. | 5 |
 | N2 | **Given** a tile, **when** it is touched, **then** the pressed visual state renders within one frame (16.7 ms). | 5 |
-| N3 | **Given** a tile clip is playing, **when** another tile is touched, **then** the first clip **stops immediately** and the second starts. No overlap, no queue. | 3 |
+| N3 | **Given** a speech clip is playing, **when** any new speech clip is requested, **then** the first is **stopped synchronously before the second starts** — `pause()` then `seekTo(0)` on the outgoing player, then `play()` on the incoming one, in the same call. No fade, no crossfade, no duck, no queue. | 3 |
+| N3a | **Given** the app in any state, **then** **at most one speech player is un-paused at any instant.** Tile clips, every chant beat, the blend, the tone name, the whole word, the reveal repeat and the parts hint all share one channel. | 1 |
+| N3b | **Given** a speech clip is playing, **when** a knock, seat click, unclick, shelf bell or album phrase fires, **then** the speech clip is **not** cut, shortened or ducked. Only a new speech clip or the motif cuts speech. | 3 |
+| N3c | **Given** the UI channel's assets, **then** **none of them contains a voice.** The per-pack cheer is the single exception and it is on the motif channel. | 2 |
+| N3d | **Given** a newest speech request, **then** it is **never dropped in favour of the clip already playing**. The newest tap always wins. | 1 |
 | N4 | **Given** six tiles touched within 4 s, **then** six distinct clips are heard, each cut by the next, and nothing is still playing 1 s after the last touch. | 5 |
 | N5 | **Given** a tile is held past 600 ms, **then** its short clip repeats every 700 ms, **at most 6 times**, then stops. | 3 |
 | N6 | **Given** a tile is held for 30 s, **then** the audio has stopped, the tile shows a pressed breathing state, and on release **nothing is placed**. | 3 |
 | N7 | **Given** touch-down and touch-up more than 600 ms apart, or more than 24 pt apart, **then** no symbol is placed. | 3 |
-| N8 | **Given** the announcement or the chant is playing, **then** tile taps do not interrupt it and tiles are not tappable. | 3 |
+| N8 | **Given** the announcement or the chant is playing, **then** tile taps do not interrupt it and tiles are not tappable, so no tap can cut a chant beat. | 3 |
 | N9 | **Given** the device ringer switch is set to silent, **then** the game still speaks. | 5 |
 | N10 | **Given** parent menu → mute, **then** all game audio is silenced and the game remains playable — the table still stands and lies, and the idle ladder still fires. | 3 |
-| N11 | **Given** the table changes, **then** every clip the new table can produce is decoded in memory before the morph completes. | 1 |
+| N11 | **Given** the pack is loaded, **then** every clip the constant table can produce is decoded and resident before the first tap is possible. *(RESTATED: there is no morph to hide a load in, and there does not need to be — the table never changes.)* | 1 |
+| N14 | **Given** any tile tap in either language, **then** the clip played is the tile's **`short`** clip. The **`long`** clip is played **only** by the parts hint (M2) and the editor preview. | 1 |
+| N15 | **Given** the shipped packs, **when** each tile's `short` clip is measured, **then** it is **≤ 700 ms** of audio with ≤ 40 ms of leading silence and ≤ 120 ms of tail. *(**PARTIAL, 2026-09-23, content-engineer.** The cause was ~1.6 s of engine padding on every clip; `tools/audio-trim.mjs` cut it losslessly and `en-seed` `short` is now **576–1392 ms, median 768** — 11 of 35 meet 700 ms, 24 do not. What remains is the sound itself, and the only levers are the TTS **rate** and the **text**, both of which are the owner's and the literacy-designer's. Lead is 45–70 ms, not ≤ 40: a lossless MP3 frame cut needs priming frames to carry Layer III's bit-reservoir history, and they are silence. Enforced from now on by `pack-validate.mjs` against the bytes — `content-pipeline.md` §9.3a–c.)* | 2 |
+| N16 | **Given** six tiles touched in 400 ms, **then** six clip **onsets** are audible and each is intelligible as a letter sound. *(Tier 5, and only the owner can judge it — `ui.md` §11.0's closing caveat.)* | 5 |
 | N12 | **Given** both languages, **then** each tile has a `long` and a `short` clip slot, even where they are identical. | 2 |
-| N13 | **Given** the ∅ tile, **then** it plays a non-speech wooden *open* sound and never a đánh vần name. | 3 |
+| N13 | **Given** the whole app, **then** there is **no ∅ tile** and no non-speech *open* sound. *(RESTATED — the inverse of revision 2's N13, which specified that sound. §W3.)* | 3 |
 
 ## O · Motion
 
@@ -311,18 +387,23 @@ UI and closes six document defects.
 | O8 | **Given** an auto-play (G5), **then** its flight takes 420 ms, measurably slower than the 260 ms of a child-initiated placement. | 3 |
 | O9 | **Given** any animation is interrupted by a new interaction, **then** it is cancelled cleanly and leaves no residual transform. | 3 |
 | O10 | **Given** the stand-up / lie-down transition (M6), **then** it is staggered by 20 ms per cell index, so the board reads as a wave rather than a flicker. | 3 |
+| O12 | **Given** a tone cell swaps its carrier (M7), **then** it is a **160 ms opacity cross-fade with no translation**, the cell does not move or resize, its bar does not change, and **nothing else on the board animates**. | 3 |
+| O13 | **Given** chant beat 3, **then** the merge (M10) animates only `transform` and `opacity` and the dividers dissolve by opacity, per O1. | 1 |
 | O11 | **Given** reduce-motion, **then** M6 is a cross-fade with **no stagger and no translation**, and the live set is still correct at the end of it. | 3 |
 
 ## P · Layout, devices, rotation
 
 | # | Given / When / Then | Tier |
 |---|---|---|
-| P1 | **Given** `node tools/layout-sweep.mjs`, **when** it is run, **then** it exits 0 over viewports 360–1400 × 600–1440 in steps of 4, × 8 safe-area shapes, × table sizes 1–`maxCells`. | 4 |
+| P1 | **Given** `node tools/layout-sweep.mjs`, **when** it is run, **then** it exits 0 over viewports 360–1400 × 600–1440 in steps of 4, × 8 safe-area shapes, × table sizes 1–`budget`. **Measured 2026-09-23: 30,732,958 layouts, 0 failures.** | 4 |
+| P1a | **Given** the sweep, **when** `maxCells` is made to overclaim by one (`cells <= budget + 1`), **then** it exits **1** naming **F0**. *(Never trust a green check you have not seen fail — and note the other seven rules **cannot** fail for a served size, because they also decide the budget. `ui.md` §4.3.)* | 4 |
 | P2 | **Given** any served viewport, **then** `tile ≥ 72` pt/dp. | 4 |
 | P3 | **Given** any served viewport, **then** the table row fits the content width with no horizontal scrolling. | 4 |
-| P4 | **Given** any served viewport, **then** `maxCells ≥ 20`. | 4 |
-| P5 | **Given** an iPad 11" in portrait at stage 5, **then** the table is **6 × 4 at 112 pt** with a 118 pt word strip. | 4 |
-| P6 | **Given** a 360 × 640 Android phone, **then** `maxCells` is **20**, the table is 4 × 5 at 73 pt, and the row is 325 of 328 pt. | 4 |
+| P4 | **Given** any served viewport, **then** it holds **≥ 12 cells per page** and can build a page plan for **both** packs (F7). *(RESTATED — revision 3 asked for ≥ 20 cells and no plan.)* | 4 |
+| P5 | **Given** an iPad 11" in portrait with `vi-seed`, **then** the table is the **whole 67-cell inventory at 86 pt in a 7 × 10 grid**, **with no page rail**, and nothing scrolls or pages. | 4 |
+| P6 | **Given** a 360 × 640 Android phone, **then** it holds **12 cells per page** at 73 pt and plays Vietnamese across **7 pages `[9,9,8 ¦ 12,12,11 ¦ 6]`**, reaching **all 47 words**. *(RESTATED — revision 3 gave it 20 cells and 13 words.)* | 4 |
+| P6a | **Given** an iPhone SE 3 (375 × 667), **then** it holds **16 cells per page** and plays Vietnamese across **6 pages**, reaching all 47 words. | 4 |
+| P6b | **Given** the layout law, **then** `TOP_BAR + GAP_STRIP + PAD_BOTTOM = 56 + 12 + 12 = 80`, and `TILE_MIN` is **72**, unchanged. | 4 |
 | P7 | **Given** a phone, **then** the app is locked to portrait and does not rotate. | 3 |
 | P8 | **Given** a tablet, **then** both orientations are served. | 3 |
 | P9 | **Given** a tablet mid-build with two symbols seated, **when** the device is rotated, **then** the same symbols are seated, the live set is unchanged, audio does not restart, and no progress is lost. | 3 |
@@ -330,7 +411,7 @@ UI and closes six document defects.
 | P11 | **Given** any viewport, **then** no interactive element's hit rect overlaps another's. | 4 |
 | P12 | **Given** a tablet, **then** the table is horizontally centred and no tile is within 40 pt of a screen corner. | 4 |
 | P13 | **Given** any viewport, **then** the mode title is rendered in the top bar. | 3 |
-| P14 | **Given** a rotation that changes the grid from 4 × 5 to 6 × 4, **then** the **reading order of the table is unchanged** — row-major over the same `inventoryOrder`. | 4 |
+| P14 | **Given** a rotation that changes the grid (e.g. an iPad's Vietnamese table from 7 × 10 to 12 × 6), **then** the **reading order of the table is unchanged** — row-major over the same fixed sequence — and the run order is unchanged. Cell positions do move, which is inherent to rotating. | 4 |
 | P15 | **Given** any served viewport, **then** five shelf slots of at least 22 pt fit the top bar. | 4 |
 | P16 | **Given** the layout law, **then** it contains **no caption-strip term**, because the board has no caption strip. *(Closes the Slice-3 defect; see §W.)* | 4 |
 
@@ -359,10 +440,12 @@ UI and closes six document defects.
 |---|---|---|
 | R1 | **Given** a Vietnamese session, **when** every screen is captured, **then** no English word, tile, letter-sound clip or asset appears on any of them. | 3 |
 | R2 | **Given** an English session, **then** no Vietnamese word, tile, diacritic, onset clip or tone name appears anywhere. | 3 |
-| R3 | **Given** the whole app, **then** the **first-launch chooser is the only screen showing both languages** — the single exemption. | 3 |
-| R4 | **Given** the source, **then** no code path reads the other language's pack, and there is no fallback, default or coalescing operator onto it. | 1 |
+| R3 | **Given** the whole app, **then** the **language chooser is the only screen showing both languages** — the single exemption. It is shown at first launch **and from parent menu → Language**; it is the same screen either way. | 3 |
+| R4 | **Given** the source, **then** no code path reads the other language's pack, and there is no fallback, default or coalescing operator onto it. **Unchanged by revision 3, and now exercised far more often: switching is a teardown, so there is no instant at which two packs are loaded.** | 1 |
 | R5 | **Given** a word missing an asset, **then** it is **withheld from the tree**, never substituted from the other pack. | 1 |
 | R6 | **Given** a language switch, **then** every audio handle from the previous language is released before any new one is opened. | 1 |
+| R11 | **Given** **50 consecutive language switches**, **then** memory does not grow, no audio handle leaks, no clip of either language is ever audible on the other's board, and the app is on a valid board at the end. *(Revision 3 turns switching into a routine action; this is the leak test that matters most.)* | 3 |
+| R12 | **Given** a language switch **during** a chant, a reveal, an idle auto-play or a picture-to-shelf flight, **then** the new board is shown with an empty strip and an empty shelf, and nothing from the previous language is rendered or heard at any point. | 3 |
 | R7 | **Given** the parent surfaces, **then** they are rendered entirely in the app's chosen language. | 3 |
 | R8 | **Given** a word entry, **when** it is inspected, **then** it contains **no field naming or referencing the other language's word**. | 2 |
 | R9 | **Given** a fuzzed pack where a Vietnamese entry carries an English field, **then** the validator rejects that entry and the app still runs. | 2 |
@@ -377,9 +460,12 @@ UI and closes six document defects.
 | S3 | **Given** the source, **when** it is audited, **then** **no component contains a colour literal**. | 1 |
 | S4 | **Given** any theme, **then** the **live** tile glyph contrast is ≥ 13:1 and within 0.5 of every other theme's. | 2 |
 | S5 | **Given** any theme, **then** onset is `role1`/solid, rime is `role2`/split, tone is `role3`/dotted. The slot→meaning mapping is identical in all three. | 3 |
+| S12 | **Given** the board, **then** **no run carries a background tint.** A `roleSoft` wash behind each run measured 2.62–2.92:1 for that run's tile outline in 5 of 9 (theme × run) pairs, under the 3.0 `component` gate — `ui.md` §5.8a. The disabled tile's face is `ground`. | 2 |
+| S13 | **Given** `tools/theme-contrast.mjs`, **then** it contains the **bare tone mark on the ground** as a gated `glyph` pair, measuring ≥ 4.5:1 in all three themes (measured 11.96–13.06). | 2 |
+| S14 | **Given** a pack in which some character of `inventoryOrder` has **zero** words behind it (`q` in English, `ngh` in Vietnamese), **then** the validator **accepts it** — it is a normal permanent state, not an error — and the character is drawn and speaks. | 2 |
 | S6 | **Given** any theme, **then** the three role hues are pairwise ΔE00 ≥ 25 to a normal-sighted observer. | 2 |
 | S7 | **Given** any theme, **then** the **disabled** tile glyph measures ≥ 4.5:1 against the ground. | 2 |
-| S8 | **Given** the app rendered in greyscale, **then** every role remains identifiable by bar pattern alone, **and live remains distinguishable from disabled**. | 3 |
+| S8 | **Given** the app rendered in greyscale, **then** every role remains identifiable by bar pattern alone, **and live remains distinguishable from disabled** — on a Vietnamese board where all three runs are on screen at once and 60+ of 67 tiles are flat. | 3 |
 | S9 | **Given** any theme, **then** the ground is light and no dark-theme surface is rendered. | 3 |
 | S10 | **Given** the chant highlight, **then** the **cell's face** takes `reward` and the **glyph stays `ink`**, measuring ≥ 4.5:1. A gold glyph on a white face (1.60–2.05:1) must not appear anywhere. | 2 |
 | S11 | **Given** the emitted token set, **then** it is byte-identical to `src/theme/tokens.json`. | 2 |
@@ -408,6 +494,10 @@ UI and closes six document defects.
 | T18 | **Given** he discovers the same word 20 times in a row, **then** the announcement fires 20 times, the photograph advances each time, the shelf fills exactly once, and the album holds exactly one card for it. | 3 |
 | T19 | **Given** an hour of continuous play, **then** memory does not grow without bound and no audio handle is leaked. | 5 |
 | T20 | **Given** the strip is tapped repeatedly while empty, **then** nothing happens and no sound plays. | 3 |
+| T21 | **Given** every one of the 67 tiles on a Vietnamese tablet board is tapped in turn with nothing assembled, **then** 67 clips play, each cut by the next, exactly the onsets and the two zero-onset rimes seat, and the app is in a consistent state at the end. | 3 |
+| T22 | **Given** a tone tile is tapped 20 times while no rime is placed, **then** its name plays 20 times, **nothing is ever seated**, and the carrier stays a bare mark. | 3 |
+| T23 | **Given** the language is switched while a tile is held down, **then** the touch is abandoned cleanly, nothing is seated on either board, and no audio handle leaks. | 3 |
+| T24 | **Given** the gate grace is open and the device is handed to the child, **then** the grace ends on the return to the board and 50 rapid taps on the gate dot do not reach the parent menu. | 3 |
 
 ## U · The things only a child can tell us (Tier 5)
 
@@ -423,7 +513,18 @@ this app fails is that it is **boring**, which no harness detects.
 | U5 | Does he hum the motif? | he will, or he will not, and that is the whole question about "catchy" |
 | U6 | Are 72 pt tiles big enough for his aim on the smallest device in the house? | count taps that land on the wrong cell |
 | U7 | Does a 24-cell table overwhelm him, or does he treat it as a keyboard? | watch whether he scans it or dives at one letter |
+| **U7a** | **The biggest risk revision 3 introduces.** Does a **67-cell board that is 90% flat** read as a board full of letters, or as a broken board? Revision 2's third argument against showing all three runs was exactly this, and it was never refuted — only answered (`ui.md` §7.1). | watch the first thirty seconds. Does he press flat tiles happily, press one or two and stop, or not press at all? |
+| **U7b** | With no stage ladder, the **first session** now shows him everything at once. Is the first word harder to reach than it was? | time his first word on a first install, against U1's 30 seconds |
+| **U9a** | **Finding 3, after the fix.** With `short` clips inside the 700 ms budget and one hard-cutting speech channel, are six taps in four seconds six intelligible letter sounds? | only the owner can answer this. Nobody on this team can hear, and a duration is a proxy for intelligibility, not intelligibility |
+| **U15** | Does the accumulating chant (`b` → `b o` → `bo` → `bò`) read as a word being built? Does he say the blend along with it? | watch whether he joins in at beat 3, which is the beat that teaches |
+| **U16** | Does he notice that the tone cells change what they show when he places a rime, and does it bother him? | it is the one exception to "the characters never change" and it is worth confirming it is invisible to him |
 | U8 | Does he discover undo by himself? | does he ever tap the strip without being shown |
+| U17 | Does the owner find the language switch quick enough to actually use? | he asked for it; two gate answers in a sitting would mean the 180 s grace is too short |
+| **U18** | **The question revision 4 turns on.** Does he work out that the board continues on another page — and does he work it out *from the rail standing up*, or does someone have to show him once? | hand him the phone and say nothing. Watch whether he ever presses a rail button unprompted |
+| **U19** | Does the auto-advance read as *the board moved* or as *the board changed*? The whole case for paging rests on the slide saying something the morph's cross-fade did not. | watch his face at the first auto-advance, and whether he looks for the letter he just pressed |
+| **U20** | Is 4 pages too many for him to hold? Is the tone page — one live tile, otherwise empty — clear, or does it look broken? | watch the third tap of a word |
+| **U21** | The rail is the only way `áo` and `ong` are discoverable on a phone. Does he ever find them? | he will, or he will not — and if not, the rail is not doing its job |
+| **U22** | On the tablet there is **no rail and no paging at all**. Is that board better, worse, or just different for him than the phone's? | he has both; watch which he reaches for |
 | U9 | Is the "kuh, cat" clip intelligible to him? | he repeats it |
 | U10 | Does the idle ladder taking a turn read as friendly or as the app taking over? | watch what he does at 80 s |
 | U11 | Does his mother find the editor without being shown it twice? | hand her the phone and say nothing |
@@ -432,6 +533,50 @@ this app fails is that it is **boring**, which no harness detects.
 | U14 | Does he go back to the album by himself? | watch whether he taps the shelf |
 
 ---
+
+## V · Paging (revision 4)
+
+**Every criterion here is vacuous on a viewport that needs no pages** — a tablet — and V1
+is the criterion that says so. `tools/layout-sweep.mjs --pages` prints the expected plan for
+any device under test.
+
+| # | Given / When / Then | Tier |
+|---|---|---|
+| V1 | **Given** a viewport whose cell budget holds the whole pack inventory (every tablet), **then** the table is **one page**, **no page rail is rendered at all**, and no page sound ever plays. | 4 |
+| V2 | **Given** a viewport that cannot hold the whole inventory, **then** the table is paged and a page rail is rendered with **exactly one button per page**. | 4 |
+| V3 | **Given** an iPhone 17 Plus at **either** 430 × 932 **or** 440 × 956, **then** the plan is **4 Vietnamese pages `[26, 18, 17, 6]` and 2 English pages `[26, 10]`**, 28 cells per page, one rail row of 4 buttons. *(Both candidate logical sizes give the same plan; `ui.md` §4.4.)* | 4 |
+| V4 | **Given** any paged plan, **then** **runs never share a page**: every page's characters come from exactly one run. | 1 |
+| V5 | **Given** a run longer than one page, **then** it is split into `ceil(len/capacity)` **balanced** pages, earlier pages taking the remainder — 35 rimes at capacity 28 is `18, 17`, never `28, 7`. | 1 |
+| V6 | **Given** the whole pack, **then** **every character appears on exactly one page**, and the sum of the page sizes equals the inventory size. Nothing is dropped and nothing is duplicated. | 1 |
+| V7 | **Given** any character, **then** its **page, row and column are a pure function of the pack's `inventoryOrder` run lengths and the device** — not of the word list, the strip, the session, the current page or a random source. | 1 |
+| V8 | **Given** the app is relaunched, or a word is added, edited or deleted, **then** **no character changes page or slot**. | 1 |
+| V9 | **Given** a paged board, **then** **every page renders at the same tile size and column count**, computed once from the largest page, and pages are **top-aligned** so row 1 is at the same height on every page. | 4 |
+| V10 | **Given** a page change, **then** the table **slides** (`translateX`), it does not cross-fade in place, and the rail's current-page marker slides with it over the same duration. | 3 |
+| V11 | **Given** he taps a rail button, **then** the slide is **300 ms**; **given** the app auto-advances, **then** it is **420 ms**. The app's page change is measurably slower than his. | 3 |
+| V12 | **Given** a symbol seats or is undone, **when** the current page **still has at least one live character**, **then** the page **does not change**, however many live characters are on other pages. | 1 |
+| V13 | **Given** a symbol seats or is undone, **when** the current page has **zero** live characters, **then** the board slides to the **lowest-numbered page that has one**. | 1 |
+| V14 | **Given** any reachable state, **then** the current page has at least one live character, **or** the app is mid-slide toward one. **The app never leaves him on a page with nothing live.** | 1 |
+| V15 | **Given** he navigates to a page with nothing live **by tapping its rail button**, **then** he is allowed to stay there, every tile speaks when pressed, and the app does not yank him away. | 3 |
+| V16 | **Given** a rail button whose page has ≥ 1 live character, **then** it is drawn **standing** — white face, that run's bar pattern and role colour, `ink` glyph — exactly as a live tile is. | 3 |
+| V17 | **Given** a rail button whose page has none, **then** it is drawn **flat** — `ground` face, 1.5 pt dashed outline, `inkSoft` glyph — exactly as a disabled tile is, and it is **still pressable**. | 3 |
+| V18 | **Given** the current page's rail button, **then** it is raised 4 pt with a **`reward` face and an `ink` glyph**, measuring ≥ 4.5:1 in every theme. | 2 |
+| V19 | **Given** any rail button, **then** its glyph is **the first character of that page**, and pressing it plays **the page sound only — never a speech clip**. | 3 |
+| V20 | **Given** any rail button, **then** it is at least **72 pt**, with `RAIL_GAP` 12, and no two buttons' hit rects overlap. The motor floor applies to the control. | 4 |
+| V21 | **Given** any served paged viewport, **then** the rail is **fully visible**: it never scrolls, collapses or hides, and `pages ≤ railRows × railCols` with `railRows ≤ 2`. | 4 |
+| V22 | **Given** a Vietnamese board with an **empty strip** on a paged device, **then** the rail shows the onset page **and** the page holding the zero-onset rimes as standing — so `áo` is discoverable. | 3 |
+| V23 | **Given** a symbol in the word strip is tapped, **then** it is returned **and** the board slides to that symbol's page. Undo is also the way back. | 3 |
+| V24 | **Given** a page change from any cause, **then** a **soft non-speech page sound** plays on the UI channel, identical whoever caused it, and it **does not cut any speech clip**. | 3 |
+| V25 | **Given** the announcement, the chant or a held reveal is running, **then** **no auto-advance fires**. | 3 |
+| V26 | **Given** 20 s idle on a paged board where live characters exist on another page, **then** the shimmer also pulses that page's rail button; **given** 40 s, **then** the breathing element is that **button** rather than an off-screen tile. | 3 |
+| V27 | **Given** 80 s idle, **when** the auto-play needs a character on another page, **then** it changes page first, then plays the tile. | 3 |
+| V28 | **Given** reduce-motion, **then** the page slide becomes a **cross-fade of the same duration** (300 / 420 ms), and the page sound is unchanged — it is what carries "the board moved" when direction is lost. | 3 |
+| V29 | **Given** the app in any state, **then** **no swipe, drag or pan gesture changes the page**, and `react-native-gesture-handler` is still absent from the manifest. | 1 |
+| V30 | **Given** a rail button is tapped 30 times rapidly, **then** the board ends on the last-tapped page, no slide is left half-finished, no residual transform remains, and no audio piles up. | 3 |
+| V31 | **Given** a tile is tapped and the board auto-advances, **when** his finger is still down, **then** nothing on the new page is seated by that same touch. | 3 |
+| V32 | **Given** `node tools/layout-sweep.mjs`, **then** it verifies a page plan for **both** packs at every served viewport and exits 0. **Measured 2026-09-23: 979,350 plans, 34,445,462 layouts, 0 failures, fixpoint converging in 1 step worst case.** | 4 |
+| V33 | **Given** the sweep, **when** `pagePlan` is made to drop each run's remainder, **then** it exits **1** naming **F12**. *(Verified: fails at 360 × 600 with pages `8,8,8,11,11,11,6`.)* | 4 |
+| V34 | **Given** the sweep, **when** the rail-wrap check in the fixpoint is disabled, **then** it exits **1** naming **F9p**. *(Verified.)* | 4 |
+| V35 | **Given** a viewport that cannot build a page plan for the chosen pack, **then** the screen-too-small card is shown **for that language**, and the parent can switch to the other language through the gate rather than being stuck. | 3 |
 
 ## W · Withdrawn criteria — revision 1 ids that are retired
 
@@ -464,3 +609,96 @@ was correct for revision 1's mechanic and has no meaning under revision 2.
 | S4 (r1 wording) | "the tile glyph" | split into S4 (live) and S7 (disabled) |
 | T2, T12, T14 (r1) | double-tap, reveal-tap and force-kill behaviours phrased in rounds | re-specified as T3, T13, T15 |
 | U1–U10 (r1) | the Tier-5 questions | re-specified; six are new, and U1 is now a genuinely harder question than it was |
+
+---
+
+## W3 · Revision 3 — withdrawn and restated ids
+
+**Withdrawn ids are never reassigned. Restated ids keep their number and change their
+assertion — those are the dangerous ones**, because a test citing a restated id still
+compiles and is now testing something else, sometimes the exact inverse.
+
+### Withdrawn outright
+
+| Id | Was | Withdrawn because |
+|---|---|---|
+| **C2** | the onset table's last cell is the **∅ tile**, a dashed empty socket | there is no ∅ tile. *"The toddle just need to pick the vowel, not the `.` character."* |
+| **C3** | tapping ∅ seats it and plays a low wooden *open* sound | same |
+| **C13** | "the chant reaches the toneless blend → the hairlines dissolve and the glyphs slide together" | folded into **C12a/C12b**, which specify what is shown at **every** beat rather than at one |
+| **C16** | "**exactly one** of the three roles is on the table. The three are never shown together." | **B2b is its exact inverse.** This is the single id most likely to be cited by a passing test that is now wrong |
+| **H2 (r2)** | 8 new words at a stage advances the stage | there are no stages |
+| **H3 (r2)**, **H4 (r2)** | no level-up screen; the stage never decreases | there is no stage to announce or to decrease. H2–H4 are reused for the *absence* of progression |
+
+### Restated — same id, different assertion
+
+| Id | Revision 2 | Revision 3 |
+|---|---|---|
+| **A9** | switching language takes a two-touch confirm | one tap, behind the gate, row 2 |
+| **B2** | the table is the stage's size, one run at a time | the constant table: a prefix of every run, sized by the device |
+| **C1** | the onset table; a three-cell strip | all three runs; the word so far plus one dashed cell |
+| **C4, C5** | the table **cross-fades to the next inventory** | the table does not change; only liveness and the tone carriers |
+| **C7** | a stop-final rime renders **two** tone cells | six cells always; the illegal four are flat |
+| **C10, C11** | undo morphs the table back | undo returns symbols; the tone carriers revert to bare marks |
+| **C12** | five chant steps, described as parts | five **beats**, with what is shown at each one specified |
+| **D7, D8, D9** | `long` on first touch, `short` after, 900 ms window | **`short` always**; `long` only from the parts hint |
+| **D14** | digraphs appear "at stage 6 or 7" | there are no stages |
+| **E2** | the flat tile's clip and its knock play together | knock at ≤ 60 ms, clip at +120 ms, never overlapping |
+| **F5** | "the parts chant is skipped" | "chant beats 1–4 are skipped" |
+| **F19** | tile audio is **ducked to −18 dB** under the motif | speech is **stopped** before the motif |
+| **G10** | an auto-play is recorded so it does not count toward stage | nothing is recorded; there is no stage |
+| **H1** | the table shows `[8,12,16,20,24][s-1]` cells | the table's size never changes |
+| **K11** | **append** the symbol to `inventoryOrder` | **promote** it into the on-board prefix |
+| **K12, K14** | "24 cells" | this device's budget and run sizes |
+| **N11** | clips are decoded before the morph completes | decoded at pack load; there is no morph |
+| **N13** | the ∅ tile plays a wooden *open* sound | there is no ∅ tile and no such sound |
+| **P1** | 10,358,248 layouts, cells 1–24 | 30,732,958 layouts, cells 1–budget, plus **F0** |
+| **P5, P6** | iPad 6 × 4 at 112 pt "at stage 5"; 360 × 640 maxCells 20 of 24 | iPad 7 × 10 at 86 pt, the whole inventory; 360 × 640 budget 20, run split 7/7/6 |
+| **P14** | rotation 4 × 5 → 6 × 4 | rotation 7 × 10 → 12 × 6; reading order still unchanged |
+| **R3** | "the **first-launch** chooser" | "the language chooser", reachable at any time |
+
+### One id that did not change and is worth saying so
+
+**R4** — *no code path reads the other language's pack* — is **unchanged**. Making the
+language switchable at any time does not weaken it, because a switch is a teardown and not a
+blend. **R1, R2, R5** are likewise unchanged. This was the thing the brief was most concerned
+to protect and nothing in revision 3 touches it.
+
+---
+
+## W4 · Revision 4 — what paging did to revision 3's ids
+
+Paging **relaxes** almost everything: criteria that asserted a truncated board now assert a
+complete one. **No id is withdrawn outright.** The restated ones are the hazard, as always —
+each still compiles and now means something different, and three of them mean the inverse.
+
+| Id | Revision 3 | Revision 4 |
+|---|---|---|
+| **C21** | the run sizes are `zonesFor(budget)`, split 0.48 | **every character of every run is on the board.** `zonesFor()` is deleted from the tool |
+| **C22** | no character changes **cell** when she edits | no character changes **page or cell** |
+| **D1a** | all 26 letters "on a device whose budget is ≥ 26" | all 26 letters on **any** served device. **D1b is new** and settles `q` |
+| **K11** | **promote** the character into the on-board prefix | **append** it to the end of its run. There is no prefix, and append cannot disturb a learned slot |
+| **K11a** | on a full board, one character leaves | **the board is never full; no swap is ever offered.** Inverse |
+| **K12** | the editor lists a run and offers a swap | a character in `inventoryOrder` **never** triggers the screen. Inverse |
+| **K14** | the screen states this device's cell count | it states **no** cell count, because there is none. Inverse |
+| **L7** | a wordless character "stays in its cell, always disabled" | unchanged in substance, generalised by `ui.md` §8.1 and made testable by **S14** |
+| **P4** | `maxCells() ≥ 20` | **≥ 12 per page, and a page plan exists for both packs** (F7) |
+| **P5** | iPad: 67 cells at 86 pt | the same, **plus: no page rail is rendered** |
+| **P6, P6a** | 360 × 640 → 20 cells, 13 words; SE → 24 cells | **12 and 16 cells per page, 7 and 6 pages, all 47 words** |
+
+### Tool-level changes worth citing in a test name
+
+| | |
+|---|---|
+| **F7 restated** | "a served viewport holds ≥ 20 cells" → "a served viewport can build a page plan for both packs". Caught by the sweep itself: paging first reported **12 failures of a temporary rule F14** at 360 × 600, which turned out to be the *definition* being wrong rather than the arithmetic. F14 is gone |
+| **F9, F9p, F10–F13 new** | the rail shape, the rail fitting its rows, the fixpoint converging, one grid holding the largest page, every character on exactly one page, no empty page |
+| **`zonesFor()` deleted** | a comment stands in its place in `tools/layout-sweep.mjs` so it is not reinvented |
+| **Served combinations** | 436,208 → **489,675**. Paging reaches devices truncation could not |
+| **Fault injections verified** | `pagePlan` dropping remainders → exit 1 naming **F12**; the rail-wrap check disabled → exit 1 naming **F9p**; the budget overclaim → exit 1 naming **F0**. All three checked by running them |
+
+### The ids revision 4 does **not** touch, and that is the point
+
+**§V aside, nothing about the mechanic changed.** The constant table, liveness, the absent
+`∅`, the accumulating chant, the one-speech-channel cut rule, the language switch and every
+language-isolation criterion (**R1–R12**) are untouched. Paging is a change to *how much of the
+board you can see at once*, and it was chosen precisely because it is only that.
+

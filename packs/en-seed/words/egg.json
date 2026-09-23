@@ -28,14 +28,18 @@
   ],
   "audio": {
     "word": {
-      "src": "media/aud/2c8668c5ae6aba31.mp3",
-      "bytes": 12672,
-      "ms": 2112,
+      "src": "media/aud/91b27106d497941d.mp3",
+      "bytes": 4608,
+      "ms": 768,
       "engine": "edge-tts:en-US-JennyNeural@-35%",
       "voice": null,
       "text": "egg",
       "by": null,
-      "addedAt": "2026-09-22T17:22:11.894Z"
+      "addedAt": "2026-09-22T17:22:11.894Z",
+      "leadMs": 65,
+      "tailMs": 105,
+      "trimmedFrom": "media/aud/2c8668c5ae6aba31.mp3",
+      "trimmedAt": "2026-09-23T08:30:09.947Z"
     },
     "sentence": null
   },

@@ -29,8 +29,11 @@
 // takes days of curation to fill it.
 
 import { existsSync, readFileSync, statSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import * as R from './lib/rules.mjs';
+import { parseFrames } from './lib/mp3.mjs';
 import {
   SCHEMA, LANGUAGES, ID_RE, packPaths, readManifest, readWords, listMedia,
   badMediaRef, sniffType, EXT_TYPES, wordMediaRefs, tileMediaRefs,
@@ -208,6 +211,154 @@ const keptImages = new Map();
 let enabledCount = 0;
 const imagesMissing = [];
 
+/**
+ * THE CLIP DURATION BUDGET — `ui.md` E15 / AC N15, and the reason it exists.
+ *
+ * The owner played the built app and said the English letter sounds were "not good
+ * enough, voices seem to be mixed up with each other". `ui.md` §11.0 measured the shipped
+ * clips: `short` was 1896–2832 ms against a spec that assumed 350 ms. A child taps every
+ * 300–600 ms, so the cut-on-next rule cut every clip inside its first fifth and what he
+ * heard was stubs of one slow adult voice. The cause was a fixed ~1.6 s block of silence
+ * that Microsoft's read-aloud endpoint pads around every utterance and the generator
+ * never removed.
+ *
+ * The app cannot fix that, so it has to be impossible for it to come back. The budget
+ * lives in the manifest as DATA, like the degradation policy beside it, and it is checked
+ * against the BYTES: `lib/mp3.mjs` sums the frame table, which is exact and needs no
+ * decoder. It deliberately does not trust `audio.ms` — a number written into the file by
+ * whoever wrote the file is a claim, and this project has been burnt by claims.
+ *
+ * TWO THRESHOLDS, BECAUSE THEY HAVE DIFFERENT OWNERS.
+ *
+ *   tapCeilingMs   ERROR.  Nothing this long may enter a pack. Set well above what the
+ *                  content is, and well below the defect: the padding put every clip at
+ *                  ~2000–2800 ms, so its return fails here immediately.
+ *   tapTargetMs    E15's 700 ms. WARNING, and an error under `--strict`. Whether a clip
+ *                  can reach it depends on what is said and how fast it is said — the
+ *                  curriculum text and the TTS rate — and both of those are the owner's
+ *                  and the literacy-designer's, not this tool's. So it is reported on
+ *                  every run and it does not silently pass.
+ *
+ * WHAT THIS CHECK CANNOT DO. Duration is a PROXY. It cannot tell whether a clip is
+ * intelligible, whether it is the right sound, or whether the sound in it is any good —
+ * CLAUDE.md is explicit that audio cannot be verified below the owner, and two rounds of
+ * English audio have already been rejected by ear after passing every number. It also
+ * cannot see leading or trailing silence, which needs a decoder; `audio.leadMs` and
+ * `audio.tailMs` are recorded by whoever opened the file and are reported as advisory.
+ */
+const AUDIO_BUDGET = { tapTargetMs: 700, tapCeilingMs: 1500, longCeilingMs: 2500, leadTargetMs: 40, tailTargetMs: 120 };
+// The slots a single tap plays. `ui.md` §11.2: "a tap always plays `short`"; Vietnamese
+// tiles carry one clip called `name` and it is what a tap plays there.
+const TAP_SLOTS = new Set(['short', 'name']);
+// A sentence is a sentence. Nothing budgets it, and nothing fires it from a tap.
+const UNBUDGETED_SLOTS = new Set(['sentence']);
+
+const audioBudget = () => ({ ...AUDIO_BUDGET, ...(manifest?.media?.audio ?? {}) });
+
+const overTarget = [];
+const overLead = [];
+const msMismatch = [];
+const audioRefs = [];   // every clip that survived takesRef, for the decode pass below
+
+/*
+ * THE DECODE CHECK — every clip must decode with NO decoder diagnostics.
+ *
+ * This exists because of a defect this tool shipped. `audio-trim.mjs` cut engine padding
+ * at MP3 frame boundaries and verified the result by decoding it and comparing samples
+ * against the original. That check passed on every clip. It was not enough: Layer III
+ * stores a frame's data up to 255 bytes behind it in the bit reservoir, a cut orphans the
+ * first retained frame from data no longer in the file, and **libmpg123 conceals the
+ * underrun** — it decodes the frame with whatever bits it has and carries on. The samples
+ * matched while 29 of 70 clips were emitting
+ *
+ *     part2_3_length (1056) too large for available bit count (1048)
+ *
+ * on their FIRST frame, which is the start of the letter sound — the first thing the child
+ * hears on every tap, in the very clips the owner had already reported as wrong. Another
+ * decoder is free to click, mute or drop those frames instead, and nobody on this team can
+ * hear it to rule that out.
+ *
+ * So the check is not "do the samples match" but "does the decoder complain". Only a
+ * decoder can answer it, which means the venv: `content-pipeline.md` §9.4 records that
+ * `soundfile` here is built against libsndfile 1.2.2 and reads mp3, so this needs no new
+ * dependency — but it does need the venv to exist, and when it does not the check SAYS it
+ * was skipped rather than passing quietly. A skipped check that announces itself is
+ * honest; one that reports success is the thing CLAUDE.md warns about.
+ */
+const VENV_PY = path.join(path.dirname(fileURLToPath(import.meta.url)), '.venv', 'bin', 'python');
+const MEASURE_PY = path.join(path.dirname(fileURLToPath(import.meta.url)), 'audio-measure.py');
+
+const decodeAllAudio = () => {
+  if (!audioRefs.length) return;
+  if (!existsSync(VENV_PY) || !existsSync(MEASURE_PY)) {
+    warn('audio', `${audioRefs.length} clip(s) were NOT decode-checked: no venv at ${path.relative(packDir, VENV_PY)}. A malformed frame stream that still has valid magic bytes and a valid frame table would not be caught. See content-pipeline.md §12 Setup.`);
+    return;
+  }
+  const files = audioRefs.map((a) => path.join(packDir, a.ref));
+  const rows = [];
+  try {
+    for (let i = 0; i < files.length; i += 60) {
+      const out = execFileSync(VENV_PY, [MEASURE_PY, '--jsonl', ...files.slice(i, i + 60)],
+        { encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] });
+      for (const line of out.trim().split('\n')) if (line) rows.push(JSON.parse(line));
+    }
+  } catch (e) {
+    warn('audio', `the decode check could not run (${e.message.split('\n')[0]}); ${audioRefs.length} clip(s) were not checked`);
+    return;
+  }
+  for (let i = 0; i < rows.length; i += 1) {
+    const r = rows[i];
+    const a = audioRefs[i] ?? {};
+    if (!r.ok) { err(a.where ?? 'audio', `${a.name ?? r.path} does not decode: ${r.error}`); continue; }
+    if (r.silent) { warn(a.where ?? 'audio', `${a.name ?? r.path} decodes to silence — a silent mp3 is a valid mp3 and a broken asset.`); }
+    if (!r.cleanDecode) {
+      err(a.where ?? 'audio', `${a.name ?? r.path} decodes with ${r.diagnostics.length} decoder diagnostic(s) — the stream is malformed even though its samples may look right: ${r.diagnostics.join(' | ')}. A bit-reservoir underrun looks exactly like this and lands on the first frames. Do not ship it: another decoder may click, mute or drop them.`);
+    }
+  }
+};
+
+const checkClip = (m, where, label) => {
+  if (m.kind !== 'audio') return;
+  const slot = m.at.replace(/^.*audio\./, '').replace(/\.src$/, '');
+  if (UNBUDGETED_SLOTS.has(slot)) return;
+  const b = audioBudget();
+  const abs = path.join(packDir, m.ref);
+  let t;
+  try { t = parseFrames(readFileSync(abs)); } catch (e) {
+    err(where, `${m.at} ${m.ref}: cannot read its MPEG frames (${e.message}). The magic bytes said mp3, so this is a truncated or corrupt file — which is exactly the case a magic-byte sniff cannot catch on its own (content-pipeline.md §6).`);
+    return;
+  }
+  const ms = Math.round(t.durationMs);
+  const tap = TAP_SLOTS.has(slot);
+  audioRefs.push({ ref: m.ref, where, name: `${label ?? m.at}.${slot}` });
+  const ceiling = tap ? (b.tapCeilingMs ?? AUDIO_BUDGET.tapCeilingMs) : (b.longCeilingMs ?? AUDIO_BUDGET.longCeilingMs);
+  const name = `${label ?? m.at}.${slot}`;
+  if (ms > ceiling) {
+    err(where, `${name} is ${ms} ms of audio; this pack's ceiling for a ${tap ? 'tap' : 'non-tap'} clip is ${ceiling} ms. ui.md §11.0: a clip far longer than the 300-600 ms between a 4-year-old's taps is cut inside its first fifth, and what he hears is a stub of an adult voice rather than a sound. Suspect untrimmed engine padding: node tools/audio-trim.mjs --pack <pack>`);
+    return;
+  }
+  const target = b.tapTargetMs ?? AUDIO_BUDGET.tapTargetMs;
+  if (tap && ms > target) overTarget.push(`${name} ${ms} ms`);
+  const claimed = m.obj && typeof m.obj.ms === 'number' ? m.obj.ms : null;
+  if (claimed != null && Math.abs(claimed - ms) > 50) msMismatch.push(`${name}: says ${claimed} ms, frames say ${ms} ms`);
+  const lead = m.obj && typeof m.obj.leadMs === 'number' ? m.obj.leadMs : null;
+  if (tap && lead != null && lead > (b.leadTargetMs ?? AUDIO_BUDGET.leadTargetMs)) overLead.push(`${name} ${lead} ms`);
+};
+
+/** One warning per category, not one per clip — 139 lines of it buries the licence findings. */
+const reportClipBudget = () => {
+  const b = audioBudget();
+  if (overTarget.length) {
+    warn('audio', `${overTarget.length} tap clip(s) exceed ui.md E15's ${b.tapTargetMs ?? AUDIO_BUDGET.tapTargetMs} ms target (all are under this pack's ${b.tapCeilingMs ?? AUDIO_BUDGET.tapCeilingMs} ms ceiling, so the pack is valid). Closing the gap means changing WHAT is said or HOW FAST, and both are the owner's call, not this tool's: ${overTarget.join(', ')}`);
+  }
+  if (overLead.length) {
+    warn('audio', `${overLead.length} tap clip(s) record more than ${b.leadTargetMs ?? AUDIO_BUDGET.leadTargetMs} ms of leading silence. ADVISORY — this is the file's own record, not something this validator can decode. A lossless MP3 frame cut cannot land closer than two frames (48 ms at 24 kHz) without corrupting the first frames of the sound through Layer III's bit reservoir; see tools/audio-trim.mjs: ${overLead.slice(0, 6).join(', ')}${overLead.length > 6 ? `, and ${overLead.length - 6} more` : ''}`);
+  }
+  if (msMismatch.length) {
+    warn('audio', `${msMismatch.length} clip(s) claim a duration their bytes do not support. The bytes win; something wrote an ms it had not measured: ${msMismatch.slice(0, 6).join('; ')}${msMismatch.length > 6 ? `, and ${msMismatch.length - 6} more` : ''}`);
+  }
+};
+
 const takesRef = (ref, at, where) => {
   const bad = badMediaRef(ref);
   if (bad) { err(where, `${at} ${JSON.stringify(ref)} is not a safe media reference: ${bad}`); return false; }
@@ -355,6 +506,7 @@ for (const { file, word } of wordsOk) {
   let liveImages = 0;
   for (const m of wordMediaRefs(word)) {
     const present = takesRef(m.ref, m.at, rel);
+    if (present) checkClip(m, rel, `${word.id}`);
     if (m.kind === 'image') {
       if (present) liveImages += 1;
       else if (!badMediaRef(m.ref)) { imagesMissing.push(`${rel} ${m.at} -> ${m.ref}`); }
@@ -459,11 +611,14 @@ for (const g of Object.keys(tileById)) {
     let any = false;
     const idx = manifest.tiles[g].indexOf(tile);
     for (const m of tileMediaRefs(tile, g, idx)) {
-      if (takesRef(m.ref, m.at, 'pack.json')) any = true;
+      if (takesRef(m.ref, m.at, 'pack.json')) { any = true; checkClip(m, 'pack.json', `${g}[${id}]`); }
     }
     if (!any) warn(`tiles.${g}[${id}]`, 'no audio — the tile is silent when pressed. The round still works; the chant loses a step.');
   }
 }
+
+decodeAllAudio();
+reportClipBudget();
 
 /* --- yield ---------------------------------------------------------------------- */
 

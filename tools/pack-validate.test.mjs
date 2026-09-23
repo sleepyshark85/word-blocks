@@ -12,7 +12,7 @@
 // Each case also asserts the message mentions the thing that is wrong, because a
 // validator that fails for the wrong reason passes this file by accident.
 
-import { test, before, describe } from 'node:test';
+import { test, before, after, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
@@ -31,10 +31,47 @@ before(() => {
   assert.ok(existsSync(SRC_VI), `${SRC_VI} must exist — run: node tools/build-seed-pack.mjs`);
 });
 
+/*
+ * ALWAYS, INCLUDING AFTER A FAILURE OR AN EXCEPTION. A run that leaves its fixtures
+ * behind is a defect in the test: sixteen abandoned runs at 26 GB each filled the root
+ * filesystem and broke every command in the session, and the symptom (ENOSPC, truncated
+ * files, commands failing for unrelated reasons) points nowhere near the harness.
+ */
+after(() => {
+  if (work) rmSync(work, { recursive: true, force: true });
+});
+
+/**
+ * DIRECTORIES A FIXTURE MUST NOT COPY.
+ *
+ * A pack directory is ~470 MB, and only ~15 MB of that is the pack. The rest is
+ * `.candidates/` — the curation scratch: raw downloads, contact sheets and the fetch
+ * cache (`content-pipeline.md` §2). This harness makes ~28 copies per run, so a naive
+ * recursive copy is 13 GB per run, and a handful of runs filled the machine's root
+ * filesystem to 532 KB free and broke every command in the session.
+ *
+ * NOTHING UNDER VALIDATION NEEDS IT. `pack-validate.mjs` reads `.candidates/` only for
+ * the curation-yield denominator, and that path already falls back to `build.fetched` on
+ * the word precisely because the scratch gets cleared (`pack-validate.mjs` §CURATION
+ * YIELD). Excluding it from a fixture costs nothing.
+ *
+ * `.candidates/` itself must NOT be deleted from the real packs: clearing it is what
+ * silently erased the yield statistic once already.
+ */
+const FIXTURE_EXCLUDE = new Set(['.candidates', '.tmp-audio', '.trash', 'node_modules']);
+
+/** Copy a pack without its scratch. */
+function copyPack(src, dst) {
+  cpSync(src, dst, {
+    recursive: true,
+    filter: (from) => !FIXTURE_EXCLUDE.has(path.basename(from)),
+  });
+}
+
 /** A throwaway copy of a pack. */
 function copy(src, name) {
   const dst = path.join(work, `${name}-${Math.random().toString(36).slice(2, 8)}`);
-  cpSync(src, dst, { recursive: true });
+  copyPack(src, dst);
   return dst;
 }
 
@@ -519,7 +556,7 @@ describe('build-seed-pack preserves curation', () => {
     const parent = path.join(work, `rebuild-${Math.random().toString(36).slice(2, 8)}`);
     mkdirSync(parent, { recursive: true });
     const d = path.join(parent, 'vi-seed');
-    cpSync(SRC_VI, d, { recursive: true });
+    copyPack(SRC_VI, d);
     const before = readJson(path.join(d, 'words', 'pho.json'));
     assert.ok(before.images.length > 0, 'fixture needs a word with images');
     assert.ok(before.audio.word?.src, 'fixture needs a word with audio');
@@ -541,5 +578,190 @@ describe('build-seed-pack preserves curation', () => {
     assert.equal(readJson(path.join(d, 'pack.json')).tiles.tone.find((t) => t.id === 'ngang').label,
       'không dấu', 'an edited tile label was destroyed by a rebuild');
     assert.equal(validate(d).code, 0);
+  });
+});
+
+/* ============================================ the clip duration budget (E15/N15) ==== */
+
+/**
+ * The owner played the built app and said the English letter sounds were "not good
+ * enough, voices seem to be mixed up with each other". The cause was 1.6 s of engine
+ * padding on every clip: `short` shipped at 1896–2832 ms against a spec that assumed
+ * 350 ms, so a child tapping every 300–600 ms heard stubs. `ui.md` E15 / AC N15 put a
+ * duration budget on a tap clip and made the gate the content-engineer's.
+ *
+ * A budget nothing enforces is a sentence in a document. These cases are what stop the
+ * padding coming back, and each one has been seen to fail: the ceiling case reproduces
+ * the exact defect by pointing a tile at one of the original untrimmed clips.
+ */
+describe('clip duration budget', () => {
+  /** Build a valid MP3 of roughly `ms` by repeating a real clip's frames. */
+  function stretchedClip(srcPack, ms) {
+    const man = readJson(path.join(srcPack, 'pack.json'));
+    const group = man.tiles.letter ? 'letter' : 'onset';
+    const slot = man.tiles.letter ? 'short' : 'name';
+    const tile = man.tiles[group].find((t) => t.audio?.[slot]?.src);
+    const buf = readFileSync(path.join(srcPack, tile.audio[slot].src));
+    const one = readFileSync(path.join(srcPack, tile.audio[slot].src));
+    const reps = Math.ceil(ms / (tile.audio[slot].ms || 700));
+    return { buf: Buffer.concat(Array.from({ length: reps }, () => one)), group, slot, tile, one: buf };
+  }
+
+  test('a tap clip over the pack ceiling is an ERROR — the padding cannot come back', () => {
+    const d = copy(SRC_EN, 'overlong');
+    const { buf, group, slot } = stretchedClip(SRC_EN, 2400);
+    mkdirSync(path.join(d, 'media', 'aud'), { recursive: true });
+    writeFileSync(path.join(d, 'media', 'aud', 'overlong.mp3'), buf);
+    breakManifest(d, (m) => {
+      const t = m.tiles[group].find((x) => x.audio?.[slot]);
+      t.audio[slot] = { ...t.audio[slot], src: 'media/aud/overlong.mp3', bytes: buf.length };
+      return m;
+    });
+    rejects(d, /ceiling for a tap clip/);
+  });
+
+  test('the ceiling is read from the manifest, not hard-coded — she can change it', () => {
+    const d = copy(SRC_EN, 'tighter');
+    breakManifest(d, (m) => { m.media.audio.tapCeilingMs = 300; return m; });
+    // Every shipped short clip is longer than 300 ms, so tightening the budget must bite.
+    rejects(d, /ceiling for a tap clip is 300 ms/);
+  });
+
+  test('duration comes from the BYTES, not from `audio.ms` — a claim is not a measurement', () => {
+    const d = copy(SRC_EN, 'lying');
+    const { buf, group, slot } = stretchedClip(SRC_EN, 2400);
+    writeFileSync(path.join(d, 'media', 'aud', 'overlong.mp3'), buf);
+    breakManifest(d, (m) => {
+      const t = m.tiles[group].find((x) => x.audio?.[slot]);
+      // Claim it is well within budget. The file says otherwise, and the file wins.
+      t.audio[slot] = { ...t.audio[slot], src: 'media/aud/overlong.mp3', bytes: buf.length, ms: 400 };
+      return m;
+    });
+    rejects(d, /ceiling for a tap clip/);
+  });
+
+  test('a clip whose ms disagrees with its frames is reported', () => {
+    const d = copy(SRC_EN, 'msdrift');
+    breakManifest(d, (m) => {
+      const t = m.tiles.letter.find((x) => x.audio?.short);
+      t.audio.short = { ...t.audio.short, ms: 12 };
+      return m;
+    });
+    const { code, out } = validate(d);
+    assert.equal(code, 0, 'a wrong ms is a warning, not a broken pack');
+    assert.match(out, /claim a duration their bytes do not support/);
+  });
+
+  test('an mp3 with valid magic bytes but no decodable frames is an ERROR', () => {
+    // content-pipeline.md §6 records that magic-byte sniffing proves four bytes and
+    // nothing more. Reading the frame table is what closes part of that gap.
+    const d = copy(SRC_EN, 'notframes');
+    // `ID3` + a tag that swallows the whole (tiny) file: sniffs as mp3, holds no audio.
+    const fake = Buffer.concat([Buffer.from('ID3\x04\x00\x00\x00\x00\x02\x01', 'latin1'), Buffer.alloc(64, 0)]);
+    writeFileSync(path.join(d, 'media', 'aud', 'hollow.mp3'), fake);
+    breakManifest(d, (m) => {
+      const t = m.tiles.letter.find((x) => x.audio?.short);
+      t.audio.short = { ...t.audio.short, src: 'media/aud/hollow.mp3', bytes: fake.length };
+      return m;
+    });
+    rejects(d, /cannot read its MPEG frames/);
+  });
+
+  test('a non-tap clip gets the longer ceiling, so a word clip is not judged as a letter', () => {
+    const d = copy(SRC_EN, 'longslot');
+    // Every shipped `long` clip is over the 700 ms tap target and several are over
+    // 1500 ms; none of that may fail the pack, because nothing fires them on a tap.
+    const man = readJson(path.join(d, 'pack.json'));
+    const longs = man.tiles.letter.map((t) => t.audio?.long?.ms).filter(Boolean);
+    assert.ok(Math.max(...longs) > man.media.audio.tapCeilingMs,
+      'fixture needs a `long` clip past the tap ceiling, or this case proves nothing');
+    assert.equal(validate(d).code, 0);
+  });
+});
+
+/* ================================================= every clip must DECODE cleanly ==== */
+
+/**
+ * THE CHECK THAT WAS MISSING, AND THE DEFECT THAT PROVED IT WAS MISSING.
+ *
+ * `audio-trim.mjs` cut engine padding at MP3 frame boundaries and verified the result by
+ * decoding it and comparing samples against the original. Every clip passed. It shipped
+ * 29 of 70 English clips that made libmpg123 report `part2_3_length too large for
+ * available bit count` on their FIRST frame — the start of the letter sound.
+ *
+ * The sample comparison could not see it: Layer III keeps a frame's data up to 255 bytes
+ * behind it in the bit reservoir, a frame-boundary cut orphans the first retained frame
+ * from history that is no longer in the file, and libmpg123 CONCEALS the underrun by
+ * decoding with whatever bits it has. So the samples matched while the stream was
+ * malformed, and another decoder is free to click, mute or drop instead.
+ *
+ * Note what the duration gate does NOT do here: the poisoned clip below is 768 ms, well
+ * inside the 1500 ms ceiling. The two checks are independent and both are needed.
+ */
+describe('clips must decode without decoder diagnostics', () => {
+  const VENV = path.join(ROOT, 'tools', '.venv', 'bin', 'python');
+
+  /**
+   * An unprimed frame-boundary cut: exactly the bug this suite exists to prevent.
+   *
+   * The cut frame is chosen because it PROVABLY cannot decode without its reservoir
+   * history — `part2_3_length` exceeds the bits the frame carries itself. That matters:
+   * an earlier version of this fixture just picked frame 3, which happened to be a frame
+   * whose demand fit in its own bytes, so the decoder never complained and the case
+   * passed against a validator that was doing nothing. Picking on the property rather
+   * than on an index is the difference between a fixture and a coincidence.
+   */
+  async function orphanedCut(srcFile) {
+    const M = await import('./lib/mp3.mjs');
+    const b = readFileSync(srcFile);
+    const t = M.parseFrames(b);
+    const from = t.frames.findIndex((fr, i) => i > 0 && M.sideInfo(b, fr).needsHistory);
+    assert.ok(from > 0, `${srcFile} has no frame that provably needs reservoir history`);
+    return b.subarray(t.frames[from].offset);
+  }
+
+  test('a clip whose bit reservoir was orphaned is an ERROR, even though it is short enough', async (t) => {
+    if (!existsSync(VENV)) return t.skip('no venv — the decode check needs a decoder');
+    const d = copy(SRC_EN, 'orphaned');
+    const man = readJson(path.join(d, 'pack.json'));
+    const tile = man.tiles.letter.find((x) => x.audio?.short?.src);
+    const src = path.join(d, tile.audio.short.src);
+    const cut = await orphanedCut(src);
+    writeFileSync(path.join(d, 'media', 'aud', 'orphaned.mp3'), cut);
+    breakManifest(d, (m) => {
+      const x = m.tiles.letter.find((y) => y.id === tile.id);
+      x.audio.short = { ...x.audio.short, src: 'media/aud/orphaned.mp3', bytes: cut.length, ms: 400 };
+      return m;
+    });
+    const out = rejects(d, /decoder diagnostic/);
+    assert.match(out, /part2_3_length/, 'the message must name the actual complaint');
+  });
+
+  test("the shipped packs' clips all decode cleanly — the baseline a rejection is measured against", (t) => {
+    if (!existsSync(VENV)) return t.skip('no venv');
+    for (const pack of [SRC_EN, SRC_VI]) {
+      const { code, out } = validate(pack);
+      assert.equal(code, 0, `${pack} should validate clean. Output:\n${out}`);
+      assert.doesNotMatch(out, /decoder diagnostic/, `${pack} has a clip that does not decode cleanly`);
+    }
+  });
+
+  test('audio-trim produces a clip that decodes cleanly, and says which strategy it used', async (t) => {
+    if (!existsSync(VENV)) return t.skip('no venv');
+    // Round-trip through the real tool, from a real untrimmed clip, and let the decoder
+    // judge the result rather than the tool's own arithmetic.
+    const d = copy(SRC_EN, 'trimrt');
+    const man = readJson(path.join(d, 'pack.json'));
+    const tile = man.tiles.letter.find((x) => x.audio?.short?.src);
+    const src = path.join(d, tile.audio.short.src);
+    const out = path.join(d, 'roundtrip.mp3');
+    const r = spawnSync(process.execPath,
+      [path.join(ROOT, 'tools', 'audio-trim.mjs'), '--in', src, '--out', out], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stdout + r.stderr);
+    assert.match(r.stdout, /decoder diagnostics: NONE/,
+      `the trimmer must report a clean decode. Output:\n${r.stdout}`);
+    const m = spawnSync(VENV, [path.join(ROOT, 'tools', 'audio-measure.py'), '--require-clean', out],
+      { encoding: 'utf8' });
+    assert.equal(m.status, 0, `the trimmed clip must decode cleanly:\n${m.stdout}`);
   });
 });

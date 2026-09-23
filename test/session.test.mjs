@@ -10,6 +10,7 @@ import {
   effectiveCells, SHELF_SLOTS, WORDS_PER_STAGE, MAX_STAGE,
 } from '../src/engine/index.mjs';
 import { start, live, tap, undoTo, discover, firstPath, unseenPath } from './helpers/play.mjs';
+import { packWithADeadSymbol, offTableSymbol } from './helpers/fixtures.mjs';
 
 const MEO = ['m', 'eo', 'huyen'];
 
@@ -28,10 +29,10 @@ test('E1 — a live tap seats the symbol and recomputes the live set', () => {
 });
 
 test('E2 — a disabled tap changes nothing: no seat, no strip change, no table change', () => {
-  const { game, state } = viGame();
-  const flat = tableView(game, state).cells.find((c) => !c.live);
-  assert.ok(flat, 'the stage-5 onset table has no flat tile to test with');
-  const after = reduce(game, state, { type: 'tapSymbol', symbolId: flat.id });
+  // The flat tile is **constructed** (`helpers/fixtures.mjs`), not found in the seed pack:
+  // whether today's content happens to leave a symbol empty is not what this asserts.
+  const { game, state, deadId } = packWithADeadSymbol('vi');
+  const after = reduce(game, state, { type: 'tapSymbol', symbolId: deadId });
   assert.deepEqual(after.prefix, state.prefix);
   assert.equal(after.status, state.status);
   assert.deepEqual(tableView(game, after).cells.map((c) => c.live),
@@ -43,9 +44,11 @@ test('E2 — a disabled tap changes nothing: no seat, no strip change, no table 
 
 test('a tap on a symbol that is not on the table is refused outright', () => {
   const { game, state } = viGame();
-  // `v` is beyond the 24-cell onset ceiling in this pack, so it is not drawn at all.
-  assert.ok(!tableView(game, state).cells.some((c) => c.id === 'v'));
-  assert.equal(reduce(game, state, { type: 'tapSymbol', symbolId: 'v' }), state);
+  // Which symbols fall past the table's edge depends on the inventory order, so the one
+  // used here is computed from the pack rather than named.
+  const off = offTableSymbol('vi', 5);
+  assert.ok(!tableView(game, state).cells.some((c) => c.id === off));
+  assert.equal(reduce(game, state, { type: 'tapSymbol', symbolId: off }), state);
 });
 
 test('E8 / E10 — undo returns that symbol and everything after it, and recomputes', () => {
@@ -188,12 +191,32 @@ test('F15 / F16 — a prefix word announces in full, keeps the strip, and can st
 /* ----------------------------------------------------- §G the idle ladder */
 
 test('G7 / G8 — a seated symbol resets the ladder; a flat tap only defers it', () => {
-  const { game, state } = viGame();
-  const seated = tap(game, state, 'm');
+  const { game, state, deadId, liveId } = packWithADeadSymbol('vi');
+  const seated = tap(game, state, liveId);
   assert.equal(seated.idle.resetSeq, state.idle.resetSeq + 1);
-  const flat = tableView(game, state).cells.find((c) => !c.live);
-  const knocked = reduce(game, state, { type: 'tapSymbol', symbolId: flat.id });
-  assert.equal(knocked.idle.resetSeq, state.idle.resetSeq);
+  const knocked = reduce(game, state, { type: 'tapSymbol', symbolId: deadId });
+  assert.equal(knocked.idle.resetSeq, state.idle.resetSeq, 'a flat tap reset the ladder');
+  assert.equal(knocked.idle.touchSeq, state.idle.touchSeq + 1, 'a flat tap did not defer it');
+});
+
+test('L7 — a symbol with no words left behind it stays in its cell and is simply flat', () => {
+  // The deletion case, stated directly: **the board does not reshuffle.** Every cell of
+  // the trimmed pack's table is in the same place as the full pack's, and the only
+  // difference is that one of them stopped standing up.
+  const full = viGame();
+  const { game, state, deadId } = packWithADeadSymbol('vi');
+  assert.deepEqual(tableView(game, state).cells.map((c) => c.id),
+    tableView(full.game, full.state).cells.map((c) => c.id),
+    'losing a word moved a symbol to a different cell');
+  assert.equal(tableView(game, state).cells.find((c) => c.id === deadId).live, false);
+  assert.equal(tableView(full.game, full.state).cells.find((c) => c.id === deadId).live, true,
+    'the fixture proved nothing — that symbol was already flat with the full pack');
+  // And the rest of the board is untouched: every other cell keeps the liveness it had.
+  for (const cell of tableView(game, state).cells) {
+    if (cell.id === deadId) continue;
+    const before = tableView(full.game, full.state).cells.find((c) => c.id === cell.id);
+    assert.equal(cell.live, before.live, `${cell.id} changed state when ${deadId} emptied`);
+  }
 });
 
 test('G10 / G11 — an auto-play is deterministic, records an assist and earns no stage credit', () => {

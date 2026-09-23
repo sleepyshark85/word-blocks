@@ -43,6 +43,20 @@ export const STRIP_CELLS = [
  * `acceptance-criteria.md` B2, C2 — the table's contents at each position, from the
  * pack's `inventoryOrder` and the stage's cell count, and from nothing else. The onset
  * table spends its last cell on the socket, so it is `cells - 1` written onsets plus ∅.
+ *
+ * **A consequence worth naming, because it looks like a regression and is not.** Once the
+ * pack's onset order is sorted by how many words sit behind each symbol, the top stage
+ * shows 23 productive onsets plus ∅ and **nothing on the onset table is flat**. That is
+ * not the disabled state going missing; it is the strongest form of `gameplay.md` §3.3 —
+ * *every letter he can press starts a word* — and it is what growing into the whole
+ * inventory looks like at position 1.
+ *
+ * The lesson the flat state carries (`gameplay.md` §4.2: *the table's response is the
+ * teaching*) lives at positions 2 and 3, and lives there **structurally**: an onset is
+ * followed by 1–6 rimes out of the 8–24 on the table, and a rime by one legal tone out of
+ * 2–6, so those tables always have flats. `test/tree.test.mjs` asserts the child meets a
+ * flat tile on the way to **every** word rather than assuming it, so if a future pack ever
+ * did get dense enough to erase the signal, the suite says so instead of nobody noticing.
  */
 export function inventoryFor(pack, cells) {
   const onsets = pack.inventoryOrder.onset.filter((t) => t !== ZERO_ONSET);

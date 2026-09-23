@@ -43,14 +43,18 @@
   ],
   "audio": {
     "word": {
-      "src": "media/aud/53e693698a6638d5.mp3",
-      "bytes": 13824,
-      "ms": 2304,
+      "src": "media/aud/4107a4a2c73232ea.mp3",
+      "bytes": 5328,
+      "ms": 888,
       "engine": "edge-tts:en-US-JennyNeural@-35%",
       "voice": null,
       "text": "fish",
       "by": null,
-      "addedAt": "2026-09-22T17:22:13.905Z"
+      "addedAt": "2026-09-22T17:22:13.905Z",
+      "leadMs": 65,
+      "tailMs": 100,
+      "trimmedFrom": "media/aud/53e693698a6638d5.mp3",
+      "trimmedAt": "2026-09-23T08:30:09.947Z"
     },
     "sentence": null
   },

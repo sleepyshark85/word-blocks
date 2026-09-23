@@ -73,14 +73,18 @@
   ],
   "audio": {
     "word": {
-      "src": "media/aud/1601b112ca8a61cf.mp3",
-      "bytes": 13248,
-      "ms": 2208,
+      "src": "media/aud/c6b2580a3690c10c.mp3",
+      "bytes": 4896,
+      "ms": 816,
       "engine": "edge-tts:en-US-JennyNeural@-35%",
       "voice": null,
       "text": "dog",
       "by": null,
-      "addedAt": "2026-09-22T17:22:09.296Z"
+      "addedAt": "2026-09-22T17:22:09.296Z",
+      "leadMs": 65,
+      "tailMs": 100,
+      "trimmedFrom": "media/aud/1601b112ca8a61cf.mp3",
+      "trimmedAt": "2026-09-23T08:30:09.947Z"
     },
     "sentence": null
   },

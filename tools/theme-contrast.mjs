@@ -187,6 +187,21 @@ const PAIRS = [
   ['glyph','surface','ink','assembled-word glyph in the strip'],
   ['glyph','reward','ink','chant highlight: ink glyph on the GOLD FACE (see note - the glyph never turns gold)'],
   ['glyph','role1Soft','ink','tile glyph, tinted / reduce-motion state'],
+  // NEW, design revision 3 (the constant table, ui.md §0 correction U12).  A tone tile
+  // whose rime is not yet chosen shows the BARE MARK on a dotted-circle carrier.  A
+  // diacritic is thin ink, thinner than any letter, so it takes the full `ink` token
+  // rather than `inkSoft` -- and it only ever appears on a DISABLED tile, whose face is
+  // the ground.  This pair did not exist before and is gated as a glyph.
+  ['glyph','ground','ink','disabled TONE tile: the bare tone mark on the ground (ui.md §7.2)'],
+  // A ROLE TINT BEHIND EACH RUN WAS DESIGNED AND THEN REJECTED BY THIS SWEEP, 2026-09-23.
+  // The constant table holds three contiguous runs (onsets, rimes, tones) and a `roleSoft`
+  // wash behind each one looked like the obvious way to show where a run starts.  Adding
+  // the pairs it creates failed 5 of 9 (theme x run) combinations: a role-coloured tile
+  // outline on its OWN role tint measures 2.62-2.92:1, under the 3.0 component gate,
+  // because the tint desaturates the boundary it is supposed to support.  The runs are
+  // carried by the bar pattern and by fixed position instead, and the disabled tile's face
+  // stays `ground` -- which §5.8 needs, since "the disabled tile IS the table" is the
+  // primary live/disabled discriminator.  Kept as a comment so it is not re-proposed.
   // the identity bars are the owner's bright hex; their INNER EDGE against the white
   // face is carried by a 1.5pt roleDeep keyline, so a bright hue never has to be dulled
   // to make its own boundary read (ui.md 5.4)
@@ -231,9 +246,15 @@ const THRESHOLD = { glyph:4.5, bodyText:4.5, largeText:3.0, component:3.0, shade
 // bar pattern.  NOT GATED: separation under simulated CVD.
 //
 // That split is deliberate and is the honest version of this check.  Role is carried by
-// THREE channels -- the bar pattern (solid/split/dotted), the fact that the Vietnamese
-// band shows exactly one role at a time (gameplay.md 2.1), and colour.  Colour is the
-// redundant one.  Popsicle's watermelon/green pair cannot be separated under red-green
+// THREE channels -- the bar pattern (solid/split/dotted), the FIXED POSITION of each run
+// in the constant table (onsets first, then rimes, then tones, always, in cells that
+// never move), and colour.  Colour is the redundant one.
+//
+// CORRECTED 2026-09-23, design revision 3: the second channel used to be "the Vietnamese
+// band shows exactly one role at a time".  That is no longer true -- the owner overruled
+// the morphing band and all three roles are now on screen together -- so the sentence was
+// false and the argument had to be re-made rather than inherited.  Fixed position is a
+// stronger channel than the old one anyway: it does not depend on what he has tapped.  Popsicle's watermelon/green pair cannot be separated under red-green
 // CVD by any assignment, because that is a property of the two hues the owner chose by
 // eye and liked; darkening one of them until the arithmetic passed would trade a real
 // property (bright and fun) for a redundant one.  So the number is printed, named, and

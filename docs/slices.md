@@ -43,6 +43,25 @@ squad works), `spike-results.md` (what was measured).
 > wired in. Measured on the shipped file: 86/86 coverage, minimal pairs 513–545 px at 116 pt and
 > 53–57 px at 36 pt against floors of 200 and 20.
 
+> ### 2026-09-23 — FINDING 3'S ASSET HALF: THE ENGLISH CLIPS WERE 73% SILENCE.
+>
+> The owner: *"the sounds when picking English characters are not good enough, voices seem to
+> be mixed up with each other."* The design half is `ui.md` revision 3 §11. **The asset half
+> was E15 / AC N15 — `short` ≤ 700 ms — and it failed today.** Diagnosed by decoding, not by
+> inference (`content-pipeline.md` §9.3a–c):
+>
+> | | |
+> |---|---|
+> | Cause | Microsoft's read-aloud endpoint pads **~285 ms before and ~1320 ms after every clip**, the same whatever the text. edge-tts adds none of it; **gTTS does not do it**, so `vi-seed` is untouched |
+> | Why it was missed | the files are 48 kbps **CBR** — 144 B per frame regardless of content — so a bytes-per-frame envelope is flat by construction and reads as "sound all the way through" |
+> | Fix | `tools/audio-trim.mjs`: **lossless** MP3 frame-boundary cut, so the bytes the owner approved by ear in round 3 survive. A cut orphans the first retained frame from Layer III's **bit reservoir**, so the tool emits **priming frames** carrying the exact missing history bytes. Falls back to tail-only, then to the original bytes, rather than ship a malformed clip |
+> | **A defect found in review, and fixed** | the first version used a 2-frame *guard* instead. A guard protects *later* frames, not the first retained one, and **there is no free cut point**: `main_data_begin == 0` at frame 0 in all 140 clips and at **no later frame in any of them**. It shipped **29 of 70** clips emitting `part2_3_length too large for available bit count` **on their first frame** — the start of the letter sound. Sample comparison could not see it, because libmpg123 **conceals** an underrun. Now **0 of 70 and 0 of 110**, against the originals' 0 of 70, with **every duration unchanged** |
+> | `en-seed` `short` | **1896–2832 ms → 576–1392 ms** (median 2184 → 768). `long` 2616–3768 → **1272–2328**. Word clips 2016–2352 → **672–1032**. Pack audio 1652 → **745 KiB** |
+> | Generator | `gen-audio.mjs` trims at generation time, so this cannot come back by regenerating |
+> | Gates | **Two, independent.** (1) duration, from the MPEG frame table, budget in the manifest — poisoned with a 2208 ms clip → **exit 1**. (2) **every clip must decode with no decoder diagnostics** — poisoned with an unprimed 768 ms cut, *inside* the duration ceiling → **exit 1**. Nine harness cases, each seen to fail with its own check removed. The decode gate covers `vi-seed` too |
+> | **Still open, and the owner's** | **24 of 35 `short` clips remain over E15's 700 ms.** What is left is the sound itself, not padding. The levers are the **rate** (`+0%` measured: ~20 of 35 would pass) and the **text** (`sss` → `s`, the literacy-designer's). Neither pulled — `decisions.md` closed the voice and the rate, and he has rejected two rounds by ear |
+> | **Not verified** | **whether it sounds better.** A duration is a proxy. Finding 3 is not closed until he has heard it (AC U9a) |
+
 *Last updated: 2026-09-23 (Slices 2 and 3 rebuilt for the discovery mechanic). Earlier history:
 all three design agents were killed mid-work by a weekly rate limit; what survived is catalogued
 below and was verified by execution, not trusted.*

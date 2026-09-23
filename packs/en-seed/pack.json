@@ -3,7 +3,7 @@
   "id": "en-seed",
   "language": "en",
   "name": "Word Blocks",
-  "revision": 1,
+  "revision": 3,
   "origin": "seed",
   "generator": {
     "tool": "tools/build-seed-pack.mjs",
@@ -29,7 +29,12 @@
     },
     "audio": {
       "format": "mp3",
-      "sampleRate": 24000
+      "sampleRate": 24000,
+      "tapTargetMs": 700,
+      "tapCeilingMs": 1500,
+      "longCeilingMs": 2500,
+      "leadTargetMs": 40,
+      "tailTargetMs": 120
     }
   },
   "rules": {
@@ -59,24 +64,32 @@
         "anchor": "ball",
         "audio": {
           "long": {
-            "src": "media/aud/2a271b9c47b0e75b.mp3",
-            "bytes": 17424,
-            "ms": null,
+            "src": "media/aud/8f360f8e2ce3b5d4.mp3",
+            "bytes": 8640,
+            "ms": 1440,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "buh, ball",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.209Z"
+            "addedAt": "2026-09-22T17:21:57.209Z",
+            "leadMs": 55,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/2a271b9c47b0e75b.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.946Z"
           },
           "short": {
-            "src": "media/aud/f92621baaa1dd911.mp3",
-            "bytes": 13248,
-            "ms": null,
+            "src": "media/aud/3947ff06538285df.mp3",
+            "bytes": 4608,
+            "ms": 768,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "buh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.211Z"
+            "addedAt": "2026-09-22T17:21:57.211Z",
+            "leadMs": 55,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/f92621baaa1dd911.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -90,24 +103,32 @@
         "anchor": "cat",
         "audio": {
           "long": {
-            "src": "media/aud/db00f65cb17fc1d5.mp3",
-            "bytes": 19296,
-            "ms": null,
+            "src": "media/aud/0a5d83750a4c136e.mp3",
+            "bytes": 10800,
+            "ms": 1800,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "kuh, cat",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.214Z"
+            "addedAt": "2026-09-22T17:21:57.214Z",
+            "leadMs": 65,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/db00f65cb17fc1d5.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/e0cddf680fc32bfc.mp3",
-            "bytes": 13104,
-            "ms": null,
+            "src": "media/aud/b9971b2cb54b9ee1.mp3",
+            "bytes": 4608,
+            "ms": 768,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "kuh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.216Z"
+            "addedAt": "2026-09-22T17:21:57.216Z",
+            "leadMs": 65,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/e0cddf680fc32bfc.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -121,24 +142,32 @@
         "anchor": "dog",
         "audio": {
           "long": {
-            "src": "media/aud/28b3096c535bd581.mp3",
-            "bytes": 18288,
-            "ms": null,
+            "src": "media/aud/fbca9e9769626142.mp3",
+            "bytes": 9936,
+            "ms": 1656,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "duh, dog",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.218Z"
+            "addedAt": "2026-09-22T17:21:57.218Z",
+            "leadMs": 65,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/28b3096c535bd581.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/00c33f7055dd4a3a.mp3",
-            "bytes": 12240,
-            "ms": null,
+            "src": "media/aud/50931f4d58f2eca7.mp3",
+            "bytes": 4032,
+            "ms": 672,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "duh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.221Z"
+            "addedAt": "2026-09-22T17:21:57.221Z",
+            "leadMs": 65,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/00c33f7055dd4a3a.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -152,24 +181,32 @@
         "anchor": "fish",
         "audio": {
           "long": {
-            "src": "media/aud/c6e7ad97fa819d4f.mp3",
-            "bytes": 20880,
-            "ms": null,
+            "src": "media/aud/bbd170a0d57c38ac.mp3",
+            "bytes": 12240,
+            "ms": 2040,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "fff, fish",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.224Z"
+            "addedAt": "2026-09-22T17:21:57.224Z",
+            "leadMs": 60,
+            "tailMs": 95,
+            "trimmedFrom": "media/aud/c6e7ad97fa819d4f.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/b515e54b48468305.mp3",
-            "bytes": 16128,
-            "ms": null,
+            "src": "media/aud/ce8dfe499579eaca.mp3",
+            "bytes": 7488,
+            "ms": 1248,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "fff",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.226Z"
+            "addedAt": "2026-09-22T17:21:57.226Z",
+            "leadMs": 55,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/b515e54b48468305.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -183,24 +220,32 @@
         "anchor": "goat",
         "audio": {
           "long": {
-            "src": "media/aud/cb2ca3d191b8de94.mp3",
-            "bytes": 21024,
-            "ms": null,
+            "src": "media/aud/d4c95ff6a64ced66.mp3",
+            "bytes": 12384,
+            "ms": 2064,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "guh, goat",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.231Z"
+            "addedAt": "2026-09-22T17:21:57.231Z",
+            "leadMs": 50,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/cb2ca3d191b8de94.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/db9f7343f6e3493c.mp3",
-            "bytes": 16704,
-            "ms": null,
+            "src": "media/aud/36ab040415ead2bc.mp3",
+            "bytes": 8064,
+            "ms": 1344,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "guh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.234Z"
+            "addedAt": "2026-09-22T17:21:57.234Z",
+            "leadMs": 70,
+            "tailMs": 125,
+            "trimmedFrom": "media/aud/db9f7343f6e3493c.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -214,24 +259,32 @@
         "anchor": "hat",
         "audio": {
           "long": {
-            "src": "media/aud/8d8f782103baf895.mp3",
-            "bytes": 17856,
-            "ms": null,
+            "src": "media/aud/7b1f88cd6e2c8a27.mp3",
+            "bytes": 9360,
+            "ms": 1560,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "huh, hat",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.237Z"
+            "addedAt": "2026-09-22T17:21:57.237Z",
+            "leadMs": 65,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/8d8f782103baf895.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/727fd732b822c59f.mp3",
-            "bytes": 12096,
-            "ms": null,
+            "src": "media/aud/cd645d13915b0ace.mp3",
+            "bytes": 3888,
+            "ms": 648,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "huh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.240Z"
+            "addedAt": "2026-09-22T17:21:57.240Z",
+            "leadMs": 65,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/727fd732b822c59f.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -245,24 +298,32 @@
         "anchor": "jam",
         "audio": {
           "long": {
-            "src": "media/aud/f9a39c0465e1e935.mp3",
-            "bytes": 18288,
-            "ms": null,
+            "src": "media/aud/c3d1a1cacb38af89.mp3",
+            "bytes": 9648,
+            "ms": 1608,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "juh, jam",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.243Z"
+            "addedAt": "2026-09-22T17:21:57.243Z",
+            "leadMs": 65,
+            "tailMs": 95,
+            "trimmedFrom": "media/aud/f9a39c0465e1e935.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/9671f66e04b7c616.mp3",
-            "bytes": 12240,
-            "ms": null,
+            "src": "media/aud/69056200320191e7.mp3",
+            "bytes": 4320,
+            "ms": 720,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "juh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.246Z"
+            "addedAt": "2026-09-22T17:21:57.246Z",
+            "leadMs": 65,
+            "tailMs": 95,
+            "trimmedFrom": "media/aud/9671f66e04b7c616.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -276,24 +337,32 @@
         "anchor": "kite",
         "audio": {
           "long": {
-            "src": "media/aud/7f6815973648f357.mp3",
-            "bytes": 19152,
-            "ms": null,
+            "src": "media/aud/5969665878ff6290.mp3",
+            "bytes": 10512,
+            "ms": 1752,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "kuh, kite",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.249Z"
+            "addedAt": "2026-09-22T17:21:57.249Z",
+            "leadMs": 60,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/7f6815973648f357.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/099dfa4f6adc7e22.mp3",
-            "bytes": 13104,
-            "ms": null,
+            "src": "media/aud/94deeee39f068968.mp3",
+            "bytes": 4608,
+            "ms": 768,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "kuh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.252Z"
+            "addedAt": "2026-09-22T17:21:57.252Z",
+            "leadMs": 65,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/099dfa4f6adc7e22.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -307,24 +376,32 @@
         "anchor": "leg",
         "audio": {
           "long": {
-            "src": "media/aud/5d567dff5a58dbf5.mp3",
-            "bytes": 20304,
-            "ms": null,
+            "src": "media/aud/fd10a3e249f03eed.mp3",
+            "bytes": 11808,
+            "ms": 1968,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "lll, leg",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.255Z"
+            "addedAt": "2026-09-22T17:21:57.255Z",
+            "leadMs": 65,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/5d567dff5a58dbf5.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/23e2cc28ce9e92de.mp3",
-            "bytes": 14976,
-            "ms": null,
+            "src": "media/aud/1bc925f8d9094489.mp3",
+            "bytes": 6336,
+            "ms": 1056,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "lll",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.258Z"
+            "addedAt": "2026-09-22T17:21:57.258Z",
+            "leadMs": 65,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/23e2cc28ce9e92de.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -338,24 +415,32 @@
         "anchor": "man",
         "audio": {
           "long": {
-            "src": "media/aud/d48c298d6c11bd67.mp3",
-            "bytes": 19008,
-            "ms": null,
+            "src": "media/aud/d0f57b6dc9608bc0.mp3",
+            "bytes": 10656,
+            "ms": 1776,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "mmm, man",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.262Z"
+            "addedAt": "2026-09-22T17:21:57.262Z",
+            "leadMs": 55,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/d48c298d6c11bd67.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/01035ed1a203d616.mp3",
-            "bytes": 14112,
-            "ms": null,
+            "src": "media/aud/f60ac3b839b8e033.mp3",
+            "bytes": 5616,
+            "ms": 936,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "mmm",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.265Z"
+            "addedAt": "2026-09-22T17:21:57.265Z",
+            "leadMs": 55,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/01035ed1a203d616.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -369,24 +454,32 @@
         "anchor": "net",
         "audio": {
           "long": {
-            "src": "media/aud/228533cd9951a931.mp3",
-            "bytes": 19872,
-            "ms": null,
+            "src": "media/aud/616eee66bd81303b.mp3",
+            "bytes": 11376,
+            "ms": 1896,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "nnn, net",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.268Z"
+            "addedAt": "2026-09-22T17:21:57.268Z",
+            "leadMs": 50,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/228533cd9951a931.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/775ccfe855cb15bc.mp3",
-            "bytes": 14400,
-            "ms": null,
+            "src": "media/aud/88757393431671fa.mp3",
+            "bytes": 6048,
+            "ms": 1008,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "nnn",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.271Z"
+            "addedAt": "2026-09-22T17:21:57.271Z",
+            "leadMs": 55,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/775ccfe855cb15bc.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -400,24 +493,32 @@
         "anchor": "pen",
         "audio": {
           "long": {
-            "src": "media/aud/1809319e201a1d29.mp3",
-            "bytes": 18576,
-            "ms": null,
+            "src": "media/aud/355869bcb0f37c46.mp3",
+            "bytes": 10080,
+            "ms": 1680,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "puh, pen",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.274Z"
+            "addedAt": "2026-09-22T17:21:57.274Z",
+            "leadMs": 55,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/1809319e201a1d29.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/d3b989285e1a9750.mp3",
-            "bytes": 12960,
-            "ms": null,
+            "src": "media/aud/6a15df048e7c6062.mp3",
+            "bytes": 4608,
+            "ms": 768,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "puh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.277Z"
+            "addedAt": "2026-09-22T17:21:57.277Z",
+            "leadMs": 70,
+            "tailMs": 120,
+            "trimmedFrom": "media/aud/d3b989285e1a9750.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -431,24 +532,32 @@
         "anchor": "rat",
         "audio": {
           "long": {
-            "src": "media/aud/937d0df9174e8336.mp3",
-            "bytes": 20016,
-            "ms": null,
+            "src": "media/aud/434a4a55e575b559.mp3",
+            "bytes": 11376,
+            "ms": 1896,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "rrr, rat",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.280Z"
+            "addedAt": "2026-09-22T17:21:57.280Z",
+            "leadMs": 60,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/937d0df9174e8336.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/4f307461ccb52599.mp3",
-            "bytes": 14544,
-            "ms": null,
+            "src": "media/aud/f56d0024ccb6b675.mp3",
+            "bytes": 6192,
+            "ms": 1032,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "rrr",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.283Z"
+            "addedAt": "2026-09-22T17:21:57.283Z",
+            "leadMs": 60,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/4f307461ccb52599.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -462,24 +571,32 @@
         "anchor": "sun",
         "audio": {
           "long": {
-            "src": "media/aud/22a111cc4f05c7b9.mp3",
-            "bytes": 20880,
-            "ms": null,
+            "src": "media/aud/2e37d64413ff30a8.mp3",
+            "bytes": 12528,
+            "ms": 2088,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "sss, sun",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.287Z"
+            "addedAt": "2026-09-22T17:21:57.287Z",
+            "leadMs": 55,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/22a111cc4f05c7b9.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/cb482de876d81807.mp3",
-            "bytes": 16992,
-            "ms": null,
+            "src": "media/aud/51e6e86949443c86.mp3",
+            "bytes": 8352,
+            "ms": 1392,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "sss",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.290Z"
+            "addedAt": "2026-09-22T17:21:57.290Z",
+            "leadMs": 60,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/cb482de876d81807.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -493,24 +610,32 @@
         "anchor": "top",
         "audio": {
           "long": {
-            "src": "media/aud/7989fdbb92a554cc.mp3",
-            "bytes": 16992,
-            "ms": null,
+            "src": "media/aud/ec1e3e3a3d552506.mp3",
+            "bytes": 8640,
+            "ms": 1440,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "tuh, top",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.294Z"
+            "addedAt": "2026-09-22T17:21:57.294Z",
+            "leadMs": 55,
+            "tailMs": 130,
+            "trimmedFrom": "media/aud/7989fdbb92a554cc.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/551484c3d96d5161.mp3",
-            "bytes": 11952,
-            "ms": null,
+            "src": "media/aud/081d3768c6121dbb.mp3",
+            "bytes": 4032,
+            "ms": 672,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "tuh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.297Z"
+            "addedAt": "2026-09-22T17:21:57.297Z",
+            "leadMs": 60,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/551484c3d96d5161.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -524,24 +649,32 @@
         "anchor": "van",
         "audio": {
           "long": {
-            "src": "media/aud/c565d8afd2c3d649.mp3",
-            "bytes": 20304,
-            "ms": null,
+            "src": "media/aud/718ff3e409d1d535.mp3",
+            "bytes": 11952,
+            "ms": 1992,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "vvv, van",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.300Z"
+            "addedAt": "2026-09-22T17:21:57.300Z",
+            "leadMs": 65,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/c565d8afd2c3d649.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/c6ba08167a1ba9a5.mp3",
-            "bytes": 14976,
-            "ms": null,
+            "src": "media/aud/e72e5cbe6834547f.mp3",
+            "bytes": 6480,
+            "ms": 1080,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "vvv",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.303Z"
+            "addedAt": "2026-09-22T17:21:57.303Z",
+            "leadMs": 65,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/c6ba08167a1ba9a5.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -555,24 +688,32 @@
         "anchor": "web",
         "audio": {
           "long": {
-            "src": "media/aud/b7f50bbc85b40380.mp3",
-            "bytes": 15696,
-            "ms": null,
+            "src": "media/aud/03476d0266589944.mp3",
+            "bytes": 7632,
+            "ms": 1272,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "wuh, web",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.306Z"
+            "addedAt": "2026-09-22T17:21:57.306Z",
+            "leadMs": 55,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/b7f50bbc85b40380.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/0f1d4c4b5f4e6256.mp3",
-            "bytes": 11376,
-            "ms": null,
+            "src": "media/aud/ffc3faba478d22e3.mp3",
+            "bytes": 3600,
+            "ms": 600,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "wuh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.309Z"
+            "addedAt": "2026-09-22T17:21:57.309Z",
+            "leadMs": 55,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/0f1d4c4b5f4e6256.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -586,24 +727,32 @@
         "anchor": "box",
         "audio": {
           "long": {
-            "src": "media/aud/c325b3a42b9cd515.mp3",
-            "bytes": 20016,
-            "ms": null,
+            "src": "media/aud/d56f3c3f331e8ad7.mp3",
+            "bytes": 11376,
+            "ms": 1896,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ks, box",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.312Z"
+            "addedAt": "2026-09-22T17:21:57.312Z",
+            "leadMs": 60,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/c325b3a42b9cd515.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/3cf336f864d7eba4.mp3",
-            "bytes": 14976,
-            "ms": null,
+            "src": "media/aud/c481040a5ef6dcdd.mp3",
+            "bytes": 6336,
+            "ms": 1056,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ks",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.315Z"
+            "addedAt": "2026-09-22T17:21:57.315Z",
+            "leadMs": 60,
+            "tailMs": 95,
+            "trimmedFrom": "media/aud/3cf336f864d7eba4.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -617,24 +766,32 @@
         "anchor": "yes",
         "audio": {
           "long": {
-            "src": "media/aud/5936080104be72fc.mp3",
-            "bytes": 18144,
-            "ms": null,
+            "src": "media/aud/d539fb7e765f797a.mp3",
+            "bytes": 9504,
+            "ms": 1584,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "yuh, yes",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.318Z"
+            "addedAt": "2026-09-22T17:21:57.318Z",
+            "leadMs": 65,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/5936080104be72fc.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/271239375ae452b5.mp3",
-            "bytes": 12096,
-            "ms": null,
+            "src": "media/aud/c743e272d163f11a.mp3",
+            "bytes": 3888,
+            "ms": 648,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "yuh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.321Z"
+            "addedAt": "2026-09-22T17:21:57.321Z",
+            "leadMs": 60,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/271239375ae452b5.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -648,24 +805,32 @@
         "anchor": "zip",
         "audio": {
           "long": {
-            "src": "media/aud/1330bf5034ec79c8.mp3",
-            "bytes": 21456,
-            "ms": null,
+            "src": "media/aud/c751dcac6ced7919.mp3",
+            "bytes": 12960,
+            "ms": 2160,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "zzz, zip",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.324Z"
+            "addedAt": "2026-09-22T17:21:57.324Z",
+            "leadMs": 50,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/1330bf5034ec79c8.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/3cf5ee1c806e9572.mp3",
-            "bytes": 16704,
-            "ms": null,
+            "src": "media/aud/4767b02f0eb50554.mp3",
+            "bytes": 7920,
+            "ms": 1320,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "zzz",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.327Z"
+            "addedAt": "2026-09-22T17:21:57.327Z",
+            "leadMs": 60,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/3cf5ee1c806e9572.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.1"
@@ -679,24 +844,32 @@
         "anchor": "apple",
         "audio": {
           "long": {
-            "src": "media/aud/c65aa04a0c71de19.mp3",
-            "bytes": 18432,
-            "ms": null,
+            "src": "media/aud/63a71b3cede6b0d9.mp3",
+            "bytes": 9648,
+            "ms": 1608,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "aa, apple",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.330Z"
+            "addedAt": "2026-09-22T17:21:57.330Z",
+            "leadMs": 65,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/c65aa04a0c71de19.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/d1497355ff3167ab.mp3",
-            "bytes": 11952,
-            "ms": null,
+            "src": "media/aud/6f640fc096bf1552.mp3",
+            "bytes": 3744,
+            "ms": 624,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "aa",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.334Z"
+            "addedAt": "2026-09-22T17:21:57.334Z",
+            "leadMs": 65,
+            "tailMs": 95,
+            "trimmedFrom": "media/aud/d1497355ff3167ab.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.2",
@@ -711,24 +884,32 @@
         "anchor": "egg",
         "audio": {
           "long": {
-            "src": "media/aud/c0e22960c685eef4.mp3",
-            "bytes": 17136,
-            "ms": null,
+            "src": "media/aud/d03ea946f3bf894d.mp3",
+            "bytes": 8928,
+            "ms": 1488,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "eh, egg",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.337Z"
+            "addedAt": "2026-09-22T17:21:57.337Z",
+            "leadMs": 60,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/c0e22960c685eef4.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/290bbbb9bae3c37c.mp3",
-            "bytes": 12096,
-            "ms": null,
+            "src": "media/aud/35e71e749c3f38d0.mp3",
+            "bytes": 3888,
+            "ms": 648,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "eh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.340Z"
+            "addedAt": "2026-09-22T17:21:57.340Z",
+            "leadMs": 55,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/290bbbb9bae3c37c.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.2",
@@ -743,24 +924,32 @@
         "anchor": "igloo",
         "audio": {
           "long": {
-            "src": "media/aud/e0f5e5884bb18e6e.mp3",
-            "bytes": 19152,
-            "ms": null,
+            "src": "media/aud/167f9d888a2039da.mp3",
+            "bytes": 10512,
+            "ms": 1752,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ih, igloo",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.343Z"
+            "addedAt": "2026-09-22T17:21:57.343Z",
+            "leadMs": 65,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/e0f5e5884bb18e6e.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/c46f0cc83018905a.mp3",
-            "bytes": 14976,
-            "ms": null,
+            "src": "media/aud/32e0179586bacac1.mp3",
+            "bytes": 6336,
+            "ms": 1056,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ih",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.345Z"
+            "addedAt": "2026-09-22T17:21:57.345Z",
+            "leadMs": 55,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/c46f0cc83018905a.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.2",
@@ -775,24 +964,32 @@
         "anchor": "octopus",
         "audio": {
           "long": {
-            "src": "media/aud/690af8ad207d07cd.mp3",
-            "bytes": 20592,
-            "ms": null,
+            "src": "media/aud/1d0d3d6700a4ad90.mp3",
+            "bytes": 11952,
+            "ms": 1992,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ah, octopus",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.348Z"
+            "addedAt": "2026-09-22T17:21:57.348Z",
+            "leadMs": 60,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/690af8ad207d07cd.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/d687d178a4c118e1.mp3",
-            "bytes": 11952,
-            "ms": null,
+            "src": "media/aud/b528acd6075d744a.mp3",
+            "bytes": 4032,
+            "ms": 672,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ah",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.351Z"
+            "addedAt": "2026-09-22T17:21:57.351Z",
+            "leadMs": 60,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/d687d178a4c118e1.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.2",
@@ -807,24 +1004,32 @@
         "anchor": "umbrella",
         "audio": {
           "long": {
-            "src": "media/aud/6125f59f817716cd.mp3",
-            "bytes": 19440,
-            "ms": null,
+            "src": "media/aud/0e6c91f185c80a3b.mp3",
+            "bytes": 10944,
+            "ms": 1824,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "uh, umbrella",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.354Z"
+            "addedAt": "2026-09-22T17:21:57.354Z",
+            "leadMs": 65,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/6125f59f817716cd.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/d4979e496725b522.mp3",
-            "bytes": 12528,
-            "ms": null,
+            "src": "media/aud/9e0424745c1a1397.mp3",
+            "bytes": 4176,
+            "ms": 696,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "uh",
             "by": null,
-            "addedAt": "2026-09-22T17:21:57.357Z"
+            "addedAt": "2026-09-22T17:21:57.357Z",
+            "leadMs": 65,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/d4979e496725b522.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.2",
@@ -839,24 +1044,32 @@
         "anchor": "ship",
         "audio": {
           "long": {
-            "src": "media/aud/e289aa87f9e8abdd.mp3",
-            "bytes": 17712,
-            "ms": 2952,
+            "src": "media/aud/ec2685aae92341bf.mp3",
+            "bytes": 9072,
+            "ms": 1512,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "shh, ship",
             "by": null,
-            "addedAt": "2026-09-22T17:52:24.052Z"
+            "addedAt": "2026-09-22T17:52:24.052Z",
+            "leadMs": 60,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/e289aa87f9e8abdd.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/448f646b62c990ca.mp3",
-            "bytes": 11952,
-            "ms": 1992,
+            "src": "media/aud/f09aa985760ebbbf.mp3",
+            "bytes": 4320,
+            "ms": 720,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "shh",
             "by": null,
-            "addedAt": "2026-09-22T17:52:25.102Z"
+            "addedAt": "2026-09-22T17:52:25.102Z",
+            "leadMs": 60,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/448f646b62c990ca.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -871,24 +1084,32 @@
         "anchor": "chick",
         "audio": {
           "long": {
-            "src": "media/aud/325cb6963ab26c24.mp3",
-            "bytes": 17712,
-            "ms": 2952,
+            "src": "media/aud/f83cb775c775cbd7.mp3",
+            "bytes": 9216,
+            "ms": 1536,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "chuh, chick",
             "by": null,
-            "addedAt": "2026-09-22T17:52:26.165Z"
+            "addedAt": "2026-09-22T17:52:26.165Z",
+            "leadMs": 65,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/325cb6963ab26c24.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/0bd7f4f739e6a492.mp3",
-            "bytes": 12384,
-            "ms": 2064,
+            "src": "media/aud/5474729428952493.mp3",
+            "bytes": 4176,
+            "ms": 696,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "chuh",
             "by": null,
-            "addedAt": "2026-09-22T17:52:27.255Z"
+            "addedAt": "2026-09-22T17:52:27.255Z",
+            "leadMs": 55,
+            "tailMs": 95,
+            "trimmedFrom": "media/aud/0bd7f4f739e6a492.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -903,24 +1124,32 @@
         "anchor": "thumb",
         "audio": {
           "long": {
-            "src": "media/aud/c3788abf1fc04636.mp3",
-            "bytes": 17280,
-            "ms": 2880,
+            "src": "media/aud/3a444a8c37424c06.mp3",
+            "bytes": 8640,
+            "ms": 1440,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "thuh, thumb",
             "by": null,
-            "addedAt": "2026-09-22T17:52:28.175Z"
+            "addedAt": "2026-09-22T17:52:28.175Z",
+            "leadMs": 60,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/c3788abf1fc04636.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/b58880ae79e61209.mp3",
-            "bytes": 11376,
-            "ms": 1896,
+            "src": "media/aud/81b953a00d664389.mp3",
+            "bytes": 3456,
+            "ms": 576,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "thuh",
             "by": null,
-            "addedAt": "2026-09-22T17:52:28.990Z"
+            "addedAt": "2026-09-22T17:52:28.990Z",
+            "leadMs": 65,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/b58880ae79e61209.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -935,24 +1164,32 @@
         "anchor": "duck",
         "audio": {
           "long": {
-            "src": "media/aud/f44a21e1ea0070cd.mp3",
-            "bytes": 18720,
-            "ms": 3120,
+            "src": "media/aud/27001c9a5b758566.mp3",
+            "bytes": 10080,
+            "ms": 1680,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "kuh, duck",
             "by": null,
-            "addedAt": "2026-09-22T17:52:29.855Z"
+            "addedAt": "2026-09-22T17:52:29.855Z",
+            "leadMs": 55,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/f44a21e1ea0070cd.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/b912ff4f775101cc.mp3",
-            "bytes": 13104,
-            "ms": 2184,
+            "src": "media/aud/ab6e3021f7c53aa6.mp3",
+            "bytes": 4608,
+            "ms": 768,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "kuh",
             "by": null,
-            "addedAt": "2026-09-22T17:52:30.662Z"
+            "addedAt": "2026-09-22T17:52:30.662Z",
+            "leadMs": 65,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/b912ff4f775101cc.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -967,24 +1204,32 @@
         "anchor": "ring",
         "audio": {
           "long": {
-            "src": "media/aud/25b0c3aaeb315964.mp3",
-            "bytes": 16704,
-            "ms": 2784,
+            "src": "media/aud/9747c5d89dbbb4cb.mp3",
+            "bytes": 8496,
+            "ms": 1416,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ung, ring",
             "by": null,
-            "addedAt": "2026-09-22T17:52:31.574Z"
+            "addedAt": "2026-09-22T17:52:31.574Z",
+            "leadMs": 65,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/25b0c3aaeb315964.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/d91b67e8fda76064.mp3",
-            "bytes": 12672,
-            "ms": 2112,
+            "src": "media/aud/4480f2f7f7c835e3.mp3",
+            "bytes": 4608,
+            "ms": 768,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "ung",
             "by": null,
-            "addedAt": "2026-09-22T17:52:32.466Z"
+            "addedAt": "2026-09-22T17:52:32.466Z",
+            "leadMs": 70,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/d91b67e8fda76064.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -999,24 +1244,32 @@
         "anchor": "bell",
         "audio": {
           "long": {
-            "src": "media/aud/bd759acd25efd0cc.mp3",
-            "bytes": 19728,
-            "ms": 3288,
+            "src": "media/aud/d193d6c5e9916f56.mp3",
+            "bytes": 11088,
+            "ms": 1848,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "lll, bell",
             "by": null,
-            "addedAt": "2026-09-22T17:52:33.457Z"
+            "addedAt": "2026-09-22T17:52:33.457Z",
+            "leadMs": 65,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/bd759acd25efd0cc.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/46ed323a54fbc1d7.mp3",
-            "bytes": 14976,
-            "ms": 2496,
+            "src": "media/aud/84d5546e1e434529.mp3",
+            "bytes": 6336,
+            "ms": 1056,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "lll",
             "by": null,
-            "addedAt": "2026-09-22T17:52:34.345Z"
+            "addedAt": "2026-09-22T17:52:34.345Z",
+            "leadMs": 65,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/46ed323a54fbc1d7.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -1031,24 +1284,32 @@
         "anchor": "grass",
         "audio": {
           "long": {
-            "src": "media/aud/8cd85da9be12e026.mp3",
-            "bytes": 21888,
-            "ms": 3648,
+            "src": "media/aud/9ffe73dd30e38e36.mp3",
+            "bytes": 13248,
+            "ms": 2208,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "sss, grass",
             "by": null,
-            "addedAt": "2026-09-22T17:52:35.186Z"
+            "addedAt": "2026-09-22T17:52:35.186Z",
+            "leadMs": 55,
+            "tailMs": 115,
+            "trimmedFrom": "media/aud/8cd85da9be12e026.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/1fd2426fc534365e.mp3",
-            "bytes": 16992,
-            "ms": 2832,
+            "src": "media/aud/5fdb9e8e3df1316c.mp3",
+            "bytes": 8352,
+            "ms": 1392,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "sss",
             "by": null,
-            "addedAt": "2026-09-22T17:52:35.966Z"
+            "addedAt": "2026-09-22T17:52:35.966Z",
+            "leadMs": 60,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/1fd2426fc534365e.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -1063,24 +1324,32 @@
         "anchor": "cliff",
         "audio": {
           "long": {
-            "src": "media/aud/0efdf46326f42a6f.mp3",
-            "bytes": 21456,
-            "ms": 3576,
+            "src": "media/aud/95cd591a95b4f236.mp3",
+            "bytes": 12960,
+            "ms": 2160,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "fff, cliff",
             "by": null,
-            "addedAt": "2026-09-22T17:52:36.848Z"
+            "addedAt": "2026-09-22T17:52:36.848Z",
+            "leadMs": 55,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/0efdf46326f42a6f.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/1cee5e8d82d60219.mp3",
-            "bytes": 16128,
-            "ms": 2688,
+            "src": "media/aud/69a3a6555b2ee251.mp3",
+            "bytes": 7488,
+            "ms": 1248,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "fff",
             "by": null,
-            "addedAt": "2026-09-22T17:52:37.676Z"
+            "addedAt": "2026-09-22T17:52:37.676Z",
+            "leadMs": 55,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/1cee5e8d82d60219.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -1095,24 +1364,32 @@
         "anchor": "buzz",
         "audio": {
           "long": {
-            "src": "media/aud/cbfdd071c5411072.mp3",
-            "bytes": 22608,
-            "ms": 3768,
+            "src": "media/aud/13e5887836894fb6.mp3",
+            "bytes": 13968,
+            "ms": 2328,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "zzz, buzz",
             "by": null,
-            "addedAt": "2026-09-22T17:52:38.474Z"
+            "addedAt": "2026-09-22T17:52:38.474Z",
+            "leadMs": 50,
+            "tailMs": 95,
+            "trimmedFrom": "media/aud/cbfdd071c5411072.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/c3717f9e8fdc24ec.mp3",
-            "bytes": 16704,
-            "ms": 2784,
+            "src": "media/aud/fbd247d13c83452d.mp3",
+            "bytes": 7920,
+            "ms": 1320,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "zzz",
             "by": null,
-            "addedAt": "2026-09-22T17:52:39.381Z"
+            "addedAt": "2026-09-22T17:52:39.381Z",
+            "leadMs": 60,
+            "tailMs": 100,
+            "trimmedFrom": "media/aud/c3717f9e8fdc24ec.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",
@@ -1127,24 +1404,32 @@
         "anchor": "egg",
         "audio": {
           "long": {
-            "src": "media/aud/d41a74dd00da3c65.mp3",
-            "bytes": 20304,
-            "ms": 3384,
+            "src": "media/aud/4be1828b2d0c7428.mp3",
+            "bytes": 12096,
+            "ms": 2016,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "guh, egg",
             "by": null,
-            "addedAt": "2026-09-22T17:52:40.217Z"
+            "addedAt": "2026-09-22T17:52:40.217Z",
+            "leadMs": 70,
+            "tailMs": 110,
+            "trimmedFrom": "media/aud/d41a74dd00da3c65.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           },
           "short": {
-            "src": "media/aud/46db8f15daef1917.mp3",
-            "bytes": 16704,
-            "ms": 2784,
+            "src": "media/aud/5177ecb54b73199d.mp3",
+            "bytes": 8064,
+            "ms": 1344,
             "engine": "edge-tts:en-US-JennyNeural@-35%",
             "voice": null,
             "text": "guh",
             "by": null,
-            "addedAt": "2026-09-22T17:52:41.018Z"
+            "addedAt": "2026-09-22T17:52:41.018Z",
+            "leadMs": 70,
+            "tailMs": 105,
+            "trimmedFrom": "media/aud/46db8f15daef1917.mp3",
+            "trimmedAt": "2026-09-23T08:30:09.947Z"
           }
         },
         "source": "literacy-en.md §3.3",

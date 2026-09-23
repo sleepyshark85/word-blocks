@@ -17,14 +17,19 @@ import { chooserPanels } from '../../i18n';
 import { AppText, Glyph } from '../Text';
 import { ThemeButtons } from '../ThemeButtons';
 
+/**
+ * One language panel. **The confirm control is a sibling of the expand control, never a
+ * child of it.** Nesting them put a `<button>` inside a `<button>` — invalid HTML, a React
+ * hydration error in every browser run, and a real interaction bug underneath it: a tap on
+ * *Bắt đầu* bubbled to the panel and re-fired `onExpand`, so the sample word spoke again
+ * at the moment the language was committed. The frame is a plain `View`; the two touches
+ * A2 and A3 ask for are two separate targets inside it.
+ */
 function Panel({ panel, expanded, themeId, onExpand, onConfirm }) {
   const theme = useTheme();
   const tokens = themeTokens(themeId);
   return (
-    <Pressable
-      onPress={() => onExpand(panel.language)}
-      accessibilityRole="button"
-      accessibilityState={{ expanded }}
+    <View
       style={[styles.panel, {
         backgroundColor: theme.surface,
         borderColor: expanded ? tokens.role1 : theme.hairline,
@@ -32,10 +37,17 @@ function Panel({ panel, expanded, themeId, onExpand, onConfirm }) {
       }]}
     >
       <View style={[styles.band, { backgroundColor: tokens.role1 }]} />
-      <View style={styles.panelBody}>
+      <Pressable
+        onPress={() => onExpand(panel.language)}
+        accessibilityRole="button"
+        accessibilityState={{ expanded }}
+        style={styles.panelBody}
+      >
         <Glyph text={panel.title} size={32} colour={theme.ink} />
         <AppText role="secondary" colour={theme.inkSoft}>{panel.subtitle}</AppText>
-        {expanded ? (
+      </Pressable>
+      {expanded ? (
+        <View style={styles.confirmRow}>
           <Pressable
             onPress={() => onConfirm(panel.language)}
             accessibilityRole="button"
@@ -43,9 +55,9 @@ function Panel({ panel, expanded, themeId, onExpand, onConfirm }) {
           >
             <AppText role="button" colour={theme.groundAlt}>{panel.start}</AppText>
           </Pressable>
-        ) : null}
-      </View>
-    </Pressable>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -97,8 +109,8 @@ const styles = StyleSheet.create({
   },
   band: { height: 14 },
   panelBody: { padding: 20, alignItems: 'center' },
+  confirmRow: { alignItems: 'center', paddingBottom: 20 },
   confirm: {
-    marginTop: 16,
     paddingHorizontal: 32,
     paddingVertical: 14,
     borderRadius: 14,

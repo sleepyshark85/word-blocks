@@ -373,7 +373,33 @@ function build(lang) {
       onMissingTileAudio: 'silent',
       imagesPerWord: { min: 1, target: 3, max: 6 },
       image: { format: 'jpeg', size: 512, quality: 82 },
-      audio: { format: 'mp3', sampleRate: 24000 },
+      audio: {
+        format: 'mp3',
+        sampleRate: 24000,
+        /*
+         * THE CLIP DURATION BUDGET, as data — `ui.md` E15 / AC N15.
+         *
+         * The owner played the built app and reported that the English letter sounds
+         * were "not good enough, voices seem to be mixed up with each other". The
+         * shipped `short` clips measured 1896–2832 ms against a spec that assumed
+         * 350 ms, because Microsoft's read-aloud endpoint pads ~1.6 s of silence around
+         * every utterance and nothing trimmed it. A 4-year-old taps every 300–600 ms, so
+         * the cut-on-next rule cut every clip inside its first fifth.
+         *
+         * `pack-validate.mjs` reads these and checks them against the BYTES.
+         *
+         *   tapTargetMs    E15's requirement. Over it is a warning, and an error under
+         *                  --strict. Reaching it depends on what is said and how fast,
+         *                  which is the owner's and the literacy-designer's to change.
+         *   tapCeilingMs   a hard error. Above the content, far below the defect.
+         *   leadTargetMs / tailTargetMs  advisory: seeing them needs a decoder.
+         */
+        tapTargetMs: 700,
+        tapCeilingMs: 1500,
+        longCeilingMs: 2500,
+        leadTargetMs: 40,
+        tailTargetMs: 120,
+      },
     },
     ...manifestExtra,
     tiles,

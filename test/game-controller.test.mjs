@@ -16,6 +16,7 @@ import { createGame, tableView } from '../src/engine/index.mjs';
 import { REVEAL, LADDER, HOLD, TAP, M, MOTIF } from '../src/motion/durations.mjs';
 import { viPack, enPack } from './helpers/load.mjs';
 import { createFakeClock, createFakeAudio, identityMedia } from './helpers/harness.mjs';
+import { packWithADeadSymbol } from './helpers/fixtures.mjs';
 
 const SETTINGS = { showWord: true, mute: false, rate: 1, saySentence: true, reduceMotion: false };
 
@@ -35,7 +36,7 @@ const UI = {
 function rig(pack, over = {}) {
   const clock = createFakeClock();
   const audio = createFakeAudio();
-  const game = createGame(pack, { maxCells: over.maxCells ?? 24 });
+  const game = over.game ?? createGame(pack, { maxCells: over.maxCells ?? 24 });
   const ctl = createGameController({
     game,
     seed: over.seed ?? 'controller',
@@ -53,18 +54,25 @@ function rig(pack, over = {}) {
     const engine = ctl._engine();
     Object.assign(engine, { stage: over.stage });
   }
-  return { ctl, clock, audio, game, pack };
+  return { ctl, clock, audio, game, pack: game.pack };
+}
+
+/**
+ * A rig whose board is **guaranteed** to show a flat tile beside a live one, whatever the
+ * shipped content happens to look like (`helpers/fixtures.mjs`). Every assertion about
+ * what a flat tile does needs one, and finding one in the seed pack is how seven tests
+ * quietly stopped meaning anything when the inventory order improved.
+ */
+function rigWithAFlatTile(over = {}) {
+  const fixture = packWithADeadSymbol('vi', over.stage ?? 5);
+  const r = rig(fixture.pack, { ...over, game: fixture.game, stage: over.stage ?? 5 });
+  return { ...r, deadId: fixture.deadId, liveId: fixture.liveId };
 }
 
 /** Tap a symbol the way a finger does: down, then up, in the same place. */
 function tap(r, symbolId) {
   r.ctl.symbolDown(symbolId, 10, 10);
   r.ctl.symbolUp(symbolId, 10, 10);
-}
-
-/** The first flat symbol on the table right now. */
-function firstFlat(r) {
-  return r.ctl.getSnapshot().table.cells.find((c) => !c.live);
 }
 
 /** Build the word `mèo`, which every Vietnamese assertion here uses. */
@@ -113,11 +121,9 @@ test('N1 — the tile sound fires on touch-DOWN, before touch-up', () => {
 });
 
 test('E2 — a flat tile plays its own clip and then a knock at −9 dB, and seats nothing', () => {
-  const r = rig(viPack(), { stage: 5 });
-  const flat = firstFlat(r);
-  assert.ok(flat, 'no flat tile on the stage-5 onset table');
+  const r = rigWithAFlatTile();
   r.audio.drain();
-  tap(r, flat.id);
+  tap(r, r.deadId);
   const log = r.audio.drain();
   assert.equal(log[0].ch, 'tile', 'the flat tile did not speak');
   const knock = log.find((e) => e.ch === 'ui' && e.source === UI.knock);
@@ -137,11 +143,10 @@ test('E1 — a live tap plays the clip, seats, and fires a seat click', () => {
 });
 
 test('E13 — twenty taps on a flat tile play twenty clips and change nothing', () => {
-  const r = rig(viPack(), { stage: 5 });
-  const flat = firstFlat(r);
+  const r = rigWithAFlatTile();
   r.audio.drain();
   for (let i = 0; i < 20; i += 1) {
-    tap(r, flat.id);
+    tap(r, r.deadId);
     r.clock.advance(1);
   }
   const log = r.audio.drain();
@@ -378,10 +383,9 @@ test('G6 — left completely alone, the app announces a word by itself', () => {
 });
 
 test('G9 — any touch defers the next escalation by 4 s', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rigWithAFlatTile();
   r.clock.advance(LADDER.step - 1000);
-  const flat = firstFlat(r);
-  tap(r, flat.id);                       // a touch, not a placement
+  tap(r, r.deadId);                      // a touch, not a placement
   r.clock.advance(1001);
   assert.equal(r.ctl.getSnapshot().hintLevel, 0, 'the shimmer fired inside the 4 s deferral');
   r.clock.advance(LADDER.deferMs);

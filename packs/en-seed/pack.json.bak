@@ -3,19 +3,15 @@
   "id": "en-seed",
   "language": "en",
   "name": "Word Blocks",
-  "revision": 1,
+  "revision": 2,
   "origin": "seed",
   "generator": {
     "tool": "tools/build-seed-pack.mjs",
-    "builtAt": "2026-09-22T17:13:19.163Z",
+    "builtAt": "2026-09-22T18:02:25.835Z",
     "sources": [
       "docs/design/word-list.md",
       "docs/design/literacy-en.md"
-    ],
-    "audio": {
-      "engine": "edge-tts:en-US-JennyNeural@-35%",
-      "generatedAt": "2026-09-22T17:52:41.019Z"
-    }
+    ]
   },
   "media": {
     "onMissingImage": "fallbackEmoji-then-withhold",
@@ -33,7 +29,12 @@
     },
     "audio": {
       "format": "mp3",
-      "sampleRate": 24000
+      "sampleRate": 24000,
+      "tapTargetMs": 700,
+      "tapCeilingMs": 1500,
+      "longCeilingMs": 2500,
+      "leadTargetMs": 40,
+      "tailTargetMs": 120
     }
   },
   "rules": {
@@ -864,10 +865,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "ship, fish",
-        "anchorInSeedList": true,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "ship, fish"
       },
       {
         "id": "ch",
@@ -899,10 +897,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "chin, chick",
-        "anchorInSeedList": false,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "chin, chick"
       },
       {
         "id": "th",
@@ -934,10 +929,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bath, this",
-        "anchorInSeedList": false,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "bath, this"
       },
       {
         "id": "ck",
@@ -969,10 +961,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "duck, sock",
-        "anchorInSeedList": true,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "duck, sock"
       },
       {
         "id": "ng",
@@ -1004,10 +993,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "ring, king",
-        "anchorInSeedList": false,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "ring, king"
       },
       {
         "id": "ll",
@@ -1039,10 +1025,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg",
-        "anchorInSeedList": false,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "bell, egg"
       },
       {
         "id": "ss",
@@ -1074,10 +1057,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg",
-        "anchorInSeedList": false,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "bell, egg"
       },
       {
         "id": "ff",
@@ -1109,10 +1089,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg",
-        "anchorInSeedList": false,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "bell, egg"
       },
       {
         "id": "zz",
@@ -1144,10 +1121,7 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg",
-        "anchorInSeedList": false,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "bell, egg"
       },
       {
         "id": "gg",
@@ -1179,11 +1153,47 @@
           }
         },
         "source": "literacy-en.md §3.3",
-        "keyWord": "bell, egg",
-        "anchorInSeedList": true,
-        "needsLiteracyReview": true,
-        "filledBy": "orchestrator 2026-09-23 — digraph tiles shipped with sound/anchor null"
+        "keyWord": "bell, egg"
       }
+    ]
+  },
+  "inventoryOrder": {
+    "letter": [
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v",
+      "w",
+      "x",
+      "y",
+      "z",
+      "ch",
+      "ck",
+      "ff",
+      "gg",
+      "ll",
+      "ng",
+      "sh",
+      "ss",
+      "th",
+      "zz"
     ]
   }
 }

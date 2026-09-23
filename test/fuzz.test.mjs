@@ -16,6 +16,7 @@ import {
   createGame, createSession, reduce, tableView, checkInvariants, seedFrom,
 } from '../src/engine/index.mjs';
 import { nextInt } from '../src/engine/rng.mjs';
+import { packWithADeadSymbol } from './helpers/fixtures.mjs';
 
 /** A local generator, so fuzzing never perturbs the session's own RNG. */
 function chooser(seed) {
@@ -103,18 +104,20 @@ test('the fuzzer can fail — a deliberately broken live set is caught', () => {
   // `development-process.md` §5: never trust a green check you have not seen fail. The
   // fault injected is the exact defect the mechanic exists to prevent — a symbol that is
   // live with nothing behind it, which is a path to garbage.
-  const game = createGame(viPack(), { maxCells: 24 });
-  const state = { ...createSession(game, { seed: 'x' }), stage: 5 };
+  //
+  // The symbol to corrupt is **constructed** (`helpers/fixtures.mjs`) rather than found on
+  // the seed board. Looking for one there is how this check silently stopped running the
+  // day the inventory order improved and every onset on the board led to a word.
+  const { game, state, deadId } = packWithADeadSymbol('vi', 5);
   const tree = game.treeFor(24);
-  const flat = tableView(game, state).cells.find((c) => !c.live);
-  assert.ok(flat, 'no flat tile to corrupt');
-  tree.root.live.add(flat.id);
+  assert.deepEqual(checkInvariants(game, state), [], 'the fixture is not clean to begin with');
+  tree.root.live.add(deadId);
   try {
     const bad = checkInvariants(game, state);
     assert.ok(bad.some((b) => b.code === 'liveSetWrong'),
       `the invariant did not catch a live symbol with no word behind it: ${JSON.stringify(bad)}`);
   } finally {
-    tree.root.live.delete(flat.id);
+    tree.root.live.delete(deadId);
   }
   assert.deepEqual(checkInvariants(game, state), []);
 });

@@ -101,6 +101,11 @@ export function importAudio(packDir, srcFile, meta = {}) {
     src: ref,
     bytes: buf.length,
     ms: meta.ms ?? null,
+    // ui.md E15 budgets a tap clip at <= 700 ms with <= 40 ms of lead and <= 120 ms of
+    // tail. Duration is checked from the bytes by `pack-validate.mjs`; lead and tail need
+    // a decoder, so they are recorded here by whoever opened the file and are advisory.
+    leadMs: meta.leadMs ?? null,
+    tailMs: meta.tailMs ?? null,
     engine: meta.engine ?? 'unstated', // 'edge-tts:en-US-JennyNeural', 'gtts:vi', 'recording'
     voice: meta.voice ?? null,
     text: meta.text ?? null,

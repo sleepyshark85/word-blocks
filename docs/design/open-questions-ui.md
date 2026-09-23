@@ -12,6 +12,18 @@ is written below is what ships.**
 unchanged; **Q4 and Q5 are new**, and Q5 is the one item that is genuinely the owner's taste
 rather than a design call I can make for him.
 
+**Revision 3, 2026-09-23.** The owner played the built app and reported four things
+(`gameplay.md` §0A). All four are **decided, not asked** — they are his instructions, and the
+design follows them. **Q4 is superseded**: he overruled its premise. **Q6 is new, and it is
+the one thing in revision 3 I genuinely cannot decide for him**, because it turns on a fact
+only he can see — which device his son actually plays on.
+
+**Revision 4, 2026-09-23. `Q6 is CLOSED` — he answered it and proposed the remedy himself
+(paging), which turned out to be better than either option Q6 offered him.** **Nothing in this
+document is open.** Q2, Q3 and Q5 remain standing preferences he may exercise at any time; Q1,
+Q4 and Q6 are closed. If nobody says anything further, what is written in `ui.md`,
+`gameplay.md` and `acceptance-criteria.md` is what ships.
+
 ---
 
 ## Q1 · ~~The Vietnamese tile font is unverified~~ — CLOSED, and the answer was "no"
@@ -70,7 +82,16 @@ boy, and something he would know. If so: switch to Playground, one tap on the al
 
 ---
 
-## Q4 · Is a 24-cell table too many characters at once? — **decided, and flagged to the literacy-designer**
+## Q4 · ~~Is a 24-cell table too many characters at once?~~ — **SUPERSEDED, revision 3**
+
+**The owner overruled the premise.** He asked for the regular character table with the
+unavailable characters shown, which means there is no cell ceiling to reconcile: the table is
+the pack's inventory, capped only by what the device can physically hold (`ui.md` §4.6). The
+question below is kept because the *worry* it records is the standing risk of revision 3 —
+it is now `acceptance-criteria.md` **U7a**, and it is a Tier-5 question rather than an open
+design one.
+
+### The superseded question, as it stood
 
 Not an owner question, recorded here because it is the one place revision 2 overrides a number
 another agent owns.
@@ -137,6 +158,86 @@ a single-storey `a`, the tile face becomes **Be Vietnam Pro**:
 
 **Nothing is blocked.** The app is correct either way, and `acceptance-criteria.md` Q10 records
 the true state of the property instead of asserting a false one.
+
+---
+
+## Q6 · ~~Which device does he actually play on?~~ — **CLOSED. He answered, and proposed the fix.**
+
+**Answered 2026-09-23:** *"he will use an **iPhone 17 plus** now, if the screen is too small,
+**maybe paging the table probably do it**."*
+
+**Both halves are settled and neither needs anything further.**
+
+**The device.** The exact logical size of an iPhone 17 Plus was not certain — the Plus class
+has been 430 × 932 since the 15 Plus, but it could follow the Pro Max line at 440 × 956. **I
+modelled both and they give the same design**: 28 cells per page, Vietnamese in 4 pages
+`[26 ¦ 18/17 ¦ 6]`, English in 2 `[26 ¦ 10]`, one rail row of 4 buttons, tile 75 vs 77. Both
+are now named rows in `tools/layout-sweep.mjs --pages`, so it is measured rather than recalled.
+**Nothing turns on resolving the ambiguity.**
+
+**The remedy.** Paging is better than the compromise it replaces, and the table below is the
+whole answer to the question this entry used to ask:
+
+| | Revision 3 (truncate the runs) | **Revision 4 (page the table)** |
+|---|---|---|
+| Characters on his phone | 32 of 67 | **all 67** |
+| Vietnamese words there | 21 of 47 | **47 of 47** |
+| On the 360 × 640 floor | 13 of 47 | **47 of 47** |
+| The 62 pt ink lever | priced, offered to him | **dropped — nothing left to buy** |
+
+**So the question this entry existed to ask no longer exists.** It asked him to choose between
+a measured ergonomic floor and his son's vocabulary. He declined the trade and named a third
+option, which is the right answer to a forced choice between two bad ones.
+
+**What is left is a Tier-5 question, not an open design one:** `acceptance-criteria.md` **U18**
+— does he work out that the board continues on another page, from the rail standing up, with
+nobody telling him? That is the risk paging introduces and it cannot be answered here.
+
+### The superseded question, as it stood
+
+
+**This is the only genuine question revision 3 produces, and it is a question of fact rather
+than taste.**
+
+The owner asked for one constant character table showing every character. Vietnamese has 67 of
+them (26 onsets + 35 rimes + 6 tones) and they do not fit a phone at the 72 pt touch floor.
+Measured with `tools/layout-sweep.mjs --zones`:
+
+| Device | Cells | VI runs | **VI words reachable, of 47** |
+|---|---|---|---|
+| Android 360 × 640 | 20 | 7 / 7 / 6 | **13** |
+| iPhone SE 3 375 × 667 | 24 | 9 / 9 / 6 | 16 |
+| iPhone 15/16, 360 × 800 | 28 | 11 / 11 / 6 | 19 |
+| iPhone 15 Pro Max, Pixel-class | 32 | 12 / 14 / 6 | 21 |
+| **Any tablet** | 84–90 | **26 / 35 / 6** | **47** |
+
+English is fine everywhere (31 of 40 at worst, all 40 at 32 cells). **Vietnamese on a phone is
+a third of the game.**
+
+**What I decided, so nothing is blocked:** the table is constant, the tile floor stays at
+72 pt, and the game is optimised for the tablet it was always optimised for. A phone plays a
+smaller Vietnamese game and the editor says so in his wife's language when she meets it
+(`ui.md` §13.5).
+
+**What I want from him: one sentence about the hardware.**
+
+- **If it is a tablet** — nothing to do. He gets the whole board at 86–100 pt, which is the
+  best this design has ever been.
+- **If it is a phone and 13–21 words is not enough**, there is exactly one lever and I have
+  priced it rather than pulled it: the hit rect already extends 6 pt beyond the ink, so a
+  **62 pt ink tile inside an unchanged 72 pt hit target** takes a 360 × 640 phone from 20
+  cells to 24 and from 13 words to 16. I refused it because a child aims at ink and 62 pt is
+  9.8 mm of it, and because this is the third revision in which trading the measured motor
+  floor for cells has been proposed. **It is one constant** (`TILE_MIN` in
+  `tools/layout-sweep.mjs`, plus F2 rewritten as `tile + 2*min(6, floor(gap/2)) ≥ 72`).
+- **If the real answer is "both"** — the design already handles it. The pack is identical; each
+  device shows as much of it as it can hold, and the album and word list are the same on both.
+
+**The second-order question, which he may prefer to answer instead:** the Vietnamese rime
+inventory is 35 and it is what makes the table large. That is the literacy-designer's number,
+not mine. A smaller rime set would fit a phone; whether it should shrink is a pedagogy
+question, and I have not asked for it because shrinking the language to fit a screen is the
+wrong way round.
 
 ---
 

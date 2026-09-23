@@ -60,14 +60,18 @@
   ],
   "audio": {
     "word": {
-      "src": "media/aud/54932076e3afaf67.mp3",
-      "bytes": 14832,
-      "ms": 2472,
+      "src": "media/aud/fa42d4c1d6026042.mp3",
+      "bytes": 6192,
+      "ms": 1032,
       "engine": "edge-tts:en-US-JennyNeural@-35%",
       "voice": null,
       "text": "fox",
       "by": null,
-      "addedAt": "2026-09-22T17:22:14.979Z"
+      "addedAt": "2026-09-22T17:22:14.979Z",
+      "leadMs": 65,
+      "tailMs": 115,
+      "trimmedFrom": "media/aud/54932076e3afaf67.mp3",
+      "trimmedAt": "2026-09-23T08:30:09.947Z"
     },
     "sentence": null
   },

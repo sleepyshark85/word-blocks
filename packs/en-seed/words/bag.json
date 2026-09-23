@@ -61,14 +61,18 @@
   ],
   "audio": {
     "word": {
-      "src": "media/aud/42334f5552318ed1.mp3",
-      "bytes": 13104,
-      "ms": 2184,
+      "src": "media/aud/589f1ac958cc6790.mp3",
+      "bytes": 4752,
+      "ms": 792,
       "engine": "edge-tts:en-US-JennyNeural@-35%",
       "voice": null,
       "text": "bag",
       "by": null,
-      "addedAt": "2026-09-22T17:21:59.295Z"
+      "addedAt": "2026-09-22T17:21:59.295Z",
+      "leadMs": 60,
+      "tailMs": 100,
+      "trimmedFrom": "media/aud/42334f5552318ed1.mp3",
+      "trimmedAt": "2026-09-23T08:30:09.947Z"
     },
     "sentence": null
   },

@@ -11,6 +11,7 @@ import {
   createGame, buildTree, nodeAt, isLive, wordIdAt, continues, tableSizesFor,
   createSession, reduce, tableView, langFor, CELLS_BY_STAGE,
 } from '../src/engine/index.mjs';
+import { viCheckSpellingRule } from '../src/engine/rules.mjs';
 import { start, live, tap } from './helpers/play.mjs';
 
 const PACKS = [['Vietnamese', viPack], ['English', enPack]];
@@ -236,4 +237,83 @@ test('L6 — a pack with nothing playable opens on the empty card, never a dead 
   // And no action can move it off that phase into a board with nothing live.
   const after = reduce(game, state, { type: 'tapSymbol', symbolId: 'm' });
   assert.equal(after.phase, 'empty');
+});
+
+/* ------------------------------------------------- what the flat state is for */
+
+test('the disabled state is reachable on the way to every word', () => {
+  // **The question this answers.** Ordering the Vietnamese inventory by productivity put
+  // the 23 onsets that begin a word in the first 23 cells, so at stage 5 the onset table
+  // has **no flat tile at all** — every letter he can press starts a word. That is not a
+  // loss of the teaching signal; it is the strongest possible statement of
+  // `gameplay.md` §3.3's *garbage is structurally impossible*, and it is what "he has
+  // grown into the whole inventory" looks like at position 1.
+  //
+  // What would be a real loss is the child never meeting a flat tile **anywhere**, because
+  // the live set changing under his finger is the whole lesson (`gameplay.md` §4.2: *the
+  // table's response is the teaching*). So that is what is asserted, at the positions where
+  // the choice is actually real. It holds by the shape of the languages rather than by
+  // luck: a Vietnamese onset is followed by 1–6 rimes out of 8–24 on the table, and a rime
+  // by 1 tone out of 2–6, so positions 2 and 3 always have flats. It could only fail if a
+  // single symbol led to every symbol on the board — a pack roughly twenty times denser
+  // than this one, and worth being told about if it ever happens.
+  for (const [label, load] of PACKS) {
+    const pack = load();
+    const { game, state } = start(pack, { stage: 5 });
+    const tree = game.treeFor(24);
+    const lang = langFor(pack.language);
+    let metAFlatTile = 0;
+    for (const word of tree.eligible) {
+      const path = lang.pathFor(word);
+      if (path.length < 2) continue;
+      let s = state;
+      let met = false;
+      for (const symbol of path) {
+        const table = tableView(game, s);
+        if (table.cells.some((c) => !c.live)) met = true;
+        if (s.status !== 'building') break;
+        s = tap(game, s, symbol);
+      }
+      assert.ok(met,
+        `${label}: nothing was ever flat on the way to "${word.text}" — the live set never told him what could follow, which is the lesson`);
+      metAFlatTile += 1;
+    }
+    assert.ok(metAFlatTile > 10, `${label}: only ${metAFlatTile} words were walked`);
+  }
+});
+
+test('C17 replacement — no live path can spell an illegal onset + rime', () => {
+  // `acceptance-criteria.md` C17 asked for `{c,k}`, `{g,gh}` and `{ng,ngh}` never to be
+  // live together. Under discovery that contradicts B3 and would make `kem` and `ghế`
+  // permanently unreachable, so it is withdrawn for position 1 (`docs/slices.md`).
+  //
+  // **This is what replaces it, and it is stronger.** `literacy-vi.md` §4.1 rule 3 says a
+  // palette must never let him build an orthographically impossible spelling. Liveness
+  // delivers that without a filter: after `k` only the rimes that make a real `k` word
+  // stand up, and every real word already cleared the spelling rule at pack load. So the
+  // child cannot reach an illegal pair — not because one was filtered out, but because
+  // there is nothing behind it.
+  const pack = viPack();
+  const { game, state } = start(pack, { stage: 5 });
+  let checked = 0;
+  for (const onsetCell of tableView(game, state).cells) {
+    if (!onsetCell.live || onsetCell.id === '∅') continue;
+    for (const rimeCell of tableView(game, tap(game, state, onsetCell.id)).cells) {
+      if (!rimeCell.live) continue;
+      assert.equal(viCheckSpellingRule(onsetCell.id, rimeCell.id), null,
+        `"${onsetCell.id}" + "${rimeCell.id}" is live and is not a legal Vietnamese spelling`);
+      checked += 1;
+    }
+  }
+  assert.ok(checked > 20, `only ${checked} live (onset, rime) pairs were checked`);
+
+  // And the pair C17 was written about is reachable in both spellings, which is the point
+  // of withdrawing it: `c` and `k` are both live, and each leads to a real word.
+  const live1 = tableView(game, state).cells.filter((c) => c.live).map((c) => c.id);
+  if (live1.includes('c') && live1.includes('k')) {
+    for (const onset of ['c', 'k']) {
+      const after = tap(game, state, onset);
+      assert.ok(live(game, after).length > 0, `"${onset}" is live and leads nowhere`);
+    }
+  }
 });

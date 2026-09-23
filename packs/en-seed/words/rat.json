@@ -44,14 +44,18 @@
   ],
   "audio": {
     "word": {
-      "src": "media/aud/1318fb03a38f4e5a.mp3",
-      "bytes": 13824,
-      "ms": 2304,
+      "src": "media/aud/8cd7eceb1d9da084.mp3",
+      "bytes": 5184,
+      "ms": 864,
       "engine": "edge-tts:en-US-JennyNeural@-35%",
       "voice": null,
       "text": "rat",
       "by": null,
-      "addedAt": "2026-09-22T17:22:29.816Z"
+      "addedAt": "2026-09-22T17:22:29.816Z",
+      "leadMs": 55,
+      "tailMs": 95,
+      "trimmedFrom": "media/aud/1318fb03a38f4e5a.mp3",
+      "trimmedAt": "2026-09-23T08:30:09.947Z"
     },
     "sentence": null
   },

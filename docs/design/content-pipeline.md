@@ -35,6 +35,8 @@ shown.
 | Backup | **a zip of the directory**, verified on write | The backup *is* the pack; she is not locked in |
 | Image master | **512×512 JPEG q82**, 4:2:0, progressive, stripped | 51 KB measured; EXIF and GPS removed |
 | Audio | **mp3 24 kHz**, not re-encoded | No ffmpeg needed, and none is wanted |
+| Engine padding | **cut at generation time, losslessly, by dropping MP3 frames** | edge-tts pads 1.6 s of silence onto every clip; §9.3a |
+| Clip duration | **a budget in the manifest, enforced against the bytes** | `ui.md` E15. A budget nothing enforces is a sentence in a document |
 
 ---
 
@@ -116,6 +118,35 @@ to, a pack running entirely on fallbacks is a pack where the work has not starte
 
 The cost is 50 file opens on launch instead of one, and 875 B/word of JSON in Vietnamese
 (measured; 648 B in English). Both are noise next to one 51 KB photograph.
+
+### A pack directory is not the size of a pack — `.candidates/` is 98% of it
+
+**A pipeline hazard, recorded because it cost a session.** `packs/en-seed` is **457 MB on
+disk**, and the pack is **7.4 MB** of that. The other 449 MB is `.candidates/`: raw
+downloads, contact sheets and the fetch cache from curation.
+
+| | `en-seed` | `vi-seed` |
+|---|---|---|
+| the pack (manifest, words, media) | 7.4 MB | ~10 MB |
+| `.candidates/` scratch | **449 MB** | **488 MB** |
+
+So **anything that copies a pack must exclude it.** The validator harness did not: it
+makes ~28 fixture copies per run, which is 13 GB per run, and sixteen abandoned runs put
+375 GB on the root filesystem and left 532 KB free — at which point every command in the
+session started failing for reasons that pointed nowhere near a test. `copyPack()` in
+`tools/pack-validate.test.mjs` now filters `.candidates`, `.tmp-audio` and `.trash`
+(fixture: 457 MB → **7.4 MB**), and an `after()` hook removes the work directory **even
+when a test throws** — verified by throwing one deliberately and confirming zero
+leftovers. A test that leaves 26 GB behind is a defect in the test.
+
+**Do not "fix" this by deleting `.candidates/` from the real packs.** It is gitignored and
+it is not in the app bundle, but it is load-bearing for reporting: clearing it between
+fetch runs is exactly what silently erased the curation-yield statistic once already
+(§9.2, "The denominator lives in the pack, not in the scratch"). The repair there was to
+write `build.fetched` onto the word; the scratch is still read when present, because it is
+what lets images imported before `rank` existed be matched back by title.
+
+`.candidates/` is excluded from backups (§8) for the same reason.
 
 ### Why media is content-addressed
 
@@ -963,6 +994,257 @@ needing a human listen — `literacy-vi.md` §7.3 calls this the seed list's sin
 QA item, because the blend is sometimes not a real word (`sưa` for `sữa`, `ngua` for
 `ngựa`) and *should read correctly* is not *does*.
 
+### 9.3a The engine pads every clip, and that is what the owner heard
+
+**Added after the owner played the built app**, revision 3. He said: *"the sounds when
+picking English characters are not good enough, voices seem to be mixed up with each
+other."* `ui.md` §11.0 measured the shipped clips and found `short` at 1896–2832 ms
+against a spec that assumed 350 ms, and handed the asset half over as **E15 / AC N15**:
+a tap clip must be **≤ 700 ms**, with ≤ 40 ms of lead and ≤ 120 ms of tail.
+
+#### What the file actually contains
+
+Measured by decoding every clip in `packs/en-seed` — `tools/audio-measure.py`, which uses
+the `soundfile` already in the venv (§9.4: libsndfile 1.2.2 reads mp3, so no ffmpeg).
+
+| | Lead | Sound | Tail | File |
+|---|---|---|---|---|
+| `b` / "buh" | 295 ms | 595 ms | **1315 ms** | 2208 ms |
+| `s` / "sss" | 275 ms | 1225 ms | **1355 ms** | 2832 ms |
+| every one of the 70 English tile clips | 265–320 ms | 390–2180 ms | **1175–1375 ms** | 1896–3768 ms |
+
+**The pad is fixed and the speech is not.** ~285 ms before and ~1320 ms after, the same on
+every clip whatever was said — 1.6 s of nothing on a clip whose speech is 400–600 ms. It
+is also why byte count barely tracks text length: at `+0%`, `"b"`, `"buh"` and
+`"buh, ball"` come back 11,232 / 11,232 / 11,520 bytes.
+
+**A bytes-per-frame envelope cannot see any of this, and says the opposite.** These files
+are 48 kbps CBR MPEG-2 Layer III: every frame is 144 bytes and 24 ms whether it holds a
+vowel or digital silence, so a per-frame byte envelope is flat by construction and reads
+as "sound all the way through". That reading is an artefact of the container. Decoding is
+the only way to see it, which is why `tools/audio-measure.py` exists.
+
+**The pad is the endpoint's, not edge-tts's.** The raw websocket stream is byte-for-byte
+the file `edge-tts` saves, and its own `SentenceBoundary` metadata reports the utterance
+as spanning almost the whole file, so there is nothing upstream to configure. **gTTS does
+not do it**: `packs/vi-seed` carries ~60 ms of lead and ~60 ms of tail, 120 ms total
+against edge-tts's 1610 ms. Measured, not assumed — §9.3b.
+
+#### Rate was not the cause, and it was never broken either
+
+An early reading was that `-35%` barely shortened a clip (`"buh"`: 2208 ms at `-35%` vs
+1872 ms at `+0%`, only 18%) and that edge-tts must be ignoring the flag on short text.
+**That was the pad diluting the measurement.** With the pad excluded:
+
+| | `-35%` | `+0%` | ratio |
+|---|---|---|---|
+| `"buh"` sound | 595 ms | 390 ms | 0.66 |
+| `"guh"` sound | 1145 ms | 750 ms | 0.65 |
+| `"sss"` sound | 1225 ms | 810 ms | 0.66 |
+
+0.65 is exactly the rate factor. **edge-tts honours rate precisely; the pad hid it.**
+Recorded because the wrong conclusion was one step from a wasted round of regeneration.
+
+#### The cut: lossless, because the audio was approved by ear
+
+`tools/audio-trim.mjs`. An MP3 is a sequence of frames, so the pad is removed by dropping
+whole frames off each end and the frames in between keep the bytes the owner approved in
+round 3 of listening (§9.3). No decode, no re-encode, no second generation of lossy
+compression on audio nobody here can judge. At 24 kHz a frame is 576 samples = 24 ms,
+finer than the budget.
+
+**The one place a frame cut is not free** is Layer III's **bit reservoir**: a frame may
+store its data in up to 255 bytes of its *predecessors*, so a cut orphans the first
+retained frame from data that is no longer in the file.
+
+> ### The first version of this got it wrong, and the wrongness is the lesson
+>
+> It kept **two frames of pre-roll** and argued that 255 bytes is under two 144-byte
+> frames, so two frames must be enough. The arithmetic is right and **it answers the wrong
+> question**. A guard protects *later* frames; it does nothing for the **first retained
+> frame**, whose own `main_data_begin` still points back past the cut.
+>
+> Measured across all 140 clips in `packs/en-seed`: **frame 0 has `main_data_begin == 0`
+> in all 140** — it must, there is no history at the start of a file — and **no later frame
+> has it in any of them.** The encoder uses the reservoir continuously, so **there is no
+> interior frame at which a cut is free**, and no guard can find one.
+>
+> It shipped. **29 of 70 English tile clips** made libmpg123 report
+> `part2_3_length (1056) too large for available bit count (1048)` **on their first
+> frame** — the start of the letter sound, the first thing the child hears on every tap,
+> in exactly the clips the owner had already reported as wrong.
+>
+> **Why the sample comparison passed anyway, which is the part to take seriously.**
+> libmpg123 *conceals* an underrun: it decodes the frame with whatever bits it has and
+> carries on. So the samples matched, every time, while the stream was malformed. A
+> decoder's silence is not a decoder's approval — **you have to read what it says**. And
+> the other 41 were no better in principle; they escaped the *message* only because their
+> first frame's `part2_3_length` happened to fit in the 131 bytes it carried itself. The
+> count 29 measures how many complained, not how many were sound.
+>
+> Another decoder — a phone's native one — is free to click, mute or drop those frames
+> instead, and nobody on this team can hear it to rule that out. Fixing a "sounds wrong"
+> bug by introducing a first-frame artefact is the worst available outcome.
+
+**The fix is to supply the missing bytes, not to guess a guard.** Those bytes still exist
+in the file — they are the tail of the dropped frames' main-data regions — so
+`primingFrames()` in `tools/lib/mp3.mjs` emits one or two **priming frames** carrying
+exactly them:
+
+```
+  header       copied from the cut frame, so bitrate, sample rate and mode match
+  side info    ALL ZERO -> main_data_begin = 0 (needs no history itself) and
+               part2_3_length = 0 (decodes to digital silence)
+  data region  the orphaned history bytes, right-aligned
+```
+
+The decoder appends each data region to its reservoir, so when it reaches the real frame
+the last `main_data_begin` bytes are exactly the ones it expects. `main_data_begin` is at
+most 255 and a data region here is 131 bytes, so **at most two priming frames, 48 ms**.
+That is what the old guard cost anyway: **every duration in the table below is unchanged
+by the fix.**
+
+**Both gates, on every clip, before anything is written:**
+
+1. it **decodes with zero decoder diagnostics** — the check that was missing;
+2. it matches the original **sample by sample** across the sound's extent.
+
+If a primed cut fails either, the tool falls back to cutting **only the tail** — which
+cannot underrun, because frame 0 is retained and is always self-contained — and if that
+fails too the clip keeps its **original bytes** and is named in the output. *An untrimmed
+clip is a known cost; a corrupt one is not.* Verified by disabling priming: the trimmer
+refuses the head cut and falls back to tail-only (`b.short` 2208 → 1008 ms, lead 295 ms,
+**clean**) rather than emitting a dirty clip.
+
+Result: **0 of 70 tile clips and 0 of 110 total produce a decoder diagnostic**, against a
+baseline of 0 of 70 for the untouched originals. Sample error inside the sound is at worst
+1.2 × 10⁻⁴ (−78 dBFS) and usually 6 × 10⁻⁸.
+
+**Lead is 45–70 ms against E15's 40 ms**, and that is the priming frames plus a partial
+frame of real silence. Recorded as a shortfall rather than bought back by re-encoding
+audio the owner approved by ear.
+
+#### What `en-seed` became
+
+| Slot | Before | After |
+|---|---|---|
+| tile `short` | 1896–2832 ms, median 2184 | **576–1392 ms, median 768** |
+| tile `long` | 2616–3768 ms, median 3192 | **1272–2328 ms, median 1776** |
+| word `word` | 2016–2352 ms | **672–1032 ms** |
+| pack audio | 1652 KiB | **745 KiB (−55%)** |
+
+**11 of 35 `short` clips now meet E15's 700 ms; 24 do not**, and trimming cannot close
+that gap because what remains is the sound itself. The residue is the **sustained and
+repeated-grapheme texts** — `fff` 1248, `guh` 1344, `lll` 1056, `mmm` 936, `nnn` 1008,
+`rrr` 1032, `sss` 1392, `vvv` 1080, `ks` 1056, `zzz` 1320, `ih` 1056 ms and their doubles
+— where edge-tts produces a genuinely long utterance (the envelope for `sss` shows three
+separate /s/ bursts).
+
+**Two levers remain and neither is the content-engineer's.** Both are priced:
+
+| Lever | Owner | Measured effect |
+|---|---|---|
+| **Rate** `-35%` → `+0%` | the owner (`decisions.md`) | ×0.65 on the sound. Regenerated and measured: `shh` 504, `buh` 552, `mmm` 672, `lll`/`nnn`/`rrr` 720, `ih` 744, `vvv`/`ks` 768, `fff` 888, `guh`/`zzz` 912, `sss` 960 ms. **~20 of 35 would meet 700 ms; the fricatives still would not.** |
+| **The text** (`sss` → `s`) | the literacy-designer (`literacy-en.md` §3) | the only lever that reaches the fricatives, and it changes what the child is taught |
+
+They are not pulled here. `decisions.md` closed the voice and the rate, the owner has
+rejected two rounds of English audio by ear, and **this document's own rule is that audio
+cannot be verified below him**. Trimming needed no ear — it removes silence — which is
+exactly why it was safe to do without asking.
+
+#### One measured finding left on the table
+
+Four clips (`b`, `g`, `gg`, `i`) carry a **trailing exhale** after the letter: a separate
+segment 60–80 ms after the sound, 6–14 dB below the clip's peak, with **97–99% of its
+energy above 3 kHz** and no voicing. It is 145–245 ms long, and under the cut-on-next rule
+it is what lands on the next letter's onset. Removing it is mechanically easy and safe to
+detect (a fricative letter is the loudest segment of its own clip, so the "well below
+peak" test cannot mistake one for a breath) — but it is audible content the owner heard
+and approved, so it is reported rather than deleted. It is not the main story: 4 clips of
+35, against 1.6 s of padding on all 70.
+
+### 9.3b `vi-seed` was checked and does not have the defect
+
+Measured the same way, and the instruction was to leave it alone unless the same fault was
+there. It is not:
+
+| | edge-tts (`en-seed`) | gTTS (`vi-seed`) |
+|---|---|---|
+| padding per clip | **~1610 ms** | ~120 ms |
+| what a trim would recover | 51% of the bytes | 16% |
+| tile clips today | 1896–2832 ms | **648–936 ms** |
+
+`vi-seed` is therefore **untouched**. For the record, a trim would take its tile clips to
+480–816 ms and move roughly 42 of its 57 over-target clips under E15's 700 ms; it is one
+command (`node tools/audio-trim.mjs --pack packs/vi-seed --apply`) whenever the owner
+wants it, and it is provably lossless. It is not done unasked because the Vietnamese audio
+is his too.
+
+### 9.3c The gate, and what a duration cannot tell you
+
+`pack-validate.mjs` now measures **every clip's duration from its MPEG frame table**
+(`tools/lib/mp3.mjs` — exact, dependency-free, and it deliberately does not read
+`audio.ms`, because a duration written into a file by whoever wrote the file is a claim).
+The budget lives in `pack.json` under `media.audio`, as data, beside the degradation
+policy:
+
+```jsonc
+"audio": {
+  "format": "mp3", "sampleRate": 24000,
+  "tapTargetMs": 700,     // ui.md E15. Over it: a warning, and an error under --strict
+  "tapCeilingMs": 1500,   // over it: an ERROR. Above the content, far below the defect
+  "longCeilingMs": 2500,  // `long` and word clips: nothing fires them from a tap
+  "leadTargetMs": 40, "tailTargetMs": 120   // advisory — seeing these needs a decoder
+}
+```
+
+**Two thresholds because they have two owners.** The ceiling is the regression gate: the
+padding put every clip at 2000–2800 ms, so its return fails immediately and no argument is
+needed. The target is E15 itself, which depends on what is said and how fast, and it is
+reported on every run so that it cannot quietly pass.
+
+**A second, independent gate: every clip must DECODE with no decoder diagnostics.** This
+one exists because the trim shipped 29 malformed clips that the duration gate could not
+see — they were 768 ms, comfortably inside the ceiling. Only a decoder can answer it, so
+it runs through the venv; **when the venv is absent the check says it was skipped** rather
+than passing quietly. A skipped check that announces itself is honest; one that reports
+success is the thing `CLAUDE.md` warns about. It covers `vi-seed` too, which is untrimmed
+and clean, and it is what any future trim of that pack will be held to.
+
+Seen to fail, each with its own check removed (nine cases in
+`tools/pack-validate.test.mjs`, "clip duration budget" and "clips must decode without
+decoder diagnostics"):
+
+| Poison | Result |
+|---|---|
+| a tile repointed at one of the **original untrimmed 2208 ms clips** | `ERROR … ceiling for a tap clip is 1500 ms`, **exit 1** |
+| the same clip, with `ms: 400` written on it to look compliant | still exit 1 — the bytes win |
+| `tapCeilingMs` tightened to 300 in the manifest | exit 1, so the budget really is data |
+| an `ID3`-headed file with no frames (sniffs as mp3) | `ERROR … cannot read its MPEG frames` |
+| `audio.ms` set to 12 | warning, exit 0 — a wrong label is not a broken pack |
+| the ceiling check disabled in the validator | 3 of the 6 cases fail |
+| the frame-parse and ms checks disabled | those 2 cases fail |
+| `long` treated as a tap slot | the negative case fails |
+| **an unprimed frame cut, 768 ms — inside the ceiling** | `ERROR … decodes with 1 decoder diagnostic(s) … part2_3_length (1888) too large for available bit count (1048)`, **exit 1**. The duration gate does not see this one at all |
+| the decode check disabled in the validator | that case fails |
+| priming disabled in `audio-trim.mjs` | the round-trip case fails, and the trimmer falls back to tail-only rather than emitting a dirty clip |
+
+> **The fixture had to be chosen on the property, not on an index.** The first version of
+> the orphaned-cut case just took frame 3, which happened to be a frame whose demand fit
+> in its own bytes — so the decoder never complained and the case passed against a
+> validator doing nothing. It now picks the first frame whose `part2_3_length` exceeds the
+> bits it carries itself, i.e. one that **provably** cannot decode without its history.
+> That is the difference between a fixture and a coincidence, and it is the same mistake
+> as the guard: reasoning about a property while testing an index.
+
+**What the gate cannot do, stated plainly.** A duration is a **proxy**. It proves a clip is
+not 1.5 s of silence; it says nothing about whether the sound in it is intelligible, or
+right, or good. `CLAUDE.md`: *amplitude is not intelligibility* — and neither is length.
+Two rounds of English audio passed every number available and were rejected by ear. **This
+change still has to be heard by the owner** (AC U9a) before anyone calls finding 3 closed.
+It also cannot see leading or trailing silence without a decoder; `audio.leadMs` and
+`audio.tailMs` are written by whoever opened the file and are reported as advisory.
+
 ### 9.4 Loudness — and why `ffmpeg` is not needed
 
 `spike-results.md` found Piper normalised every file to full scale and would sound harsh.
@@ -1020,7 +1302,7 @@ projection from those per-unit figures and is labelled as one.
 |---|---|---|
 | One image, 512² q82 | **51,196** mean, 98,520 max | 9 true 1024 px originals |
 | One Vietnamese clip (gTTS) | 6,288 mean (4,800–7,488) | 147 clips in `packs/vi-seed` |
-| One English clip (edge-tts −35%) | 15,379 mean (11,376–22,608) | 110 clips in `packs/en-seed` |
+| One English clip (edge-tts −35%, **trimmed**) | **6,937 mean (3,456–13,968)** | 110 clips in `packs/en-seed`. Was 15,379 mean before §9.3a cut the padding |
 | One Vietnamese word's JSON | 875 mean (675–1,037) | 50 word files |
 | One English word's JSON | 648 mean (614–736) | 40 word files |
 
@@ -1041,23 +1323,36 @@ projection from those per-unit figures and is labelled as one.
 
 | | Bytes |
 |---|---|
-| manifest (35 tiles) — fixed | 32,476 |
-| tile audio, 70 clips — fixed | 1,157,760 |
+| manifest (35 tiles) — fixed | 44,670 |
+| tile audio, 70 clips — fixed | **566,784** *(was 1,157,760; §9.3a)* |
 | *per word:* JSON | 648 |
-| *per word:* audio | 13,349 |
+| *per word:* audio | **4,907** *(was 13,349)* |
 | *per word:* 3 images | 153,600 |
-| **per-word subtotal** | **167,597** |
-| **total at 40 words** | **7,894,116 B = 7.53 MiB** |
-| total at 400 words *(projection)* | 68,229,036 B = 65.1 MiB |
+| **per-word subtotal** | **159,155** |
+| **total at 40 words** | **6,977,654 B = 6.65 MiB** |
+| total at 400 words *(projection)* | 64,273,454 B = 61.3 MiB |
+
+> **Measured today**, over the real curated pack rather than the model above:
+> `packs/en-seed` is 6017.4 KiB images + **745.2 KiB audio** + 152.0 KiB json = 6914.6 KiB,
+> and `packs/vi-seed` is 8468.7 KiB + 890.8 KiB + 181.7 KiB = 9541.3 KiB. The per-word JSON
+> row above predates curation and is now ~2.8 KiB/word, because each image carries its
+> licence, creator and source URL — the price of being able to generate `ATTRIBUTION.md`
+> from the pack (§11), and noise beside one 51 KB photograph.
+>
+> **Trimming the padding took 907 KiB off the English pack**, which is more than the
+> entire audio budget of the Vietnamese one. That was never the reason to do it — the
+> reason was that the owner could hear it — but it is the second-largest size lever in
+> this document after image count, and it cost nothing.
 
 ### What this says
 
-**A first install is about 18 MB of content** — 8.29 + 7.53 MiB of packs plus ~2.6 MB of
+**A first install is about 17 MB of content** — 8.29 + 6.65 MiB of packs plus ~2.6 MB of
 bundled Fluent fallback emoji. A typical mobile game ships 100–300 MB. **The owner's
 instinct that the assets would be huge is wrong by more than an order of magnitude**, and
 `spike-results.md` said so first with cruder numbers.
 
-**Images are 88% of the Vietnamese pack and 78% of the English one.** If size ever
+**Images are 88% of the Vietnamese pack and 87% of the English one** — it was 78% before
+the padding came off the English audio. If size ever
 matters, images are the only lever worth pulling, and both settings are priced:
 
 | Change | Vietnamese pack at 50 words |
@@ -1162,6 +1457,9 @@ already says a parent's voice beats any synthesised voice for this child.
 | `tools/pack-import-media.mjs` | one door for every picture and sound: `--pick`, `--image`, `--audio`, `--order` |
 | `tools/gen-audio.mjs` | generates every clip a pack needs; resumable; reuses approved clips |
 | `tools/tts.py` | one clip; measures what it wrote |
+| `tools/audio-measure.py` | decodes a clip and reports length, lead, tail, peak, RMS, sound segments — **and what the decoder complained about**, captured off fd 2, which is the only place a bit-reservoir underrun appears. `--diff`, `--require-clean` |
+| `tools/audio-trim.mjs` | cuts engine padding losslessly at MP3 frame boundaries; verifies every cut sample by sample; `--pack`, `--apply`, `--words` |
+| `tools/lib/mp3.mjs` | MPEG frame table and Layer III side info: exact duration, frame offsets, `main_data_begin`, and the priming frames a cut needs. No decoder, no dependency |
 | `tools/pack-validate.mjs` | **exit 1 on a bad pack**; `--strict`, `--json`, `--gc`, `--delete-orphans` |
 | `tools/pack-validate.test.mjs` | 50 cases: 49 deliberate corruptions asserted to be rejected, plus the rebuild-preservation regression |
 | `tools/pack-attributions.mjs` | generates `ATTRIBUTION.md`; `--check` for CI |
@@ -1232,13 +1530,32 @@ node tools/pack-attributions.mjs packs/vi-seed
 | A damaged backup is refused | truncated archive → refused, nothing changed |
 | mp3 write works without ffmpeg | libsndfile 1.2.2 read + re-encoded, 13,248 B |
 | Loudness needs no pass | 52 clips: peak −9.3…−1.1 dBFS, RMS −27.5…−21.5 dBFS |
+| **Where the sound is in a clip** | all 70 English tile clips decoded: lead 265–320 ms, tail 1175–1375 ms, fixed regardless of text (§9.3a) |
+| **A per-frame byte envelope proves nothing** | the files are 48 kbps CBR — 144 B and 24 ms per frame, 0 resync bytes, 0 trailing bytes — so every frame is identical in size whatever it holds |
+| **The pad is the endpoint's** | edge-tts's raw websocket stream is the saved file; regenerating `"buh"` at `-35%` reproduced 13,248 bytes exactly |
+| **Rate was never broken** | with the pad excluded, `-35%` gives 0.65–0.66 × the `+0%` sound on three texts — exactly the flag |
+| **There is no free cut point** | all 140 clips: `main_data_begin == 0` at frame 0 in 140/140, at **no later frame in any of them** |
+| **The decode check fails** | an unprimed cut at a frame whose `part2_3_length` exceeds its own capacity → exit 1, naming `part2_3_length`; disabling the check in the validator makes that case fail |
+| **The fix works** | **0 of 70 tile clips and 0 of 110 total** produce a diagnostic, against the originals' baseline of 0 of 70. Was 29 of 70 |
+| **The fallback is real** | priming disabled → the trimmer refuses the head cut and emits tail-only (`b.short` 1008 ms, lead 295 ms, clean), never a dirty clip |
+| **The frame cut is lossless** | worst sample residual inside the sound across all 110 clips: 1.2 × 10⁻⁴ (−78 dBFS); most 6 × 10⁻⁸ |
+| **The trim is reproducible** | `gen-audio.mjs` regenerating `b.short` from the approved sample produced the **same content-addressed blob** as `audio-trim.mjs --apply`: `0e55ff0d44210321.mp3` |
+| **The duration gate fails** | a tile repointed at the original 2208 ms clip → exit 1; with `ms: 400` written on it → still exit 1; ceiling tightened to 300 ms in the manifest → exit 1 |
+| **The gate's own cases fail** | ceiling check disabled → 3 of 6 fail; frame-parse and ms checks disabled → those 2 fail; `long` treated as a tap slot → the negative case fails |
+| **A fixture no longer copies the scratch** | 457 MB → **7.4 MB** per fixture; a full harness run leaves **0** temp directories, including after a deliberately thrown test |
+| **`vi-seed` does not have the defect** | gTTS pads ~120 ms against edge-tts's ~1610 ms; a trim would recover 16% of bytes, not 51%. Left untouched |
 | Attribution generates | 3 photographs, 2 licences, `--check` passes on the committed file |
 | Image sizes | 9 true originals at 4 dimensions × 3 qualities |
 
 ### What is *not* verified, and cannot be here
 
 **Whether any of it sounds right.** `decisions.md`: audio quality cannot be verified below
-Tier 5. The 31 Vietnamese step-3 blends are the largest outstanding listening item
+Tier 5. **This now includes the trim** — and the trim has already been wrong once in a way
+no listener here could have caught, which is the argument for machine checks that read
+what the decoder *says* rather than only what it *returns*. Cutting silence needs no ear and a duration is an
+objective measurement — but a duration is a *proxy* for the property the owner cares
+about, and 768 ms of a letter sound is not evidence that the letter sound is good. Finding
+3 is not closed until he has heard it (AC U9a). The 31 Vietnamese step-3 blends are the largest outstanding listening item
 (`literacy-vi.md` §7.3), and the 6.1 dB spread across the English letters is a number, not
 a judgement.
 
