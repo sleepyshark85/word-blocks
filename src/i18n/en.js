@@ -9,6 +9,16 @@ export default {
     ? `Building a word. Nothing placed yet. ${live} letters can start one.`
     : `Building a word. ${placed.join(', ')} placed. ${live} letters can follow.`),
 
+  /**
+   * `ui.md` §12 — **the page rail is a second accessibility element**, describing the
+   * pages and which of them hold something live. The child never hears it; his mother
+   * might, and a rail that a screen reader cannot describe is a control that does not
+   * exist for her.
+   */
+  railA11y: (page, total, livePages) => (livePages.length === 0
+    ? `Page ${page} of ${total}.`
+    : `Page ${page} of ${total}. Something to press on page ${livePages.join(', ')}.`),
+
   languageName: 'English',
   sampleWord: 'cat',
 
@@ -41,7 +51,7 @@ export default {
   on: 'On',
   off: 'Off',
 
-  languageSwitchWarning: 'Changing the language restarts the game.',
+  languageSwitchWarning: 'One tap switches. The board starts again; the album is kept.',
 
   tooSmallTitle: 'This screen is too small',
   tooSmallBody: 'The game needs at least 360 wide and 600 tall. Please try another device.',

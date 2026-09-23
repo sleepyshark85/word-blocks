@@ -1,48 +1,115 @@
-// The prefix tree — `gameplay.md` §3.3, `acceptance-criteria.md` B2–B6, B14, E11.
+// The prefix tree and the constant table — `gameplay.md` §3.2–§3.4, §3.7,
+// `acceptance-criteria.md` B2–B7, B14, C1–C22, D1a–D13, E11, L7, V4–V8.
 //
 // This is the whole mechanic stated as properties. If any of these is false the app is
-// revision 1 again: a child can build garbage, or reach a state he cannot leave.
+// revision 1 again: a child can build garbage, or reach a state he cannot leave — or,
+// since revision 3, the board is not the board he was promised.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { viPack, enPack } from './helpers/load.mjs';
 import {
-  createGame, buildTree, nodeAt, isLive, wordIdAt, continues, tableSizesFor,
-  createSession, reduce, tableView, langFor, CELLS_BY_STAGE,
+  createGame, buildTree, buildInventory, nodeAt, isLive, wordIdAt, continues,
+  createSession, reduce, tableView, pageView, langFor,
 } from '../src/engine/index.mjs';
 import { viCheckSpellingRule } from '../src/engine/rules.mjs';
 import { start, live, tap } from './helpers/play.mjs';
+import { phonePages } from './helpers/fixtures.mjs';
 
 const PACKS = [['Vietnamese', viPack], ['English', enPack]];
 
-test('B2 — the table is the first `cells` symbols of the inventory order, and nothing else', () => {
-  const pack = enPack();
-  for (const cells of CELLS_BY_STAGE) {
-    const tree = buildTree(pack, cells);
-    assert.deepEqual(tree.inventory.letter, pack.inventoryOrder.letter.slice(0, cells));
-  }
-});
+const inventoryOf = (pack) => buildInventory(langFor(pack.language).runsFor(pack));
 
-test('C2 — the Vietnamese onset table spends its last cell on the ∅ socket', () => {
-  const pack = viPack();
-  for (const cells of CELLS_BY_STAGE) {
-    const tree = buildTree(pack, cells);
-    assert.equal(tree.inventory.onset.length, cells, `${cells} cells`);
-    assert.equal(tree.inventory.onset[cells - 1], '∅');
-    assert.deepEqual(tree.inventory.onset.slice(0, cells - 1),
-      pack.inventoryOrder.onset.slice(0, cells - 1));
-  }
-});
-
-test('B7 — cell position is a pure function of the inventory order and nothing else', () => {
+test('B2 / C21 — the table is EVERY character of every run, in order, and nothing else', () => {
   for (const [label, load] of PACKS) {
     const pack = load();
-    const a = buildTree(pack, 24);
-    const b = buildTree(load(), 24);
-    for (const group of Object.keys(a.inventory)) {
-      assert.deepEqual(a.inventory[group], b.inventory[group], `${label} ${group}`);
+    const runs = langFor(pack.language).runsFor(pack);
+    const { game, state } = start(pack);
+    const ids = tableView(game, state).cells.map((c) => c.id);
+    assert.deepEqual(ids, runs.flatMap((r) => r.ids),
+      `${label}: the board is not the whole inventory in run order`);
+    // Nothing is truncated: the revision-3 `zonesFor` split is gone (U21).
+    assert.equal(ids.length, runs.reduce((n, r) => n + r.ids.length, 0));
+  }
+});
+
+test('C21 — Vietnamese is 26 onsets + 35 rimes + 6 tones, and paging truncates none of it', () => {
+  const pack = viPack();
+  const runs = langFor('vi').runsFor(pack).map((r) => r.ids.length);
+  assert.deepEqual(runs, [26, 35, 6], 'the run lengths the layout law is swept against');
+  for (const pages of [null, phonePages('vi'), [9, 9, 8, 12, 12, 11, 6]]) {
+    const game = createGame(pack, { pages });
+    assert.equal(game.inventory.symbols.length, 67, `pages=${pages}`);
+    assert.deepEqual(game.inventory.pages.flat().map((s) => s.id), game.inventory.ids);
+  }
+});
+
+test('D1a / D1b — all 26 letters are on the English board, `q` included and always flat', () => {
+  const pack = enPack();
+  const { game, state } = start(pack);
+  const letters = langFor('en').runsFor(pack)[0].ids;
+  assert.deepEqual(letters, 'abcdefghijklmnopqrstuvwxyz'.split(''),
+    'the first run must be the alphabet, a–z, in order');
+  const q = tableView(game, state).cells.find((c) => c.id === 'q');
+  assert.ok(q, '`q` is not on the board');
+  assert.equal(q.live, false);
+  assert.ok(q.audio.short, 'D1b — a permanently flat tile must still speak when pressed');
+  // And it is flat at **every** reachable prefix, not just the first.
+  const walk = (s, depth) => {
+    if (s.status === 'announcing' || depth > 4) return;
+    assert.equal(tableView(game, s).cells.find((c) => c.id === 'q').live, false,
+      `q became live at ${s.prefix.join('+')}`);
+    for (const symbol of live(game, s)) walk(tap(game, s, symbol), depth + 1);
+  };
+  walk(state, 0);
+});
+
+test('B2f — there is no `∅` tile, no socket and no placeholder anywhere in the table', () => {
+  for (const [label, load] of PACKS) {
+    const { game, state } = start(load());
+    for (const cell of tableView(game, state).cells) {
+      assert.notEqual(cell.id, '∅', `${label}: the socket is back`);
+      assert.notEqual(cell.kind, 'socket', `${label}: a socket cell survives`);
+      assert.ok(cell.glyph, `${label}: ${cell.id} has no glyph`);
     }
+  }
+});
+
+test('B2a / B7 / V7 — page and slot are a pure function of the runs and the plan', () => {
+  for (const [label, load] of PACKS) {
+    const pack = load();
+    for (const pages of [null, phonePages(pack.language)]) {
+      const a = createGame(pack, { pages });
+      const b = createGame(load(), { pages });
+      const shape = (g) => g.inventory.symbols.map((s) => `${s.id}@${s.page}:${s.slot}`).join(' ');
+      assert.equal(shape(a), shape(b), `${label}: two builds disagree about where a character lives`);
+    }
+  }
+});
+
+test('V8 / C22 — editing the word list moves no character', () => {
+  const full = viPack();
+  const pages = phonePages('vi');
+  const before = createGame(full, { pages }).inventory.symbols.map((s) => `${s.id}@${s.page}:${s.slot}`);
+  // Her deleting half the vocabulary, which is the most violent edit there is.
+  const half = { ...full, words: full.words.filter((_, i) => i % 2 === 0) };
+  const after = createGame(half, { pages }).inventory.symbols.map((s) => `${s.id}@${s.page}:${s.slot}`);
+  assert.deepEqual(after, before, 'the board reshuffled when the word list changed');
+});
+
+test('V4 / V6 — runs never share a page, and every character is on exactly one', () => {
+  for (const [label, load] of PACKS) {
+    const pack = load();
+    const lang = langFor(pack.language);
+    const game = createGame(pack, { pages: phonePages(pack.language) });
+    for (const page of game.inventory.pages) {
+      const runs = new Set(page.map((s) => s.runIndex));
+      assert.equal(runs.size, 1, `${label}: a page mixes runs ${[...runs].join(',')}`);
+    }
+    const seen = game.inventory.pages.flat().map((s) => s.id);
+    assert.equal(new Set(seen).size, seen.length, `${label}: a character is on two pages`);
+    assert.equal(seen.length, lang.runsFor(pack).reduce((n, r) => n + r.ids.length, 0));
   }
 });
 
@@ -50,7 +117,7 @@ test('B3 — a symbol is live iff some eligible word continues the prefix, check
   for (const [label, load] of PACKS) {
     const pack = load();
     const lang = langFor(pack.language);
-    const tree = buildTree(pack, 24);
+    const tree = buildTree(pack, inventoryOf(pack));
     const paths = tree.eligible.map((w) => lang.pathFor(w));
 
     // Walk every reachable prefix, breadth-first, and check the live set at each against
@@ -63,7 +130,7 @@ test('B3 — a symbol is live iff some eligible word continues the prefix, check
       const key = prefix.join('\u0000');
       if (seen.has(key)) continue;
       seen.add(key);
-      const symbols = lang.tableFor(pack, tree.inventory, prefix).symbols.map((s) => s.id);
+      const symbols = lang.symbolsFor(pack, tree.inventory, prefix).map((s) => s.id);
       for (const symbol of symbols) {
         const wanted = [...prefix, symbol];
         const reachable = paths.some((p) => p.length >= wanted.length
@@ -81,7 +148,7 @@ test('B3 — a symbol is live iff some eligible word continues the prefix, check
 test('B5 / E11 — tapping only live symbols always ends in a word, from every prefix', () => {
   for (const [label, load] of PACKS) {
     const pack = load();
-    const { game, state } = start(load === viPack ? pack : pack, { stage: 5 });
+    const { game, state } = start(pack);
     const walk = (s, depth) => {
       const options = live(game, s);
       if (s.status === 'announcing') return 1;
@@ -92,14 +159,13 @@ test('B5 / E11 — tapping only live symbols always ends in a word, from every p
       return found;
     };
     const words = walk(state, 0);
-    assert.equal(words, game.treeFor(24).eligible.length,
+    assert.equal(words, game.tree.eligible.length,
       `${label}: every live path should end at exactly one eligible word`);
   }
 });
 
 test('B6 — either the prefix is a word, or something is live. There is no third case', () => {
-  const pack = viPack();
-  const tree = buildTree(pack, 24);
+  const tree = buildTree(viPack(), inventoryOf(viPack()));
   const visit = (node, prefix) => {
     assert.ok(node.wordId !== null || node.live.size > 0, `stuck at ${prefix.join('+')}`);
     for (const [symbol, child] of node.children) visit(child, [...prefix, symbol]);
@@ -107,34 +173,35 @@ test('B6 — either the prefix is a word, or something is live. There is no thir
   visit(tree.root, []);
 });
 
-test('B14 / L7 — a word withheld for a missing asset is absent from the tree', () => {
+test('B14 / L7 — a withheld word leaves its character on the board, in its cell, flat', () => {
   const pack = viPack();
-  const full = buildTree(pack, 24);
+  const inventory = inventoryOf(pack);
+  const full = buildTree(pack, inventory);
   const target = full.eligible[0];
   // The same pack with that word's media gone. `resolvePack` withholds it; the tree must
   // then hold no path to it, and the symbol it used stays on the table, simply flat.
   const gone = new Set([target.audio.word.src]);
   const trimmed = viPack({ hasMedia: (ref) => !gone.has(ref) });
-  const tree = buildTree(trimmed, 24);
+  const tree = buildTree(trimmed, inventoryOf(trimmed));
   assert.ok(full.eligible.some((w) => w.id === target.id));
   assert.ok(!tree.eligible.some((w) => w.id === target.id), `${target.id} is still eligible`);
   assert.equal(wordIdAt(tree, langFor('vi').pathFor(target)), null);
-  // The board does not reshuffle: the symbol is still in its cell.
-  assert.deepEqual(tree.inventory.onset, full.inventory.onset);
+  // **The board does not reshuffle in response to the word list** (`ui.md` §8.1).
+  assert.deepEqual(tree.inventory.ids, full.inventory.ids);
 });
 
 test('D12 — no final-only tile is live on an empty strip, and it is B4 doing it for free', () => {
-  const { game, state } = start(enPack(), { stage: 5 });
+  const { game, state } = start(enPack());
   const table = tableView(game, state);
-  for (const id of ['ck', 'll', 'ss', 'ff', 'zz', 'ng', 'x']) {
+  for (const id of ['ck', 'll', 'ss', 'ff', 'zz', 'ng', 'x', 'q']) {
     const cell = table.cells.find((c) => c.id === id);
-    if (!cell) continue; // beyond the 24-cell ceiling; not on the board at all
+    assert.ok(cell, `${id} is not on the board — every character of inventoryOrder is`);
     assert.equal(cell.live, false, `${id} begins a word`);
   }
 });
 
 test('D11 — `c` and `k` are never both live, at any reachable prefix', () => {
-  const { game, state } = start(enPack(), { stage: 5 });
+  const { game, state } = start(enPack());
   const walk = (s, depth) => {
     if (s.status === 'announcing' || depth > 6) return;
     const options = live(game, s);
@@ -147,7 +214,7 @@ test('D11 — `c` and `k` are never both live, at any reachable prefix', () => {
 
 test('D13 — after `c` `a`, exactly the letters that complete a pack word are live', () => {
   const pack = enPack();
-  const { game, state } = start(pack, { stage: 5 });
+  const { game, state } = start(pack);
   const after = tap(game, tap(game, state, 'c'), 'a');
   const expected = pack.words
     .filter((w) => w.tiles[0] === 'c' && w.tiles[1] === 'a' && w.tiles.length > 2)
@@ -156,34 +223,86 @@ test('D13 — after `c` `a`, exactly the letters that complete a pack word are l
   assert.ok(live(game, after).length > 0);
 });
 
-test('C7 — a stop-final rime produces a two-cell tone table, not six with four disabled', () => {
+test('B2g / C19 — a zero-onset word is TWO taps: the rime, then the tone', () => {
   const pack = viPack();
-  const { game, state } = start(pack, { stage: 5 });
-  // `sách` = s + ach + sắc. `ach` ends in `ch`, so only sắc and nặng exist at all.
-  const after = tap(game, tap(game, state, 's'), 'ach');
-  const table = tableView(game, after);
-  assert.equal(table.role, 'tone');
-  assert.deepEqual(table.cells.map((c) => c.id), ['sac', 'nang']);
-  // Legality is absence; completability is flatness. The two never have to be told apart.
-  assert.deepEqual(table.cells.filter((c) => c.live).map((c) => c.id), ['sac']);
+  const { game, state } = start(pack);
+  // `áo` = ao + sắc. On an empty strip the rime must be live, with no placeholder first.
+  assert.ok(live(game, state).includes('ao'), '`ao` does not begin a word on an empty strip');
+  const after = tap(game, state, 'ao');
+  assert.deepEqual(after.prefix, ['ao']);
+  const done = tap(game, after, 'sac');
+  assert.equal(done.status, 'announcing');
+  assert.equal(done.pending.text, 'áo');
+  assert.equal(done.prefix.length, 2, 'it took more than two taps');
 });
 
-test('C6 — a tone tile renders the chosen rime marked, never a bare diacritic', () => {
+test('C7 — ALL SIX tone cells are always present; the illegal four are flat', () => {
   const pack = viPack();
-  const { game, state } = start(pack, { stage: 5 });
+  const { game, state } = start(pack);
+  // `sách` = s + ach + sắc. `ach` ends in `ch`, so only sắc and nặng are legal — and the
+  // other four are still on the board, lying down. Legality and completability are both
+  // flatness now (`ui.md` §7.2, the restated C7).
+  const after = tap(game, tap(game, state, 's'), 'ach');
+  const tones = tableView(game, after).cells.filter((c) => c.role === 'tone');
+  assert.deepEqual(tones.map((c) => c.id), pack.inventoryOrder.tone);
+  assert.equal(tones.length, 6);
+  assert.deepEqual(tones.filter((c) => c.live).map((c) => c.id), ['sac']);
+  // The illegal cells fall back to the bare mark, because the orthography has no form.
+  const ngang = tones.find((c) => c.id === 'ngang');
+  assert.equal(ngang.carrier, 'mark');
+  assert.ok(ngang.glyph.startsWith('◌'), `ngang shows "${ngang.glyph}"`);
+});
+
+test('B2d — with no rime placed, every tone cell is a bare mark and every one is disabled', () => {
+  const pack = viPack();
+  const { game, state } = start(pack);
+  for (const prefix of [[], ['m']]) {
+    let s = state;
+    for (const symbol of prefix) s = tap(game, s, symbol);
+    const tones = tableView(game, s).cells.filter((c) => c.role === 'tone');
+    assert.equal(tones.length, 6);
+    for (const cell of tones) {
+      assert.equal(cell.live, false, `${cell.id} is live with no rime placed`);
+      assert.equal(cell.carrier, 'mark');
+      assert.ok(cell.glyph.startsWith('◌'), `${cell.id} shows "${cell.glyph}"`);
+    }
+    assert.equal(tones.find((c) => c.id === 'ngang').glyph, '◌', 'ngang is the empty circle');
+  }
+});
+
+test('C6 / C10 — a tone cell carries the chosen rime, marked, and reverts on undo', () => {
+  const pack = viPack();
+  const { game, state } = start(pack);
   const after = tap(game, tap(game, state, 'm'), 'eo');
-  const table = tableView(game, after);
-  assert.equal(table.role, 'tone');
-  for (const cell of table.cells) {
-    assert.equal(cell.glyph, pack.tileById.rime.eo.toned[cell.id]);
+  const tones = tableView(game, after).cells.filter((c) => c.role === 'tone');
+  for (const cell of tones) {
+    assert.equal(cell.glyph, pack.tileById.rime.eo.toned[cell.id], `${cell.id}`);
+    assert.equal(cell.carrier, 'rime');
     assert.ok(cell.glyph.includes('o'), `${cell.id} renders "${cell.glyph}"`);
   }
-  assert.equal(table.cells.find((c) => c.id === 'huyen').glyph, 'èo');
+  assert.equal(tones.find((c) => c.id === 'huyen').glyph, 'èo');
+  // C10 — returning the rime reverts the carriers to bare marks.
+  const undone = reduce(game, after, { type: 'tapStripCell', index: 1 });
+  const back = tableView(game, undone).cells.filter((c) => c.role === 'tone');
+  assert.ok(back.every((c) => c.carrier === 'mark'), 'the carriers did not revert');
+});
+
+test('B2c — no tap changes any cell but the six tone carriers', () => {
+  const pack = viPack();
+  const { game, state } = start(pack);
+  const shape = (s) => tableView(game, s).cells
+    .map((c) => `${c.id}@${c.page}:${c.slot}:${c.role}${c.role === 'tone' ? '' : `:${c.glyph}`}`).join(' ');
+  const base = shape(state);
+  let s = state;
+  for (const symbol of ['m', 'eo']) {
+    s = tap(game, s, symbol);
+    assert.equal(shape(s), base, `the board changed after tapping ${symbol}`);
+  }
 });
 
 test('C9 — exactly one live tone, and the word is not auto-committed', () => {
   const pack = viPack();
-  const { game, state } = start(pack, { stage: 5 });
+  const { game, state } = start(pack);
   const after = tap(game, tap(game, state, 'm'), 'eo');
   assert.deepEqual(live(game, after), ['huyen']);
   assert.equal(after.status, 'building', 'the word committed itself without his tap');
@@ -192,8 +311,7 @@ test('C9 — exactly one live tone, and the word is not auto-committed', () => {
 });
 
 test('F17 — in Vietnamese no word is a proper prefix of another, so §5.5 cannot arise', () => {
-  const pack = viPack();
-  const tree = buildTree(pack, 24);
+  const tree = buildTree(viPack(), inventoryOf(viPack()));
   const visit = (node, prefix) => {
     if (node.wordId !== null) {
       assert.equal(node.children.size, 0, `${prefix.join('+')} is a word and continues`);
@@ -205,7 +323,7 @@ test('F17 — in Vietnamese no word is a proper prefix of another, so §5.5 cann
 });
 
 test('the tree walk is O(depth): nodeAt never scans the vocabulary', () => {
-  const tree = buildTree(viPack(), 24);
+  const tree = buildTree(viPack(), inventoryOf(viPack()));
   // Structural rather than timed: a node's live set is a Set and its children a Map, so
   // both answer in constant time whatever the pack grows to. A timing assertion here
   // would measure this machine's load, not the property (`CLAUDE.md`: a number that
@@ -216,22 +334,57 @@ test('the tree walk is O(depth): nodeAt never scans the vocabulary', () => {
   assert.equal(nodeAt(tree, ['m', 'zzz']), null);
 });
 
-test('tableSizesFor caps the ladder at what the viewport serves', () => {
-  assert.deepEqual(tableSizesFor(24), [8, 12, 16, 20, 24]);
-  assert.deepEqual(tableSizesFor(20), [8, 12, 16, 20]);
-  assert.deepEqual(tableSizesFor(8), [8]);
+test('V1 / V2 — createGame builds ONE tree, and the plan decides only the pages', () => {
+  const pack = viPack();
+  const tablet = createGame(pack, { pages: null });
+  assert.equal(tablet.inventory.paged, false, 'a tablet must not page');
+  assert.equal(tablet.pageCount, 1);
+  assert.equal(tablet.cells, 67, 'one page holds the whole inventory');
+
+  const phone = createGame(pack, { pages: phonePages('vi') });
+  assert.equal(phone.inventory.paged, true);
+  assert.equal(phone.pageCount, 4);
+  assert.equal(phone.cells, 26, 'V9 — one grid, sized from the largest page');
+  assert.ok(!('trees' in phone), 'there are no per-stage trees any more');
 });
 
-test('createGame builds every table size the ladder can ask for, up front', () => {
-  const game = createGame(viPack(), { maxCells: 24 });
-  assert.deepEqual([...game.trees.keys()].sort((a, b) => a - b), [8, 12, 16, 20, 24]);
-  // And `treeFor` never returns nothing for a size in range.
-  for (let n = 8; n <= 24; n += 1) assert.ok(game.treeFor(n), `no tree for ${n}`);
+test('a page plan that does not cover the inventory degrades to one page, never drops a character', () => {
+  // Content and the device are both hostile input. A plan that does not add up would
+  // silently take characters off the board, which is the one failure `ui.md` §8.1 exists
+  // to prevent, so it is refused in favour of a worse board rather than a broken one.
+  const pack = viPack();
+  for (const bad of [[26, 18], [0, 67], [26, 18, 17, 6, 1], ['x'], []]) {
+    const game = createGame(pack, { pages: bad });
+    assert.equal(game.inventory.symbols.length, 67, `pages=${JSON.stringify(bad)}`);
+    assert.equal(game.inventory.pages.flat().length, 67);
+  }
+});
+
+test('V16–V19 — the rail stands a button up for every page that holds something live', () => {
+  const pack = viPack();
+  const game = createGame(pack, { pages: phonePages('vi') });
+  const state = createSession(game, { seed: 'rail' });
+  const rail = pageView(game, state);
+  assert.equal(rail.paged, true);
+  assert.equal(rail.buttons.length, 4, 'one button per page (V2)');
+  // V19 — the glyph is that page's FIRST character.
+  assert.deepEqual(rail.buttons.map((b) => b.symbolId),
+    game.inventory.pages.map((p) => p[0].id));
+  assert.equal(rail.buttons[0].current, true);
+  // V22 — with an empty strip, the onset page AND the page holding the zero-onset rimes
+  // stand, because `ao` and `ong` begin words. That rail button is the only way `áo` is
+  // ever discoverable on a phone.
+  const standing = rail.buttons.filter((b) => b.live).map((b) => b.page);
+  const aoPage = game.inventory.pageOf('ao');
+  assert.ok(standing.includes(0), 'the onset page is flat on an empty strip');
+  assert.ok(standing.includes(aoPage), `page ${aoPage} holds "ao" and is flat`);
+  // The tone page can never be live before a rime.
+  assert.equal(rail.buttons[rail.buttons.length - 1].live, false);
 });
 
 test('L6 — a pack with nothing playable opens on the empty card, never a dead table', () => {
   const pack = viPack({ words: [] });
-  const game = createGame(pack, { maxCells: 24 });
+  const game = createGame(pack);
   const state = createSession(game, { seed: 'x' });
   assert.equal(state.phase, 'empty');
   // And no action can move it off that phase into a board with nothing live.
@@ -242,28 +395,18 @@ test('L6 — a pack with nothing playable opens on the empty card, never a dead 
 /* ------------------------------------------------- what the flat state is for */
 
 test('the disabled state is reachable on the way to every word', () => {
-  // **The question this answers.** Ordering the Vietnamese inventory by productivity put
-  // the 23 onsets that begin a word in the first 23 cells, so at stage 5 the onset table
-  // has **no flat tile at all** — every letter he can press starts a word. That is not a
-  // loss of the teaching signal; it is the strongest possible statement of
-  // `gameplay.md` §3.3's *garbage is structurally impossible*, and it is what "he has
-  // grown into the whole inventory" looks like at position 1.
-  //
-  // What would be a real loss is the child never meeting a flat tile **anywhere**, because
-  // the live set changing under his finger is the whole lesson (`gameplay.md` §4.2: *the
-  // table's response is the teaching*). So that is what is asserted, at the positions where
-  // the choice is actually real. It holds by the shape of the languages rather than by
-  // luck: a Vietnamese onset is followed by 1–6 rimes out of 8–24 on the table, and a rime
-  // by 1 tone out of 2–6, so positions 2 and 3 always have flats. It could only fail if a
-  // single symbol led to every symbol on the board — a pack roughly twenty times denser
-  // than this one, and worth being told about if it ever happens.
+  // **The question this answers.** The live set changing under his finger is the whole
+  // lesson (`gameplay.md` §4.2: *the table's response is the teaching*), and a board on
+  // which everything is always live would teach nothing. On a 67-cell constant table this
+  // is structurally certain — 1–6 of 67 stand up — but it is asserted rather than assumed,
+  // at the positions where the choice is actually real, so that a pack twenty times denser
+  // than this one would say so instead of nobody noticing.
   for (const [label, load] of PACKS) {
     const pack = load();
-    const { game, state } = start(pack, { stage: 5 });
-    const tree = game.treeFor(24);
+    const { game, state } = start(pack);
     const lang = langFor(pack.language);
     let metAFlatTile = 0;
-    for (const word of tree.eligible) {
+    for (const word of game.tree.eligible) {
       const path = lang.pathFor(word);
       if (path.length < 2) continue;
       let s = state;
@@ -294,12 +437,12 @@ test('C17 replacement — no live path can spell an illegal onset + rime', () =>
   // child cannot reach an illegal pair — not because one was filtered out, but because
   // there is nothing behind it.
   const pack = viPack();
-  const { game, state } = start(pack, { stage: 5 });
+  const { game, state } = start(pack);
   let checked = 0;
   for (const onsetCell of tableView(game, state).cells) {
-    if (!onsetCell.live || onsetCell.id === '∅') continue;
+    if (!onsetCell.live || onsetCell.role !== 'onset') continue;
     for (const rimeCell of tableView(game, tap(game, state, onsetCell.id)).cells) {
-      if (!rimeCell.live) continue;
+      if (!rimeCell.live || rimeCell.role !== 'rime') continue;
       assert.equal(viCheckSpellingRule(onsetCell.id, rimeCell.id), null,
         `"${onsetCell.id}" + "${rimeCell.id}" is live and is not a legal Vietnamese spelling`);
       checked += 1;

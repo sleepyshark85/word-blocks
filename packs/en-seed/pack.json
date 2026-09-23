@@ -11,7 +11,11 @@
     "sources": [
       "docs/design/word-list.md",
       "docs/design/literacy-en.md"
-    ]
+    ],
+    "audio": {
+      "engine": "edge-tts:en-US-JennyNeural@-35%",
+      "generatedAt": "2026-09-23T11:46:26.287Z"
+    }
   },
   "media": {
     "onMissingImage": "fallbackEmoji-then-withhold",
@@ -522,6 +526,41 @@
           }
         },
         "source": "literacy-en.md §3.1"
+      },
+      {
+        "id": "q",
+        "glyph": "q",
+        "kind": "consonant",
+        "position": "any",
+        "sound": "kwuh",
+        "anchor": "queen",
+        "audio": {
+          "long": {
+            "src": "media/aud/f3e09acdeb612a86.mp3",
+            "bytes": 9792,
+            "ms": 1632,
+            "leadMs": 70,
+            "tailMs": 105,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kwuh, queen",
+            "by": null,
+            "addedAt": "2026-09-23T11:46:26.012Z"
+          },
+          "short": {
+            "src": "media/aud/6b92e249e104fe53.mp3",
+            "bytes": 3744,
+            "ms": 624,
+            "leadMs": 65,
+            "tailMs": 105,
+            "engine": "edge-tts:en-US-JennyNeural@-35%",
+            "voice": null,
+            "text": "kwuh",
+            "by": null,
+            "addedAt": "2026-09-23T11:46:26.287Z"
+          }
+        },
+        "source": "ui.md §8.1 — every character in inventoryOrder is on the board; q has no seed word and is permanently flat"
       },
       {
         "id": "r",
@@ -1455,6 +1494,7 @@
       "n",
       "o",
       "p",
+      "q",
       "r",
       "s",
       "t",

@@ -1,21 +1,26 @@
-// The reducer. `(state, action) => state`, and every rule §E, §F, §G and §H states.
+// The reducer. `(state, action) => state`, and every rule §E, §F, §G, §H and §V states.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { viPack, enPack } from './helpers/load.mjs';
 import {
-  createGame, createSession, reduce, tableView, stripView, shelfView, chantSteps,
-  motifNotes, partsHintSteps, symbolsFrom, imageFor, checkInvariants, isStuck,
-  effectiveCells, SHELF_SLOTS, WORDS_PER_STAGE, MAX_STAGE,
+  createGame, createSession, reduce, tableView, pageView, stripView, shelfView, chantSteps,
+  motifNotes, partsHintSteps, symbolsFrom, imageFor, checkInvariants, isStuck, pageHasLive,
+  progressOf, SHELF_SLOTS,
 } from '../src/engine/index.mjs';
-import { start, live, tap, undoTo, discover, firstPath, unseenPath } from './helpers/play.mjs';
-import { packWithADeadSymbol, offTableSymbol } from './helpers/fixtures.mjs';
+import { start, live, tap, undoTo, discover } from './helpers/play.mjs';
+import { packWithADeadSymbol, phonePages, unknownSymbol } from './helpers/fixtures.mjs';
 
 const MEO = ['m', 'eo', 'huyen'];
 
-function viGame(stage = 5) {
-  return start(viPack(), { seed: 'reducer', stage });
+function viGame(pages = null) {
+  return start(viPack(), { seed: 'reducer', pages });
+}
+
+/** The owner's board: four Vietnamese pages, 28 cells each. */
+function viPhone() {
+  return start(viPack(), { seed: 'phone', pages: phonePages('vi') });
 }
 
 /* ------------------------------------------------------------------ §E taps */
@@ -24,7 +29,9 @@ test('E1 — a live tap seats the symbol and recomputes the live set', () => {
   const { game, state } = viGame();
   const after = tap(game, state, 'm');
   assert.deepEqual(after.prefix, ['m']);
-  assert.equal(tableView(game, after).role, 'rime');
+  assert.ok(live(game, after).length > 0);
+  assert.ok(live(game, after).every((id) => game.pack.tileById.rime[id]),
+    'after an onset, only rimes stand up');
   assert.deepEqual(checkInvariants(game, after), []);
 });
 
@@ -35,6 +42,7 @@ test('E2 — a disabled tap changes nothing: no seat, no strip change, no table 
   const after = reduce(game, state, { type: 'tapSymbol', symbolId: deadId });
   assert.deepEqual(after.prefix, state.prefix);
   assert.equal(after.status, state.status);
+  assert.equal(after.page, state.page, 'a flat tap moved the board');
   assert.deepEqual(tableView(game, after).cells.map((c) => c.live),
     tableView(game, state).cells.map((c) => c.live));
   // G8 — it does not reset the ladder, but it does defer it.
@@ -42,11 +50,11 @@ test('E2 — a disabled tap changes nothing: no seat, no strip change, no table 
   assert.equal(after.idle.touchSeq, state.idle.touchSeq + 1);
 });
 
-test('a tap on a symbol that is not on the table is refused outright', () => {
+test('a tap naming a symbol the pack does not have is refused outright', () => {
   const { game, state } = viGame();
-  // Which symbols fall past the table's edge depends on the inventory order, so the one
-  // used here is computed from the pack rather than named.
-  const off = offTableSymbol('vi', 5);
+  // Paging truncates nothing (C21), so the only way to name something off the board is
+  // to name something that does not exist.
+  const off = unknownSymbol('vi');
   assert.ok(!tableView(game, state).cells.some((c) => c.id === off));
   assert.equal(reduce(game, state, { type: 'tapSymbol', symbolId: off }), state);
 });
@@ -83,14 +91,119 @@ test('symbolsFrom lists what an undo sends home, last first', () => {
 });
 
 test('T17 — tap and undo fifty times and nothing leaks', () => {
-  const { game, state } = viGame();
+  const { game, state } = viPhone();
   let s = state;
   for (let i = 0; i < 50; i += 1) s = undoTo(game, tap(game, s, 'm'), 0);
   assert.deepEqual(s.prefix, []);
   assert.deepEqual(live(game, s), live(game, state));
+  assert.equal(s.page, state.page, 'fifty round trips left the board on a different page');
   assert.deepEqual(s.album, []);
   assert.deepEqual(s.discovered, state.discovered);
   assert.deepEqual(checkInvariants(game, s), []);
+});
+
+/* ----------------------------------------------------------------- §V paging */
+
+test('V12 — a seat does NOT move the board while his page still has something live', () => {
+  const pack = enPack();
+  // English on a phone: page 1 is the alphabet, page 2 the digraphs. After `c` the live
+  // set is still on page 1, so the board must not move under his finger.
+  const game = createGame(pack, { pages: phonePages('en') });
+  const state = createSession(game, { seed: 'v12' });
+  assert.equal(state.page, 0);
+  const after = tap(game, state, 'c');
+  assert.equal(after.page, 0, 'the board moved while page 1 still had live letters');
+  assert.equal(after.pageSeq, state.pageSeq, 'a slide was announced that should not happen');
+  assert.ok(pageHasLive(game, after));
+});
+
+test('V13 — a seat that empties his page slides to the LOWEST page that has something', () => {
+  const { game, state } = viPhone();
+  // Page 0 is the 26 onsets. After an onset, only rimes are live — pages 1 and 2 — so
+  // the board slides to page 1, the lowest of them, deterministically.
+  const after = tap(game, state, 'm');
+  assert.equal(after.page, 1);
+  assert.equal(after.pageBy, 'auto');
+  assert.equal(after.pageSeq, state.pageSeq + 1);
+  // And after the rime, only a tone is live, which is page 3.
+  const tone = tap(game, after, 'eo');
+  assert.equal(tone.page, 3);
+  assert.equal(tone.pageBy, 'auto');
+});
+
+test('V14 — the app never leaves him on a page with nothing live, over a whole word', () => {
+  const { game, state } = viPhone();
+  let s = state;
+  for (const symbol of MEO) {
+    assert.ok(pageHasLive(game, s), `stranded before tapping ${symbol}`);
+    s = tap(game, s, symbol);
+  }
+  assert.equal(s.status, 'announcing');
+  const after = reduce(game, s, { type: 'advance' });
+  assert.ok(pageHasLive(game, after), 'stranded after the word was committed');
+});
+
+test('V15 — he may walk to a dead page himself, and the app does not yank him away', () => {
+  const { game, state } = viPhone();
+  const tonePage = game.inventory.pages.length - 1;
+  const there = reduce(game, state, { type: 'tapPage', index: tonePage });
+  assert.equal(there.page, tonePage);
+  assert.equal(there.pageBy, 'self');
+  assert.equal(pageHasLive(game, there), false, 'the tone page is live with an empty strip');
+  // Pressing a flat tile there changes nothing — including the page.
+  const pressed = reduce(game, there, { type: 'tapSymbol', symbolId: 'huyen' });
+  assert.equal(pressed.page, tonePage, 'the app took him off a page he chose');
+  assert.deepEqual(pressed.prefix, []);
+  assert.deepEqual(checkInvariants(game, pressed), []);
+});
+
+test('V23 — tapping a symbol in the strip returns it AND slides to that symbol\'s page', () => {
+  const { game, state } = viPhone();
+  const two = tap(game, tap(game, state, 'm'), 'eo');
+  // Seating the rime put him on the tone page (V13), three pages from where `m` lives.
+  assert.equal(two.page, game.inventory.pageOf('huyen'));
+  const undone = undoTo(game, two, 0); // the onset: back to page 0, where `m` lives
+  assert.equal(undone.page, game.inventory.pageOf('m'));
+  assert.deepEqual(undone.prefix, []);
+  // And undoing only the rime lands on the rime's own page, which is live again.
+  const back = undoTo(game, two, 1);
+  assert.deepEqual(back.prefix, ['m']);
+  assert.equal(back.page, game.inventory.pageOf('eo'));
+});
+
+test('V10 / V11 — the page records WHO changed it, so the slide can be his or the app\'s', () => {
+  const { game, state } = viPhone();
+  const his = reduce(game, state, { type: 'tapPage', index: 2 });
+  assert.equal(his.pageBy, 'self');
+  const auto = reduce(game, state, { type: 'tapPage', index: 2, by: 'auto' });
+  assert.equal(auto.pageBy, 'auto');
+  // V27 — the app's own page change (before an auto-play) is not a touch, so it must not
+  // defer the idle ladder the way his tap does.
+  assert.equal(his.idle.touchSeq, state.idle.touchSeq + 1);
+  assert.equal(auto.idle.touchSeq, state.idle.touchSeq);
+});
+
+test('an out-of-range or unchanged page is a no-op, not a corruption', () => {
+  const { game, state } = viPhone();
+  for (const index of [-1, 4, 99, 1.5, null, undefined]) {
+    const after = reduce(game, state, { type: 'tapPage', index });
+    assert.equal(after.page, state.page, `index ${index} moved the board`);
+    assert.equal(after.pageSeq, state.pageSeq);
+  }
+  const same = reduce(game, state, { type: 'tapPage', index: state.page });
+  assert.equal(same.pageSeq, state.pageSeq, 'tapping the current page announced a slide');
+});
+
+test('V1 — an unpaged board never changes page, whatever he taps', () => {
+  const { game, state } = viGame();
+  assert.equal(game.inventory.paged, false);
+  let s = state;
+  for (const symbol of MEO) {
+    s = tap(game, s, symbol);
+    assert.equal(s.page, 0);
+    assert.equal(s.pageSeq, 0, 'a tablet announced a page slide');
+  }
+  assert.equal(pageView(game, s).paged, false);
 });
 
 /* --------------------------------------------------------- §F the announcement */
@@ -105,14 +218,21 @@ test('the announcement is armed the instant the prefix is a word', () => {
   assert.equal(done.pending.isNew, true);
 });
 
+test('V25 — the board does not auto-advance while the announcement is running', () => {
+  const { game, state } = viPhone();
+  const done = tap(game, tap(game, tap(game, state, 'm'), 'eo'), 'huyen');
+  assert.equal(done.status, 'announcing');
+  assert.equal(done.page, 3, 'the tone page is where he was, and it must stay there');
+  const after = reduce(game, done, { type: 'advance' });
+  assert.equal(after.page, 0, 'the board settles when the announcement ends, not during it');
+});
+
 test('F4 / F5 — four notes and the full chant when new; three and the word alone after', () => {
   const { game, state } = viGame();
   const first = tap(game, tap(game, tap(game, state, 'm'), 'eo'), 'huyen');
   assert.equal(motifNotes(first), 4);
-  // `blend` is the toneless-blend clip and is present only when the pack ships one
-  // (`content-pipeline.md` §5): a missing blend skips the step and the chant continues.
-  assert.deepEqual(chantSteps(game, first).map((s) => s.step).filter((x) => x !== 'blend'),
-    ['onset', 'rime', 'tone', 'word']);
+  assert.deepEqual(chantSteps(game, first).map((s) => s.step),
+    ['onset', 'rime', 'blend', 'tone', 'word']);
 
   const committed = reduce(game, first, { type: 'advance' });
   const again = tap(game, tap(game, tap(game, committed, 'm'), 'eo'), 'huyen');
@@ -120,18 +240,71 @@ test('F4 / F5 — four notes and the full chant when new; three and the word alo
   assert.deepEqual(chantSteps(game, again).map((s) => s.step), ['word']);
 });
 
-test('C12 — the tone step is omitted for `ngang`, the onset step for a zero onset', () => {
+test('C12 / C12a — the chant is five beats and what is SHOWN accumulates', () => {
   const { game, state } = viGame();
-  // `ao` is the zero-onset word `áo`; `sac` marks it.
-  const zero = tap(game, tap(game, tap(game, state, '∅'), 'ao'), 'sac');
+  const bo = tap(game, tap(game, tap(game, state, 'b'), 'o'), 'huyen');
+  const beats = chantSteps(game, bo);
+  assert.deepEqual(beats.map((b) => b.step), ['onset', 'rime', 'blend', 'tone', 'word']);
+  // **The owner's own words**: `b` then `b o` then `b ò`.
+  assert.deepEqual(beats.map((b) => b.cells.map((c) => c.glyph)),
+    [['b'], ['b', 'o'], ['bo'], ['bò'], ['bò']]);
+  // C12a — **the tone's name is never rendered**. `huyền` is spoken, never shown.
+  for (const beat of beats) {
+    for (const cell of beat.cells) {
+      assert.ok(!cell.glyph.includes('huyền'), `beat ${beat.step} shows the tone's name`);
+      assert.ok('bò'.includes(cell.glyph) || cell.glyph === 'bo' || cell.glyph === 'b' || cell.glyph === 'o',
+        `beat ${beat.step} shows "${cell.glyph}", which is not part of the word`);
+    }
+  }
+  // C12b — beat 3 is the pack's own blend clip, and it is the beat that merges.
+  const blend = beats[2];
+  assert.equal(blend.merged, true);
+  assert.equal(blend.cells.length, 1);
+  assert.equal(blend.audio.src, game.pack.words.find((w) => w.id === 'bo').audio.blend.src);
+  // C14 — the mark drops onto the already-merged word at beat 4.
+  assert.equal(beats[3].merged, true);
+  assert.equal(beats[3].cells[0].toned, true);
+});
+
+test('C12 — the tone beat is omitted for `ngang`, the onset beat for a zero onset', () => {
+  const { game, state } = viGame();
+  // `áo` = ao + sắc, two taps, no placeholder (C19).
+  const zero = tap(game, tap(game, state, 'ao'), 'sac');
   assert.equal(zero.status, 'announcing');
-  assert.deepEqual(chantSteps(game, zero).map((s) => s.step).filter((x) => x !== 'blend'),
-    ['rime', 'tone', 'word']);
+  assert.deepEqual(chantSteps(game, zero).map((s) => s.step), ['rime', 'blend', 'tone', 'word']);
+  assert.deepEqual(chantSteps(game, zero).map((s) => s.cells.map((c) => c.glyph)),
+    [['ao'], ['ao'], ['áo'], ['áo']]);
 
   const ngang = tap(game, tap(game, tap(game, state, 'c'), 'am'), 'ngang');
   assert.equal(ngang.status, 'announcing');
-  assert.deepEqual(chantSteps(game, ngang).map((s) => s.step).filter((x) => x !== 'blend'),
-    ['onset', 'rime', 'word']);
+  assert.deepEqual(chantSteps(game, ngang).map((s) => s.step), ['onset', 'rime', 'blend', 'word']);
+  // A `ngang` word's blend IS the word, which is why the pack ships no separate clip.
+  const beats = chantSteps(game, ngang);
+  assert.equal(beats[2].caption, 'cam');
+  assert.ok(beats[2].audio, 'the blend beat has nothing to say');
+});
+
+test('C12d — the chant reads its gaps from the pack, so she can slow it down', () => {
+  const pack = viPack();
+  const slow = { ...pack, chant: { ...pack.chant, gapsMs: { ...pack.chant.gapsMs, blend: 1500 } } };
+  const { game, state } = start(slow, { seed: 'gaps' });
+  const beats = chantSteps(game, tap(game, tap(game, tap(game, state, 'b'), 'o'), 'huyen'));
+  assert.equal(beats.find((b) => b.step === 'blend').gapAfterMs, 1500);
+});
+
+test('D10 — the English chant is the short clips left to right, then the whole word', () => {
+  const pack = enPack();
+  const { game, state } = start(pack, { seed: 'en-chant' });
+  const cat = tap(game, tap(game, tap(game, state, 'c'), 'a'), 't');
+  const beats = chantSteps(game, cat);
+  assert.deepEqual(beats.map((b) => b.step), ['tile', 'tile', 'tile', 'word']);
+  assert.deepEqual(beats.map((b) => b.cells.map((c) => c.glyph)),
+    [['c'], ['c', 'a'], ['c', 'a', 't'], ['cat']]);
+  // N14 — never the `long` anchored form.
+  for (const beat of beats.slice(0, 3)) {
+    const tile = pack.tileById.letter[beat.caption];
+    assert.equal(beat.audio.src, tile.audio.short.src, `${beat.caption} used the long clip`);
+  }
 });
 
 test('B9 / B11 — the k-th encounter shows images[k mod n]', () => {
@@ -175,8 +348,8 @@ test('F15 / F16 — a prefix word announces in full, keeps the strip, and can st
   const cat = base.words.find((w) => w.id === 'cat');
   const ca = { ...cat, id: 'ca', text: 'ca', tiles: ['c', 'a'] };
   const pack = { ...base, words: [ca, cat] };
-  const game = createGame(pack, { maxCells: 24 });
-  let s = { ...createSession(game, { seed: 'prefix' }), stage: 5 };
+  const game = createGame(pack);
+  let s = createSession(game, { seed: 'prefix' });
   s = tap(game, tap(game, s, 'c'), 'a');
   assert.equal(s.status, 'announcing');
   assert.equal(s.pending.continues, true);
@@ -219,26 +392,28 @@ test('L7 — a symbol with no words left behind it stays in its cell and is simp
   }
 });
 
-test('G10 / G11 — an auto-play is deterministic, records an assist and earns no stage credit', () => {
+test('G10 / G11 — an auto-play is deterministic and NOTHING is recorded about it', () => {
   const a = viGame();
   const b = viGame();
   const x = reduce(a.game, a.state, { type: 'autoPlay' });
   const y = reduce(b.game, b.state, { type: 'autoPlay' });
   assert.deepEqual(x.prefix, y.prefix, 'the same seed chose a different symbol');
-  assert.equal(x.assists, 1);
+  // **G10, restated — the inverse of revision 2.** There is no assist counter, because
+  // there is no stage for it to hold back (`gameplay.md` §3.6).
+  assert.ok(!('assists' in x), 'an assist counter is back');
+  assert.ok(!('stage' in x) && !('stageProgress' in x), 'the stage ladder is back');
 
   let s = x;
   while (s.status === 'building') s = reduce(a.game, s, { type: 'autoPlay' });
-  assert.equal(s.pending.assisted, true);
+  assert.ok(!('assisted' in s.pending), 'the announcement records that the app helped');
   const after = reduce(a.game, s, { type: 'advance' });
-  assert.equal(after.stageProgress, 0, 'an assisted discovery earned stage credit');
-  assert.equal(after.album.length, 1, 'but it is still his word, and it is in the album');
+  assert.equal(after.album.length, 1, 'it is still his word, and it is in the album');
 });
 
 test('G6 — left alone, the app finds a word by itself, every time, from any prefix', () => {
   const { game } = viGame();
   for (const seed of ['a', 'b', 'c', 'd', 'e', 'f']) {
-    let s = { ...createSession(game, { seed }), stage: 5 };
+    let s = createSession(game, { seed });
     let guard = 0;
     while (s.status === 'building') {
       s = reduce(game, s, { type: 'autoPlay' });
@@ -248,16 +423,31 @@ test('G6 — left alone, the app finds a word by itself, every time, from any pr
   }
 });
 
-test('M3 — the parts hint returns the identical state object and speaks only the parts', () => {
+test('M3 / M2 — the parts hint returns the identical state and speaks only the parts', () => {
   const { game, state } = viGame();
   const two = tap(game, tap(game, state, 'm'), 'eo');
   assert.equal(reduce(game, two, { type: 'partsHint' }), two);
   const steps = partsHintSteps(game, two);
   assert.deepEqual(steps.map((s) => s.step), ['onset', 'rime']);
   assert.ok(!steps.some((s) => s.step === 'word'), 'the hint spoke a completion');
+
+  // D9 / N14 — in English the hint is **the only place the `long` clips are heard**.
+  const en = start(enPack(), { seed: 'hint' });
+  const ca = tap(en.game, tap(en.game, en.state, 'c'), 'a');
+  const hint = partsHintSteps(en.game, ca);
+  assert.deepEqual(hint.map((s) => s.audio.src),
+    ['c', 'a'].map((id) => en.game.pack.tileById.letter[id].audio.long.src));
 });
 
-/* ------------------------------------------------- §H stage, shelf, album */
+/* ------------------------------------------------- §H shelf, album, ending */
+
+test('H2 / H3 — there is no stage, no level and no progress number anywhere in the state', () => {
+  const { game, state } = viGame();
+  const s = discover(game, state, MEO);
+  for (const key of ['stage', 'globalStage', 'stageProgress', 'assists', 'level', 'score', 'streak']) {
+    assert.ok(!(key in s), `the state carries "${key}"`);
+  }
+});
 
 test('H5 / H6 — only a new word fills a slot', () => {
   const { game, state } = viGame();
@@ -269,11 +459,12 @@ test('H5 / H6 — only a new word fills a slot', () => {
 
 test('H7 / H8 — the fifth slot tips into the album, play does not resume, the shelf clears', () => {
   const { game } = viGame();
-  let s = { ...createSession(game, { seed: 'shelf' }), stage: 5 };
+  let s = createSession(game, { seed: 'shelf' });
   const words = [];
-  const eligible = game.treeFor(24).eligible.slice(0, SHELF_SLOTS);
+  const eligible = game.tree.eligible.slice(0, SHELF_SLOTS);
   for (const w of eligible) {
-    const path = [w.syllables[0].onset ?? '∅', w.syllables[0].rime, w.syllables[0].tone];
+    const syl = w.syllables[0];
+    const path = syl.onset === null ? [syl.rime, syl.tone] : [syl.onset, syl.rime, syl.tone];
     s = discover(game, s, path);
     words.push(w.text);
     assert.deepEqual(checkInvariants(game, s), []);
@@ -292,42 +483,54 @@ test('H7 / H8 — the fifth slot tips into the album, play does not resume, the 
   assert.deepEqual(left.album.map((e) => e.text), words.reverse());
 });
 
-test('H2 / H4 — the stage advances on discovery, never decreases, and cannot deadlock', () => {
+test('H4 — the album only grows, over a long run of play', () => {
   const { game } = viGame();
-  let s = { ...createSession(game, { seed: 'stage' }), stage: 1 };
-  assert.equal(effectiveCells(game, s.stage), 8);
-  const stages = [s.stage];
-  let guard = 0;
-  while (s.stage < MAX_STAGE && guard < 400) {
+  let s = createSession(game, { seed: 'grow' });
+  let size = 0;
+  for (let i = 0; i < 40; i += 1) {
     if (s.phase === 'album') { s = reduce(game, s, { type: 'leaveAlbum' }); continue; }
-    // Discover something he has not seen: the live path that reaches an unknown word.
-    const path = unseenPath(game, s) ?? firstPath(game, s);
-    s = discover(game, s, path);
-    stages.push(s.stage);
-    guard += 1;
+    if (s.status === 'announcing') { s = reduce(game, s, { type: 'advance' }); } else {
+      s = reduce(game, s, { type: 'autoPlay' });
+    }
+    assert.ok(s.album.length >= size, 'the album shrank');
+    size = s.album.length;
   }
-  assert.equal(s.stage, MAX_STAGE, `stuck at stage ${s.stage} after ${guard} discoveries`);
-  assert.equal(effectiveCells(game, s.stage), 24);
-  // H4 — it never went backwards, at any point.
-  for (let i = 1; i < stages.length; i += 1) assert.ok(stages[i] >= stages[i - 1]);
+  assert.ok(size > 3, `only ${size} words were ever found`);
 });
 
-test('H2 — eight new words at a stage that holds eight advances it on the eighth', () => {
-  // The seed pack's stage-1 table holds only five words, so the eight-word clause is
-  // exercised against a table wide enough to satisfy it.
-  const { game } = viGame();
-  let s = { ...createSession(game, { seed: 'eight' }), stage: 5 };
-  const eligible = game.treeFor(24).eligible;
-  assert.ok(eligible.length > WORDS_PER_STAGE, 'the 24-cell table cannot hold eight words');
-  let discovered = 0;
-  for (const w of eligible.slice(0, WORDS_PER_STAGE)) {
-    if (s.phase === 'album') s = reduce(game, s, { type: 'leaveAlbum' });
-    const syl = w.syllables[0];
-    s = discover(game, s, [syl.onset ?? '\u2205', syl.rime, syl.tone]);
-    discovered += 1;
-    if (discovered < WORDS_PER_STAGE) assert.equal(s.stage, 5, `advanced early at ${discovered}`);
-  }
-  assert.equal(s.stageProgress, 0, 'the eighth new word did not reset the counter');
+test('A18 — the album and the encounter counts survive a teardown, per pack', () => {
+  // The language switch, at this layer: the session object is thrown away and a new one
+  // is built from the same pack. His album must come back exactly as he left it,
+  // **including the counts that choose which photograph he sees next** (B9).
+  const { game, state } = viGame();
+  let s = discover(game, state, MEO);
+  s = discover(game, s, MEO);
+  s = discover(game, s, ['b', 'o', 'huyen']);
+  const saved = progressOf(s);
+  assert.deepEqual(saved.albumIds, ['bo', 'meo']);
+  assert.equal(saved.encounters.meo, 2);
+
+  const rebuilt = createSession(createGame(viPack()), { seed: 'later', progress: saved });
+  assert.deepEqual(rebuilt.album.map((e) => e.wordId), ['bo', 'meo']);
+  assert.equal(rebuilt.encounters.meo, 2);
+  assert.equal(rebuilt.discovered.meo, true);
+  // A19 — the shelf is per session and does NOT come back.
+  assert.deepEqual(rebuilt.shelf, []);
+  // And the next `mèo` shows the photograph after the two he has seen.
+  const next = tap(game, tap(game, tap(game, rebuilt, 'm'), 'eo'), 'huyen');
+  assert.equal(next.pending.encounter, 2);
+  assert.equal(next.pending.isNew, false);
+});
+
+test('A18 — a restored album is hostile input like everything else', () => {
+  const game = createGame(viPack());
+  const rubbish = createSession(game, {
+    seed: 'x',
+    progress: { albumIds: ['no-such-word', 'meo', 'meo', 42], encounters: { meo: 'lots', ghost: 3 } },
+  });
+  assert.deepEqual(rubbish.album.map((e) => e.wordId), ['meo'], 'a ghost word reached the album');
+  assert.deepEqual(Object.keys(rubbish.encounters), [], 'a bad count was trusted');
+  assert.deepEqual(checkInvariants(game, rubbish), []);
 });
 
 test('H14 / H16 — Finish session ends it, and no play action starts it again', () => {
@@ -342,26 +545,37 @@ test('H14 / H16 — Finish session ends it, and no play action starts it again',
 
 /* --------------------------------------------------------------- the strip */
 
-test('the Vietnamese strip is three cells, always, and the rime wears the mark', () => {
+test('C1 / C20 — the Vietnamese strip is the word so far plus one dashed cell', () => {
   const { game, state } = viGame();
-  assert.deepEqual(stripView(game, state).map((c) => c.role), ['onset', 'rime', 'tone']);
-  const two = tap(game, tap(game, state, 'm'), 'eo');
-  assert.equal(stripView(game, two)[1].glyph, 'eo');
+  // Empty: **one dashed cell**, and it is not a character (U14 — no tone cell, ever).
+  assert.deepEqual(stripView(game, state).map((c) => [c.glyph, c.filled]), [[null, false]]);
+  const one = tap(game, state, 'm');
+  assert.deepEqual(stripView(game, one).map((c) => c.glyph), ['m', null]);
+  const two = tap(game, one, 'eo');
+  assert.deepEqual(stripView(game, two).map((c) => c.glyph), ['m', 'eo', null]);
+  assert.deepEqual(stripView(game, two).map((c) => c.role), ['onset', 'rime', 'next']);
+  // C20 — the tone merges the cells into one marked word, with no dashed cell left, and
+  // the fact that a tone was chosen is carried by `toned` (a dotted role3 segment), never
+  // by the tone's name.
   const three = tap(game, two, 'huyen');
-  assert.equal(stripView(game, three)[1].glyph, 'èo');
-  assert.equal(stripView(game, three)[2].glyph, 'huyền');
+  const strip = stripView(game, three);
+  assert.equal(strip.length, 1);
+  assert.equal(strip[0].glyph, 'mèo');
+  assert.equal(strip[0].merged, true);
+  assert.equal(strip[0].toned, true);
+  assert.ok(!strip.some((c) => c.role === 'tone'), 'the tone cell is back');
 });
 
-test('C2 — a zero-onset word fills the first cell with the socket, not a glyph', () => {
+test('C19 — a zero-onset word starts at the LEFT: no empty first cell', () => {
   const { game, state } = viGame();
-  const s = tap(game, state, '∅');
-  assert.equal(stripView(game, s)[0].socket, true);
-  assert.equal(stripView(game, s)[0].glyph, null);
-  assert.equal(stripView(game, s)[0].filled, true);
+  const s = tap(game, state, 'ao');
+  assert.deepEqual(stripView(game, s).map((c) => [c.glyph, c.filled]), [['ao', true], [null, false]]);
+  const done = tap(game, s, 'sac');
+  assert.deepEqual(stripView(game, done).map((c) => c.glyph), ['áo']);
 });
 
 test('D2 / D3 — the English strip is what is placed plus one empty cell, never a length', () => {
-  const { game, state } = start(enPack(), { stage: 5 });
+  const { game, state } = start(enPack(), { seed: 'strip' });
   assert.equal(stripView(game, state).length, 1);
   const one = tap(game, state, 'c');
   assert.equal(stripView(game, one).length, 2);
@@ -374,7 +588,7 @@ test('D2 / D3 — the English strip is what is placed plus one empty cell, never
 
 test('isStuck is false in every reachable state of both packs', () => {
   for (const load of [viPack, enPack]) {
-    const { game, state } = start(load(), { stage: 5 });
+    const { game, state } = start(load(), { seed: 'stuck' });
     const walk = (s, depth) => {
       assert.equal(isStuck(game, s), false, `stuck at ${s.prefix.join('+')}`);
       if (s.status === 'announcing' || depth > 6) return;

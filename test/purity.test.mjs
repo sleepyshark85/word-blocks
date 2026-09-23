@@ -234,6 +234,21 @@ test('no engine export is dead — each is re-exported by index.mjs or used by a
   const namespaced = usedBySibling.has('*vi') && usedBySibling.has('*en');
   assert.ok(namespaced, 'the language modules must be imported as namespaces');
 
+  // **The language modules need their own rule.** They are reached through `langFor`, so
+  // a namespace import exempts every one of their exports from the check below — and four
+  // dead ones survived revision 4's rewrite that way (`bareMark`, `rolesOf`, `rimeOf`,
+  // `blendOf`, plus an unreferenced `id`). What consumes them is a `lang.NAME` call in the
+  // engine or a test, so that is what is required.
+  const langCorpus = [...FILES, ...sources(path.join(REPO, 'test'))]
+    .map((f) => readFileSync(f, 'utf8')).join('\n');
+  for (const name of ['vi', 'en']) {
+    const mod = await import(`file://${path.join(ENGINE, 'lang', `${name}.mjs`)}`);
+    for (const key of Object.keys(mod)) {
+      const used = new RegExp(`(?:lang|langFor\\([^)]*\\)|${name})\\.${key}\\b`).test(langCorpus);
+      assert.ok(used, `lang/${name}.mjs exports ${key}, which nothing calls through langFor`);
+    }
+  }
+
   const dead = [];
   for (const f of FILES) {
     const rel = path.relative(ENGINE, f);

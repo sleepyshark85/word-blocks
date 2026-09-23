@@ -229,7 +229,7 @@ test('the state layer owns the timers — no component schedules one directly', 
   // explicit cleanup. A `setTimeout` in a component is a timer with no owner.
   const allowed = new Set([
     path.join('src', 'state', 'timers.mjs'),      // the bag itself
-    path.join('src', 'audio', 'engine.js'),       // the 800 ms fade's stepper
+    path.join('src', 'audio', 'channels.mjs'),    // the 800 ms fade's stepper, cleared on dispose
   ]);
   for (const f of APP_FILES) {
     if (allowed.has(rel(f))) continue;
@@ -272,7 +272,10 @@ test('the web build cannot reach expo-file-system (it warns and stubs on web)', 
 test('the audio test double has exactly the real engine’s surface', () => {
   // A double with extra methods is a double that can drift from the thing it stands in
   // for, and a headless suite that passes against a drifted double is worse than none.
-  const real = readFileSync(path.join(SRC, 'audio', 'engine.js'), 'utf8');
+  // The channels, not the platform wrapper: `engine.js` is four lines that hand
+  // `expo-audio`'s player to `createChannels`, and the surface the controller uses is
+  // the channels' (`src/audio/channels.mjs`).
+  const real = readFileSync(path.join(SRC, 'audio', 'channels.mjs'), 'utf8');
   const fake = readFileSync(path.join(REPO, 'test', 'helpers', 'harness.mjs'), 'utf8');
   const methods = (src, from) => {
     const body = src.slice(src.indexOf(from));
@@ -284,6 +287,46 @@ test('the audio test double has exactly the real engine’s surface', () => {
   const realMethods = methods(real, '  return {');
   const fakeMethods = methods(fake, 'export function createFakeAudio').filter((m) => !OBSERVERS.includes(m));
   assert.deepEqual(fakeMethods, realMethods);
+});
+
+test('V29 — no swipe, drag or pan gesture exists anywhere; a page change is a TAP', () => {
+  // `gameplay.md` §4.1 and `ui.md` §4.4a: paging is a tap on a 72 pt button or an
+  // auto-advance, and **adding a swipe would put `react-native-gesture-handler` back in
+  // the manifest**. O2 covers the dependency; this covers the hand-rolled version.
+  for (const f of APP_FILES) {
+    const c = code(f);
+    for (const token of ['PanResponder', 'onSwipe', 'ScrollView', 'FlatList', 'onPanResponder']) {
+      if (rel(f).includes('AlbumScreen') && token === 'ScrollView') continue; // H9 — the album scrolls
+      if (rel(f).includes('ParentChrome') && token === 'ScrollView') continue; // parent surfaces
+      assert.ok(!c.includes(token), `${rel(f)} uses ${token}`);
+    }
+  }
+});
+
+test('V10 — the page change is a translateX on one sheet, never a cross-fade in place', () => {
+  const c = code(path.join(SRC, 'ui', 'CharacterTable.js'));
+  assert.ok(/translateX/.test(c), 'the table does not slide');
+  assert.ok(/reduced \?/.test(c), 'reduce-motion has no separate path (§10.5 — it cross-fades)');
+  // And the pages are laid out side by side, so the window moves rather than the cells.
+  assert.ok(/flexDirection: 'row'/.test(c));
+});
+
+test('every UI sound the state layer reads is actually bundled', () => {
+  // The `socket` key outlived the ∅ tile by exactly one revision, and a key the bundle
+  // does not have is a silent failure: `ui.page ?? null` plays nothing and says nothing.
+  const controller = readFileSync(path.join(SRC, 'state', 'gameController.mjs'), 'utf8');
+  const bundle = readFileSync(path.join(REPO, 'assets', 'audio', 'index.js'), 'utf8');
+  const bundled = new Set([...bundle.matchAll(/^\s{2}(\w+):\s*require/gm)].map((m) => m[1]));
+  const read = new Set([...controller.matchAll(/ui\.(\w+)\s*\?\?/g)].map((m) => m[1]));
+  assert.ok(read.size >= 5, `only ${read.size} UI sounds are read — is the audit looking at the right file?`);
+  for (const key of read) {
+    if (key === 'cheer') continue; // one optional recording per pack, never bundled (E14)
+    assert.ok(bundled.has(key), `the controller plays ui.${key}, which the bundle does not have`);
+  }
+  for (const key of bundled) {
+    assert.ok(read.has(key) || key.startsWith('motif'),
+      `${key}.wav is bundled and nothing plays it`);
+  }
 });
 
 test('no dead export in the app layer', () => {

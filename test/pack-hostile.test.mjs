@@ -165,7 +165,13 @@ test('the word clip gone: the word is withheld — the chant has no final step',
   assert.equal(pack.catalogue.find((c) => c.id === 'meo').reason.code, 'noWordAudio');
 });
 
-test('the blend clip gone: step 3 is skipped and the chant continues', async () => {
+test('the blend clip gone: beat 3 stays, silent, and the word still merges', async () => {
+  // **Changed in revision 3, and the change is the point.** Revision 2 skipped step 3
+  // when the clip was missing, because it was only a sound. Beat 3 is now also *the
+  // merge* — `b` `o` becomes `bo` — and beat 4 drops the mark **onto the already-merged
+  // word** (M12, C14). Skipping it would leave the mark landing on two separate cells,
+  // which is the thing `gameplay.md` §5.4 says only reads if the word is whole
+  // underneath. So the beat survives its clip: it shows, and says nothing.
   const { langFor } = await import('../src/engine/index.mjs');
   const input = viInput();
   const meo = input.words.find((w) => w.id === 'meo');
@@ -173,11 +179,15 @@ test('the blend clip gone: step 3 is skipped and the chant continues', async () 
   const pack = resolvePack({ language: 'vi', ...input, hasMedia: (r) => r !== gone && input.hasMedia(r) });
   const word = pack.words.find((w) => w.id === 'meo');
   assert.ok(word, 'the word still plays');
-  const steps = langFor('vi').chant(pack, word).map((s) => s.step);
-  assert.deepEqual(steps, ['onset', 'rime', 'tone', 'word']);
-  // ...and with the clip present it is there, so the assertion above means something.
+  const steps = langFor('vi').chant(pack, word);
+  assert.deepEqual(steps.map((s) => s.step), ['onset', 'rime', 'blend', 'tone', 'word']);
+  const blend = steps.find((s) => s.step === 'blend');
+  assert.equal(blend.audio, null, 'a clip that is not there was played anyway');
+  assert.equal(blend.merged, true, 'the merge was lost with the clip');
+  assert.deepEqual(blend.cells.map((c) => c.glyph), ['meo']);
+  // ...and with the clip present it speaks, so the assertion above means something.
   const full = langFor('vi').chant(pack, resolvePack({ language: 'vi', ...input }).words.find((w) => w.id === 'meo'));
-  assert.deepEqual(full.map((s) => s.step), ['onset', 'rime', 'blend', 'tone', 'word']);
+  assert.equal(full.find((s) => s.step === 'blend').audio.src, gone);
 });
 
 test("a tile's clip gone: the tile is silent and everything else still works", () => {

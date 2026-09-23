@@ -11,6 +11,37 @@ squad works), `spike-results.md` (what was measured).
 
 ## Status
 
+> ### 2026-09-23 — **SLICES 2 AND 3 ARE REBUILT TO DESIGN REVISION 4.** `src/` no longer implements revision 2.
+>
+> The owner played the built app (Tier 5), reported four findings, and then answered the one
+> question revision 3 asked him by proposing the remedy himself: *"he will use an iPhone 17
+> plus now, if the screen is too small, maybe paging the table probably do it"*. Revisions 3
+> and 4 of `gameplay.md` / `ui.md` / `acceptance-criteria.md` are those two corrections. This
+> is the build that matches them.
+>
+> | | State |
+> |---|---|
+> | `bash scripts/check.sh` | **ALL GREEN.** `npm test` **291/291** (was 233), both pack validators, the validator suite, the contrast sweep, the layout sweep, the bundle freshness check |
+> | `test/layout-parity.test.mjs` | **Green.** It was the file that said `src/` was still revision 2. The app now carries the whole revision-4 law — `gridFor`, `pagePlan`, `planFor`, the rail and the fixpoint — swept field-by-field against `tools/layout-sweep.mjs` |
+> | The morphing band, the `∅` socket, the stage ladder | **Deleted.** `src/engine/stages.mjs` is gone; `globalStage`, `stageProgress` and the assist counter are gone from the session, and `checkInvariants` now **fails** if any of them comes back |
+> | The constant table | `src/engine/table.mjs` — one flat sequence, every character in a permanent `(page, slot)`, a pure function of `inventoryOrder` and the device |
+> | Paging (§V, 35 criteria) | `src/ui/CharacterTable.js` slides one sheet by `translateX`; `src/ui/PageRail.js` is the rail, made of the same `Tile`. Auto-advance is in the **reducer** (`settlePage`), so V12–V15 are Tier-1 facts rather than choreography |
+> | The accumulating chant | Five beats, each carrying **the strip as it must look at that beat**. Driven in a browser: the strip reads `b` → `b o` → `bo` → `bò`, which is the owner's sentence |
+> | Audio | One SPEECH channel that cuts hard. `src/audio/channels.mjs` is the rule, **platform-free**, driven in Node by `test/audio-channels.test.mjs`; `engine.js` is four lines of `expo-audio` |
+> | Language switch | Parent menu **row 2**, one tap, the chooser reused, a hard stop ≤120 ms, the album kept per pack, the gate's 180 s grace held **above** the teardown |
+> | `en-seed` | **`q` is on the board** — 26 letters + 10 digraphs = 36 (D1a/D1b). Its two clips came from the owner-approved `samples/audio/en-final`, `short` 624 ms, inside E15's budget |
+> | Driven, not asserted | Chromium at **430×932 and 440×956** (the device, both candidate sizes), iPad 834×1194, the 360×640 floor, both languages: a word made, the picture shown, the gate answered, the language switched and switched back, no scroll, no clipping |
+> | **Not verified** | **Still never run on a real device.** Everything above is Node + Chromium. Tier 5 is owed, and U9a (does it *sound* right) can only be the owner's |
+>
+> **One AC conflict, reported not absorbed: F7 versus P7.** Paging made a **landscape**
+> 430×932 phone pass the fit rule (5 pages, 18 per page, 9×2 at 72 pt), which revision 3's
+> truncated board never could. `gameplay.md` §2.1 says an orientation is served *iff the fit
+> rule passes*; **P7 says a phone is locked to portrait**. Both cannot hold on the owner's own
+> device. P7/P8 are the numbered criteria, so `orientationPolicy` implements them, with the
+> extra clause stated in the design's own terms rather than as a device list: **rotate freely
+> iff the portrait board needs no rail** — which is `gameplay.md` §3.5's definition of a
+> tablet. If the game-designer would rather serve landscape phones, it is a one-line change.
+
 > ### 2026-09-23 — THE CORE MECHANIC WAS CORRECTED, AND SLICES 2 AND 3 WERE REBUILT AGAINST IT.
 >
 > The owner restated what he asked for in his first message: the app must **show a table of
@@ -62,7 +93,7 @@ squad works), `spike-results.md` (what was measured).
 > | **Still open, and the owner's** | **24 of 35 `short` clips remain over E15's 700 ms.** What is left is the sound itself, not padding. The levers are the **rate** (`+0%` measured: ~20 of 35 would pass) and the **text** (`sss` → `s`, the literacy-designer's). Neither pulled — `decisions.md` closed the voice and the rate, and he has rejected two rounds by ear |
 > | **Not verified** | **whether it sounds better.** A duration is a proxy. Finding 3 is not closed until he has heard it (AC U9a) |
 
-*Last updated: 2026-09-23 (Slices 2 and 3 rebuilt for the discovery mechanic). Earlier history:
+*Last updated: 2026-09-23 (Slices 2 and 3 rebuilt to design revision 4: the constant table, paging, the accumulating chant, one speech channel, the language switch). Earlier history:
 all three design agents were killed mid-work by a weekly rate limit; what survived is catalogued
 below and was verified by execution, not trusted.*
 
@@ -70,8 +101,8 @@ below and was verified by execution, not trusted.*
 |---|---|---|
 | **0** | Squad, spike, and approved design | **Closed at revision 2, 2026-09-23** — `gameplay.md`, `ui.md` and `acceptance-criteria.md` rewritten for the discovery mechanic; both design tools re-run, both exit 0 |
 | **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
-| **2** | Engine: **prefix tree, live-set computation** | **Rebuilt for revision 2.** `npm test` 230/230; 800 fuzzed sessions per language with `checkInvariants` after **every** action, plus a 4,000-action soak; 0 violations. Awaiting independent verification |
-| **3** | The game plays, both languages, on a real device | **Rebuilt for revision 2 and driven.** Chrome at iPad portrait + landscape, iPhone 393×852 and the 360×640 Android floor, both languages; five words to the album; the gate opens on a 1.2 s hold. **Not yet run on a real device — Tier 5 is owed.** Awaiting independent verification |
+| **2** | Engine: **prefix tree, live-set computation** | **Rebuilt for revision 4** (one tree, one constant table, pages in the reducer). `npm test` 291/291; 400 fuzzed sessions per language across **both** board shapes with `checkInvariants` after every action, plus a 4,000-action soak; 0 violations. Previously: **rebuilt for revision 2.** `npm test` 230/230; 800 fuzzed sessions per language with `checkInvariants` after **every** action, plus a 4,000-action soak; 0 violations. Awaiting independent verification |
+| **3** | The game plays, both languages, on a real device | **Rebuilt for revision 4 and driven** in Chromium at 430×932, 440×956, 834×1194 and 360×640, both languages, including the language switch and the gate grace. **Still not run on a real device — Tier 5 is owed.** Previously: **rebuilt for revision 2.** Chrome at iPad portrait + landscape, iPhone 393×852 and the 360×640 Android floor, both languages; five words to the album; the gate opens on a 1.2 s hold. **Not yet run on a real device — Tier 5 is owed.** Awaiting independent verification |
 | **4** | The editor — add / edit / delete a word | Not started |
 | **5** | Polish: motion, sound, accessibility | Not started |
 | **6** | Store readiness, iOS + Android | Not started |
@@ -149,7 +180,7 @@ partly obsolete against it.
    orchestrator's. If he wants it: `git filter-repo --path-glob 'packs/*/.candidates/*'
    --invert-paths` then a force-push, with every clone re-cloned afterwards.
 
-6. **No images curated yet.** Both packs deliberately fail `--strict`, which now counts
+6. ~~**No images curated yet.**~~ **FIXED** — 269 photographs, 89 of 90 words. Both packs deliberately fail `--strict`, which now counts
    *photographs* rather than fallbacks. Candidate fetch is re-running with the licence fix.
 
 7. **The validator demands an author for PUBLIC DOMAIN images.** A CC0 or public-domain
@@ -176,7 +207,19 @@ partly obsolete against it.
    a generated clip are the same object in the schema — but it must be closed *before* any
    store submission. `open-questions-content.md` C4.
 
-11. ~~No images anywhere.~~ `images: []` in every word. This is the long pole.
+11. ~~No images anywhere.~~ **FIXED.**
+
+16. **`q` ships with a generated clip and no word, deliberately.** `ui.md` §8.1 and AC
+    D1a/D1b put every character of `inventoryOrder` on the board; `literacy-en.md` §3.5
+    keeps `q` out of v1 *words*. The validator's rule moved with it: a wordless character is
+    a **warning**, a `q` inside a word is an **error**, and a wordless character with **no
+    clip** is an error too (D1b — a flat tile must still speak). Poisoned all three.
+
+17. **An `expo-audio` web-shim artefact, not a defect in the app.** The hard cut (N3) pauses
+    a player whose `play()` promise has not settled; `AudioModule.web.js:139` calls
+    `media.play()` and returns nothing, so the browser logs one unhandled rejection per cut.
+    It cannot be caught from the app, it does not occur on the native players, and it is the
+    newest tap winning — which is the rule. Seen in every browser run; harmless.
 
 12. ~~Neither pack carries an `inventoryOrder`, and the fallback order makes most of the
     vocabulary unreachable.~~ **FIXED, 2026-09-23.** Both manifests now declare
@@ -203,9 +246,11 @@ partly obsolete against it.
     delivered a flat tile** so it can never quietly stop. Proven: stub the withholding out
     and the seven tests fail with the fixture's own message rather than passing vacuously.
 
-13. **The stage ladder would deadlock on the shipped packs, and the engine carries an extra
-    clause for it. ACCEPTED by the orchestrator, 2026-09-23, and referred to the
-    game-designer to fold into the criterion.** `acceptance-criteria.md` **H2** advances the stage after 8 new words at the
+13. ~~**The stage ladder would deadlock on the shipped packs.**~~ **CLOSED BY DELETION,
+    revision 4.** There is no stage ladder: `gameplay.md` §3.6 deletes it, H1–H4 are its
+    inverse, and `checkInvariants` fails if `stage`, `stageProgress` or `assists` reappears
+    in the session. The extra clause went with it. The original report follows.
+    ~~ACCEPTED by the orchestrator, 2026-09-23, and referred to the game-designer.~~ `acceptance-criteria.md` **H2** advances the stage after 8 new words at the
     current stage. At 8 cells the packs expose 5 and 2 words, so H2 alone holds the child at
     stage 1 for ever. `src/engine/session.mjs` therefore advances on *8 new words **or** every
     word this table can reach* — which preserves H2 wherever H2 can be satisfied, and cannot
@@ -232,7 +277,7 @@ partly obsolete against it.
     and `k` never both live — does hold in English and is tested at every reachable prefix**,
     because no `en-seed` word uses `k`.
 
-15. **At stage 5 the Vietnamese onset table has no flat tile at all** — a consequence of
+15. **The Vietnamese onset run has no flat tile at all** (revision 2 called this "at stage 5") — a consequence of
     defect 12's fix, and **not a regression.** It is the strongest form of `gameplay.md`
     §3.3: every letter he can press starts a word. The lesson the flat state carries lives
     at positions 2 and 3 and lives there *structurally* — an onset is followed by 1–6 rimes

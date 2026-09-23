@@ -4,49 +4,57 @@
 // contains no game rules: every question about what a tap means is answered by
 // `reduce()`, and every question about what is on screen is answered by an engine
 // selector. What lives here is *when* — the announcement's frame-by-frame, the chant's
-// gaps, the reveal's 3 s hold, the idle ladder, the hold-to-repeat — because those are
-// wall-clock concerns and the engine has no clock.
+// gaps, the reveal's 3 s hold, the idle ladder, the hold-to-repeat, the page slide —
+// because those are wall-clock concerns and the engine has no clock.
 //
 // It is a plain object rather than a hook so it can be driven in Node with fake timers
 // (`test/game-controller.test.mjs`). `useGame.js` is a short subscription on top. That
 // split is deliberate: a state layer that can only be tested through a renderer is a
 // state layer that will not be tested.
+//
+// **Revision 4 changes three things here**, all of them audio or paging:
+//
+//   1. **One speech channel, cutting hard** (`ui.md` §11.2). A tap always plays `short`;
+//      `long` is the parts hint's alone; the motif **stops** speech rather than ducking
+//      it; a flat tile's knock **precedes** its letter by 120 ms.
+//   2. **The chant accumulates** (§10.4): every beat carries the strip as it must look at
+//      that beat, so the presentation replays a resolved state rather than deriving one.
+//   3. **The page** (§V): the page sound on every change, the slide's two durations, and
+//      the idle ladder reaching the rail.
 
 import {
-  createSession, reduce, tableView, stripView, shelfView, chantSteps, motifNotes,
-  partsHintSteps, symbolsFrom, hintSymbol, treeOf, effectiveCells, glyphLength,
+  createSession, reduce, tableView, pageView, stripView, shelfView, chantSteps, motifNotes,
+  partsHintSteps, symbolsFrom, hintSymbol, glyphLength, progressOf,
 } from '../engine/index.mjs';
 import { createTimerBag } from './timers.mjs';
 import {
-  M, REVEAL, LADDER, HOLD, TAP, SHORT_CLIP_WINDOW, PARTS_HINT_HOLD, SESSION_FADE,
+  M, REVEAL, LADDER, HOLD, TAP, PARTS_HINT_HOLD, SESSION_FADE,
 } from '../motion/durations.mjs';
 
 /** What a step costs when the pack does not say how long its clip is. */
 const DEFAULT_CLIP_MS = 700;
 
 /**
- * `ui.md` §11.1 — how long one chant step occupies, clip plus its stated gap. Pure, and
- * exported because the timings in `acceptance-criteria.md` §F are asserted against it.
+ * `ui.md` §11.1 / §10.4 — how long one chant beat occupies: **the clip, then its gap**.
+ * "Every beat boundary is driven by the clip's completion, not by a timer." A beat with
+ * no clip at all (a pack with no blend recording) costs only its gap, rather than a
+ * second of silence pretending to be a sound.
  */
 export function stepDurationMs(step) {
-  const clip = step.audio && Number.isFinite(step.audio.ms) ? step.audio.ms : DEFAULT_CLIP_MS;
+  const clip = step.audio && Number.isFinite(step.audio.ms) ? step.audio.ms
+    : (step.audio ? DEFAULT_CLIP_MS : 0);
   const gap = Number.isFinite(step.gapAfterMs) ? step.gapAfterMs : 250;
   return clip + gap;
 }
 
 /**
- * `ui.md` §11.2 / `acceptance-criteria.md` D7–D9 — which of a tile's two clips a touch
- * plays. Pure, and separate, because it is two booleans and one of them is a wall-clock
- * window: the rule is worth a test of its own.
- */
-export function clipVariant(firstTouchThisSession, anotherTileWithin900ms) {
-  return firstTouchThisSession && !anotherTileWithin900ms ? 'long' : 'short';
-}
-
-/**
  * Split the announcement into the part that is chanted and the part that is the reveal.
- * `gameplay.md` §5.3: the whole word is spoken **over** the picture, not before it, so
- * the `word` step is the reveal's rather than the chant's last beat.
+ * `gameplay.md` §5.3 and `ui.md` §10.4: the chant's beats 1–4 run on the board, then the
+ * picture arrives, and **the word is spoken ~200 ms after the picture is full screen**
+ * (AC F8). So the fifth beat's *clip* belongs to the reveal; its *visual* — the whole
+ * word, merged and gold — is the state the strip is already in when the picture lifts
+ * off it. The alternative, speaking the word twice 400 ms apart, is the thing §11.0 was
+ * written to stop.
  */
 export function planAnnouncement(steps) {
   const wordAt = steps.findIndex((s) => s.step === 'word');
@@ -73,10 +81,13 @@ export function createGameController(options) {
     timers = createTimerBag(),
     now = () => Date.now(),
     onSessionEnd = null,
+    /** A18 — this pack's album and encounter counts, from the last time it was played. */
+    progress = null,
+    onProgress = null,
   } = options;
 
   const pack = game.pack;
-  let engine = createSession(game, { seed });
+  let engine = createSession(game, { seed, progress });
   let opts = { ...settings };
   let destroyed = false;
 
@@ -86,11 +97,11 @@ export function createGameController(options) {
   /* ------------------------------------------------------------ presentation state */
 
   let view = {
-    tableSeq: 0,
-    tableRole: null,
     pressedId: null,
-    /** M9/M10/M11 — which chant step is lighting which strip cell. */
+    /** M11 — the chant's current beat: what the strip shows and what is lit. */
     chant: null,
+    /** M10 at 300 ms — the announcement's merge preview, before the chant rebuilds it. */
+    merged: false,
     /** The full-screen reward. `phase`: running | held | flying. */
     reveal: null,
     /** M8 — symbols flying home after an undo, in flight order. */
@@ -99,9 +110,10 @@ export function createGameController(options) {
     shimmerSeq: 0,
     hintLevel: 0,
     hintSymbolId: null,
+    /** V26 — when the breathing thing is a page BUTTON rather than a tile. */
+    hintPage: null,
     autoPlacedId: null,
     confettiSeq: 0,
-    merged: false,
     hopSeq: 0,
     /** H10 — which photograph each album card is currently showing. */
     albumPhotos: {},
@@ -113,9 +125,7 @@ export function createGameController(options) {
     x: 0,
     y: 0,
     holdRepeats: 0,
-    lastTileAt: -Infinity,
-    /** `acceptance-criteria.md` D7 — the long clip on the first touch **this session**. */
-    touchedThisSession: new Set(),
+    flatSeq: 0,
     stripHintFired: false,
   };
 
@@ -153,31 +163,49 @@ export function createGameController(options) {
     if (ladder.level === 4) {
       // 80 s: the app takes a turn (G5). The engine decides *which* symbol, and it is the
       // same one that has been breathing since 40 s (G11).
-      //
-      // The descriptor is captured **before** the dispatch: seating it changes the table
-      // (in Vietnamese it morphs to the next role entirely), so looking the symbol up
-      // afterwards finds nothing and the app's turn happens in silence — which is
-      // exactly the "nothing happened" failure `gameplay.md` §4.3 forbids.
       const chosen = hintSymbol(game, engine);
-      const symbol = chosen === null ? null : symbolOnTable(chosen);
-      dispatch({ type: 'autoPlay' });
-      if (chosen !== null) {
-        view.autoPlacedId = chosen;
-        if (symbol) playSymbol(symbol, 'short');
-        timers.set('autoPlaceClear', () => { view.autoPlacedId = null; emit(); }, M.autoPlaceFly);
+      if (chosen === null) return;
+      const page = game.inventory.pageOf(chosen);
+      // V27 — if the tile it wants is on another page, the app **changes page first**,
+      // then plays it. The slide is the app's, so it is the app's 420 ms.
+      if (page >= 0 && page !== engine.page) {
+        dispatch({ type: 'tapPage', index: page, by: 'auto' });
+        timers.set('autoPlayAfterSlide', () => autoPlay(chosen), M.pageSlideAuto);
+        return;
       }
-      // `acceptance-criteria.md` G6 — the ladder restarts at 20 s. The engine's `resetSeq`
-      // bump does that through `syncToEngine`.
+      autoPlay(chosen);
       return;
     }
 
     view.hintLevel = ladder.level;
-    // 20 s: the shimmer says *these ones*, without pointing at one (G2).
+    // 20 s: the shimmer says *these ones*, without pointing at one (G2). On a paged board
+    // it also pulses the standing button of every page he is not on (V26).
     if (ladder.level === 1) view.shimmerSeq += 1;
-    // 40 s / 60 s: one live tile breathes, then takes a steady gold rim (G3, G4).
-    if (ladder.level >= 2) view.hintSymbolId = hintSymbol(game, engine);
+    // 40 s / 60 s: one live tile breathes, then takes a steady gold rim (G3, G4). If the
+    // live set is entirely on another page, the breathing element is that page's BUTTON
+    // rather than a tile he cannot see (V26).
+    if (ladder.level >= 2) {
+      const chosen = hintSymbol(game, engine);
+      view.hintSymbolId = chosen;
+      const page = chosen === null ? -1 : game.inventory.pageOf(chosen);
+      view.hintPage = page >= 0 && page !== engine.page ? page : null;
+    }
     emit();
     scheduleLadder();
+  }
+
+  function autoPlay(chosen) {
+    if (destroyed || engine.phase !== 'playing' || engine.status !== 'building') return;
+    // The descriptor is captured **before** the dispatch: seating it changes the live
+    // set, and looking the symbol up afterwards to play its clip is how the app's turn
+    // once happened in silence.
+    const symbol = symbolOnTable(chosen);
+    dispatch({ type: 'autoPlay' });
+    view.autoPlacedId = chosen;
+    if (symbol) playSymbol(symbol);
+    timers.set('autoPlaceClear', () => { view.autoPlacedId = null; emit(); }, M.autoPlaceFly);
+    // `acceptance-criteria.md` G6 — the ladder restarts at 20 s. The engine's `resetSeq`
+    // bump does that through `syncToEngine`.
   }
 
   function resetLadder() {
@@ -185,6 +213,7 @@ export function createGameController(options) {
     ladder.dueAt = now() + LADDER.step;
     view.hintLevel = 0;
     view.hintSymbolId = null;
+    view.hintPage = null;
     scheduleLadder();
   }
 
@@ -208,23 +237,14 @@ export function createGameController(options) {
   }
 
   /**
-   * `ui.md` §11.3 — every letter in the app is a sound toy. A **flat** tile plays its own
-   * clip in full at the same latency, then a soft muted knock: *tap on wood, not on a
-   * drum* (`acceptance-criteria.md` E2). The ∅ socket has no đánh vần name, so it plays a
-   * wooden *open* instead of speech (C3, N13).
+   * `ui.md` §11.2, §11.3 / AC D7, N14 — **a tap always plays `short`.** No first-touch
+   * special case, no 900 ms window, and the `long` anchored clip is never fired by a tile
+   * tap: "kuh, cat" is 3 seconds of two utterances, and a 4-year-old taps every 300–600
+   * ms, so it was always cut mid-word. That is what "voices mixed up with each other"
+   * was, and the fix is this line.
    */
-  function playSymbol(symbol, which) {
-    if (symbol.kind === 'socket') {
-      audio.playTile(ui.socket ?? null);
-      return;
-    }
-    const ref = which === 'long' ? symbol.audio.long : symbol.audio.short;
-    audio.playTile(clip(ref));
-  }
-
-  function clipForTouch(symbolId) {
-    return clipVariant(!touch.touchedThisSession.has(symbolId),
-      now() - touch.lastTileAt < SHORT_CLIP_WINDOW);
+  function playSymbol(symbol) {
+    audio.playSpeech(clip(symbol.audio.short));
   }
 
   /* ------------------------------------------------------- the announcement */
@@ -238,22 +258,36 @@ export function createGameController(options) {
     const plan = planAnnouncement(chantSteps(game, engine));
     const notes = motifNotes(engine);
 
+    // F19 (RESTATED) — **speech is stopped, not ducked.** `playMotif` cuts the speech
+    // channel before it starts; ducking was the specification that guaranteed two voices
+    // at the loudest moment in the app (`ui.md` §11.0 item 2).
     audio.playMotif(notes === 4 ? (ui.motif4 ?? null) : (ui.motif3 ?? null));
     // `gameplay.md` §5.2 — his mother's voice over the motif, if she recorded one. If she
     // did not, the motif plays alone and nothing is missing (`acceptance-criteria.md` F6).
     if (ui.cheer) audio.playCheer(ui.cheer);
 
     view.hopSeq += 1;
-    view.merged = false;
     view.chant = null;
+    view.merged = false;
     view.reveal = null;
 
+    // F3 / M10 — at 300 ms the hairlines dissolve and the symbols slide into one word:
+    // *these are one word*, before the chant takes it apart again to teach it.
     timers.set('merge', () => { view.merged = true; emit(); }, REVEAL.mergeAt);
     timers.set('confetti', () => { view.confettiSeq += 1; emit(); }, REVEAL.confettiAt);
 
     plan.timeline.forEach((entry, i) => {
       timers.set(`chant${i}`, () => {
-        view.chant = { caption: entry.step.caption, stepKind: entry.step.step, cell: entry.step.cell };
+        // **The beat carries what the strip must show** (C12a): the engine resolved it,
+        // and the presentation replays it. A dropped frame cannot leave the strip
+        // showing a word that is not the word.
+        view.chant = {
+          stepKind: entry.step.step,
+          caption: entry.step.caption,
+          cells: entry.step.cells,
+          lit: entry.step.lit,
+          merged: entry.step.merged,
+        };
         audio.playSpeech(clip(entry.step.audio));
         emit();
       }, REVEAL.chantAt + entry.at);
@@ -265,7 +299,15 @@ export function createGameController(options) {
 
   function startReveal(plan) {
     const p = engine.pending;
-    view.chant = null;
+    view.chant = plan.word
+      ? {
+        stepKind: 'word',
+        caption: plan.word.caption,
+        cells: plan.word.cells,
+        lit: plan.word.lit,
+        merged: true,
+      }
+      : null;
     view.reveal = {
       phase: 'running',
       image: p ? p.image : null,
@@ -312,18 +354,17 @@ export function createGameController(options) {
       dispatch({ type: 'advance' });
       if (engine.phase === 'album') {
         view.reveal = null;
-        view.merged = false;
         view.chant = null;
+        view.merged = false;
         emit();
         return;
       }
       // M15 — the picture flies into the shelf and the strip clears. The slot has already
-      // been filled by the engine; this is the flight, which is presentation.
-      // The strip is a strip again: M10's merge is a state of the announcement, not of
-      // the board, and leaving it set left the three cells fused into one plate for the
-      // rest of the session — seen in a browser after the first word.
-      view.merged = false;
+      // been filled by the engine; this is the flight, which is presentation. The merge is
+      // a state of the announcement, not of the board: leaving it set left the cells fused
+      // into one plate for the rest of the session, which was seen in a browser in Slice 3.
       view.chant = null;
+      view.merged = false;
       if (wasNew) {
         audio.playUi(ui.shelfBell ?? null);
         view.reveal = { ...view.reveal, phase: 'flying' };
@@ -336,25 +377,23 @@ export function createGameController(options) {
   }
 
   /**
-   * `acceptance-criteria.md` N11 — every clip the new table can produce is decoded before
-   * the morph completes. The word clips of everything still reachable from here go with
-   * them, because the reveal speaks a word roughly a second after the tap that makes it
-   * and a decode in that window would be audible.
+   * `acceptance-criteria.md` N11 (RESTATED) — **every clip the constant table can produce
+   * is decoded and resident before the first tap is possible.** The table never changes,
+   * so this is a one-time cost at pack load rather than a per-tap concern: at most 67
+   * symbols × 2 variants. The word clips go with them, because the reveal speaks a word
+   * about a second after the tap that makes it and a decode in that window is audible.
    */
   function preloadForTable() {
     const sources = [];
     const push = (s) => { if (s) sources.push(s); };
     for (const cell of tableView(game, engine).cells) {
-      if (cell.kind === 'socket') continue;
       push(clip(cell.audio.long));
       push(clip(cell.audio.short));
     }
-    for (const key of ['motif3', 'motif4', 'cheer', 'seat', 'knock', 'unclick', 'socket', 'shelfBell', 'shelfTip']) {
+    for (const key of ['motif3', 'motif4', 'cheer', 'seat', 'knock', 'unclick', 'page', 'shelfBell', 'shelfTip']) {
       push(ui[key] ?? null);
     }
-    const tree = treeOf(game, engine);
-    const reachable = tree ? tree.eligible : pack.words;
-    for (const word of reachable) {
+    for (const word of game.tree.eligible) {
       push(clip(word.audio.word));
       push(clip(word.audio.blend));
       if (opts.saySentence) push(clip(word.audio.sentence));
@@ -364,25 +403,19 @@ export function createGameController(options) {
 
   /* ------------------------------------------------- reacting to the engine state */
 
-  let lastStatus = null;
-  let lastPhase = null;
+  let lastStatus = engine.status;
+  let lastPhase = engine.phase;
   let lastResetSeq = engine.idle.resetSeq;
   let lastTouchSeq = engine.idle.touchSeq;
-  let lastTableRole = null;
-  let lastPrefixLen = engine.prefix.length;
+  let lastPageSeq = engine.pageSeq;
 
   function syncToEngine() {
-    const role = tableView(game, engine).role;
-    if (role !== lastTableRole || engine.prefix.length !== lastPrefixLen) {
-      // M7 — the table morphs. The sequence is what the presentation keys the cross-fade
-      // on; it never decides *which* table.
-      if (role !== lastTableRole) {
-        lastTableRole = role;
-        view.tableRole = role;
-        view.tableSeq += 1;
-      }
-      lastPrefixLen = engine.prefix.length;
-      preloadForTable();
+    // V24 — **a page change sounds**, whoever caused it, on the UI channel, and it does
+    // not cut speech. It is the same sound both ways: the duration of the motion is what
+    // distinguishes them visually, and a second sound would be one more thing to learn.
+    if (engine.pageSeq !== lastPageSeq) {
+      lastPageSeq = engine.pageSeq;
+      audio.playUi(ui.page ?? null, -6);
     }
 
     if (engine.idle.resetSeq !== lastResetSeq) {
@@ -415,7 +448,13 @@ export function createGameController(options) {
     if (destroyed) return;
     const next = reduce(game, engine, action);
     if (next === engine) { emit(); return; }
+    const wasAlbum = engine.album;
     engine = next;
+    // A18 — the album and the encounter counts go up to the shell, which holds them per
+    // pack across a language switch. Only when they change, so a tap does not write.
+    if (onProgress && (engine.album !== wasAlbum || action.type === 'advance')) {
+      onProgress(progressOf(engine));
+    }
     syncToEngine();
     emit();
   }
@@ -431,29 +470,30 @@ export function createGameController(options) {
     getSnapshot() {
       if (snapshot) return snapshot;
       const table = tableView(game, engine);
+      const rail = pageView(game, engine);
       snapshot = {
         language: game.language,
         phase: engine.phase,
         status: engine.status,
         engine,
         table,
-        // **The layout is sized from the stage's table, never from the table on screen.**
-        // `ui.md` §4.2: "tile size is computed once per stage and does not change as the
-        // table morphs from onsets to rimes to tones, so a tile never resizes under his
-        // finger" (`acceptance-criteria.md` B8). The Vietnamese tone table is 2–6 cells
-        // and the onset table is 24; sizing from the visible one made every tile jump
-        // between the second tap and the third.
-        cells: effectiveCells(game, engine.stage),
-        tableRole: view.tableRole,
-        tableSeq: view.tableSeq,
-        strip: stripView(game, engine),
+        rail,
+        /** V9 — one grid for every page, sized from the largest page, once. */
+        cells: game.cells,
+        page: engine.page,
+        pageBy: engine.pageBy,
+        pageSeq: engine.pageSeq,
+        /** V11 — his page change is 300 ms; the app's is 420 ms. */
+        pageSlideMs: engine.pageBy === 'auto' ? M.pageSlideAuto : M.pageSlide,
+        // During the chant the strip is the beat's, because the chant re-shows earlier
+        // states of a word that is already complete (C12a).
+        strip: view.chant && view.chant.cells ? view.chant.cells : stripView(game, engine),
+        chant: view.chant,
+        merged: view.chant ? Boolean(view.chant.merged) : view.merged,
         shelf: shelfView(engine),
         album: engine.album,
         albumPhotos: view.albumPhotos,
-        stage: engine.stage,
         pending: engine.pending,
-        chant: view.chant,
-        merged: view.merged,
         hopSeq: view.hopSeq,
         confettiSeq: view.confettiSeq,
         reveal: view.reveal,
@@ -463,8 +503,9 @@ export function createGameController(options) {
         shimmerSeq: view.shimmerSeq,
         hintLevel: view.hintLevel,
         hintSymbolId: view.hintLevel >= 2 ? view.hintSymbolId : null,
-        // `acceptance-criteria.md` B8 — tile size is a function of the table, not of the
-        // live set, so a tile never resizes under his finger.
+        hintPage: view.hintLevel >= 2 ? view.hintPage : null,
+        // B8 — the tile size is a function of the table, not of the live set, so a tile
+        // never resizes under his finger.
         maxGlyphLen: table.cells.reduce((n, c) => Math.max(n, glyphLength(c.glyph ?? '')), 1),
       };
       return snapshot;
@@ -489,9 +530,21 @@ export function createGameController(options) {
       touch.y = y;
       touch.holdRepeats = 0;
 
-      playSymbol(symbol, clipForTouch(symbolId));
-      touch.touchedThisSession.add(symbolId);
-      touch.lastTileAt = now();
+      if (symbol.live) {
+        playSymbol(symbol);
+      } else {
+        // **E2 — the knock PRECEDES its letter.** A 40 ms muted knock at −9 dB within
+        // 60 ms, then the tile's own `short` clip in full at +120 ms, and the two do not
+        // overlap. Knock-then-letter is a clearer signature of "this one is lying down"
+        // than knock-over-letter was, and it removes the last simultaneous pairing in
+        // the app (`ui.md` §11.0 item 3).
+        audio.playUi(ui.knock ?? null, -9);
+        touch.flatSeq += 1;
+        // A per-tap name, so twenty taps play twenty clips (E13) instead of each one
+        // cancelling the last. Two taps closer together than 120 ms still cut, because
+        // the cut rule is the cut rule.
+        timers.set(`flat${touch.flatSeq}`, () => playSymbol(symbol), M.flatClipAfter);
+      }
 
       view.pressedId = symbolId;
       deferLadder();
@@ -502,8 +555,7 @@ export function createGameController(options) {
         if (touch.ownerId !== symbolId) return;
         touch.holdRepeats += 1;
         if (touch.holdRepeats > HOLD.maxRepeats) return;
-        playSymbol(symbol, 'short');
-        touch.lastTileAt = now();
+        playSymbol(symbol);
         timers.set('hold', repeat, HOLD.repeatMs);
       }, HOLD.startMs);
 
@@ -524,10 +576,9 @@ export function createGameController(options) {
       const symbol = symbolOnTable(symbolId);
       const wasLive = Boolean(symbol && symbol.live);
       dispatch({ type: 'tapSymbol', symbolId });
+      // The seat click is on the UI channel, over the clip's tail, and it never cuts it
+      // (N3b). A flat tap has already had its knock, on touch-down.
       if (wasLive) audio.playUi(ui.seat ?? null);
-      // `gameplay.md` §4.3 — a flat tile talks but does not move: its clip, then a soft
-      // muted knock. Never red, never a buzzer, never a shake (E2, E3).
-      else if (symbol) audio.playUi(ui.knock ?? null, -9);
     },
 
     symbolCancel() {
@@ -538,6 +589,24 @@ export function createGameController(options) {
       emit();
     },
 
+    /* ---- the page rail ------------------------------------------------------ */
+
+    /**
+     * `ui.md` §7.1b / AC V19 — pressing a page button plays **the page sound only, never
+     * speech**: the glyph on a button is a label, not a character he is choosing, and
+     * speaking it would teach that pressing a character and pressing a page are the same
+     * act. V15: he may land on a page with nothing live and stay there.
+     */
+    tapPage(index) {
+      if (destroyed) return;
+      // V31 — a touch in flight does not survive a page change: nothing on the new page
+      // is seated by the same finger.
+      touch.ownerId = null;
+      view.pressedId = null;
+      timers.clear('hold');
+      dispatch({ type: 'tapPage', index });
+    },
+
     /* ---- the word strip: tap is undo, hold is the parts hint ---------------- */
 
     stripDown() {
@@ -545,9 +614,10 @@ export function createGameController(options) {
       touch.stripHintFired = false;
       timers.set('stripHint', () => {
         touch.stripHintFired = true;
-        // `acceptance-criteria.md` M2, M3 — the parts of what is assembled, never a
-        // completion; the ladder is untouched and no assist is recorded. The engine says
-        // so by returning the identical state.
+        // `acceptance-criteria.md` M2, M3, D9 — the parts of what is assembled, in
+        // English the **`long` anchored clips**, which is the only place in the app they
+        // are ever heard. The ladder is untouched and no assist is recorded; the engine
+        // says so by returning the identical state.
         dispatch({ type: 'partsHint' });
         playSteps(partsHintSteps(game, engine), 'parts');
       }, PARTS_HINT_HOLD);
@@ -569,12 +639,14 @@ export function createGameController(options) {
       view.returning = leaving.map((s) => s.id);
       audio.playUi(ui.unclick ?? null);
       leaving.forEach((symbol, i) => {
-        timers.set(`unseat${i}`, () => playSymbol(symbol, 'short'), i * M.flyHomeStagger);
+        timers.set(`unseat${i}`, () => playSymbol(symbol), i * M.flyHomeStagger);
       });
       timers.set('returningClear', () => {
         view.returning = [];
         emit();
       }, M.flyHome + M.flyHomeStagger * Math.max(0, leaving.length - 1));
+      // V23 — the board slides to that symbol's page as it returns it, so undo is also
+      // the way back to where a character lives. The engine decides the page.
       dispatch({ type: 'tapStripCell', index });
     },
 
@@ -625,6 +697,23 @@ export function createGameController(options) {
       timers.clearAll();
       audio.fadeOut(SESSION_FADE, () => { if (onSessionEnd) onSessionEnd(); });
       dispatch({ type: 'finishSession' });
+    },
+
+    /**
+     * `gameplay.md` §7.1 / AC A15, A17, R6 — **a language switch is a teardown, not a
+     * fade.** Every channel stops **hard**, synchronously, and every timer is cleared, so
+     * no clip of the outgoing language can be heard over the incoming board. The 800 ms
+     * fade *Finish session* uses would play exactly that.
+     */
+    stopForLanguageSwitch() {
+      if (destroyed) return;
+      timers.clearAll();
+      audio.cancelFade();
+      audio.stopAll();
+      view.chant = null;
+      view.reveal = null;
+      view.returning = [];
+      emit();
     },
 
     /* ---- settings, and the lifecycle ---------------------------------------- */
@@ -688,7 +777,9 @@ export function createGameController(options) {
     steps.forEach((step, i) => {
       timers.set(`${name}${i}`, () => {
         audio.playSpeech(clip(step.audio));
-        view.chant = { caption: step.caption, stepKind: step.step, cell: step.cell };
+        view.chant = {
+          stepKind: step.step, caption: step.caption, cells: step.cells, lit: step.lit, merged: false,
+        };
         emit();
       }, at);
       at += stepDurationMs(step);
@@ -696,13 +787,9 @@ export function createGameController(options) {
     timers.set(`${name}End`, () => { view.chant = null; emit(); }, at);
   }
 
-  // First table: prime the audio, the ladder and the table role.
+  // Prime the audio and the ladder. The table is constant, so this is the only preload.
   audio.setMuted(opts.mute);
   audio.setRate(opts.rate);
-  lastPhase = engine.phase;
-  lastStatus = engine.status;
-  lastTableRole = tableView(game, engine).role;
-  view.tableRole = lastTableRole;
   preloadForTable();
   resetLadder();
 

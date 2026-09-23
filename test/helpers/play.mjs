@@ -2,12 +2,16 @@
 // accepts. Nothing here reaches inside the state to arrange a board, because a board
 // arranged by hand proves nothing about whether the board can be reached.
 
-import { createGame, createSession, reduce, tableView, treeOf } from '../../src/engine/index.mjs';
+import { createGame, createSession, reduce, tableView } from '../../src/engine/index.mjs';
 
-/** A game and a session at a given stage, which is the only thing the table depends on. */
-export function start(pack, { seed = 'test', stage = 5, maxCells = 24 } = {}) {
-  const game = createGame(pack, { maxCells });
-  const state = { ...createSession(game, { seed }), stage };
+/**
+ * A game and a session. **There is no stage and no cell budget any more** (revision 4):
+ * the table is the whole pack inventory, and the only thing the device contributes is the
+ * page plan — `pages: null` is every tablet, one page and no rail.
+ */
+export function start(pack, { seed = 'test', pages = null } = {}) {
+  const game = createGame(pack, { pages });
+  const state = createSession(game, { seed });
   return { game, state };
 }
 
@@ -61,8 +65,7 @@ export function firstPath(game, state) {
  * test needs to make *progress* rather than merely to make a word.
  */
 export function unseenPath(game, state) {
-  // The tree the session is actually playing on, not the widest one it could be.
-  const tree = treeOf(game, state);
+  const tree = game.tree;
   const walk = (node, prefix) => {
     if (node.wordId !== null && !state.discovered[node.wordId]) return prefix;
     for (const [symbol, child] of node.children) {

@@ -11,19 +11,18 @@
 //      `E13` names the tree as the thing that must not spend it. So every node carries
 //      its live set as a `Set` built once, and a tap is `node.children.get(symbol)` —
 //      one map lookup, whatever the vocabulary grows to. Nothing is searched at a tap.
-//   2. **Built atomically.** A tree is built whole and then swapped in (`createGame`
-//      builds every table size the stage ladder can ask for, up front). A half-built
-//      tree is never reachable, which is what `acceptance-criteria.md` J14 needs when
-//      his mother saves a word while he is mid-build.
-//   3. **Pure.** No RNG, no clock. The same pack and the same `cells` give the same tree,
-//      byte for byte, which is half of B12's replay guarantee.
+//   2. **Built atomically.** A tree is built whole and then swapped in. A half-built tree
+//      is never reachable, which is what `acceptance-criteria.md` J14 needs when his
+//      mother saves a word while he is mid-build.
+//   3. **Pure.** No RNG, no clock. The same pack gives the same tree, byte for byte,
+//      which is half of B12's replay guarantee.
 //
-// **Eligibility** (`gameplay.md` §6.1): a word is eligible iff every one of its symbols
-// is on the table at this table size. The tree is built over the eligible set, so the
-// live/disabled computation and the table can never disagree (B2, B14, L7).
+// **Revision 4: there is one tree, not five.** Revision 2 built a tree per stage, because
+// the table grew; there are no stages (`gameplay.md` §3.6) and nothing is truncated
+// (C21), so the inventory is the whole pack and the tree is built over it once.
 
 import { langFor } from './lang/index.mjs';
-import { CELLS_BY_STAGE } from './stages.mjs';
+import { buildInventory } from './table.mjs';
 
 function makeNode(depth) {
   return {
@@ -38,16 +37,13 @@ function makeNode(depth) {
 }
 
 /**
- * Build one tree.
+ * Build the tree over one inventory.
  *
- * @param {object} pack     a resolved pack
- * @param {number} cells    how many cells the table has at this stage (8..24)
- * @returns {{cells:number, root:object, eligible:object[], withheld:object[], inventory:object}}
+ * @param {object} pack       a resolved pack
+ * @param {object} inventory  from `table.buildInventory`
  */
-export function buildTree(pack, cells) {
+export function buildTree(pack, inventory) {
   const lang = langFor(pack.language);
-  const inventory = lang.inventoryFor(pack, cells);
-
   const root = makeNode(0);
   const eligible = [];
   const withheld = [];
@@ -55,6 +51,8 @@ export function buildTree(pack, cells) {
   for (const word of pack.words) {
     const path = lang.pathFor(word);
     if (!lang.pathIsOnTable(inventory, path, pack)) {
+      // With paging nothing is truncated, so this is reachable only for a word whose
+      // symbol the pack declares nowhere in `inventoryOrder` — the editor's K10 case.
       withheld.push({ id: word.id, text: word.text, reason: 'notOnTheBoard' });
       continue;
     }
@@ -85,7 +83,7 @@ export function buildTree(pack, cells) {
   };
   fill(root);
 
-  return { cells, root, eligible, withheld, inventory };
+  return { root, eligible, withheld, inventory };
 }
 
 /**
@@ -117,7 +115,7 @@ export function wordIdAt(tree, prefix) {
 
 /**
  * `gameplay.md` §5.5 — is this prefix a word that some longer word continues? In
- * Vietnamese it never is, because a word is exactly three symbols (`acceptance-criteria.md`
+ * Vietnamese it never is, because a word is exactly one syllable (`acceptance-criteria.md`
  * F17); the rule exists because his mother will add `he`, `be` and `at` in English.
  */
 export function continues(tree, prefix) {
@@ -126,40 +124,24 @@ export function continues(tree, prefix) {
 }
 
 /**
- * Every table size the stage ladder can produce on this viewport, smallest first.
- * Deduplicated, because a 20-cell viewport serves stages 4 and 5 with the same table.
- */
-export function tableSizesFor(maxCells) {
-  const out = [];
-  for (const n of CELLS_BY_STAGE) {
-    const c = Math.min(n, maxCells);
-    if (c > 0 && !out.includes(c)) out.push(c);
-  }
-  return out;
-}
-
-/**
- * The game: one pack, and the trees for every table size it can be played at.
+ * The game: one pack, its constant inventory, its page plan and its tree.
  *
- * Built eagerly, all of them, because there are at most five and the whole point is that
- * a stage advance must not cost a frame. `createGame` is the atomic unit E13 names: a new
- * pack, or a word saved, means a new game object built whole and swapped in — never a
- * tree mutated under a child's finger.
+ * `pages` is the page plan from `layout.planFor` — an array of page sizes, or null on a
+ * viewport that shows the whole inventory at once (every tablet, V1). It is the **only**
+ * thing the device contributes, and it can change nothing about which character sits in
+ * which slot of which page beyond how many pages there are (V7).
  */
-export function createGame(pack, { maxCells = 24 } = {}) {
-  const trees = new Map();
-  for (const cells of tableSizesFor(maxCells)) trees.set(cells, buildTree(pack, cells));
+export function createGame(pack, { pages = null } = {}) {
+  const lang = langFor(pack.language);
+  const inventory = buildInventory(lang.runsFor(pack), pages);
+  const tree = buildTree(pack, inventory);
   return {
     pack,
     language: pack.language,
-    maxCells,
-    trees,
-    /** The tree for a table size, falling back to the largest one built at or below it. */
-    treeFor(cells) {
-      if (trees.has(cells)) return trees.get(cells);
-      let best = null;
-      for (const [n, t] of trees) if (n <= cells && (best === null || n > best)) best = n;
-      return best === null ? null : trees.get(best);
-    },
+    inventory,
+    tree,
+    /** V2 / V9 — one grid for every page, sized from the largest. */
+    cells: inventory.cells,
+    pageCount: inventory.pages.length,
   };
 }

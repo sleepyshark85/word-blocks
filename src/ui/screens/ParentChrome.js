@@ -69,23 +69,6 @@ export function Row({ label, detail, onPress, first }) {
   );
 }
 
-export function PrimaryButton({ label, onPress, disabled }) {
-  const theme = useTheme();
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      style={[styles.primary, {
-        backgroundColor: theme.accentFace,
-        opacity: disabled ? 0.45 : 1,
-      }]}
-    >
-      <AppText role="button" colour={theme.groundAlt}>{label}</AppText>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   root: { flex: 1 },
   bar: {
@@ -102,12 +85,5 @@ const styles = StyleSheet.create({
     minHeight: 56,
     justifyContent: 'center',
     paddingVertical: 12,
-  },
-  primary: {
-    marginTop: 24,
-    minHeight: 52,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

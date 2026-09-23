@@ -80,44 +80,49 @@ test('a duplicated tile id yields one tile, not two cells sharing one id', () =>
   // shared one id, so seating one removed both and 333 of 400 generated rounds showed
   // the same onset twice. Under discovery the table **is** the inventory, so the same
   // defect would put one symbol in two cells — and a tap would be ambiguous.
-  const game = createGame(pack, { maxCells: 24 });
-  const state = { ...createSession(game, { seed: 'duptile' }), stage: 5 };
+  const game = createGame(pack);
+  const state = createSession(game, { seed: 'duptile' });
   const cells = tableView(game, state).cells.map((c) => c.id);
   assert.equal(new Set(cells).size, cells.length, 'one symbol occupies two cells');
   assert.deepEqual(pack.inventoryOrder.onset, [...new Set(pack.inventoryOrder.onset)]);
   assert.deepEqual(checkInvariants(game, state), []);
 });
 
-test('an illegal tone is not on the tone table at all — legality is absence', () => {
+test('C7 — an illegal tone is DRAWN and flat, and cannot be seated', () => {
   // The state the Slice 2 tester reached on `quạt`: a tone seated against a rime that has
-  // no stored form for it, which is a board state with no spelling. Under revision 2 it
-  // is unreachable by construction rather than refused: `literacy-vi.md` §5.2's checked
-  // syllables render **two** tone cells, so the illegal four are not drawn and cannot be
-  // tapped. That is a stronger guarantee than the reducer's refusal was.
+  // no stored form for it, which is a board state with no spelling.
+  //
+  // **Revision 3 changes how that is prevented, and this test is its inverse.** Revision
+  // 2 drew only the legal tone cells, so an illegal one could not be tapped because it
+  // was not there. The owner asked for the regular character table: all six cells are
+  // always present, the illegal four **lie flat**, and liveness is what stops him —
+  // exactly as everywhere else on this board. Legality and completability are now both
+  // flatness (`ui.md` §7.2).
   const pack = viPack();
-  const game = createGame(pack, { maxCells: 24 });
-  // It has to be a word the 24-cell board can actually reach, or the taps below are
-  // refused and the test passes for the wrong reason.
-  const stopFinal = game.treeFor(24).eligible.find((w) => {
+  const game = createGame(pack);
+  const stopFinal = game.tree.eligible.find((w) => {
     const tile = pack.tileById.rime[w.syllables[0].rime];
     return tile.legalTones.length === 2;
   });
   assert.ok(stopFinal, 'the seed pack still has a reachable checked-syllable word');
 
-  let state = { ...createSession(game, { seed: 'illegal-tone' }), stage: 5 };
+  let state = createSession(game, { seed: 'illegal-tone' });
   const syl = stopFinal.syllables[0];
-  state = reduce(game, state, { type: 'tapSymbol', symbolId: syl.onset ?? '\u2205' });
+  if (syl.onset !== null) state = reduce(game, state, { type: 'tapSymbol', symbolId: syl.onset });
   state = reduce(game, state, { type: 'tapSymbol', symbolId: syl.rime });
 
   const rimeTile = pack.tileById.rime[syl.rime];
-  const table = tableView(game, state);
-  assert.equal(table.role, 'tone');
-  assert.deepEqual(table.cells.map((c) => c.id), rimeTile.legalTones);
+  const tones = tableView(game, state).cells.filter((c) => c.role === 'tone');
+  assert.deepEqual(tones.map((c) => c.id), pack.inventoryOrder.tone, 'all six cells are present');
   const illegal = ['ngang', 'huyen', 'hoi', 'nga'].find((t) => !rimeTile.legalTones.includes(t));
   assert.ok(illegal, 'this rime takes every tone, so there is nothing to exclude');
-  assert.ok(!table.cells.some((c) => c.id === illegal), `${illegal} is drawn on a checked rime`);
-  // And a tap naming it is refused outright rather than seated.
+  const cell = tones.find((c) => c.id === illegal);
+  assert.equal(cell.live, false, `${illegal} stands up on a checked rime`);
+  // It falls back to the bare mark, because the orthography has no form for it to show.
+  assert.equal(cell.carrier, 'mark');
+  // And a tap on it is a flat tap: it speaks and seats nothing.
   const after = reduce(game, state, { type: 'tapSymbol', symbolId: illegal });
-  assert.equal(after, state);
+  assert.deepEqual(after.prefix, state.prefix);
+  assert.equal(after.status, 'building');
   assert.deepEqual(checkInvariants(game, state), []);
 });

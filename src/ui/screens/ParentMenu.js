@@ -13,7 +13,7 @@ import { StyleSheet, Switch, View } from 'react-native';
 import { useTheme } from '../../theme';
 import { AppText } from '../Text';
 import { ThemeButtons } from '../ThemeButtons';
-import { ParentScreen, Row, PrimaryButton } from './ParentChrome';
+import { ParentScreen, Row } from './ParentChrome';
 import { chooserPanels } from '../../i18n';
 
 function Toggle({ label, value, onChange }) {
@@ -44,9 +44,21 @@ function AboutScreen({ strings, attributions, version, onBack }) {
   );
 }
 
+/**
+ * `gameplay.md` §7.1 (revision 3) / AC **A9, A12, R3** — **one tap on the other language
+ * switches**, with no second confirm.
+ *
+ * Revision 2 asked for a two-touch confirm here and framed language as "the setting with
+ * the worst blast radius". The owner: *"I want to be able to change between
+ * English/Vietnamese whenever I want."* The gate has already proved an adult is holding
+ * the phone; asking twice is theatre. The first-launch chooser's two touches stay,
+ * because there no adult has been proved.
+ *
+ * It is **the same chooser screen** the first launch shows (R3) — the single documented
+ * screen on which both languages appear.
+ */
 function LanguageScreen({ strings, current, onBack, onConfirm }) {
   const theme = useTheme();
-  const [picked, setPicked] = useState(null);
   return (
     <ParentScreen title={strings.menuLanguage} modeTitle={strings.modeTitle} onBack={onBack}>
       <AppText role="secondary" colour={theme.inkSoft}>{strings.languageSwitchWarning}</AppText>
@@ -55,14 +67,10 @@ function LanguageScreen({ strings, current, onBack, onConfirm }) {
           key={panel.language}
           first={i === 0}
           label={panel.title}
-          detail={panel.language === current ? panel.subtitle : null}
-          onPress={() => setPicked(panel.language)}
+          detail={panel.subtitle}
+          onPress={panel.language === current ? onBack : () => onConfirm(panel.language)}
         />
       ))}
-      {picked ? (
-        // `gameplay.md` §7.1 — the same two-touch confirm as the first-launch chooser.
-        <PrimaryButton label={strings.start} onPress={() => onConfirm(picked)} />
-      ) : null}
     </ParentScreen>
   );
 }
@@ -151,10 +159,13 @@ export function ParentMenu({
 
   return (
     <ParentScreen title={strings.menuTitle} modeTitle={strings.modeTitle} onBack={onBack}>
+      {/* `gameplay.md` §7.3 — seven rows, and **Language is row 2**, directly under
+          *Add a word* (A12). It was row 4 in revision 2; the owner asked to switch
+          whenever he likes, and the row he reaches for should be where he looks first. */}
       <Row first label={strings.menuAddWord} onPress={() => setScreen('editor')} />
+      <Row label={strings.menuLanguage} onPress={() => setScreen('language')} />
       <Row label={strings.menuWords} onPress={() => setScreen('editor')} />
       <Row label={strings.menuFinish} onPress={onFinishSession} />
-      <Row label={strings.menuLanguage} onPress={() => setScreen('language')} />
       <Row label={strings.menuVoice} onPress={() => setScreen('voice')} />
       <Row label={strings.menuMotion} onPress={() => setScreen('motion')} />
       <Row label={strings.menuAbout} onPress={() => setScreen('about')} />

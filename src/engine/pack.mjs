@@ -65,9 +65,19 @@ function resolveTileAudio(raw, hasMedia) {
 
 function resolveWordAudio(raw, hasMedia) {
   const a = raw && typeof raw === 'object' ? raw : {};
+  // `text` is carried through because the **blend** clip is the only record of the
+  // toneless spelling chant beat 3 has to show (`gameplay.md` §5.4): `b` + `o` is `bo`,
+  // but `gi` + `i` is `gi` and not `gii`, so the spelling has to come from the pack
+  // rather than from a concatenation (`literacy-vi.md` §1.2, AC K5).
   const keep = (clip) => {
     if (!clip || typeof clip !== 'object' || !isNonEmptyString(clip.src)) return null;
-    return hasMedia(clip.src) ? { src: clip.src, ms: Number.isFinite(clip.ms) ? clip.ms : null } : null;
+    return hasMedia(clip.src)
+      ? {
+        src: clip.src,
+        ms: Number.isFinite(clip.ms) ? clip.ms : null,
+        text: isNonEmptyString(clip.text) ? nfc(clip.text) : null,
+      }
+      : null;
   };
   return { word: keep(a.word), blend: keep(a.blend), sentence: keep(a.sentence) };
 }
@@ -132,6 +142,9 @@ function resolveViTiles(manifest, hasMedia, issues) {
       // `glyph` is deliberately absent: a tone tile renders the *seated rime* with this
       // tone's stored spelling (`literacy-vi.md` §5.4), never a floating diacritic.
       label: nfc(isNonEmptyString(raw.label) ? raw.label : raw.id),
+      // The combining mark, for the **bare-mark carrier** a tone cell wears while it is
+      // disabled (`ui.md` §7.2, AC B2d). `ngang` has none and shows the empty circle.
+      mark: isNonEmptyString(raw.mark) ? nfc(raw.mark) : '',
       audio: resolveTileAudio(raw.audio, hasMedia),
     });
   }

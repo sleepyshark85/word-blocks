@@ -59,6 +59,7 @@ export function createFakeAudio() {
   let prepared = [];
   let muted = false;
   let disposed = false;
+  let speaking = null;
   return {
     log,
     prepared: () => prepared,
@@ -66,12 +67,24 @@ export function createFakeAudio() {
     // The same surface as `src/audio/engine.js`, method for method: a double with extra
     // methods is a double that can drift from the thing it stands in for.
     prepare(sources) { prepared = sources.slice(); },
-    playTile(source) { log.push({ ch: 'tile', source, muted }); return muted ? 0 : 1; },
-    playSpeech(source) { log.push({ ch: 'speech', source, muted }); return muted ? 0 : 1; },
-    playMotif(source) { log.push({ ch: 'motif', source, muted }); return muted ? 0 : 1; },
+    // One SPEECH channel, and the double records the cut so a test can assert it
+    // (`ui.md` §11.2, AC N3/N3a): a new speech request stops the one before it.
+    playSpeech(source) {
+      if (speaking !== null) log.push({ ch: 'cut', source: speaking });
+      speaking = source;
+      log.push({ ch: 'speech', source, muted });
+      return muted ? 0 : 1;
+    },
+    playMotif(source) {
+      // F19 — the motif STOPS speech before it starts. The double must do it too, or a
+      // test of the cut rule would be testing the double rather than the engine.
+      if (speaking !== null) { log.push({ ch: 'cut', source: speaking }); speaking = null; }
+      log.push({ ch: 'motif', source, muted });
+      return muted ? 0 : 1;
+    },
     playCheer(source) { log.push({ ch: 'cheer', source, muted }); return muted ? 0 : 1; },
     playUi(source, db = 0) { log.push({ ch: 'ui', source, db, muted }); return muted ? 0 : 1; },
-    stopAll() { log.push({ ch: 'stopAll' }); },
+    stopAll() { speaking = null; log.push({ ch: 'stopAll' }); },
     cancelFade() {},
     fadeOut(ms, done) { log.push({ ch: 'fadeOut', ms }); if (done) done(); },
     setMuted(v) { muted = Boolean(v); },

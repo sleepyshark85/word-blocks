@@ -1,4 +1,4 @@
-// The motion table of `ui.md` §10.3, as data — revision 2.
+// The motion table of `ui.md` §10.3, as data — revision 4.
 //
 // Every duration in the app comes from here, so a timing that an acceptance criterion
 // names (§F, O7, O8, O10) has exactly one place it can be wrong.
@@ -15,12 +15,15 @@ export const M = {
   flightOvershoot: 1.06, // M3
   cellFill: 140, // M4
   disabledDip: 120, // M5 / O7 — the smallest motion in the app, on purpose
+  flatClipAfter: 120, // E2 — the knock is the sound at 60 ms; the LETTER follows it
   disabledDipPt: 2, // M5 / O7
   standChange: 200, // M6 — stand up / lie down
   standStagger: 20, // M6 / O10 — by cell index, so the board reads as a wave
   standRisePt: 2, // M6
-  tableMorph: 280, // M7 — onset -> rime -> tone
-  tableRise: 8, // M7
+  toneSwap: 160, // M7 / O12 — a tone cell swaps its carrier. No movement, nothing else.
+  pageSlide: 300, // M7a / V11 — HE changed the page
+  pageSlideAuto: 420, // M7a / V11 — the APP changed it: measurably slower, so it reads
+  railRise: 4, // §7.1b — the current page button sits 4 pt proud
   flyHome: 300, // M8 — undo
   flyHomeStagger: 90, // M8 / E8
   hop: 260, // M9 — the announcement hop, per symbol
@@ -83,8 +86,12 @@ export const TAP = { maxMs: 600, maxSlopPt: 24 };
 /** `ui.md` §11.2 — holding past 600 ms repeats the short clip every 700 ms, max 6 times. */
 export const HOLD = { startMs: 600, repeatMs: 700, maxRepeats: 6 };
 
-/** `ui.md` §11.2 — any tile touched in the previous 900 ms forces the short clip (D9). */
-export const SHORT_CLIP_WINDOW = 900;
+/**
+ * `acceptance-criteria.md` A13 / `gameplay.md` §7.2 — after a correct gate answer the
+ * gate does not re-ask for 180 s, so a parent switching language twice in one sitting
+ * answers one multiplication rather than two. It ends the moment play resumes (A14).
+ */
+export const GATE_GRACE = 180000;
 
 /**
  * `gameplay.md` §6.4 — the idle ladder. 20 s shimmer, 40 s breathe, 60 s rim, 80 s the

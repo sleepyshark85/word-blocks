@@ -1,243 +1,342 @@
-// Ghép Chữ — the Vietnamese machine, revision 2.
+// Ghép Chữ — the Vietnamese machine, **revision 4**.
 //
-// A syllable is `âm đầu + vần + thanh` (`literacy-vi.md` §1). Three decisions, in that
-// order, never letter by letter. The engine matches on the `(onset, rime, tone)` triple
-// and **never concatenates strings**: `gi` + `i` is `gì`, not `gii`, and `gi` + `iêng` is
-// `giêng` (§1.2). Every spelling the child ever sees comes out of the pack.
+// A syllable is `âm đầu + vần + thanh` (`literacy-vi.md` §1). The engine matches on the
+// `(onset, rime, tone)` triple and **never concatenates strings**: `gi` + `i` is `gì`, not
+// `gii` (§1.2). Every spelling the child sees comes out of the pack.
 //
-// **Revision 2 deleted the palette builder.** There is no target, so there is nothing to
-// build a palette for. What this module now owns is the *table*: which symbols exist at
-// which position, in a fixed order that does not depend on any word (`gameplay.md` §3.2),
-// and what the word strip shows while he assembles one.
+// **Revision 3 deleted the morph and the `∅` socket** (`gameplay.md` §3.2, §3.4). There
+// is one constant table holding every character in the pack, in three contiguous runs —
+// `[onsets][rimes][tones]` — and a word that starts with a vowel is started by tapping
+// the vowel. `áo` is `ao` + `sắc`: **two taps, no placeholder.**
 //
-// This module is only ever reached through `lang/index.mjs`, which is handed the
-// language once, at pack load. There is no branch on language anywhere below it.
+// **Revision 4 pages that table** (`table.mjs`), which changes nothing here: a page is a
+// window onto this same sequence, so this module still produces the whole of it.
+//
+// The one exception to "the characters never change" is the six tone cells, which keep
+// their place and swap their **carrier** (`gameplay.md` §3.4a): a bare mark on a dotted
+// circle while they are — always — disabled, and the seated rime with that tone's mark
+// applied the instant one of them can be chosen. `literacy-vi.md` §5.4 then holds exactly
+// as written, at the only moment he is choosing.
+//
+// This module is only ever reached through `lang/index.mjs`, which is handed the language
+// once, at pack load. There is no branch on language anywhere below it.
 
 import { viLegalTones } from '../rules.mjs';
 
-export const id = 'vi';
 export const tileGroups = ['onset', 'rime', 'tone'];
 
-/**
- * `gameplay.md` §4.6 — **the zero onset is a pressable tile in discovery mode.**
- *
- * `literacy-vi.md` §2 lists it as "(no tile)", which was right when the app chose the
- * word: a zero-onset round simply rendered a one-cell plate. In discovery he has to be
- * able to *start* `ong` and `áo` himself, so there must be something to press. It is
- * drawn as an empty socket, it is the last cell of the onset table, and its sound is a
- * wooden *open* rather than a đánh vần name (`acceptance-criteria.md` C2, C3, N13).
- *
- * U+2205 is not a letter, so it cannot collide with a spelling; `inventoryFor` drops a
- * pack onset that claims this id rather than letting it shadow the socket.
- */
-export const ZERO_ONSET = '∅';
-
-/** Three cells, always: `onset ┊ rime ┊ tone` (`gameplay.md` §4.5). */
-export const STRIP_CELLS = [
-  { index: 0, role: 'onset' },
-  { index: 1, role: 'rime' },
-  { index: 2, role: 'tone' },
-];
-
-/**
- * `acceptance-criteria.md` B2, C2 — the table's contents at each position, from the
- * pack's `inventoryOrder` and the stage's cell count, and from nothing else. The onset
- * table spends its last cell on the socket, so it is `cells - 1` written onsets plus ∅.
- *
- * **A consequence worth naming, because it looks like a regression and is not.** Once the
- * pack's onset order is sorted by how many words sit behind each symbol, the top stage
- * shows 23 productive onsets plus ∅ and **nothing on the onset table is flat**. That is
- * not the disabled state going missing; it is the strongest form of `gameplay.md` §3.3 —
- * *every letter he can press starts a word* — and it is what growing into the whole
- * inventory looks like at position 1.
- *
- * The lesson the flat state carries (`gameplay.md` §4.2: *the table's response is the
- * teaching*) lives at positions 2 and 3, and lives there **structurally**: an onset is
- * followed by 1–6 rimes out of the 8–24 on the table, and a rime by one legal tone out of
- * 2–6, so those tables always have flats. `test/tree.test.mjs` asserts the child meets a
- * flat tile on the way to **every** word rather than assuming it, so if a future pack ever
- * did get dense enough to erase the signal, the suite says so instead of nobody noticing.
- */
-export function inventoryFor(pack, cells) {
-  const onsets = pack.inventoryOrder.onset.filter((t) => t !== ZERO_ONSET);
-  return {
-    onset: [...onsets.slice(0, Math.max(0, cells - 1)), ZERO_ONSET],
-    rime: pack.inventoryOrder.rime.slice(0, cells),
-  };
+/** `ui.md` §7.2 — the carrier a tone cell wears while no rime is placed. */
+const DOTTED_CIRCLE = '◌';
+function bareMark(tone) {
+  return DOTTED_CIRCLE + (tone && tone.mark ? tone.mark : '');
 }
 
-/** The symbols a word is built from, in tap order. */
+/**
+ * `acceptance-criteria.md` B2, C15, C21 — the table's three runs, in order, complete.
+ * Every character the pack declares is here; nothing is truncated and nothing depends on
+ * the word list (C22).
+ */
+export function runsFor(pack) {
+  return [
+    { role: 'onset', ids: pack.inventoryOrder.onset.slice() },
+    { role: 'rime', ids: pack.inventoryOrder.rime.slice() },
+    { role: 'tone', ids: pack.inventoryOrder.tone.slice() },
+  ];
+}
+
+/**
+ * The symbols a word is built from, in tap order. **A zero-onset word is two taps**
+ * (C19): the rime, then the tone. Onset ids are consonantal and rime ids are
+ * vowel-initial, so the two sets are disjoint and a prefix is never ambiguous.
+ */
 export function pathFor(word) {
   const s = word.syllables[0];
-  return [s.onset === null ? ZERO_ONSET : s.onset, s.rime, s.tone];
+  return s.onset === null ? [s.rime, s.tone] : [s.onset, s.rime, s.tone];
 }
 
-/**
- * `gameplay.md` §6.1 — a word is eligible iff every one of its symbols is on the table.
- * The tone is not checked against a cell count: the tone table is generated from the
- * seated rime's legal set (`literacy-vi.md` §5.2), so it is never truncated by the stage.
- */
+/** A word is on the board iff every one of its symbols is in the inventory. */
 export function pathIsOnTable(inventory, path) {
-  return inventory.onset.includes(path[0]) && inventory.rime.includes(path[1]);
+  return path.every((symbolId) => inventory.has(symbolId));
+}
+
+/** Which run a placed prefix's symbols belong to, by position. */
+function rolesOf(pack, prefix) {
+  const zeroOnset = prefix.length > 0 && !pack.tileById.onset[prefix[0]];
+  return zeroOnset ? ['rime', 'tone'] : ['onset', 'rime', 'tone'];
+}
+
+/** The rime in the prefix, if one has been placed. It is what the tone cells carry. */
+function rimeOf(pack, prefix) {
+  const roles = rolesOf(pack, prefix);
+  const at = roles.indexOf('rime');
+  const rimeId = at >= 0 && at < prefix.length ? prefix[at] : null;
+  return rimeId === null ? null : (pack.tileById.rime[rimeId] ?? null);
 }
 
 function onsetSymbol(pack, tileId) {
-  if (tileId === ZERO_ONSET) {
-    return {
-      id: ZERO_ONSET, role: 'onset', kind: 'socket', glyph: null, label: null,
-      audio: { long: null, short: null },
-    };
-  }
   const tile = pack.tileById.onset[tileId];
   return {
-    id: tileId, role: 'onset', kind: 'tile', glyph: tile.glyph, label: tile.label,
-    audio: tile.audio,
+    id: tileId, role: 'onset', glyph: tile.glyph, label: tile.label, audio: tile.audio,
   };
 }
 
 function rimeSymbol(pack, tileId) {
   const tile = pack.tileById.rime[tileId];
   return {
-    id: tileId, role: 'rime', kind: 'tile', glyph: tile.glyph, label: tile.glyph,
-    audio: tile.audio,
+    id: tileId, role: 'rime', glyph: tile.glyph, label: tile.glyph, audio: tile.audio,
   };
 }
 
 /**
- * `literacy-vi.md` §5.4 / `acceptance-criteria.md` C6 — a tone tile renders **the chosen
- * rime with that tone's mark applied** (`eo èo éo ẻo ẽo ẹo`), never a bare diacritic, and
- * the marked form is read out of the pack rather than composed here.
+ * `acceptance-criteria.md` B2d, C6, C7 — a tone cell, in whichever carrier this prefix
+ * calls for.
  *
- * `acceptance-criteria.md` C7 — a rime ending p/t/c/ch produces a **two-cell** table.
- * Illegal tones are not rendered at all, which is a different thing from rendered and
- * disabled: *legality is absence; completability is flatness*, and the two never have to
- * be told apart.
+ * With no rime placed it is the **bare mark on a dotted circle**, and it is disabled by
+ * construction — a tone cannot be placed before a rime, so the abstraction is never a
+ * choice (`gameplay.md` §3.4a). With a rime placed it is **that rime, marked**, read out
+ * of the rime's `toned` map; where the orthography has no such form (an illegal tone on a
+ * stop-final rime) the cell keeps the bare mark and stays flat. **All six cells are
+ * always present**: legality and completability are both flatness now.
  */
-function toneSymbols(pack, rimeId) {
-  const rime = pack.tileById.rime[rimeId];
-  if (!rime) return [];
-  const legal = viLegalTones(rimeId);
-  return rime.legalTones
-    .filter((t) => legal.includes(t))
-    .map((t) => {
-      const tile = pack.tileById.tone[t];
-      return {
-        id: t,
-        role: 'tone',
-        kind: 'tile',
-        glyph: rime.toned[t],
-        label: tile ? tile.label : t,
-        audio: tile ? tile.audio : { long: null, short: null },
-      };
-    });
+function toneSymbol(pack, toneId, rime) {
+  const tile = pack.tileById.tone[toneId];
+  const marked = rime && rime.toned ? rime.toned[toneId] : null;
+  const legal = rime ? viLegalTones(rime.id).includes(toneId) : false;
+  return {
+    id: toneId,
+    role: 'tone',
+    glyph: marked && legal ? marked : bareMark(tile),
+    carrier: marked && legal ? 'rime' : 'mark',
+    label: tile ? tile.label : toneId,
+    audio: tile ? tile.audio : { long: null, short: null },
+  };
 }
 
 /**
- * `ui.md` §7.1 — **exactly one role is on the table at a time**, and the table morphs
- * onset → rime → tone in situ. Re-argued for revision 2 rather than inherited: the tone
- * tiles are undrawable before a rime exists, three tables would be 54 cells, and two of
- * the three would be entirely disabled, which is the inert-screen failure the brief
- * forbids (`acceptance-criteria.md` C16).
+ * `acceptance-criteria.md` B2b, B2c — every character in the pack, in its own permanent
+ * cell, at every position. Only the tone carriers depend on the prefix, and only they.
  */
-export function tableFor(pack, inventory, prefix) {
-  if (prefix.length === 0) {
-    return { position: 0, role: 'onset', symbols: inventory.onset.map((t) => onsetSymbol(pack, t)) };
-  }
-  if (prefix.length === 1) {
-    return { position: 1, role: 'rime', symbols: inventory.rime.map((t) => rimeSymbol(pack, t)) };
-  }
-  return { position: 2, role: 'tone', symbols: toneSymbols(pack, prefix[1]) };
+export function symbolsFor(pack, inventory, prefix) {
+  const rime = rimeOf(pack, prefix);
+  return inventory.symbols.map((entry) => {
+    if (entry.role === 'onset') return { ...onsetSymbol(pack, entry.id), ...slotOf(entry) };
+    if (entry.role === 'rime') return { ...rimeSymbol(pack, entry.id), ...slotOf(entry) };
+    return { ...toneSymbol(pack, entry.id, rime), ...slotOf(entry) };
+  });
+}
+
+function slotOf(entry) {
+  return {
+    index: entry.index, page: entry.page, slot: entry.slot, runIndex: entry.runIndex,
+  };
 }
 
 /**
- * `ui.md` §7.2 — the strip states the shape of a Vietnamese syllable even when empty. The
- * rime cell shows the **marked** form once a tone is seated, read out of `rime.toned`,
- * and the tone cell names the tone (`huyền`). A zero-onset word fills the first cell with
- * the socket mark rather than collapsing the strip.
+ * `ui.md` §7.2 / `acceptance-criteria.md` C1, C19, C20 — **the strip is the word so far,
+ * plus one dashed cell for what is still needed.** No tone cell, ever: the tone is the
+ * mark, it lands on the rime, and that a tone was chosen is recorded by a dotted `role3`
+ * segment rather than by the word `huyền` on a pre-literate child's screen.
+ *
+ * When the tone seats, the cells **merge into one word** taken from the pack (`word.text`),
+ * because composing a Vietnamese spelling at runtime is forbidden (`literacy-vi.md` §1.2,
+ * AC K5).
  */
-export function stripCells(pack, prefix) {
-  const onset = prefix.length > 0 ? prefix[0] : null;
-  const rimeId = prefix.length > 1 ? prefix[1] : null;
-  const toneId = prefix.length > 2 ? prefix[2] : null;
-  const rime = rimeId === null ? null : pack.tileById.rime[rimeId];
-  const tone = toneId === null ? null : pack.tileById.tone[toneId];
-  return [
-    {
+export function stripCells(pack, prefix, word = null) {
+  const roles = rolesOf(pack, prefix);
+  const complete = prefix.length === roles.length;
+
+  if (complete && word) {
+    return [{
       index: 0,
-      role: 'onset',
-      filled: onset !== null,
-      socket: onset === ZERO_ONSET,
-      glyph: onset === null || onset === ZERO_ONSET ? null : pack.tileById.onset[onset].glyph,
-    },
-    {
-      index: 1,
+      undoTo: 0,
       role: 'rime',
-      filled: rime !== null,
-      socket: false,
-      glyph: rime === null ? null : (toneId !== null && rime.toned[toneId] != null ? rime.toned[toneId] : rime.glyph),
-    },
-    {
-      index: 2,
-      role: 'tone',
-      filled: tone !== null,
-      socket: false,
-      glyph: tone === null ? null : tone.label,
-    },
-  ];
+      filled: true,
+      merged: true,
+      toned: true,
+      glyph: word.text,
+    }];
+  }
+
+  const cells = prefix.map((symbolId, i) => {
+    const role = roles[i];
+    const tile = role === 'onset' ? pack.tileById.onset[symbolId] : pack.tileById.rime[symbolId];
+    return {
+      index: i,
+      undoTo: i,
+      role,
+      filled: true,
+      merged: false,
+      toned: false,
+      glyph: tile ? tile.glyph : symbolId,
+    };
+  });
+  // **The dashed cell is not a character and has no run.** Its role is `next`, not the
+  // run whose turn it is: revision 2's strip had a *tone cell*, and a cell that claims to
+  // be a tone is exactly what U14 deleted. It is where the next thing goes, and nothing
+  // more (`ui.md` §7.2).
+  cells.push({
+    index: prefix.length,
+    undoTo: prefix.length,
+    role: 'next',
+    filled: false,
+    merged: false,
+    toned: false,
+    glyph: null,
+  });
+  return cells;
 }
 
 /** The symbol descriptor for a seated position, so undo can play its own clip (E8). */
 export function symbolAt(pack, prefix, index) {
   if (index < 0 || index >= prefix.length) return null;
-  if (index === 0) return onsetSymbol(pack, prefix[0]);
-  if (index === 1) return rimeSymbol(pack, prefix[1]);
-  return toneSymbols(pack, prefix[1]).find((s) => s.id === prefix[2]) ?? null;
+  const role = rolesOf(pack, prefix)[index];
+  if (role === 'onset') return onsetSymbol(pack, prefix[index]);
+  if (role === 'rime') return rimeSymbol(pack, prefix[index]);
+  return toneSymbol(pack, prefix[index], rimeOf(pack, prefix));
 }
 
 /**
- * The chant (`literacy-vi.md` §7.2, `acceptance-criteria.md` C12):
- * `onset · rime · toneless-blend · tone · word`, with the tone step omitted for `ngang`
- * and the onset step omitted for a zero onset. A missing blend clip skips step 3 and the
- * chant continues (`content-pipeline.md` §5); a missing sentence skips the last step.
+ * The toneless blend — beat 3's spelling. Preferred from the pack (the blend clip records
+ * the text it says); composed only as a fallback, and only from stored spellings.
+ *
+ * A `ngang` word's blend **is** the word (`gameplay.md` §5.4), which is why the seed pack
+ * generates no separate clip for one.
+ */
+function blendOf(pack, word) {
+  const s = word.syllables[0];
+  const onset = s.onset === null ? null : pack.tileById.onset[s.onset];
+  const rime = pack.tileById.rime[s.rime];
+  const clip = word.audio.blend;
+  if (clip && clip.text) return { text: clip.text, audio: clip };
+  if (s.tone === 'ngang') return { text: word.text, audio: word.audio.word };
+  // The fallback composes, which Vietnamese generally forbids; it is reached only when a
+  // pack carries no blend clip for a marked word, and it composes from stored spellings
+  // (the unmarked rime) rather than from a rule. `gi` + `i` is the case it gets wrong,
+  // and `content-pipeline.md` is where a blend clip for such a word belongs.
+  const base = rime && rime.toned && rime.toned.ngang ? rime.toned.ngang : (rime ? rime.glyph : '');
+  return { text: `${onset ? onset.glyph : ''}${base}`, audio: clip };
+}
+
+/**
+ * **The chant, revision 3 — it accumulates** (`gameplay.md` §5.4, `ui.md` §10.4,
+ * AC C12, C12a, C12b, C14).
+ *
+ *   | beat | shown      | spoken        |
+ *   |------|------------|---------------|
+ *   | 1    | `b`        | `bờ`          |
+ *   | 2    | `b` `o`    | `o`           |
+ *   | 3    | `bo`       | `audio.blend` |
+ *   | 4    | `bò`       | `huyền`       |
+ *   | 5    | `bò`       | `audio.word`  |
+ *
+ * Every beat carries **the strip as it must look at that beat**, so nothing on screen is
+ * ever something that is not part of the word — which is the rule revision 2's tone cell
+ * broke. `ngang` skips beat 4; a zero-onset word skips beat 1.
  */
 export function chant(pack, word) {
   const s = word.syllables[0];
   const gaps = (pack.chant && pack.chant.gapsMs) || {};
-  const steps = [];
-  if (s.onset !== null) {
-    const t = pack.tileById.onset[s.onset];
-    steps.push({ step: 'onset', cell: 0, audio: t.audio.short, caption: t.label, gapAfterMs: gaps.onset ?? 250 });
-  }
+  const onset = s.onset === null ? null : pack.tileById.onset[s.onset];
   const rime = pack.tileById.rime[s.rime];
-  steps.push({ step: 'rime', cell: 1, audio: rime.audio.short, caption: rime.glyph, gapAfterMs: gaps.rime ?? 250 });
-  if (word.audio.blend) {
-    steps.push({ step: 'blend', cell: null, audio: word.audio.blend, caption: null, gapAfterMs: gaps.blend ?? 400 });
+  const tone = pack.tileById.tone[s.tone];
+  const blend = blendOf(pack, word);
+
+  const cell = (glyph, role, extra = {}) => ({
+    index: 0, undoTo: 0, role, filled: true, merged: false, toned: false, glyph, ...extra,
+  });
+  const parts = [];
+  if (onset) parts.push(cell(onset.glyph, 'onset'));
+  parts.push({ ...cell(rime.glyph, 'rime'), index: parts.length, undoTo: parts.length });
+
+  const steps = [];
+  if (onset) {
+    steps.push({
+      step: 'onset',
+      audio: onset.audio.short,
+      caption: onset.label,
+      cells: [parts[0]],
+      lit: [0],
+      merged: false,
+      gapAfterMs: gaps.onset ?? 250,
+    });
   }
+  steps.push({
+    step: 'rime',
+    audio: rime.audio.short,
+    caption: rime.glyph,
+    cells: parts.slice(),
+    lit: parts.map((_, i) => i),
+    merged: false,
+    gapAfterMs: gaps.rime ?? 250,
+  });
+  const merged = (glyph, toned) => [{
+    index: 0, undoTo: 0, role: 'rime', filled: true, merged: true, toned, glyph,
+  }];
+  steps.push({
+    step: 'blend',
+    audio: blend.audio,
+    caption: blend.text,
+    cells: merged(blend.text, false),
+    lit: [0],
+    merged: true,
+    gapAfterMs: gaps.blend ?? 400,
+  });
   const skip = Array.isArray(pack.chant && pack.chant.skipToneStepFor)
     ? pack.chant.skipToneStepFor
     : ['ngang'];
-  if (!skip.includes(s.tone)) {
-    const t = pack.tileById.tone[s.tone];
-    steps.push({ step: 'tone', cell: 2, audio: t.audio.short, caption: t.label, gapAfterMs: gaps.tone ?? 250 });
+  if (!skip.includes(s.tone) && tone) {
+    steps.push({
+      step: 'tone',
+      audio: tone.audio.short,
+      caption: tone.label,
+      cells: merged(word.text, true),
+      lit: [0],
+      merged: true,
+      gapAfterMs: gaps.tone ?? 250,
+    });
   }
-  steps.push({ step: 'word', cell: null, audio: word.audio.word, caption: word.text, gapAfterMs: gaps.word ?? 600 });
+  steps.push({
+    step: 'word',
+    audio: word.audio.word,
+    caption: word.text,
+    cells: merged(word.text, s.tone !== 'ngang'),
+    lit: [0],
+    merged: true,
+    gapAfterMs: gaps.word ?? 600,
+  });
   if (word.audio.sentence) {
-    steps.push({ step: 'sentence', cell: null, audio: word.audio.sentence, caption: null, gapAfterMs: 0 });
+    steps.push({
+      step: 'sentence',
+      audio: word.audio.sentence,
+      caption: null,
+      cells: merged(word.text, s.tone !== 'ngang'),
+      lit: [],
+      merged: true,
+      gapAfterMs: 0,
+    });
   }
   return steps;
 }
 
 /**
  * `ui.md` §2.2 / `acceptance-criteria.md` M2 — hold the strip and the app speaks **the
- * parts of what is currently assembled**, never a completion and never a suggestion. It
- * is the pedagogically correct hint: say the pieces, let him find the rest.
+ * parts of what is currently assembled**, never a completion and never a suggestion. In
+ * Vietnamese the `long` slot is the đánh vần name, which is the `short` clip too (N12).
  */
 export function partsHint(pack, prefix) {
   const steps = [];
   for (let i = 0; i < prefix.length; i += 1) {
     const sym = symbolAt(pack, prefix, i);
-    if (!sym || sym.kind === 'socket') continue;
-    steps.push({ step: sym.role, cell: i, audio: sym.audio.short, caption: sym.label, gapAfterMs: 250 });
+    if (!sym) continue;
+    steps.push({
+      step: sym.role,
+      audio: sym.audio.long ?? sym.audio.short,
+      caption: sym.label,
+      cells: null,
+      lit: [i],
+      merged: false,
+      gapAfterMs: 250,
+    });
   }
   return steps;
 }

@@ -428,10 +428,30 @@ describe('English orthography (literacy-en.md)', () => {
     rejects(d, /no vowel tile/);
   });
 
-  test('§3.5 the excluded tile `q` reappearing in the inventory', () => {
-    const d = copy(SRC_EN, 'enq');
-    breakManifest(d, (m) => { m.tiles.letter.push({ id: 'q', glyph: 'q', kind: 'consonant', position: 'any', sound: 'kwuh', anchor: 'queen', audio: {} }); return m; });
-    rejects(d, /excluded from v1/);
+  /**
+   * **AC S14 / D1b, and this test is the inverse of the one it replaces.** Revision 2
+   * rejected a `q` tile outright; `ui.md` §8.1 puts every character of `inventoryOrder`
+   * on the board and says a character with **zero words behind it** is a normal,
+   * permanent state — so the validator must accept it. What stays excluded
+   * (`literacy-en.md` §3.5) is `q` inside a *word*, and that moved to the word check.
+   */
+  test('S14 a character with no words behind it is ACCEPTED — `q` on the board', () => {
+    const { code, out } = validate(SRC_EN);
+    assert.equal(code, 0, `en-seed ships q with no word behind it and must validate. Output:\n${out}`);
+    assert.match(out, /tiles\.letter\[q\]/, 'the validator should still SAY q has no word, as a warning');
+    assert.doesNotMatch(out, /ERROR[^\n]*letter\[q\]/, 'a wordless character is not an error');
+  });
+
+  test('S14 the same for Vietnamese — `ngh` has no seed word and is not an error', () => {
+    const { code, out } = validate(SRC_VI);
+    assert.equal(code, 0, `vi-seed ships ngh with no word behind it. Output:\n${out}`);
+    assert.doesNotMatch(out, /ERROR[^\n]*onset\[ngh\]/);
+  });
+
+  test('§3.5 `q` inside a WORD is still rejected', () => {
+    const d = copy(SRC_EN, 'enqword');
+    breakWord(d, 'cat', (w) => { w.tiles = ['q', 'a', 't']; w.text = 'qat'; return w; });
+    rejects(d, /excluded from v1 words/);
   });
 
   test('§3.3 a final-only tile declared as position "any"', () => {

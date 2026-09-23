@@ -1,14 +1,18 @@
 // The word strip — where the word is assembled, and the only undo in the game.
 //
-// `ui.md` §7.2 (Vietnamese) and §8 (English). Two shapes, because the two languages
-// assemble differently and it is worth stating the difference honestly:
+// `ui.md` §7.2 (Vietnamese) and §8 (English). **One shape now, both languages**
+// (revision 3, correction U14): *the word so far, plus one dashed cell for what is still
+// needed*. Revision 2 gave Vietnamese a third cell naming the tone in words — `m ┊ èo ┊
+// huyền` — which put a word a pre-literate child cannot read on the child's screen,
+// holding something that is not part of his word. The owner saw exactly that and said so.
 //
-//   Vietnamese  three cells, always: `onset ┊ rime ┊ tone`. A syllable is always exactly
-//               three slots (`literacy-vi.md` §1), and showing that is teaching, not a
-//               hint. A zero-onset word fills the first cell with the ∅ socket mark
-//               rather than collapsing the strip.
-//   English     the symbols placed **plus one empty cell**. The length is never shown:
-//               an English word's length is part of what he is discovering (D3).
+//   empty        ╎ · ╎                    one dashed cell, one centred dot
+//   onset in     │ b │╎ · ╎               5 pt role1 underline under `b`
+//   rime in      │ b ││ o │╎ · ╎          role1 + role2 underlines; a tone is still needed
+//   tone in      │    bò     │            merged. The mark lands ON the rime, and a 5 pt
+//                                         DOTTED role3 segment records that a tone was
+//                                         chosen — colour, never a word (C20)
+//   zero onset   │ ao │╎ · ╎              `ao` starts at the LEFT. No empty first cell.
 //
 // **Two gestures live on this object** (`ui.md` §2.2): a tap on a filled cell is undo —
 // that symbol and everything after it goes home (`gameplay.md` §4.4) — and an 800 ms hold
@@ -48,11 +52,11 @@ function EmptyMark({ size, colour }) {
  * **M9 — the announcement hop.** `translateY −14`, `scale 1 → 1.14 → 1`, 90 ms apart by
  * cell. *You made a thing.*
  *
- * **M12 / C14 — the tone mark drop.** When the text changes from the unmarked form to the
- * marked one, the marked form cross-fades in from `scale` 1.8 and `translateY` −10 over
- * 260 ms with a 14% overshoot, while the unmarked form fades out under it. The previous
- * text is held in state for exactly as long as that takes, which is why this renders two
- * glyphs rather than one.
+ * **M12 / C14 — the tone mark drop, onto the already-merged word.** When the text changes
+ * from the blend to the marked word, the marked form cross-fades in from `scale` 1.8 and
+ * `translateY` −10 over 260 ms with a 14% overshoot, while the previous form fades out
+ * under it. *This mark is the thing that changed* — which only reads if the word is
+ * already whole underneath it, which is why chant beat 3 merges before beat 4 marks.
  */
 function CellGlyph({ text, size, arriveMs, hopSeq, hopDelay, reduced }) {
   const theme = useTheme();
@@ -75,7 +79,6 @@ function CellGlyph({ text, size, arriveMs, hopSeq, hopDelay, reduced }) {
       anim.start();
       return () => anim.stop();
     }
-    // The same part wearing a new mark — `eo` becoming `èo` (C14).
     setPrevious(was);
     drop.setValue(0);
     const anim = Animated.timing(drop, {
@@ -125,7 +128,7 @@ function CellGlyph({ text, size, arriveMs, hopSeq, hopDelay, reduced }) {
     }}
     >
       {previous === null ? null : (
-        <Animated.View style={[StyleSheet.absoluteFill, {
+        <Animated.View style={[StyleSheet.absoluteFill, styles.centre, {
           opacity: drop.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
         }]}
         >
@@ -147,17 +150,40 @@ function CellGlyph({ text, size, arriveMs, hopSeq, hopDelay, reduced }) {
 }
 
 /**
+ * `ui.md` §7.2 / AC C20 — the tone is recorded in **colour, not in text**: a 5 pt dotted
+ * `role3` segment under the rime's solid `role2` one. A parent can still read the shape
+ * of a Vietnamese syllable off the strip; the child is never shown a word he cannot read.
+ */
+function ToneSegment({ width, colour }) {
+  const seg = Math.round(width * 0.18);
+  const gap = Math.round(width * 0.09);
+  return (
+    <View style={[styles.toneSeg, { width }]}>
+      {[0, 1, 2].map((i) => (
+        <View
+          key={i}
+          style={{
+            width: seg, height: 5, borderRadius: 3, backgroundColor: colour, marginLeft: i === 0 ? 0 : gap,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+/**
  * One cell. `ui.md` §9.2 and correction U11: the chant lights the cell's **face** with
  * `reward` gold and the glyph stays `ink`. Revision 1 turned the glyph gold — measured
  * 1.60–2.05:1, unreadable, at the single most important moment in the literacy ritual.
  * A gold block also reads across a room; a gold letter does not.
  */
 function StripCell({
-  cell, width, height, fontSize, role, lit, arriveMs, hopSeq, hopDelay, outline, reduced,
-  onPressIn, onPressOut,
+  cell, width, height, fontSize, role, toneRole, lit, arriveMs, hopSeq, hopDelay, outline,
+  reduced, onPressIn, onPressOut,
 }) {
   const theme = useTheme();
   const tokens = roleTokens(theme, role);
+  const toneTokens = roleTokens(theme, toneRole);
   const gold = useRef(new Animated.Value(0)).current;
   const lift = useRef(new Animated.Value(0)).current;
 
@@ -200,7 +226,7 @@ function StripCell({
         {/* **M10 — the cell's own outline is the thing that dissolves.** It is drawn as an
             overlay rather than as the cell's `borderColor`, because a colour cannot be
             animated (`acceptance-criteria.md` O3) and a border that simply switched off at
-            300 ms would pop. Faded by opacity, the three cells become one word. */}
+            300 ms would pop. Faded by opacity, the cells become one word. */}
         <Animated.View
           style={[styles.inert, StyleSheet.absoluteFill, {
             borderWidth: 2,
@@ -211,9 +237,7 @@ function StripCell({
           }]}
         />
         {cell.glyph === null
-          ? (cell.socket
-            ? <EmptyMark size={fontSize * 1.6} colour={theme.neutralFace} />
-            : <EmptyMark size={fontSize} colour={theme.neutralFace} />)
+          ? <EmptyMark size={fontSize} colour={theme.neutralFace} />
           : (
             <CellGlyph
               text={cell.glyph}
@@ -224,22 +248,27 @@ function StripCell({
               reduced={reduced}
             />
           )}
-        <View style={[styles.underline, { backgroundColor: tokens.face, width: width - 16 }]} />
+        {cell.filled ? (
+          <View style={[styles.underline, { width: width - 16 }]}>
+            <View style={{ height: 5, borderRadius: 3, backgroundColor: tokens.face }} />
+            {cell.toned ? <ToneSegment width={width - 16} colour={toneTokens.face} /> : null}
+          </View>
+        ) : null}
       </Animated.View>
     </Pressable>
   );
 }
 
 /**
- * The strip. `merged` is the announcement's M10: the dividers dissolve and the symbols
- * slide together into one word — *these are one word*.
+ * The strip. `merged` is M10: the dividers dissolve and the symbols slide together into
+ * one word — *these are one word*. It is driven by the chant beat the engine resolved
+ * (C12a/C12b), never derived here.
  *
- * @param {object[]} cells      from the engine's `stripView`
- * @param {(i:number)=>string} roleOf   which role token a cell's underline wears
- * @param {number[]} widths     cell widths, from the language's own proportions
+ * @param {object[]} cells   from `stripView`, or from the current chant beat
+ * @param {number[]} lit     which cells the chant has lit **so far** — it accumulates
  */
 export function WordStrip({
-  cells, widths, height, fontSize, roleOf, litCell, arriveMs, hopSeq, merged, reduced,
+  cells, widths, height, fontSize, roleOf, lit, arriveMs, hopSeq, merged, reduced,
   onCellDown, onCellUp,
 }) {
   const theme = useTheme();
@@ -265,6 +294,8 @@ export function WordStrip({
     return () => anim.stop();
   }, [merged, dividers, slide]);
 
+  const isLit = (cell) => Array.isArray(lit) && lit.includes(cell.index);
+
   return (
     <View style={[styles.strip, { height }]}>
       {cells.map((cell, i) => {
@@ -289,14 +320,15 @@ export function WordStrip({
               height={height}
               fontSize={fontSize}
               role={roleOf(cell, i)}
-              lit={litCell === cell.index}
+              toneRole="role3"
+              lit={isLit(cell)}
               arriveMs={arriveMs}
               hopSeq={hopSeq}
               hopDelay={i * M.hopStagger}
               outline={dividers}
               reduced={reduced}
-              onPressIn={() => onCellDown(cell.index)}
-              onPressOut={() => onCellUp(cell.index)}
+              onPressIn={() => onCellDown(cell.undoTo ?? cell.index)}
+              onPressOut={() => onCellUp(cell.undoTo ?? cell.index)}
             />
           </Animated.View>
         );
@@ -332,6 +364,7 @@ const styles = StyleSheet.create({
    * overlay inert.
    */
   inert: { pointerEvents: 'none' },
+  centre: { alignItems: 'center', justifyContent: 'center' },
   strip: { flexDirection: 'row', alignItems: 'center' },
   cell: {
     borderRadius: 16,
@@ -339,6 +372,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  underline: { position: 'absolute', bottom: 6, height: 5, borderRadius: 3 },
+  underline: { position: 'absolute', bottom: 6 },
+  toneSeg: { flexDirection: 'row', marginTop: 3 },
   divider: { position: 'absolute', top: 10, bottom: 10, width: 1 },
 });

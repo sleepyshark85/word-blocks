@@ -8,21 +8,20 @@
 
 export { resolvePack, wordFromParts, SCHEMA_SUPPORTED, LANGUAGES } from './pack.mjs';
 
+export { buildInventory } from './table.mjs';
+
 export {
-  createGame, buildTree, nodeAt, isLive, wordIdAt, continues, tableSizesFor,
+  createGame, buildTree, nodeAt, isLive, wordIdAt, continues,
 } from './tree.mjs';
 
 export {
-  createSession, reduce, tableView, stripView, shelfView, chantSteps, motifNotes,
-  partsHintSteps, symbolsFrom, imageFor, effectiveCells, treeOf, isStuck, hintSymbol,
-  STATE_VERSION,
+  createSession, reduce, tableView, pageView, stripView, shelfView, chantSteps, motifNotes,
+  partsHintSteps, symbolsFrom, imageFor, treeOf, isStuck, hintSymbol, pageHasLive,
+  progressOf,
+  STATE_VERSION, SHELF_SLOTS,
 } from './session.mjs';
 
 export { langFor } from './lang/index.mjs';
-
-export {
-  CELLS_BY_STAGE, MAX_STAGE, WORDS_PER_STAGE, SHELF_SLOTS, clampStage, cellsForStage,
-} from './stages.mjs';
 
 export { nfc, sameText, glyphLength } from './text.mjs';
 

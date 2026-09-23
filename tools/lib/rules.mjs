@@ -178,7 +178,15 @@ export const EN_VOWELS = ['a', 'e', 'i', 'o', 'u'];
 export const EN_FINAL_ONLY = ['ck', 'll', 'ss', 'ff', 'zz', 'gg', 'ng', 'x'];
 /** §3.1 — `y` is /j/ and initial-only in v1. */
 export const EN_INITIAL_ONLY = ['y'];
-/** §3.1, §3.5 — no picturable CVC word; excluded from the v1 inventory. */
+/**
+ * §3.1, §3.5 — no picturable CVC word, so **no v1 word is built from `q`**. It gates
+ * WORDS, not tiles.
+ *
+ * It is deliberately **not** excluded from the board. `ui.md` §8.1 and
+ * `acceptance-criteria.md` D1a/D1b/S14 (revision 4): every character in `inventoryOrder`
+ * is drawn always, and one with no words behind it is permanently flat and still speaks.
+ * A missing letter is exactly the inconsistency the owner reported from playing it.
+ */
 export const EN_EXCLUDED = ['q'];
 
 /** §6.2 and `literacy-vi.md` §4.1: same rule, same reason, both languages. */

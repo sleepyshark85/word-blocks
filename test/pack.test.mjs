@@ -72,12 +72,18 @@ test('asking for the wrong language throws rather than degrading (R4)', async ()
   );
 });
 
-test('the tile inventory matches the manifest (26 onsets, 35 rimes, 6 tones, 35 letters)', () => {
+test('the tile inventory matches the manifest (26 onsets, 35 rimes, 6 tones, 36 letters)', () => {
   const vi = viPack();
   assert.equal(vi.tiles.onset.length, 26);
   assert.equal(vi.tiles.rime.length, 35);
   assert.equal(vi.tiles.tone.length, 6);
-  assert.equal(enPack().tiles.letter.length, 35);
+  // 26 + 10: **all 26 letters, `q` included** (`ui.md` §8.1, AC D1a). It was 25 in
+  // revision 2, and a missing letter is exactly the inconsistency the owner reported.
+  const en = enPack();
+  assert.equal(en.tiles.letter.length, 36);
+  assert.equal(en.tiles.letter.filter((t) => [...t.id].length === 1).length, 26);
+  assert.ok(en.tileById.letter.q, '`q` is not a tile');
+  assert.ok(en.tileById.letter.q.audio.short, 'D1b — `q` must speak when pressed');
 });
 
 test('every tile has both audio slots, even where they are the same file (ui.md E4, N12)', () => {

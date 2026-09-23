@@ -1,4 +1,5 @@
-// The character tile, live and flat. `ui.md` §5.4, §5.8 and §9.1.
+// The character tile, live and flat. `ui.md` §5.4, §5.8, §9.1 — and §9.1a, because a
+// page-rail button **is this same object doing a different job**.
 //
 //   LIVE  (standing)                      DISABLED  (lying flat)
 //   ┌───────────────────────┐             ┌ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
@@ -12,19 +13,22 @@
 //
 // **The metaphor is standing up and lying flat, never on and off.** A disabled tile is
 // not a punishment and not a failure: it keeps its letter at **full opacity**, it is
-// still pressable, and it still speaks (`gameplay.md` §4.3). Fading it to 40% would drop
-// the glyph below the legibility gate and would read as *broken* rather than *not now*.
+// still pressable, and it still speaks (`gameplay.md` §4.3). That is what makes `q` —
+// which no word uses — a sound toy rather than a hole (`ui.md` §8.1, AC D1b).
 //
 // The discriminators, in `ui.md` §5.8's order of strength: **ink weight** (two heavy bars
 // against a 3 pt line — 31% of the area against ~4%), **outline solidity** (solid against
 // dashed), **glyph darkness** (`ink` against `inkSoft`), and colour last and redundant.
 // The first two survive greyscale, which is what `acceptance-criteria.md` E6 and S8 ask.
 //
-// Motion: `transform` and `opacity` only, `useNativeDriver: true` (O1, O3). The state
+// Motion: `transform` and `opacity` only, `useNativeDriver: true` (O1, O3). Every state
 // change is two stacked faces cross-faded by opacity plus a 2 pt translate — a background
 // colour is not a transform and may not be animated.
+//
+// **The `∅` socket is gone** (revision 3, AC B2f/N13): a vowel-initial word is started by
+// tapping the vowel, so there is no placeholder for this component to draw.
 
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 
 import { useTheme, roleTokens } from '../theme';
@@ -63,29 +67,70 @@ function Bar({ width, height, colour, pattern }) {
 }
 
 /**
- * `gameplay.md` §4.6 — the ∅ tile, drawn as an empty socket: a dashed rounded outline
- * with a centred dot, the same mark the strip's empty cells use. It is the last cell of
- * the onset table and it is how he starts `ong` and `áo` himself.
+ * **M7 / O12 — the tone carrier swap.** The six tone cells are the only cells in the app
+ * whose glyph changes mid-word: a bare mark on a dotted circle while no rime is placed,
+ * the seated rime marked the instant one can be chosen (`ui.md` §7.2, AC B2d, C5, C10).
+ *
+ * It is a **160 ms opacity cross-fade of two stacked `Text` layers, with no movement**:
+ * the cell, its size, its bar and its position do not change, and nothing else on the
+ * board animates. Deliberately the quietest transition in the app, because the board must
+ * not look like it changed.
  */
-function SocketMark({ size, colour }) {
-  const d = Math.round(size * 0.12);
-  return <View style={{ width: d, height: d, borderRadius: d, backgroundColor: colour }} />;
+function CarrierGlyph({ text, size, colour, reduced }) {
+  const swap = useRef(new Animated.Value(1)).current;
+  const [previous, setPrevious] = useState(null);
+  const lastText = useRef(text);
+
+  useEffect(() => {
+    if (text === lastText.current) return undefined;
+    const was = lastText.current;
+    lastText.current = text;
+    setPrevious(was);
+    swap.setValue(0);
+    const anim = Animated.timing(swap, {
+      toValue: 1,
+      duration: reduced ? M.toneSwap : M.toneSwap,
+      easing: EASING.calm,
+      useNativeDriver: true,
+    });
+    anim.start(({ finished }) => { if (finished) setPrevious(null); });
+    return () => anim.stop();
+  }, [text, swap, reduced]);
+
+  return (
+    <View>
+      {previous === null ? null : (
+        <Animated.View
+          style={[styles.inert, StyleSheet.absoluteFill, styles.centre, {
+            opacity: swap.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+          }]}
+        >
+          <Glyph text={previous} size={size} colour={colour} />
+        </Animated.View>
+      )}
+      <Animated.View style={{ opacity: previous === null ? 1 : swap }}>
+        <Glyph text={text} size={size} colour={colour} />
+      </Animated.View>
+    </View>
+  );
 }
 
 /**
  * @param {object}   props
- * @param {string}   props.glyph      what the child reads; null for the ∅ socket
+ * @param {string}   props.glyph      what the child reads
+ * @param {'mark'|'rime'} [props.carrier]  which carrier a tone cell is wearing (B2d/B2e)
  * @param {string}   props.role       role1 | role2 | role3
  * @param {boolean}  props.live       standing up, or lying flat
+ * @param {boolean}  [props.current]  §9.1a — a rail button for the page he is on
  * @param {number}   props.size       the tile edge, from the layout law
- * @param {number}   props.index      the cell index — M6 staggers by 20 ms of it
+ * @param {number}   props.index      the slot on its page — M6 staggers by 20 ms of it
  * @param {number}   props.hitSlop    half the gap, so no two hit rects overlap (P11)
  * @param {'rest'|'breathe'|'rim'} props.hint
  */
 export function Tile({
-  glyph, role, live, size, fontSize, index = 0, radius = 0.22, hitSlop = 6,
+  glyph, carrier = null, role, live, size, fontSize, index = 0, radius = 0.22, hitSlop = 6,
   pressed = false, dipSeq = 0, hint = 'rest', shimmerSeq = 0, flying = false,
-  reduced = false, onPressIn, onPressOut,
+  current = false, currentFace = null, reduced = false, onPressIn, onPressOut,
 }) {
   const theme = useTheme();
   const tokens = roleTokens(theme, role);
@@ -110,7 +155,7 @@ export function Tile({
   }, [pressed, press]);
 
   // **M6 — standing up and lying down is the teaching moment.** 200 ms cross-fade, a 2 pt
-  // rise or fall, staggered 20 ms by cell index so the board reads as a wave across it
+  // rise or fall, staggered 20 ms by slot index so the board reads as a wave across it
   // rather than a flicker (`acceptance-criteria.md` E7, O10, O11).
   useEffect(() => {
     const anim = Animated.timing(stand, {
@@ -203,6 +248,11 @@ export function Tile({
   });
   const flyScale = flying ? 1.06 : 1;
 
+  // **B2e — the bare tone mark is drawn in `ink`, not `inkSoft`.** A diacritic is thinner
+  // than any letter, so it takes the darkest token; measured 11.96–13.06:1 on the ground
+  // and gated as a `glyph` pair in `tools/theme-contrast.mjs` (S13).
+  const flatGlyphColour = carrier === 'mark' ? theme.ink : theme.inkSoft;
+
   return (
     <Pressable
       onPressIn={onPressIn}
@@ -233,7 +283,8 @@ export function Tile({
         }}
       >
         {/* The flat face, underneath. `ground`, a dashed neutral outline, a 3 pt role
-            underbar so the role survives, and the glyph in `inkSoft`. */}
+            underbar so the role survives, and the glyph in `inkSoft` — or in `ink` when
+            it is a bare tone mark (B2e). */}
         <View
           style={[styles.inert, StyleSheet.absoluteFill, styles.face, {
             borderRadius: size * radius,
@@ -247,35 +298,35 @@ export function Tile({
             height: underH, width: size - 8, backgroundColor: tokens.edge,
           }]}
           />
-          {glyph === null
-            ? <SocketMark size={size} colour={theme.neutralFace} />
-            : <Glyph text={glyph} size={fitted} colour={theme.inkSoft} />}
+          <CarrierGlyph text={glyph} size={fitted} colour={flatGlyphColour} reduced={reduced} />
         </View>
 
         {/* The standing face, over it, cross-faded by opacity. White, two role bars at
-            31% of the area, a solid 2 pt outline, and the glyph in `ink` at 13.4:1. */}
+            31% of the area, a solid 2 pt outline, and the glyph in `ink` at 13.4:1.
+            **V18 — a rail button for the current page takes the `reward` face instead**,
+            keeping the ink glyph: 6.53 / 8.70 / 8.34:1, the chant's already-gated pair. */}
         <Animated.View
           style={[styles.inert, StyleSheet.absoluteFill, styles.face, {
             borderRadius: size * radius,
             borderWidth: 2,
-            borderColor: tokens.edge,
-            backgroundColor: theme.tileFace,
-            opacity: stand,
+            borderColor: current ? theme.rewardEdge : tokens.edge,
+            backgroundColor: current && currentFace ? currentFace : theme.tileFace,
+            opacity: current ? 1 : stand,
           }]}
         >
-          <View style={[styles.inert, styles.bars]}>
-            <View>
-              <Bar width={size - 4} height={capH} colour={tokens.face} pattern={tokens.pattern} />
-              <View style={{ height: keyline, backgroundColor: tokens.deep }} />
+          {current ? null : (
+            <View style={[styles.inert, styles.bars]}>
+              <View>
+                <Bar width={size - 4} height={capH} colour={tokens.face} pattern={tokens.pattern} />
+                <View style={{ height: keyline, backgroundColor: tokens.deep }} />
+              </View>
+              <View>
+                <View style={{ height: keyline, backgroundColor: tokens.deep }} />
+                <Bar width={size - 4} height={baseH} colour={tokens.face} pattern={tokens.pattern} />
+              </View>
             </View>
-            <View>
-              <View style={{ height: keyline, backgroundColor: tokens.deep }} />
-              <Bar width={size - 4} height={baseH} colour={tokens.face} pattern={tokens.pattern} />
-            </View>
-          </View>
-          {glyph === null
-            ? <SocketMark size={size} colour={theme.neutralFace} />
-            : <Glyph text={glyph} size={fitted} colour={theme.tileGlyph} />}
+          )}
+          <CarrierGlyph text={glyph} size={fitted} colour={theme.tileGlyph} reduced={reduced} />
         </Animated.View>
 
         {/* M17 — the shimmer, a light wash that never changes what the tile is. */}
@@ -313,6 +364,7 @@ const styles = StyleSheet.create({
    * overlay inert.
    */
   inert: { pointerEvents: 'none' },
+  centre: { alignItems: 'center', justifyContent: 'center' },
   face: {
     overflow: 'hidden',
     alignItems: 'center',

@@ -15,6 +15,16 @@ export default {
     ? `Đang ghép một từ. Chưa có phần nào. ${live} ô đang chờ.`
     : `Đang ghép một từ. Đã đặt ${placed.join(', ')}. ${live} ô có thể theo sau.`),
 
+  /**
+   * `ui.md` §12 — **the page rail is a second accessibility element**, describing the
+   * pages and which of them hold something live. The child never hears it; his mother
+   * might, and a rail that a screen reader cannot describe is a control that does not
+   * exist for her.
+   */
+  railA11y: (page, total, livePages) => (livePages.length === 0
+    ? `Trang ${page} trên ${total}.`
+    : `Trang ${page} trên ${total}. Có ô để bấm ở trang ${livePages.join(', ')}.`),
+
   languageName: 'Tiếng Việt',
   sampleWord: 'mèo',
 
@@ -47,7 +57,7 @@ export default {
   on: 'Bật',
   off: 'Tắt',
 
-  languageSwitchWarning: 'Đổi ngôn ngữ sẽ bắt đầu lại trò chơi.',
+  languageSwitchWarning: 'Chạm một lần để đổi. Bàn chơi bắt đầu lại; bộ sưu tập được giữ nguyên.',
 
   tooSmallTitle: 'Màn hình quá nhỏ',
   tooSmallBody: 'Trò chơi cần màn hình rộng ít nhất 360 và cao 600. Hãy thử trên máy khác.',

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Synthesise the app's own (non-speech) sounds.  Owner: app-developer.
 
-`ui.md` §11.3 and §11.4 specify nine sounds that are not words: the announcement motif,
-the seat click, the disabled knock, the undo unclick, the zero-onset *open*, the shelf
-bell and the shelf-tip phrase.  They are synthesised rather than sourced because they are
+`ui.md` §11.3 and §11.4 specify the sounds that are not words: the announcement motif,
+the seat click, the disabled knock, the undo unclick, **the page slide**, the shelf bell
+and the shelf-tip phrase.  The zero-onset *open* is gone with the `∅` tile it belonged to
+(revision 3, AC N13).  They are synthesised rather than sourced because they are
 short, deterministic, and licence-free by construction — `docs/slices.md` defect 8 is that
 neither TTS engine grants redistribution rights, and these carry no such question.
 
@@ -121,8 +122,25 @@ def build(out_dir):
     place(un, 60, mallet(ROOT, 80, decay=40.0))
     files['unclick.wav'] = fade_tail(normalise(un, -9.0))
 
-    # `gameplay.md` §4.6 — the zero onset: a soft low wooden *open*, 140 ms, not speech.
-    files['socket.wav'] = fade_tail(normalise(wood(146.8, 140, decay=34.0, noise=0.35, seed=5), -8.0))
+    # `ui.md` §11.3 / AC V24 — **the page sound**: 120 ms, a paper/wood *slide*, not a
+    # click and not a knock.  It is the same sound whoever changed the page, because the
+    # duration of the motion is what distinguishes them visually and a second sound would
+    # be one more thing to learn.  It is deliberately the only SUSTAINED sound of the
+    # four, which is what keeps it separable from the click and the knock by ear alone
+    # (AC M5, M7).
+    slide_ms = 120
+    t = np.arange(int(SR * slide_ms / 1000.0)) / SR
+    rng = np.random.default_rng(23)
+    noise = rng.standard_normal(len(t))
+    # Band-limited noise with a slow attack and a slow release: a sheet moving across a
+    # surface rather than something being struck.
+    lp = np.zeros_like(noise)
+    a = 0.06
+    for i in range(1, len(noise)):
+        lp[i] = a * noise[i] + (1 - a) * lp[i - 1]
+    env = np.sin(np.pi * np.linspace(0.0, 1.0, len(t))) ** 1.4
+    body = 0.35 * np.sin(2 * np.pi * 220.0 * t) * env
+    files['page.wav'] = fade_tail(normalise(lp * env * 6.0 + body, -6.0))
 
     # `ui.md` §11.3 — a single soft bell as a shelf slot fills, folded into M15.
     files['shelf-bell.wav'] = fade_tail(normalise(mallet(OCTAVE, 420, decay=9.0), -9.0))

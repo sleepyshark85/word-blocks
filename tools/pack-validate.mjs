@@ -184,7 +184,18 @@ if (lang === 'vi' && tileById.rime) {
 
 if (lang === 'en' && tileById.letter) {
   for (const [id, tile] of tileById.letter) {
-    if (R.EN_EXCLUDED.includes(id)) err(`tiles.letter[${id}]`, `"${id}" is excluded from v1 (literacy-en.md §3.5)`);
+    // NOT an error since revision 4: `ui.md` §8.1 and AC D1a/D1b/S14 put every
+    // character of `inventoryOrder` on the board, and a character with no words behind
+    // it -- `q` in English, `ngh` in Vietnamese -- is a normal permanent state and not a
+    // fault. What stays excluded is `q` inside a WORD, which is checked with the words.
+    if (R.EN_EXCLUDED.includes(id)) {
+      const speaks = Boolean(tile.audio?.short || tile.audio?.long || tile.audio?.name);
+      if (speaks) {
+        warn(`tiles.letter[${id}]`, `"${id}" has no v1 word (literacy-en.md §3.5) and is on the board permanently flat (ui.md §8.1). That is correct and expected; it still speaks when pressed (AC D1b).`);
+      } else {
+        err(`tiles.letter[${id}]`, `"${id}" is on the board permanently flat (ui.md §8.1) and has NO clip, so pressing it does nothing — which is the "nothing happens" failure gameplay.md §4.3 forbids (AC D1b)`);
+      }
+    }
     if (R.EN_FINAL_ONLY.includes(id) && tile.position !== 'final') {
       err(`tiles.letter[${id}]`, `must be position "final" — ck/ll/ss/ff/zz/ng/x can never start a word (literacy-en.md §3.3, §7)`);
     }
@@ -491,6 +502,12 @@ for (const { file, word } of wordsOk) {
         }
         if (i > 0 && R.EN_INITIAL_ONLY.includes(t)) {
           err(at, `"${t}" is initial-only in v1 (literacy-en.md §3.1)`);
+        }
+        // `q` is on the BOARD (ui.md §8.1) and out of v1 WORDS (literacy-en.md §3.5).
+        // The exclusion moved here from the tile check when revision 4 put every
+        // character of `inventoryOrder` on the board.
+        if (R.EN_EXCLUDED.includes(t)) {
+          err(at, `"${t}" is excluded from v1 words (literacy-en.md §3.5) — it is on the board and permanently flat, but no word may be built from it`);
         }
       });
       if (!anyVowel) dErr(rel, 'no vowel tile — every English word needs one (literacy-en.md §3.2)');

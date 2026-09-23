@@ -549,6 +549,16 @@
       "status": "done",
       "detail": "media/aud/46db8f15daef1917.mp3",
       "at": "2026-09-22T17:52:41.018Z"
+    },
+    "tile:letter:q:long": {
+      "status": "done",
+      "detail": "media/aud/f3e09acdeb612a86.mp3",
+      "at": "2026-09-23T11:46:26.013Z"
+    },
+    "tile:letter:q:short": {
+      "status": "done",
+      "detail": "media/aud/6b92e249e104fe53.mp3",
+      "at": "2026-09-23T11:46:26.287Z"
     }
   }
 }

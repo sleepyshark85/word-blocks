@@ -10,13 +10,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  createGameController, planAnnouncement, stepDurationMs, clipVariant,
+  createGameController, planAnnouncement, stepDurationMs,
 } from '../src/state/gameController.mjs';
 import { createGame, tableView } from '../src/engine/index.mjs';
 import { REVEAL, LADDER, HOLD, TAP, M, MOTIF } from '../src/motion/durations.mjs';
 import { viPack, enPack } from './helpers/load.mjs';
 import { createFakeClock, createFakeAudio, identityMedia } from './helpers/harness.mjs';
-import { packWithADeadSymbol } from './helpers/fixtures.mjs';
+import { packWithADeadSymbol, phonePages } from './helpers/fixtures.mjs';
 
 const SETTINGS = { showWord: true, mute: false, rate: 1, saySentence: true, reduceMotion: false };
 
@@ -28,7 +28,7 @@ const UI = {
   seat: 'ui:seat',
   knock: 'ui:knock',
   unclick: 'ui:unclick',
-  socket: 'ui:socket',
+  page: 'ui:page',
   shelfBell: 'ui:shelfBell',
   shelfTip: 'ui:shelfTip',
 };
@@ -36,7 +36,8 @@ const UI = {
 function rig(pack, over = {}) {
   const clock = createFakeClock();
   const audio = createFakeAudio();
-  const game = over.game ?? createGame(pack, { maxCells: over.maxCells ?? 24 });
+  // `pages: null` is the tablet — one page, no rail. Pass `pages` for the owner's phone.
+  const game = over.game ?? createGame(pack, { pages: over.pages ?? null });
   const ctl = createGameController({
     game,
     seed: over.seed ?? 'controller',
@@ -47,14 +48,15 @@ function rig(pack, over = {}) {
     timers: clock.timers,
     now: clock.now,
     onSessionEnd: over.onSessionEnd,
+    progress: over.progress,
+    onProgress: over.onProgress,
   });
-  // The board only gets interesting above stage 1, and the stage is not a wall-clock
-  // concern, so it is set directly rather than played up to.
-  if (over.stage) {
-    const engine = ctl._engine();
-    Object.assign(engine, { stage: over.stage });
-  }
   return { ctl, clock, audio, game, pack: game.pack };
+}
+
+/** The owner's board: Vietnamese across four pages, 28 cells each (AC V3). */
+function phoneRig(over = {}) {
+  return rig(viPack(), { ...over, pages: phonePages('vi') });
 }
 
 /**
@@ -64,8 +66,8 @@ function rig(pack, over = {}) {
  * quietly stopped meaning anything when the inventory order improved.
  */
 function rigWithAFlatTile(over = {}) {
-  const fixture = packWithADeadSymbol('vi', over.stage ?? 5);
-  const r = rig(fixture.pack, { ...over, game: fixture.game, stage: over.stage ?? 5 });
+  const fixture = packWithADeadSymbol('vi', over.pages ?? null);
+  const r = rig(fixture.pack, { ...over, game: fixture.game });
   return { ...r, deadId: fixture.deadId, liveId: fixture.liveId };
 }
 
@@ -84,15 +86,12 @@ function buildMeo(r) {
 
 /* --------------------------------------------------------------- pure helpers */
 
-test('stepDurationMs is the clip plus its stated gap, with a default for a silent clip', () => {
+test('stepDurationMs is the clip plus its stated gap, and a beat with no clip is its gap', () => {
   assert.equal(stepDurationMs({ audio: { ms: 400 }, gapAfterMs: 250 }), 650);
-  assert.equal(stepDurationMs({ audio: null, gapAfterMs: 0 }), 700);
-});
-
-test('D7 / D8 / D9 — the long clip only on the first touch, and never inside 900 ms', () => {
-  assert.equal(clipVariant(true, false), 'long');
-  assert.equal(clipVariant(true, true), 'short');
-  assert.equal(clipVariant(false, false), 'short');
+  assert.equal(stepDurationMs({ audio: { ms: null }, gapAfterMs: 0 }), 700);
+  // A pack with no blend recording must not spend 700 ms of silence pretending to speak;
+  // the beat is still shown (the merge), and it costs only its gap (`ui.md` §10.4).
+  assert.equal(stepDurationMs({ audio: null, gapAfterMs: 400 }), 400);
 });
 
 test('planAnnouncement puts the whole word on the reveal, not at the end of the chant', () => {
@@ -111,33 +110,47 @@ test('planAnnouncement puts the whole word on the reveal, not at the end of the 
 /* ------------------------------------------------------------------ §N audio */
 
 test('N1 — the tile sound fires on touch-DOWN, before touch-up', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.audio.drain();
   r.ctl.symbolDown('m', 10, 10);
   const onDown = r.audio.drain();
   assert.equal(onDown.length, 1);
-  assert.equal(onDown[0].ch, 'tile');
+  assert.equal(onDown[0].ch, 'speech');
   r.ctl.symbolUp('m', 10, 10);
 });
 
-test('E2 — a flat tile plays its own clip and then a knock at −9 dB, and seats nothing', () => {
+test('E2 — the knock PRECEDES the letter by 120 ms, and they never overlap', () => {
+  // **RESTATED in revision 3, and this is the inverse of revision 2's E2.** The knock and
+  // the clip used to sound together, which is one of the three things that made "voices
+  // mixed up with each other" (`ui.md` §11.0 item 3). Now: a 40 ms muted knock at −9 dB
+  // within 60 ms, then the tile's own `short` clip **in full** at +120 ms.
   const r = rigWithAFlatTile();
   r.audio.drain();
-  tap(r, r.deadId);
-  const log = r.audio.drain();
-  assert.equal(log[0].ch, 'tile', 'the flat tile did not speak');
-  const knock = log.find((e) => e.ch === 'ui' && e.source === UI.knock);
-  assert.ok(knock, 'no knock');
-  assert.equal(knock.db, -9);
+  r.ctl.symbolDown(r.deadId, 10, 10);
+  const immediate = r.audio.drain();
+  assert.equal(immediate.length, 1, 'something else sounded with the knock');
+  assert.equal(immediate[0].ch, 'ui');
+  assert.equal(immediate[0].source, UI.knock);
+  assert.equal(immediate[0].db, -9);
+
+  r.clock.advance(M.flatClipAfter - 1);
+  assert.deepEqual(r.audio.drain(), [], 'the letter arrived before +120 ms');
+  r.clock.advance(2);
+  const letter = r.audio.drain();
+  assert.equal(letter.length, 1);
+  assert.equal(letter[0].ch, 'speech', 'the flat tile did not speak its own clip');
+
+  r.ctl.symbolUp(r.deadId, 10, 10);
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, [], 'a flat tile seated');
+  assert.ok(!r.audio.drain().some((e) => e.source === UI.seat), 'a flat tap fired a seat click');
 });
 
 test('E1 — a live tap plays the clip, seats, and fires a seat click', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.audio.drain();
   tap(r, 'm');
   const log = r.audio.drain();
-  assert.equal(log[0].ch, 'tile');
+  assert.equal(log[0].ch, 'speech');
   assert.ok(log.some((e) => e.ch === 'ui' && e.source === UI.seat), 'no seat click');
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m']);
 });
@@ -147,77 +160,84 @@ test('E13 — twenty taps on a flat tile play twenty clips and change nothing', 
   r.audio.drain();
   for (let i = 0; i < 20; i += 1) {
     tap(r, r.deadId);
-    r.clock.advance(1);
+    r.clock.advance(M.flatClipAfter + 1);
   }
   const log = r.audio.drain();
-  assert.equal(log.filter((e) => e.ch === 'tile').length, 20);
+  assert.equal(log.filter((e) => e.ch === 'speech').length, 20);
+  assert.equal(log.filter((e) => e.source === UI.knock).length, 20);
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, []);
   // Nothing was queued or delayed: after the taps the bag holds no pending clip timer.
   assert.ok(!r.clock.timers.has('hold'));
 });
 
-test('N13 / C3 — the ∅ socket plays a wooden open, never a speech clip', () => {
-  const r = rig(viPack(), { stage: 5 });
+test('N13 / B2f — there is no ∅ tile and no open sound; a vowel word starts on the vowel', () => {
+  // **The inverse of revision 2's N13** (§W3). *"The toddle just need to pick the vowel,
+  // not the `.` character."*
+  const r = rig(viPack());
+  assert.ok(!r.ctl.getSnapshot().table.cells.some((c) => c.id === '∅'), 'the socket is back');
+  assert.ok(!('socket' in UI) || UI.socket === undefined, 'the open sound is still bundled');
   r.audio.drain();
   tap(r, '∅');
-  const log = r.audio.drain();
-  assert.equal(log[0].ch, 'tile');
-  assert.equal(log[0].source, UI.socket);
-  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['∅']);
+  assert.deepEqual(r.audio.drain(), [], 'tapping a tile that does not exist made a sound');
+  // `áo` = ao + sắc: two taps, and the first one is the rime.
+  tap(r, 'ao');
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['ao']);
+  tap(r, 'sac');
+  assert.equal(r.ctl.getSnapshot().pending.text, 'áo');
 });
 
 test('N5 / N6 — a hold repeats the short clip 6 times and then stops; nothing is placed', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.audio.drain();
   r.ctl.symbolDown('m', 10, 10);
   r.clock.advance(HOLD.startMs + HOLD.repeatMs * 12);
   // The touch-down clip plus the six repeats, and not a seventh.
-  const clips = r.audio.drain().filter((e) => e.ch === 'tile').length;
+  const clips = r.audio.drain().filter((e) => e.ch === 'speech').length;
   assert.equal(clips, 1 + HOLD.maxRepeats);
   r.ctl.symbolUp('m', 10, 10);
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, [], 'a hold placed a symbol');
 });
 
 test('N7 — a touch that travels more than 24 pt seats nothing', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.ctl.symbolDown('m', 10, 10);
   r.ctl.symbolUp('m', 10 + TAP.maxSlopPt + 1, 10);
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, []);
 });
 
 test('T5 — two fingers on two tiles seat one symbol and play one sound', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.audio.drain();
   r.ctl.symbolDown('m', 10, 10);
   r.ctl.symbolDown('b', 90, 10); // the second finger is ignored while the first owns it
   const log = r.audio.drain();
-  assert.equal(log.filter((e) => e.ch === 'tile').length, 1);
+  assert.equal(log.filter((e) => e.ch === 'speech').length, 1);
   r.ctl.symbolUp('m', 10, 10);
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m']);
 });
 
-test('N11 — every clip the table can produce is resident before the morph completes', () => {
-  const r = rig(viPack(), { stage: 5 });
-  const before = r.audio.prepared();
-  assert.ok(before.length > 20, `only ${before.length} clips preloaded for the onset table`);
-  tap(r, 'm');
-  const after = r.audio.prepared();
-  assert.notDeepEqual(before, after, 'the table changed and nothing was reloaded');
-  // Every rime the new table shows has both its clips resident.
+test('N11 (RESTATED) — every clip the CONSTANT table can produce is resident at the start', () => {
+  // There is no morph to hide a load in, and there does not need to be: the table never
+  // changes, so this is a one-time cost at pack load — 67 symbols × 2 variants.
+  const r = rig(viPack());
+  const resident = r.audio.prepared();
   for (const cell of r.ctl.getSnapshot().table.cells) {
-    if (cell.kind === 'socket') continue;
     for (const which of ['long', 'short']) {
       const ref = cell.audio[which];
       if (!ref) continue;
-      assert.ok(after.includes(identityMedia(ref.src)), `${cell.id}.${which} is not resident`);
+      assert.ok(resident.includes(identityMedia(ref.src)), `${cell.id}.${which} is not resident`);
     }
   }
+  assert.ok(resident.length > 60, `only ${resident.length} clips preloaded for a 67-cell table`);
+  // And a tap loads nothing, because there is nothing left to load.
+  tap(r, 'm');
+  assert.deepEqual(r.audio.prepared(), resident, 'a tap triggered a decode');
 });
 
 /* ------------------------------------------------- §F the announcement timeline */
 
 test('F1 / F4 — the motif fires on the tap that completes the word, four notes when new', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   tap(r, 'm');
   tap(r, 'eo');
   r.audio.drain();
@@ -226,12 +246,47 @@ test('F1 / F4 — the motif fires on the tap that completes the word, four notes
   const motif = log.find((e) => e.ch === 'motif');
   assert.ok(motif, 'no motif');
   assert.equal(motif.source, UI.motif4, 'a new word did not get the fourth note');
-  // Before the chant, not after it: nothing has been spoken yet.
-  assert.ok(!log.some((e) => e.ch === 'speech'), 'the chant started before the motif finished');
+  // **F19, RESTATED — the motif STOPS the speech channel, it does not duck it.** The tap
+  // that completes the word has just played the tone's clip; the motif cuts it.
+  const motifAt = log.findIndex((e) => e.ch === 'motif');
+  assert.equal(log[motifAt - 1].ch, 'cut', 'the motif played OVER a speech clip');
+  // And nothing is spoken after it until the chant starts at 440 ms.
+  assert.ok(!log.slice(motifAt).some((e) => e.ch === 'speech'),
+    'the chant started before the motif finished');
+});
+
+test('N3 / N3a / N3d — one speech channel, cut hard, newest wins', () => {
+  const r = rig(viPack());
+  r.audio.drain();
+  // Six taps in 400 ms, which is what a 4-year-old actually does (N4/N16).
+  for (const id of ['m', 'b', 'c', 'd', 'g', 'h']) {
+    r.ctl.symbolDown(id, 10, 10);
+    r.ctl.symbolCancel();
+    r.clock.advance(66);
+  }
+  const log = r.audio.drain();
+  const speech = log.filter((e) => e.ch === 'speech');
+  assert.equal(speech.length, 6, 'six taps did not make six clips');
+  // Every clip after the first cut the one before it: at no instant are two un-paused.
+  assert.equal(log.filter((e) => e.ch === 'cut').length, 5);
+  for (let i = 1; i < log.length; i += 1) {
+    if (log[i].ch === 'speech') assert.equal(log[i - 1].ch, 'cut', `clip ${i} did not cut its predecessor`);
+  }
+});
+
+test('N3b — a knock, a seat click or a page sound never cuts a speech clip', () => {
+  const r = rigWithAFlatTile();
+  r.audio.drain();
+  tap(r, r.liveId);            // a live tap: its clip, then the seat click
+  const log = r.audio.drain();
+  const seatAt = log.findIndex((e) => e.source === UI.seat);
+  assert.ok(seatAt > 0, 'no seat click');
+  assert.ok(!log.slice(0, seatAt).some((e) => e.ch === 'cut' && e.source === UI.seat));
+  assert.equal(log.filter((e) => e.ch === 'cut').length, 0, 'the UI channel cut speech');
 });
 
 test('F5 — a re-discovery gets three notes and skips the parts chant', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   r.clock.advance(20000);
   r.audio.drain();
@@ -244,12 +299,12 @@ test('F5 — a re-discovery gets three notes and skips the parts chant', () => {
 });
 
 test('F6 — the cheer plays over the motif when the pack has one, and is simply absent otherwise', () => {
-  const without = rig(viPack(), { stage: 5 });
+  const without = rig(viPack());
   without.audio.drain();
   buildMeo(without);
   assert.ok(!without.audio.drain().some((e) => e.ch === 'cheer'));
 
-  const with_ = rig(viPack(), { stage: 5, ui: { cheer: 'ui:cheer' } });
+  const with_ = rig(viPack(), { ui: { cheer: 'ui:cheer' } });
   with_.audio.drain();
   buildMeo(with_);
   const log = with_.audio.drain();
@@ -260,7 +315,7 @@ test('F6 — the cheer plays over the motif when the pack has one, and is simply
 });
 
 test('the announcement runs motif → merge → confetti → chant → reveal, in that order', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   let snap = r.ctl.getSnapshot();
   assert.equal(snap.hopSeq, 1, 'the strip did not hop on his tap');
@@ -281,11 +336,18 @@ test('the announcement runs motif → merge → confetti → chant → reveal, i
   snap = r.ctl.getSnapshot();
   assert.ok(snap.reveal, 'the picture never arrived');
   assert.equal(snap.reveal.text, 'mèo');
-  assert.equal(snap.chant, null, 'the chant is still lit under the picture');
+  // The strip holds the **whole word**, merged and gold, as the picture lifts off it
+  // (M13 scales from the strip's rectangle): the last chant beat is beat 5, never a part.
+  assert.equal(snap.chant.stepKind, 'word');
+  assert.deepEqual(snap.strip.map((c) => c.glyph), ['mèo']);
+  assert.equal(snap.merged, true);
+  // And it clears when the picture flies to the shelf.
+  r.clock.advance(REVEAL.autoAdvance + M.shelfFly + 100);
+  assert.equal(r.ctl.getSnapshot().chant, null, 'the chant is still lit on the board');
 });
 
 test('F8 / F9 — the word is spoken 200 ms after full screen, silent to 1400, again at 2200', () => {
-  const r = rig(viPack(), { stage: 5, settings: { saySentence: false } });
+  const r = rig(viPack(), { settings: { saySentence: false } });
   buildMeo(r);
   // Run to the exact millisecond the reveal begins, so the offsets below are the spec's.
   let guard = 0;
@@ -307,7 +369,7 @@ test('F8 / F9 — the word is spoken 200 ms after full screen, silent to 1400, a
 });
 
 test('F10 / F11 / T13 — a tap replays and turns the photo; 3000 ms of quiet exits', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   let guard = 0;
   while (r.ctl.getSnapshot().reveal?.phase !== 'held' && guard < 200) { r.clock.advance(50); guard += 1; }
@@ -335,7 +397,7 @@ test('F10 / F11 / T13 — a tap replays and turns the photo; 3000 ms of quiet ex
 });
 
 test('N8 — tile taps during the announcement do not interrupt it and seat nothing', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   r.clock.advance(REVEAL.chantAt + 50);
   const before = r.ctl.getSnapshot().engine.prefix.slice();
@@ -346,7 +408,7 @@ test('N8 — tile taps during the announcement do not interrupt it and seat noth
 /* ---------------------------------------------------------- §G the idle ladder */
 
 test('G2–G5 — the ladder escalates at 20 / 40 / 60 / 80 s and then plays a symbol', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   assert.equal(r.ctl.getSnapshot().hintLevel, 0);
 
   r.clock.advance(LADDER.step);
@@ -370,13 +432,13 @@ test('G2–G5 — the ladder escalates at 20 / 40 / 60 / 80 s and then plays a s
   assert.deepEqual(snap.engine.prefix, [breathing],
     'the tile that flew is not the tile that had been breathing');
   assert.equal(snap.autoPlacedId, breathing);
-  assert.ok(r.audio.drain().some((e) => e.ch === 'tile'), 'the auto-play was silent');
+  assert.ok(r.audio.drain().some((e) => e.ch === 'speech'), 'the auto-play was silent');
   // G6 — the ladder restarts at 20 s.
   assert.equal(r.ctl.getSnapshot().hintLevel, 0);
 });
 
 test('G6 — left completely alone, the app announces a word by itself', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.audio.drain();
   r.clock.advance(LADDER.step * 4 * 4);
   assert.ok(r.audio.drain().some((e) => e.ch === 'motif'), 'the app never made a word by itself');
@@ -393,7 +455,7 @@ test('G9 — any touch defers the next escalation by 4 s', () => {
 });
 
 test('G7 — a seated symbol resets the ladder to zero', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.clock.advance(LADDER.step * 2);
   assert.equal(r.ctl.getSnapshot().hintLevel, 2);
   tap(r, 'm');
@@ -402,7 +464,7 @@ test('G7 — a seated symbol resets the ladder to zero', () => {
 });
 
 test('the ladder does not run during the announcement', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   // Long past the 20 s first rung, but still inside the reveal's hold.
   r.clock.advance(LADDER.step + 1000);
@@ -413,7 +475,7 @@ test('the ladder does not run during the announcement', () => {
 /* -------------------------------------------------------------- undo and hints */
 
 test('E8 — undo flies the symbols home 90 ms apart, each with its own clip and one unclick', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   tap(r, 'm');
   tap(r, 'eo');
   r.audio.drain();
@@ -424,17 +486,17 @@ test('E8 — undo flies the symbols home 90 ms apart, each with its own clip and
   assert.deepEqual(r.ctl.getSnapshot().returning, ['eo', 'm']);
   r.clock.advance(1);
   log = r.audio.drain();
-  assert.equal(log.filter((e) => e.ch === 'tile').length, 1, 'both clips played at once');
+  assert.equal(log.filter((e) => e.ch === 'speech').length, 1, 'both clips played at once');
   r.clock.advance(M.flyHomeStagger);
   log = r.audio.drain();
-  assert.equal(log.filter((e) => e.ch === 'tile').length, 1, 'the second clip did not follow');
+  assert.equal(log.filter((e) => e.ch === 'speech').length, 1, 'the second clip did not follow');
   r.clock.advance(M.flyHome + M.flyHomeStagger);
   assert.deepEqual(r.ctl.getSnapshot().returning, [], 'the returning list never cleared');
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, []);
 });
 
 test('M2 / M3 — an 800 ms hold on the strip speaks the parts, and no completion', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   tap(r, 'm');
   tap(r, 'eo');
   r.audio.drain();
@@ -450,7 +512,7 @@ test('M2 / M3 — an 800 ms hold on the strip speaks the parts, and no completio
 });
 
 test('T3 — seat a symbol and lift it 120 ms later; both sounds play and it ends on the table', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   r.audio.drain();
   tap(r, 'm');
   r.clock.advance(120);
@@ -458,14 +520,14 @@ test('T3 — seat a symbol and lift it 120 ms later; both sounds play and it end
   r.ctl.stripUp(0);
   r.clock.advance(M.flyHome + M.flyHomeStagger);
   const log = r.audio.drain();
-  assert.ok(log.filter((e) => e.ch === 'tile').length >= 2, 'one of the two sounds was lost');
+  assert.ok(log.filter((e) => e.ch === 'speech').length >= 2, 'one of the two sounds was lost');
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, []);
 });
 
 /* ------------------------------------------------------- lifecycle and settings */
 
 test('T8 — backgrounded mid-chant: audio stops and the board is never half-merged', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   r.clock.advance(REVEAL.chantAt + 100);
   r.audio.drain();
@@ -481,7 +543,7 @@ test('T8 — backgrounded mid-chant: audio stops and the board is never half-mer
 });
 
 test('N10 — mute silences the game and the ladder still fires', () => {
-  const r = rig(viPack(), { stage: 5, settings: { mute: true } });
+  const r = rig(viPack(), { settings: { mute: true } });
   r.audio.drain();
   tap(r, 'm');
   assert.ok(r.audio.drain().every((e) => e.muted !== false), 'something played while muted');
@@ -491,7 +553,7 @@ test('N10 — mute silences the game and the ladder still fires', () => {
 
 test('H14 — Finish session fades the audio over 800 ms and calls back', () => {
   let ended = false;
-  const r = rig(viPack(), { stage: 5, onSessionEnd: () => { ended = true; } });
+  const r = rig(viPack(), { onSessionEnd: () => { ended = true; } });
   r.audio.drain();
   r.ctl.finishSession();
   assert.ok(r.audio.drain().some((e) => e.ch === 'fadeOut' && e.ms === 800));
@@ -500,7 +562,7 @@ test('H14 — Finish session fades the audio over 800 ms and calls back', () => 
 });
 
 test('A10 / R6 — destroy clears every timer and releases every audio handle', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   tap(r, 'm');
   r.clock.advance(LADDER.step);
   assert.ok(r.clock.timers.size() > 0);
@@ -515,7 +577,7 @@ test('A10 / R6 — destroy clears every timer and releases every audio handle', 
 });
 
 test('no timer outlives the state it belongs to — the bag is empty when the board is idle', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   r.clock.advance(60000);
   // The reveal has come and gone; what is left is the ladder and nothing else.
@@ -524,39 +586,56 @@ test('no timer outlives the state it belongs to — the bag is empty when the bo
 
 /* ------------------------------------------------------------------- English */
 
-test('D7 / D8 — English plays the long clip once per session, then the short one', () => {
-  const r = rig(enPack(), { stage: 5 });
-  const pack = r.pack;
-  const long = identityMedia(pack.tileById.letter.c.audio.long.src);
-  const short = identityMedia(pack.tileById.letter.c.audio.short.src);
-  r.audio.drain();
-  r.ctl.symbolDown('c', 10, 10);
-  assert.equal(r.audio.drain()[0].source, long);
-  r.ctl.symbolUp('c', 10, 10);
-  r.clock.advance(5000);
-  r.audio.drain();
-  r.ctl.symbolDown('c', 10, 10);
-  assert.equal(r.audio.drain()[0].source, short);
-  r.ctl.symbolUp('c', 10, 10);
+test('D7 / D8 / N14 (RESTATED) — a tap ALWAYS plays `short`, first touch or five-hundredth', () => {
+  // **The inverse of revision 2's D7.** The `long` anchored clip ("kuh, cat") is 2.9–3.5 s
+  // of two utterances; a 4-year-old taps every 300–600 ms, so it was always cut mid-word,
+  // and a fragment of an English word landing on the next letter's onset is exactly what
+  // "voices seem to be mixed up with each other" describes (`ui.md` §11.0 item 1).
+  const r = rig(enPack());
+  const long = identityMedia(r.pack.tileById.letter.c.audio.long.src);
+  const short = identityMedia(r.pack.tileById.letter.c.audio.short.src);
+  assert.notEqual(long, short, 'the pack has one clip, so this test cannot tell them apart');
+  for (let i = 0; i < 4; i += 1) {
+    r.audio.drain();
+    r.ctl.symbolDown('c', 10, 10);
+    const played = r.audio.drain().filter((e) => e.ch === 'speech');
+    assert.equal(played[0].source, short, `touch ${i + 1} played the long clip`);
+    r.ctl.symbolUp('c', 10, 10);
+    r.clock.advance(5000);
+    if (r.ctl.getSnapshot().engine.prefix.length > 0) r.ctl.stripUp(0);
+    r.clock.advance(2000);
+  }
 });
 
-test('D9 — inside 900 ms of another tile, even a first touch is short', () => {
-  const r = rig(enPack(), { stage: 5 });
-  const short = identityMedia(r.pack.tileById.letter.b.audio.short.src);
-  tap(r, 'c');
-  r.clock.advance(100);
+test('D8 — a whole session of play never fires a `long` clip from a tile tap', () => {
+  const r = rig(enPack());
+  const longs = new Set(Object.values(r.pack.tileById.letter)
+    .map((t) => (t.audio.long ? identityMedia(t.audio.long.src) : null)).filter(Boolean));
   r.audio.drain();
-  r.ctl.symbolDown('b', 10, 10);
-  assert.equal(r.audio.drain()[0].source, short);
+  for (const id of ['c', 'a', 't', 'b', 'q', 'z', 'sh']) { tap(r, id); r.clock.advance(300); }
+  r.clock.advance(60000);
+  const heard = r.audio.drain().filter((e) => longs.has(e.source));
+  assert.deepEqual(heard, [], 'a long clip was fired by a tap');
+});
+
+test('D9 / M2 — the parts hint is the ONLY place the long clips are heard', () => {
+  const r = rig(enPack());
+  const long = identityMedia(r.pack.tileById.letter.c.audio.long.src);
+  tap(r, 'c');
+  r.clock.advance(1000);
+  r.audio.drain();
+  r.ctl.stripDown();
+  r.clock.advance(800);
+  assert.ok(r.audio.drain().some((e) => e.source === long), 'the hint did not use the anchored clip');
 });
 
 test('the motif is the same file in both modes (F18, R10)', () => {
-  const vi = rig(viPack(), { stage: 5 });
+  const vi = rig(viPack());
   vi.audio.drain();
   buildMeo(vi);
   const a = vi.audio.drain().find((e) => e.ch === 'motif').source;
 
-  const en = rig(enPack(), { stage: 5 });
+  const en = rig(enPack());
   en.audio.drain();
   tap(en, 'c');
   tap(en, 'a');
@@ -577,11 +656,11 @@ test('MOTIF is the spec: three rising notes at 0/130/260, 440 ms, plus a fourth 
 /* -------------------------------------------------------- the shelf and album */
 
 test('H7 — the fifth slot tips into the album and a four-note phrase plays once', () => {
-  const r = rig(viPack(), { stage: 5 });
-  const eligible = r.game.treeFor(24).eligible.slice(0, 5);
+  const r = rig(viPack());
+  const eligible = r.game.tree.eligible.slice(0, 5);
   for (const w of eligible) {
     const s = w.syllables[0];
-    tap(r, s.onset ?? '∅');
+    if (s.onset !== null) tap(r, s.onset);
     tap(r, s.rime);
     tap(r, s.tone);
     r.clock.advance(30000);
@@ -595,7 +674,7 @@ test('H7 — the fifth slot tips into the album and a four-note phrase plays onc
 });
 
 test('H13 — a filled shelf slot replays its word and opens no picture', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   r.clock.advance(30000);
   const entry = r.ctl.getSnapshot().shelf.find(Boolean);
@@ -607,7 +686,7 @@ test('H13 — a filled shelf slot replays its word and opens no picture', () => 
 });
 
 test('H10 — an album card replays its word and turns to the next photograph', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   buildMeo(r);
   r.clock.advance(30000);
   const entry = r.ctl.getSnapshot().album[0];
@@ -623,7 +702,7 @@ test('H10 — an album card replays its word and turns to the next photograph', 
 /* ------------------------------------------------- the table the snapshot shows */
 
 test('B8 — the snapshot reports the table, not a filtered live set', () => {
-  const r = rig(viPack(), { stage: 5 });
+  const r = rig(viPack());
   const before = r.ctl.getSnapshot().table.cells.map((c) => c.id);
   tap(r, 'm');
   tap(r, 'eo');
@@ -636,14 +715,94 @@ test('B8 — the snapshot reports the table, not a filtered live set', () => {
   assert.deepEqual(r.ctl.getSnapshot().table.cells.map((c) => c.live), fromEngine);
 });
 
-test('the table morph publishes one sequence bump per role change, and none per repaint', () => {
-  const r = rig(viPack(), { stage: 5 });
-  const start = r.ctl.getSnapshot().tableSeq;
+test('B2c — the table never morphs: one page bump per slide, and none per repaint', () => {
+  // **The inverse of revision 2's morph test.** There is no role change and no cross-fade
+  // to sequence; what moves is the window, and only when a page goes dead (V13).
+  const r = phoneRig();
+  const start = r.ctl.getSnapshot().pageSeq;
   tap(r, 'm');
-  assert.equal(r.ctl.getSnapshot().tableSeq, start + 1);
-  // A chant emits several times a second; none of those may restart the morph.
+  assert.equal(r.ctl.getSnapshot().pageSeq, start + 1, 'the board did not slide off the dead onset page');
+  const atRime = r.ctl.getSnapshot().pageSeq;
+  // A chant emits several times a second; none of those may restart the slide.
   tap(r, 'eo');
-  const atTone = r.ctl.getSnapshot().tableSeq;
+  const atTone = r.ctl.getSnapshot().pageSeq;
+  assert.equal(atTone, atRime + 1);
   r.clock.advance(50);
-  assert.equal(r.ctl.getSnapshot().tableSeq, atTone);
+  assert.equal(r.ctl.getSnapshot().pageSeq, atTone);
+});
+
+/* ----------------------------------------------------------------- §V the rail */
+
+test('V24 — a page change sounds, on the UI channel, and it does not cut speech', () => {
+  const r = phoneRig();
+  r.audio.drain();
+  r.ctl.tapPage(2);
+  const log = r.audio.drain();
+  assert.equal(log.length, 1, 'a page change made more than one sound');
+  assert.equal(log[0].ch, 'ui');
+  assert.equal(log[0].source, UI.page);
+  assert.equal(log[0].db, -6);
+  // V19 — **never speech**: the glyph on a button is a label, not a character.
+  assert.ok(!log.some((e) => e.ch === 'speech'), 'pressing a page button spoke a letter');
+  assert.ok(!log.some((e) => e.ch === 'cut'), 'the page sound cut a speech clip');
+});
+
+test('V24 — the auto-advance sounds the same, and it is the app that is slower', () => {
+  const r = phoneRig();
+  r.audio.drain();
+  tap(r, 'm');                       // the onset page goes dead; the board slides itself
+  const log = r.audio.drain();
+  assert.ok(log.some((e) => e.ch === 'ui' && e.source === UI.page), 'the auto-advance was silent');
+  // V11 — his slide is 300 ms, the app's is 420 ms, and the snapshot says which.
+  assert.equal(r.ctl.getSnapshot().pageBy, 'auto');
+  assert.equal(r.ctl.getSnapshot().pageSlideMs, M.pageSlideAuto);
+  r.ctl.tapPage(0);
+  assert.equal(r.ctl.getSnapshot().pageBy, 'self');
+  assert.equal(r.ctl.getSnapshot().pageSlideMs, M.pageSlide);
+  assert.ok(M.pageSlideAuto > M.pageSlide, 'the app must be measurably slower than he is');
+});
+
+test('V30 — thirty rapid rail taps end on the last page, with nothing left half-finished', () => {
+  const r = phoneRig();
+  r.audio.drain();
+  for (let i = 0; i < 30; i += 1) { r.ctl.tapPage(i % 4); r.clock.advance(5); }
+  assert.equal(r.ctl.getSnapshot().page, 29 % 4);
+  r.clock.advance(5000);
+  assert.deepEqual(r.clock.timers.pending().filter((n) => !n.startsWith('ladder')), [],
+    'a page change left a timer behind');
+});
+
+test('V31 — an auto-advance under a finger seats nothing on the new page', () => {
+  const r = phoneRig();
+  // His finger goes down on `m` (page 0) and up: the board slides to page 1. The same
+  // touch must not then seat anything there.
+  r.ctl.symbolDown('m', 10, 10);
+  r.ctl.symbolUp('m', 10, 10);
+  assert.equal(r.ctl.getSnapshot().page, 1);
+  r.ctl.symbolUp('o', 10, 10);       // the same gesture ending over a tile on page 1
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m'], 'the same touch seated twice');
+});
+
+test('V26 / V27 — the idle ladder reaches the rail, and the app changes page before it plays', () => {
+  const r = phoneRig();
+  tap(r, 'm');                       // now on the rime page; the live set is all rimes
+  r.clock.advance(LADDER.step * 2);  // 40 s: something breathes
+  const snap = r.ctl.getSnapshot();
+  assert.ok(snap.hintSymbolId, 'nothing is breathing at 40 s');
+  const hintPage = r.game.inventory.pageOf(snap.hintSymbolId);
+  // V26 — if the tile it wants is on another page, the BUTTON breathes instead.
+  assert.equal(snap.hintPage, hintPage === snap.page ? null : hintPage);
+
+  // V27 — at 80 s the app changes page first, **then** plays the tile: the slide is the
+  // app's 420 ms, and the tap lands after it rather than on a board he cannot see.
+  r.audio.drain();
+  r.clock.advance(LADDER.step * 2);
+  if (snap.hintPage !== null) {
+    assert.equal(r.ctl.getSnapshot().page, snap.hintPage, 'the app played a tile off screen');
+    assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m'], 'it played before the slide');
+    r.clock.advance(M.pageSlideAuto + 1);
+  }
+  const after = r.ctl.getSnapshot();
+  assert.equal(after.engine.prefix.length, 2, 'the app never took its turn');
+  assert.equal(after.engine.prefix[1], snap.hintSymbolId, 'it played a different tile');
 });
