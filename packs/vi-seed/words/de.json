@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Goat",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/7507bba88bb03098.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 53658,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Capra_aegagrus_hircus_2.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Petruss",
+      "title": "Capra aegagrus hircus 2.JPG",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:51:16.417Z"
+    },
+    {
+      "src": "media/img/3a7f0815d0529a63.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 42684,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ziegenkopf.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Perennis",
+      "title": "Ziegenkopf.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:51:16.507Z"
+    },
+    {
+      "src": "media/img/4b43297fd234193e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 87249,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Domestic_goat_May_2006.jpg",
+      "license": "GFDL 1.2",
+      "licenseUrl": "http://www.gnu.org/licenses/old-licenses/fdl-1.2.html",
+      "creator": "fir0002 flagstaffotos [at] gmail.com Canon 20D + Canon 17-40mm f/4 L",
+      "title": "Domestic goat May 2006.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:51:16.589Z"
+    },
+    {
+      "src": "media/img/9302cb2b4d796894.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 96055,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Five_Heads_-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "Dg-505",
+      "title": "Five Heads - panoramio.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:51:16.675Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/2af4c858adf2a9ee.mp3",
@@ -30,6 +91,11 @@
     "assetConcept": "goat",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T02:51:16.675Z"
+    }
   }
 }

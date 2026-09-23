@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Ice cream",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/3eb4b0ca2ed985f0.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 42264,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ice_cream_with_whipped_cream,_chocolate_syrup,_and_a_wafer_(cropped).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Nicolas Ettlin",
+      "title": "Ice cream with whipped cream, chocolate syrup, and a wafer (cropped).jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:26.293Z"
+    },
+    {
+      "src": "media/img/8f06251696e131e8.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49568,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Strawbeerry_kulfi.JPG",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Kalaiselvi Murugesan",
+      "title": "Strawbeerry kulfi.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:26.385Z"
+    },
+    {
+      "src": "media/img/702621329aed8879.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 49198,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:140111_Azuki_Museum_Himeji_Hyogo_pref_Japan12n.jpg",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5",
+      "creator": "663highland",
+      "title": "140111 Azuki Museum Himeji Hyogo pref Japan12n.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:26.468Z"
+    },
+    {
+      "src": "media/img/dee421617f1068d5.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 40602,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Cherry_ice_cream.png",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Tiia Monto",
+      "title": "Cherry ice cream.png",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:26.550Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/630c2ef52e9107d9.mp3",
@@ -30,6 +91,11 @@
     "assetConcept": "ice cream",
     "flags": [],
     "note": "teaches k before e",
-    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T02:50:26.550Z"
+    }
   }
 }

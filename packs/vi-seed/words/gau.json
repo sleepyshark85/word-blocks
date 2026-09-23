@@ -11,7 +11,53 @@
     }
   ],
   "fallbackEmoji": "Bear",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/1cda6cce6e1ccf9a.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 94255,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Bear_black.JPG",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "PGIATHUY",
+      "title": "Bear black.JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:49:59.568Z"
+    },
+    {
+      "src": "media/img/2be452fdffea7ec3.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 57399,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ursus_thibetanus_3_(Wroclaw_zoo).JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Guérin Nicolas (messages)",
+      "title": "Ursus thibetanus 3 (Wroclaw zoo).JPG",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:49:59.664Z"
+    },
+    {
+      "src": "media/img/dba1bfde21d2433e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 57079,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sun_Bear_7.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Ryan E. Poplin",
+      "title": "Sun Bear 7.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:49:59.744Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/5a552c3731754221.mp3",
@@ -39,6 +85,11 @@
     "assetConcept": "bear",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)"
+    "from": "word-list.md §4 Stage 2 — + sắc, glide-final and open-diphthong rimes (11)",
+    "fetched": {
+      "lead": 1,
+      "article": 4,
+      "at": "2026-09-23T02:49:59.745Z"
+    }
   }
 }

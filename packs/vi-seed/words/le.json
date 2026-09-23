@@ -11,7 +11,70 @@
     }
   ],
   "fallbackEmoji": "Pear",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/9a93fd11ed46a0fa.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 28516,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:PearLaFrance.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Fg2",
+      "title": "PearLaFrance.jpg",
+      "rank": "article",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:51.746Z"
+    },
+    {
+      "src": "media/img/17239828ef71458b.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 36455,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Four_pears.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Rhododendrites",
+      "title": "Four pears.jpg",
+      "rank": "article",
+      "caption": "Bốn trái lê thuộc bốn giống khác nhau: Bartlett (Williams), D'Anjou, Forelle, và Bartlett (Williams) đỏ",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:51.840Z"
+    },
+    {
+      "src": "media/img/76084e278c4cc4d0.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 46089,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pears.jpg",
+      "license": "Public domain",
+      "licenseUrl": null,
+      "creator": "Keith Weller",
+      "title": "Pears.jpg",
+      "rank": "lead",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:51.923Z"
+    },
+    {
+      "src": "media/img/516ed983fc4084ef.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 105929,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Pear_tree_in_Hamedan_Iran.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "Alborzagros",
+      "title": "Pear tree in Hamedan Iran.jpg",
+      "rank": "article",
+      "caption": "Lê trên cành",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:52.007Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/a41494fa23897f9b.mp3",
@@ -30,6 +93,11 @@
     "assetConcept": "pear",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)"
+    "from": "word-list.md §4 Stage 1 — single-letter onset, open one-vowel rime, tones ngang/huyền (7)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T02:50:52.007Z"
+    }
   }
 }

@@ -11,7 +11,56 @@
     }
   ],
   "fallbackEmoji": "Running shoe",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/718d43e0bad3e090.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 62657,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chuck_Taylors.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Kris from Seattle, USA",
+      "title": "Chuck Taylors.jpg",
+      "rank": "article",
+      "caption": "Giày thể thao",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:26.006Z"
+    },
+    {
+      "src": "media/img/3a87e3ad49f254b4.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 50708,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Darkoakadelaidesside.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+      "creator": "ASuitableWardrobe",
+      "title": "Darkoakadelaidesside.jpg",
+      "rank": "lead",
+      "caption": "Giày da công sở",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:26.099Z"
+    },
+    {
+      "src": "media/img/059acab01dc3ac5e.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 62563,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Shoes_and_Fruit_(p365_20).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Joe Hastings",
+      "title": "Shoes and Fruit (p365 20).jpg",
+      "rank": "article",
+      "caption": "Giày thể thao ở Hồng Kông",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:26.181Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/6d41903b79b9ed42.mp3",
@@ -39,6 +88,11 @@
     "assetConcept": "shoe",
     "flags": [],
     "note": "the gi onset",
-    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T02:50:26.181Z"
+    }
   }
 }

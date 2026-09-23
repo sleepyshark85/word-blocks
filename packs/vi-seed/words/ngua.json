@@ -11,7 +11,68 @@
     }
   ],
   "fallbackEmoji": "Horse",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/40fef3d33863d39d.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 43511,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0785_(51407425426).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Pierre-Marie Epiney",
+      "title": "A cheval en estivage près de l'Ar du Tsan DSC 0785 (51407425426).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:49:59.198Z"
+    },
+    {
+      "src": "media/img/7b69bef15085afc5.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 43221,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0791_(51408404355).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Pierre-Marie Epiney",
+      "title": "A cheval en estivage près de l'Ar du Tsan DSC 0791 (51408404355).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:49:59.289Z"
+    },
+    {
+      "src": "media/img/32b96173b1548087.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 68808,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0766_(51406676097).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Pierre-Marie Epiney",
+      "title": "A cheval en estivage près de l'Ar du Tsan DSC 0766 (51406676097).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:49:59.371Z"
+    },
+    {
+      "src": "media/img/eb5b151a1fff6867.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 99799,
+      "source": "commons.wikimedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:A_cheval_en_estivage_pr%C3%A8s_de_l%27Ar_du_Tsan_DSC_0770_(51408404830).jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "creator": "Pierre-Marie Epiney",
+      "title": "A cheval en estivage près de l'Ar du Tsan DSC 0770 (51408404830).jpg",
+      "rank": "category",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:49:59.452Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/52c0daa847ee7e34.mp3",
@@ -39,6 +100,10 @@
     "assetConcept": "horse",
     "flags": [],
     "note": "",
-    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
+    "fetched": {
+      "category": 10,
+      "at": "2026-09-23T02:49:59.452Z"
+    }
   }
 }

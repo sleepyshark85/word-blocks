@@ -11,7 +11,72 @@
     }
   ],
   "fallbackEmoji": "Chair",
-  "images": [],
+  "images": [
+    {
+      "src": "media/img/55a4a65fa2bb6ae6.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 92540,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:C%C3%A1i_gh%E1%BA%BF_g%E1%BB%97_s%C6%A1n_%C4%91%E1%BB%8F_h%E1%BB%93ng_ng16th10n2022_(2).jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "creator": "Phương Huy",
+      "title": "Cái ghế gỗ sơn đỏ hồng ng16th10n2022 (2).jpg",
+      "rank": "lead",
+      "caption": "Một cái ghễ gỗ thông dụng",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:52.128Z"
+    },
+    {
+      "src": "media/img/5b5c03e86a664da5.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 63649,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Rocking_Chair_(32443140351).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "creator": "Sheila Sund from Salem, United States",
+      "title": "Rocking Chair (32443140351).jpg",
+      "rank": "article",
+      "caption": "Một chiếc ghế bập bênh",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:52.223Z"
+    },
+    {
+      "src": "media/img/22e0872ee70ab690.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 86993,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Paris_Chaises_jardin_des_Tuileries_2014.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+      "creator": "JLPC",
+      "title": "Paris Chaises jardin des Tuileries 2014.jpg",
+      "rank": "article",
+      "caption": "Những chiếc ghế kim loại trong vườn Tuileries, Paris, Pháp",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:52.304Z"
+    },
+    {
+      "src": "media/img/0f514df498f2c806.jpg",
+      "w": 512,
+      "h": 512,
+      "bytes": 24620,
+      "source": "vi.wikipedia.org",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Set_of_fourteen_side_chairs_MET_DP110780.jpg",
+      "license": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "creator": "Thomas Chippendale",
+      "title": "Set of fourteen side chairs MET DP110780.jpg",
+      "rank": "article",
+      "caption": "Ghế, khoảng năm 1772, bằng gỗ gụ, bọc da Maroc màu đỏ hiện đại, chiều cao: 97,2 cm, Bảo tàng Nghệ thuật Metropolitan (Thành phố New York)",
+      "modified": "cropped to square, resized to 512px, re-encoded JPEG q82",
+      "addedAt": "2026-09-23T02:50:52.382Z"
+    }
+  ],
   "audio": {
     "word": {
       "src": "media/aud/7ef531c3001e8043.mp3",
@@ -39,6 +104,11 @@
     "assetConcept": "chair",
     "flags": [],
     "note": "teaches gh before ê",
-    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)"
+    "from": "word-list.md §4 Stage 5 — + ngã, spelling-rule onsets, medial rimes (8)",
+    "fetched": {
+      "lead": 1,
+      "article": 9,
+      "at": "2026-09-23T02:50:52.382Z"
+    }
   }
 }
