@@ -6,16 +6,34 @@
     "orientation": "default",
     "userInterfaceStyle": "light",
     "backgroundColor": "#E9FBF2",
-    "assetBundlePatterns": ["assets/**/*"],
+    "assetBundlePatterns": [
+      "assets/**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "requireFullScreen": true,
       "infoPlist": {
-        "UIBackgroundModes": []
-      }
+        "NSPhotoLibraryUsageDescription": "Để chọn ảnh minh hoạ cho mỗi từ trong bộ từ vựng.",
+        "NSCameraUsageDescription": "Để chụp ảnh minh hoạ cho một từ.",
+        "NSMicrophoneUsageDescription": "Để thu âm giọng đọc cho mỗi từ.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.sleepyshark.ghepchu",
+      "buildNumber": "1"
     },
     "android": {
-      "package": "com.sleepyshark85.wordblocks"
+      "package": "com.sleepyshark.ghepchu",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#E9FBF2"
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "bundler": "metro"
@@ -29,8 +47,26 @@
           "backgroundColor": "#E9FBF2",
           "resizeMode": "contain"
         }
-      ]
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Để chọn ảnh minh hoạ cho mỗi từ trong bộ từ vựng.",
+          "cameraPermission": "Để chụp ảnh minh hoạ cho một từ."
+        }
+      ],
+      "expo-asset"
     ],
-    "extra": {}
+    "extra": {
+      "eas": {
+        "projectId": "120f3777-5e00-44e1-a359-f76ab51fbced"
+      }
+    },
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E9FBF2"
+    }
   }
 }
