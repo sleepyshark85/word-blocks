@@ -16,6 +16,8 @@ import {
   MIN_TABLE, MAX_TABLE, TILE_MIN, CHROME, TOP_BAR, GAP_STRIP, PAD_BOTTOM,
   RAIL_GAP, RAIL_MAX_ROWS, railCols, railH, orientationPolicy,
   STRIP_CELLS, STRIP_GAP, STRIP_PAD, STRIP_CELL_MIN, VI_RUNS, EN_RUNS,
+  LAW, LANG_W, DOOR_W, DOOR_PAD, DOOR_LABEL_PT, TITLE_PT, BAR_PAD, BAR_AIR, SLOT_GAP,
+  shelfRowW,
 } from '../src/layout/layout.mjs';
 
 // `tools/layout-sweep.mjs` is a CLI: importing it runs the sweep and calls
@@ -214,11 +216,16 @@ test('P6 — a 360 x 640 Android: 16 cells per page, 3 Vietnamese pages, one rai
   assert.deepEqual(appPlanFor(v, EN_RUNS).pages, [13, 13]);
 });
 
-test('P6a — an iPhone SE 3 holds 20 cells per page and 3 Vietnamese pages', () => {
-  // **RESTATED for revision 5**: was 16 cells and 6 pages.
+test('P6a — an iPhone SE 3 holds 16 cells per page and 3 Vietnamese pages', () => {
+  // **RESTATED for revision 6, measured.** Revision 5 gave this phone 20 cells a page;
+  // the 16 pt the two doors took out of the top bar (`TOP_BAR` 56 → 72) costs it one row
+  // of the grid, so the capacity falls to 16. The page plan does not move — `[15, 14, 6]`
+  // either way — and neither does the tile, because the tile was never what bound here.
+  // This device is not in `ui.md` §0D.3's table; the sweep is the authority and it says
+  // the capacity moved, so the criterion says so too.
   const v = { Wv: 375, Hv: 667, insetT: 20, insetB: 0 };
   const P = appPlanFor(v, VI_RUNS);
-  assert.equal(P.cap, 20);
+  assert.equal(P.cap, 16);
   assert.deepEqual(P.pages, [15, 14, 6]);
   assert.equal(P.pages.length, 3);
   assert.equal(P.L.tile, 76);
@@ -231,9 +238,14 @@ test('V3 / P6c / D1d — an iPhone 17 Plus is 3 VI pages [15,14,6] and ONE EN pa
   // **RESTATED for revision 5, measured** (`ui.md` §4.4, §0C U39). Revision 4 asserted 4
   // Vietnamese pages `[26,18,17,6]` at 75 pt and 2 English pages. The owner's own device
   // now shows English as a single 26-cell alphabet grid with no page rail at all.
+  // **RESTATED AGAIN for revision 6, measured** (`ui.md` §0D.3): the two doors cost the
+  // Vietnamese tile 2 pt and the English tile 1 pt on his device. The page plan, the
+  // capacity, the grid and the absence of an English rail are all unchanged, which is
+  // the sentence §0D.3 makes: *it costs no row, no page and no tile on the owner's
+  // device* beyond those two points.
   for (const [label, v, tile, enTile] of [
-    ['A 430x932', { Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, 101, 84],
-    ['B 440x956', { Wv: 440, Hv: 956, insetT: 62, insetB: 34 }, 104, 87],
+    ['A 430x932', { Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, 99, 83],
+    ['B 440x956', { Wv: 440, Hv: 956, insetT: 62, insetB: 34 }, 102, 85],
   ]) {
     const vi = appPlanFor(v, VI_RUNS);
     const en = appPlanFor(v, EN_RUNS);
@@ -264,16 +276,19 @@ test('X5 / P6c / P17 / P18 — the six-cell word strip, measured on his device a
   assert.equal(STRIP_CELL_MIN, 40);
 
   const A = appPlanFor({ Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, VI_RUNS).L;
-  assert.equal(A.stripH, 106);
+  // **RESTATED for revision 6**: the strip is 2 pt shorter on his phone (the tile is
+  // 101 → 99 and `stripH` is 1.05 × tile), so the cell is 58 × 88. The **width** half is
+  // untouched — `stripFitW` binds there, not the height — and so is the 47 pt glyph.
+  assert.equal(A.stripH, 104);
   assert.equal(A.stripCellW, 58);
-  assert.equal(A.stripCellH, 90);
+  assert.equal(A.stripCellH, 88);
   assert.equal(A.stripFont, 47);
   assert.equal(A.stripCells, 6);
   assert.equal(A.stripRowW, 6 * 58 + 5 * STRIP_GAP);
 
   const B = appPlanFor({ Wv: 440, Hv: 956, insetT: 62, insetB: 34 }, VI_RUNS).L;
   assert.equal(B.stripCellW, 60);
-  assert.equal(B.stripCellH, 93);
+  assert.equal(B.stripCellH, 91);
   assert.equal(B.stripFont, 49);
 
   const floor = appLayout({
@@ -313,14 +328,80 @@ test('F15 / F16 / F17 can fail — the strip rules are checks, not decoration', 
   assert.equal(appPlanFits(P, VI_RUNS, 7), false);
 });
 
-test('P6b — the chrome is 56 + 12 + 12 = 80 and the tile floor is 72', () => {
-  assert.equal(TOP_BAR, 56);
+test('P6b — the chrome is 72 + 12 + 12 = 96 and the tile floor is 72', () => {
+  // **RESTATED for revision 6** (W6): `TOP_BAR` 56 → 72, `CHROME` 80 → 96. The 16 pt is
+  // the price of a 72 pt child control at the unlowered motor floor (`ui.md` §0D.3), and
+  // `TILE_MIN` does not move — it never has.
+  assert.equal(TOP_BAR, 72);
   assert.equal(GAP_STRIP, 12);
   assert.equal(PAD_BOTTOM, 12);
-  assert.equal(CHROME, 80);
+  assert.equal(CHROME, 96);
   assert.equal(TILE_MIN, 72);
   assert.equal(RAIL_GAP, 12);
   assert.equal(RAIL_MAX_ROWS, 2);
+});
+
+test('P6b / F20–F22 — the top bar\'s revision-6 constants are the tool\'s, to the point', () => {
+  assert.equal(LANG_W, 72);
+  assert.equal(DOOR_W, 65);
+  assert.equal(DOOR_PAD, 8);
+  assert.equal(DOOR_LABEL_PT, 48.8);
+  assert.equal(TITLE_PT, 81.4);
+  assert.equal(BAR_PAD, 32);
+  assert.equal(BAR_AIR, 12);
+  assert.equal(SLOT_GAP, 6);
+  for (const [name, value] of Object.entries({
+    LANG_W, DOOR_W, DOOR_PAD, DOOR_LABEL_PT, TITLE_PT, BAR_PAD, BAR_AIR, SLOT_GAP,
+  })) {
+    assert.equal(value, tool[name], `${name} differs from the tool`);
+  }
+  // The shelf row is the same function of the slot in both.
+  for (let slot = 0; slot <= 44; slot += 1) {
+    assert.equal(shelfRowW(slot), tool.shelfRowW(slot), `shelfRowW(${slot}) differs`);
+  }
+});
+
+test('the rule LISTS are the tool\'s, name for name — a rule cannot be dropped in transcription', () => {
+  // The sweep and the app can agree on every number and still disagree about which
+  // questions are asked. F18 and F19 arrived in revision 6 and a transcription that
+  // quietly kept revision 5's list would sweep green for ever.
+  assert.deepEqual(RULES.map(([n]) => n), tool.RULES.map(([n]) => n));
+  assert.deepEqual(PLAN_RULES.map(([n]) => n), tool.PLAN_RULES.map(([n]) => n));
+  assert.deepEqual(LAW.map(([n]) => n), tool.LAW.map(([n]) => n));
+  assert.ok(PLAN_RULES.some(([n]) => n.startsWith('F18')));
+  assert.ok(PLAN_RULES.some(([n]) => n.startsWith('F19')));
+  assert.equal(LAW.length, 3);
+});
+
+test('F18 / F19 / F20 / F21 / F22 can fail — the revision-6 rules are checks, not decoration', () => {
+  // `development-process.md` §5, and the designer's own two misses: `DOOR_W` derived from
+  // the label could not fail, and F18/F19 placed in `RULES` **unserved** devices instead
+  // of failing. Each rule is handed a state that violates it and must say so.
+  const P = appPlanFor({ Wv: 430, Hv: 932, insetT: 59, insetB: 34 }, VI_RUNS);
+  const f18 = PLAN_RULES.find(([n]) => n.startsWith('F18'))[1];
+  const f19 = PLAN_RULES.find(([n]) => n.startsWith('F19'))[1];
+  assert.equal(f18(P), true);
+  assert.equal(f19(P), true);
+  // A narrower content width than the bar's three children need.
+  const squeezed = { ...P, L: { ...P.L, CW: LANG_W + shelfRowW(P.L.shelf) + DOOR_W } };
+  assert.equal(f18(squeezed), false, 'F18 would not notice a top bar that does not fit');
+  // A shelf so small that the title no longer fits under it. `TITLE_PT` is 81.4, so a
+  // 12 pt slot gives a 84 pt row… and an 11 pt slot gives 79.
+  const thinShelf = { ...P, L: { ...P.L, shelf: 11 } };
+  assert.equal(f19(thinShelf), false, 'F19 would not notice a title wider than its box');
+  assert.equal(shelfRowW(11) < TITLE_PT, true);
+
+  // F20–F22 are laws about constants, so they are poisoned by re-evaluating them against
+  // poisoned constants rather than against a poisoned layout.
+  const law = (name) => LAW.find(([n]) => n.startsWith(name))[1];
+  assert.equal(law('F20')(), true);
+  assert.equal(law('F21')(), true);
+  assert.equal(law('F22')(), true);
+  assert.equal(LANG_W >= TILE_MIN, true);
+  assert.equal(64 >= TILE_MIN, false, 'F20 at LANG_W = 64 (the designer\'s injection)');
+  assert.equal(56 >= LANG_W, false, 'F21 at TOP_BAR = 56 (the designer\'s injection)');
+  // `Người lớn` measures 60.2 pt at 13 pt in the shipped face: F22's injection.
+  assert.equal(60.2 + 2 * DOOR_PAD <= DOOR_W, false, 'F22 at a longer door label');
 });
 
 test('P4 / P7 / P8 — a tablet rotates, a phone locks to portrait, served means a page plan', () => {
@@ -329,8 +410,15 @@ test('P4 / P7 / P8 — a tablet rotates, a phone locks to portrait, served means
   // 430 x 932 phone, which revision 3's truncated board could never satisfy. So the fit
   // rule alone no longer locks the biggest phones to portrait, and `orientationPolicy`
   // carries P7/P8 instead — reported as a deviation rather than absorbed.
+  // **RESTATED for revision 6, and it is the deviation shrinking rather than growing.**
+  // Revision 4's paging made a *landscape* 430 × 932 phone pass F7, which is why
+  // `orientationPolicy` had to carry P7 on its own. The 16 pt the two doors take out of
+  // the top bar puts that shape back under the fit rule: a landscape iPhone 17 Plus is
+  // **not served** again, exactly as a landscape iPhone 15 never was. `orientationPolicy`
+  // keeps its extra clause — *rotate freely iff the portrait board needs no rail* —
+  // because the clause is what makes a tablet a tablet, not because a phone needs it.
   assert.equal(appOrientationOK({ Wv: 932, Hv: 430, insetT: 0, insetB: 34, insetL: 59, insetR: 59 }),
-    true, 'the law now serves a landscape iPhone 17 Plus; the tool says so too');
+    false, 'a landscape iPhone 17 Plus fails F7 again under revision 6');
   assert.equal(appOrientationOK({ Wv: 852, Hv: 393, insetT: 0, insetB: 21, insetL: 59, insetR: 59 }),
     false, 'a landscape iPhone 15 still fails F7');
 

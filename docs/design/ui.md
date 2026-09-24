@@ -6,7 +6,12 @@ Owner: game-designer. Read `gameplay.md` first — it defines the loop this docu
 and its **§0 records the mechanic correction** that produced revision 2 of both documents.
 `acceptance-criteria.md` numbers everything here as testable behaviour.
 
-**Revision 5, 2026-09-23 — read §0C first, then §0B, then §0A.** The owner played the
+**Revision 6, 2026-09-24 — read §0D first, then §0C, §0B, §0A.** The owner ran the app on a
+real iPhone for the first time and could not find the language switch or the editor. §0D is
+that correction: **the language switch becomes the child's, on the board, with no gate**, and
+**the parent door becomes visible while its lock stays exactly as it was.**
+
+**Revision 5, 2026-09-23 — then §0C, then §0B, then §0A.** The owner played the
 revision-4 build and said the table *"feel really random and un-organized and doesn't give my
 son a sense of character order"*. He asked for the **standard alphabet**, and then said that
 his son enters a digraph **letter by letter** — *"even for combine ones like ch, tr (Choose C
@@ -19,8 +24,8 @@ revision 5):
 
 | Tool | Verifies | Result |
 |---|---|---|
-| `tools/theme-contrast.mjs` | every (theme × surface × foreground) pair that can co-occur, in all three themes, plus role-hue separation **and — new in revision 5 — the consonant/vowel pair under all three dichromacies** | **PASS**, 0 failing pairs, **44 checks × 3 themes = 132 gated, 2 logged** |
-| `tools/layout-sweep.mjs` | the **paged constant character-table** law over viewports 360–1400 × 600–1440 pt in steps of 4, × 9 safe-area shapes, × table sizes 1–budget, plus a page plan for both packs at every served viewport, **and — new in revision 5 — the six-cell word strip** | **PASS**, **34,463,217 layouts + 982,566 page plans**, 0 failures, **10 layout rules + 6 plan rules** |
+| `tools/theme-contrast.mjs` | every (theme × surface × foreground) pair that can co-occur, in all three themes, plus role-hue separation, the consonant/vowel pair under all three dichromacies, **and — new in revision 6 — the parent door and the language control** | **PASS**, 0 failing pairs, **141 gated checks across 3 themes, 6 decorative pairs logged**. The five new pairs are counted here and **introduce no new colour** — every token pair the two controls create is one this sweep already measured elsewhere |
+| `tools/layout-sweep.mjs` | the **paged constant character-table** law over viewports 360–1400 × 600–1440 pt in steps of 4, × 9 safe-area shapes, × table sizes 1–budget, plus a page plan for both packs at every served viewport, the six-cell word strip, **and — new in revision 6 — the top bar's three children against the width the shipped font actually needs** | **PASS**, **34,023,720 layouts + 982,122 page plans**, 0 failures, **10 layout rules + 8 plan rules + 3 constant laws** |
 
 Nothing in §4 or §5 is asserted. Every number came out of one of those two programs, or —
 in §6 — out of a render of the font that actually ships, or — in §11 — out of the MP3 frame
@@ -35,6 +40,105 @@ never trust a green check you have not seen fail):
 | the strip cell's width cap deleted (`min(…, stripFitW, …)` → `min(…, TILE_MAX)`) | `layout-sweep.mjs` **F15** | **exit 1**, 12 failures, first at `368×604 cells=1` |
 | `DE_MIN_ADJACENT_CVD` 20 → 25 | `theme-contrast.mjs` **ADJACENT** | **exit 1**, Popsicle consonant vs vowel under protanopia = **23.7** |
 | the boundary divider drawn in `hairline` instead of `neutralFace` | `theme-contrast.mjs` **component** | **exit 1**, 3 failures, **1.30–1.38:1** against a 3.0 gate |
+
+**The five faults injected into revision 6's new checks** (`CLAUDE.md`: never trust a green
+check you have not seen fail). **Two of them were MISSED on the first pass and the reason is
+worth more than the injections are:**
+
+| Injection | Into | Result |
+|---|---|---|
+| `DOOR_LABEL_PT` 48.8 → 60.2 — the door's label is translated as `Người lớn` | `layout-sweep.mjs` **F22** | **exit 1**, `the parent door holds its label`, sweep not run |
+| `BAR_PAD` 32 → 24 — the slop error this revision found and fixed | `layout-sweep.mjs` **F18** | **exit 1**, 12 failures, first at `444×684` landscape insets |
+| `TITLE_PT` 81.4 → 200 — the mode title no longer fits under the shelf | `layout-sweep.mjs` **F19** | **exit 1**, first at `360×600 pages 15,14,6` |
+| `LANG_W` 72 → 64 — the child's control drops below the motor floor | `layout-sweep.mjs` **F20** | **exit 1**, law fails, sweep not run |
+| `TOP_BAR` 72 → 56 — the bar can no longer draw a 72 pt control | `layout-sweep.mjs` **F21** | **exit 1**, law fails, sweep not run |
+| the door's label drawn in `neutralFace`, the grey of the dot it replaces | `theme-contrast.mjs` **bodyText** | **exit 1**, 3 failures, **3.01–3.04:1** against a 4.5 gate |
+
+**Miss 1 — a check whose input moves with the thing it checks.** `DOOR_W` was first written as
+`ceil(DOOR_LABEL_PT + 2*DOOR_PAD)`. Lengthening the label to `Người lớn` then **passed, exit
+0**: the reservation grew with the label, the shelf shrank to pay for it, and nothing
+noticed. `DOOR_W` is now a literal 65 and F22 asks whether the label fits inside it.
+
+**Miss 2 — a fit rule cannot be seen to fail; it can only delete a device.** F18 and F19 were
+first written into `RULES`, and `RULES` also *decides the cell budget*. Poisoning `TITLE_PT`
+to 200 pt did not produce a failure: it made every 360 dp phone **unserved**, and the sweep
+printed `PASS — 0 failing layouts`. This is the **F0 tautology** in a new place. Both rules are
+now **plan rules**, asked only of viewports that are already served, so they can fail out loud.
+
+---
+
+## 0D. CORRECTION LOG — revision 6: the owner could not find either door
+
+**2026-09-24. The app ran on a real iPhone for the first time.** Two findings, verbatim:
+
+> - After going to either English or Vietnamese, I don't see any button or anything that can
+>   let me go back to choose another language.
+> - Where is the screen for me to add/edit/delete words/images/audio?
+
+**One cause.** The language switch was parent-menu row 2; the editor was parent-menu rows 1
+and 3; the parent menu was behind a 1.2 s hold on a **32 pt dot at 30 % opacity** and then a
+multiplication. He commissioned this app, wrote its brief and read its design, and he could
+not find the door. **His wife — the one person the editor exists for — has no chance.** An
+editor nobody can reach is not an editor.
+
+**The gate was never the problem. Hiding the gate had also hidden the door, and those are
+separable.** That is the whole of this revision.
+
+### 0D.1 The orchestrator's half of the remedy was wrong, and the owner overturned it
+
+The orchestrator's brief said the language switch must stay behind the gate, *"a 4-year-old
+must not be able to change the language"*. It put that to the owner, who rejected it in as
+many words:
+
+> This is not true, I think he should be able to change the language himself
+
+**Recorded as the orchestrator's assumption and not the owner's, because it never was his.**
+The child is four and bilingual and his father wants him to choose which language he is
+playing in; that is a fact about this child's life, not a risk to be managed. Revision 3's
+§7.1 argument — *"a 4-year-old who can flip languages will flip them"* — is **withdrawn**. It
+was written when the only route to the chooser was a screen full of words he could not read;
+the answer is to make the switch legible to him, not to lock it.
+
+### 0D.2 What revision 6 changes
+
+| | Revision 5 | **Revision 6** |
+|---|---|---|
+| Language switch | parent menu row 2, behind the gate | **the child's.** A 72 pt control at the board's top-left. No gate, no hold, no multiplication (§9.4a) |
+| It opens | the chooser, committing on one tap | **the chooser, unchanged from first launch** — tap a panel, hear the language's own name, tap ▶ to commit |
+| The parent surface | a 32 pt dot at 30 % opacity, unlabelled, tap does nothing | **a labelled door**: `Cha mẹ` / `Parent`, 65 × 32, top-right, tap shows the hold hint (§9.4b) |
+| The lock behind it | 1.2 s hold → spelled-out multiplication → 180 s grace | **unchanged, deliberately** (§9.4b's ruling) |
+| Top bar | 56 pt: title · shelf · dot | **72 pt**: language control · shelf with the mode title under it · door (§4.2, §9.4) |
+| `CHROME` | 80 | **96** |
+| Parent menu row 1 | *Add a word*, with *Words* three rows below | **`Words`** — one row that names add, edit and delete, which is the question he asked |
+| Chooser panel tap | speaks a sample word, `mèo` / `cat` | **speaks the language's own name**, `Tiếng Việt` / `English` (§9.6, E23) |
+
+### 0D.3 What it costs, measured
+
+`tools/layout-sweep.mjs`, re-run. `TOP_BAR` 56 → 72 is the only chrome that moved:
+
+| Device | Revision 5 | **Revision 6** |
+|---|---|---|
+| **iPhone 17 Plus 430 × 932** | VI 3 pages `[15 ¦ 14 ¦ 6]`, cap 28, tile **101**; EN 1 page, no rail, tile 84 | VI 3 pages `[15 ¦ 14 ¦ 6]`, cap 28, tile **99**; EN 1 page, no rail, tile 83 |
+| **iPhone 17 Plus 440 × 956** | tile 104 | tile **102** |
+| **360 × 640, the floor** | VI 3 pages, tile 73; EN 2 pages | **unchanged** |
+| **iPad 11″ 834 × 1194** | 35 cells, one page, no rail, tile 116 | **unchanged** |
+| **360 × 800 Android** | EN **1 page**, no rail | EN **2 pages** `[13 ¦ 13]` — the whole regression |
+| Shelf slot | 32–44 pt | **29–41 pt** |
+| Served viewport/inset combinations | 491,283 | **491,251** — 32 shapes lost |
+
+**It costs no row, no page and no tile on the owner's device, and nothing at all at the floor
+or on a tablet.** It costs 2 pt of tile on his phone, 3 pt of shelf slot everywhere, one
+Android shape's single-page English board, and 32 of 491,283 viewport shapes.
+
+**Two cheaper placements were measured and rejected**, so they are not re-proposed:
+
+- **A 72 pt control row of its own** (or folding it into the page rail, which is the same
+  84 pt): the **iPad's Vietnamese board goes from one page to two** `[29 ¦ 6]`, and 393 × 852
+  and 430 × 932 both lose their single-page English board. 84 pt is four times the price for
+  the same control.
+- **Inside the word-strip row**: the strip already spends 328 of 328 pt of content width at
+  the floor. Reserving 80 pt drops `stripCellW` to 34 and the strip glyph to **27 pt against
+  F4's 34 pt floor** — the 360 dp phone stops being served.
 
 ---
 
@@ -216,7 +320,12 @@ without it.
 
 ### 2.5 Capture the word he just asked for
 
-**"Add a word" is the first row of the parent menu**, reachable from anywhere via the gate dot.
+**`Words` is the first row of the parent menu**, reachable from anywhere via the parent door
+(§9.4b) — and, **new in revision 6, its label names all three verbs**, because the owner's
+second finding was *"where is the screen for me to add/edit/delete words/images/audio?"*
+Revision 5 split the editor across two rows, *Add a word* at the top and *Words* three rows
+below, and two rows that both lead to the editor make neither of them the editor. One row
+now, and the list it opens carries the `+`.
 Entering the editor from the board remembers the board; saving or cancelling returns to it
 unchanged, with the strip still assembled. The moment he says *"where's the digger?"* is the
 best moment to add the digger, and it is two taps away.
@@ -238,8 +347,13 @@ best moment to add the digger, and it is two taps away.
 
 Colour cannot be the leak detector, because both modes use the same role tokens (§5.6). So:
 
-1. **The mode title is on every screen.** Top-left of the top bar, 13 pt `inkSoft`: `Ghép Chữ`
-   or `Word Blocks`. Every screenshot the tester takes carries its own label.
+1. **The mode title is on every screen.** 13 pt `inkSoft`: `Ghép Chữ` or `Word Blocks`. Every
+   screenshot the tester takes carries its own label. **Revision 6 moves it from the left edge
+   to directly under the shelf**, still in the top bar (§9.4) — the language control now owns
+   the left edge — and adds a **second, wordless leak detector beside it**: the control's
+   filled bar is the **top** one on a Vietnamese board and the **bottom** one on an English
+   board, always, so a screenshot is labelled twice and one of the two labels survives being
+   photographed at a distance.
 2. **No screen component is shared between modes.** The Vietnamese table and the English table
    are separate screens with separate state; there is no `<Table lang=…>`.
 3. **Switching language unmounts and remounts the whole game**, reloads the pack and rebuilds
@@ -251,7 +365,12 @@ Colour cannot be the leak detector, because both modes use the same role tokens 
    outgoing language over the incoming board.
 4. **No fallback path exists.** A word missing an asset is withheld from the tree, never
    substituted. No default string, no `??`, no `||` onto the other pack.
-5. **One documented exception:** the first-launch chooser shows both titles, because it must.
+5. **One documented exception:** the chooser shows both titles, because it must. **Revision 6
+   makes it reachable from the board in one tap** (§9.4a) rather than only at first launch and
+   from the parent menu, so the exception is visited far more often. It is still **one screen
+   and one code path**, it still loads no pack, and the panels' spoken names (E23) are two
+   clips that live in the two packs and are played one at a time by a screen that owns
+   neither board. **R3 and R4 are unchanged.**
 
 ---
 
@@ -303,8 +422,8 @@ gutter   = clamp(round(W * 0.045), 14, 44)
 CW       = W - 2*gutter                          content width
 tableW   = min(CW, 1280)                         ~200 mm two-handed reach cap
 
-TOP_BAR  = 56        GAP_STRIP = 12        PAD_BOTTOM = 12
-CHROME   = TOP_BAR + GAP_STRIP + PAD_BOTTOM                      = 80
+TOP_BAR  = 72        GAP_STRIP = 12        PAD_BOTTOM = 12   -- REVISION 6: 56 -> 72
+CHROME   = TOP_BAR + GAP_STRIP + PAD_BOTTOM                      = 96
 
 gap(t)    = clamp(round(t * 0.15), 10, 18)
 stripH(t) = clamp(round(t * 1.05), 76, 140)
@@ -334,7 +453,14 @@ stripRowW  = STRIP_CELLS*stripCellW + (STRIP_CELLS-1)*STRIP_GAP
 stripFont  = floor(min(stripCellH / 1.55, stripCellW * 0.82))
 
 tileFont  = floor(min(tile * 0.52, (tile - 16) / 1.55))
-shelf     = clamp(floor((CW - 96 - 32 - 24) / 5.4), 0, 44)
+; ---- THE TOP BAR.  New in revision 6 (§0D): it carries TWO doors ----
+LANG_W  = 72    DOOR_PAD = 8    DOOR_W = 65    BAR_PAD = 32    BAR_AIR = 12
+SLOT_GAP = 6
+shelf     = clamp(floor((CW - LANG_W - DOOR_W - BAR_PAD) / 5.4), 0, 44)
+shelfRowW = 5*shelf + 4*SLOT_GAP
+; measured from the shipped face, BeVietnamPro-Medium at 13 pt:
+TITLE_PT       = 81.4     ; `Word Blocks`, the wider mode title (`Ghép Chữ` = 62.9)
+DOOR_LABEL_PT  = 48.8     ; `Cha mẹ`,      the wider door label (`Parent`   = 43.2)
 budget(railRows) = the largest `cells` in 1..90 this viewport serves at that rail height
 
 ; ---- THE PAGE PLAN, and the fixpoint that sizes it ----
@@ -384,6 +510,18 @@ What changed, and why each one:
   capacity, and lowering capacity only raises the page count. Measured across the whole sweep,
   it converges in **1 step, worst case** — the wrap is decided on the first pass everywhere
   except the smallest phones, which settle on the second.
+- **The top bar is 72 pt because the child's language control is 72 pt** (§0D, §9.4a). It is
+  a child target, and §4.5's floor is about his hand rather than about the control's
+  importance — the same sentence that holds the page-rail buttons at 72. The **mode title
+  moves out of the left edge**, where the control now lives, and is drawn **under the shelf**:
+  44 pt of shelf + an 18 pt line = 62 ≤ 72, and it costs **no width at all**, because the
+  shelf row (159–244 pt) is always wider than the title (81.4 pt). **F19** is what makes that
+  a fact rather than a hope.
+- **`BAR_PAD` is 32, not 24, and the 8 pt was bought with a measurement.** The shelf's `/5.4`
+  divisor models five slots plus four gaps as 5.4 slot-widths — a gap of one tenth of a slot,
+  which is true at the 44 pt ceiling and false at 23, where the four real 6 pt gaps cost 24 pt
+  and the model reserves 9. At `BAR_PAD = 24` the worst top-bar air over the whole sweep was
+  **0.2 pt**; at 32 it is **6.2 pt**. It costs the shelf slot 3 pt.
 - **The strip is sized for six cells, always, on every device, in both languages** — not for
   the word he happens to be building. A cell that resized as the word grew would be a morph
   under his finger, which is the thing revision 3 deleted. Six is the *reserved track*; only
@@ -417,6 +555,11 @@ up to `budget`:
 | **F1** | `rowW ≤ tableW` | no horizontal scroll, ever |
 | **F2** | `tile ≥ 72` | the motor floor, ≈11.4 mm (§4.5) |
 | **F3** | `slack ≥ 0` | the stack fits |
+| **F18** | `LANG_W + max(shelfRowW, TITLE_PT) + (DOOR_LABEL_PT + 2·DOOR_PAD) + BAR_AIR ≤ CW` | **new in revision 6 — the top bar's three children fit, measured against the text the bar actually draws.** Worst air over the whole sweep: **18.2 pt** against a 12 pt gate, at `440 × 684`. A **plan** rule, not a fit rule — see below |
+| **F19** | `TITLE_PT ≤ shelfRowW` | **new in revision 6** — the mode title is drawn *under* the shelf, so the shelf row is its box. This replaces the 96 pt the title used to reserve at the left edge. Worst slack **57.6 pt**. A plan rule |
+| **F20** | `LANG_W ≥ TILE_MIN` | **new in revision 6, a constant law** — the language control is a child target and is held to the tile's floor, exactly as a page-rail button is (§4.5) |
+| **F21** | `TOP_BAR ≥ LANG_W` | **new in revision 6, a constant law** — and the bar is tall enough to *draw* it. Without this the control could become a 72 pt hit rect around 56 pt of ink, which §4.5 refuses in as many words |
+| **F22** | `DOOR_LABEL_PT + 2·DOOR_PAD ≤ DOOR_W` | **new in revision 6, a constant law** — the door's reserved width really does hold its label |
 | **F4** | `stripFont ≥ 34` | the word he is building reads across a room. **Restated in revision 5**: the glyph is now limited by the strip *cell*, not by the strip's height, because six cells across a phone is what binds. Measured: under the old formula F4 was the only failing rule in **0 of 17,321,319** layouts — it never bound. It binds now |
 | **F5** | `tileFont ≥ 24` | `ngh`, `ăng`, `uống` still legible on a tile |
 | **F6** | `gap ≥ 10` | hit rects can never overlap (§4.5) |
@@ -644,6 +787,19 @@ The page rail's buttons are held to the same floor: **72 pt each, `RAIL_GAP` 12*
 page button is a thing a 4-year-old presses and the floor is about his hand, not about the
 importance of the control.
 
+**And so is the language control, new in revision 6** (§9.4a). It is 72 × 72 of ink, not a
+72 pt hit rect around something smaller, and **F20** and **F21** are the two constant laws
+that hold it there — F20 reads `TILE_MIN`, so lowering either number fails the other. It is
+the single most expensive consequence of this revision: a 72 pt control does not fit a 56 pt
+bar, which is why `TOP_BAR` moved and why §0D.3 has a cost table. **The floor was not lowered
+to avoid paying it**, for the fifth revision running.
+
+**The parent door is deliberately NOT held to it.** It is 65 × 32, which is under the adult
+44 pt minimum in one dimension, and that is the point: it is an adult's target, it is the
+smallest thing on the board, and it is in the corner furthest from a seated child's hands.
+Its hit rect extends 6 pt on every side (77 × 44), which is the adult minimum with room to
+spare, and no other control comes within 12 pt of it.
+
 **Recorded so the refusal is not re-litigated a fifth time**: the ink floor was proposed in
 revision 1, revision 2, and revision 3 (where it was priced and offered to the owner, who
 answered with a better idea instead). It has never been taken, and the reason has never
@@ -725,7 +881,7 @@ are **byte-identical to revision 1's** — the mechanic changed, the palette did
 | `reward` | `#FF9F1C` mango | `#FFC400` sun | `#FFC220` yellow | **the chant's gold face**, confetti, shelf slots |
 | `rewardEdge` | `#C87C13` | `#B48900` | `#AF8412` | their outline on the ground |
 | `accentFace` | `#6B46E5` | `#D4441E` | `#1E6FD9` | parent primary buttons |
-| `neutralFace` | `#888F9E` | `#9A8E80` | `#818C97` | gate dot, the strip's dashed next-cell, the disabled tile's dashed outline. ~~the ∅ tile~~ — deleted, U13 |
+| `neutralFace` | `#888F9E` | `#9A8E80` | `#818C97` | **the parent door's outline and the language control's outline (revision 6)**, the strip's dashed next-cell, the disabled tile's dashed outline. ~~the gate dot~~ — replaced by the door, §9.4b. ~~the ∅ tile~~ — deleted, U13 |
 | `hairline` | `#D4D5D8` | `#D6D5D3` | `#D3D6D8` | strip cell divider |
 | `veil` | = `ground` | = `ground` | = `ground` | **vestigial** — the veiled prompt is deleted. Kept so the token set is unchanged; the reveal may reuse it as a scrim. |
 
@@ -743,7 +899,7 @@ and *rejected* nine more after measuring them (§5.8a):
 | `glyph` | **4.5:1** | any letter he is learning to read — **including a disabled one** |
 | `bodyText` | 4.5:1 | parent-facing text |
 | `largeText` | 3.0:1 | AA large |
-| `component` | 3.0:1 | silhouettes, outlines, chips, the gate dot, shelf slots |
+| `component` | 3.0:1 | silhouettes, outlines, chips, **the parent door's outline, the language control's two bars**, shelf slots |
 | `shade` | 1.4:1 | a shading step *inside one object*, carrying no information |
 | `decor` | — | hairlines. **Logged separately, never gates.** |
 
@@ -761,7 +917,7 @@ Selected measured values (Popsicle):
 | rime tile outline / disabled underbar on the ground | 5.38:1 |
 | tone tile outline / disabled underbar on the ground | 3.02:1 |
 | word-strip outline on the ground | 5.71:1 |
-| gate dot on the ground | 3.02:1 |
+| the parent door's outline on the ground (revision 6) | 3.02:1 |
 | shelf slot, just filled, on the ground | 3.08:1 |
 | parent body text | 13.41:1 |
 | primary button label | 5.78:1 |
@@ -1270,13 +1426,18 @@ tones — with no rail and no pages. A phone shows it in three windows. The char
 order and their slots are identical; only how much is visible at a time differs.
 
 **The owner's iPhone 17 Plus** (430 × 932 or 440 × 956 — same plan): page 1 of 3, **3 × 5 at
-101 pt**, strip 106 with six 58 × 90 cells, rail 1 row of 3 buttons. Drawn at the moment after
+99 pt** (101 before revision 6's 72 pt top bar, §0D.3), strip 104 with six 58 × 88 cells,
+rail 1 row of 3 buttons. Drawn at the moment after
 a single tap on `c`, because that is the state the whole revision has to make legible.
 
 ```
 ┌──────────────────────────────────────────────┐
 │▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔│ 4pt role1 rule
-│ Ghép Chữ      [img][ ][ ][ ][ ]         ◔    │ 56pt top bar
+│ ┌────┐                                       │ 72pt TOP BAR -- revision 6
+│ │▓▓▓▓│      [img][ ][ ][ ][ ]     ┌────────┐ │ language control 72x72 (§9.4a)
+│ │┌──┐│        Ghép Chữ           │ Cha mẹ │ │ parent door 65x32   (§9.4b)
+│ │└──┘│                            └────────┘ │ mode title UNDER the shelf
+│ └────┘                                       │
 ├──────────────────────────────────────────────┤
 │  ┌──────┬╌╌╌╌╌╌┐                             │ WORD STRIP, 106 tall
 │  │  c   ┊  ·   ╎                             │ six 58x90 slots reserved,
@@ -2073,30 +2234,158 @@ the used ones are drawn (§7.2.1). Vietnamese differs in two ways only: its last
 has one fewer cell than it had taps; and it has exactly **one** divider, at the onset/rime
 boundary, where English has one at every sound boundary.
 
-### 9.4 Top bar (56 pt, on the ground, above the strip)
+### 9.4 Top bar (72 pt, on the ground, above the strip) — **rebuilt in revision 6**
 
 ```
- ┌────────────────────────────────────────────────────────────────┐
- │ Ghép Chữ           [img][img][  ][  ][  ]                  ◔   │
- └────────────────────────────────────────────────────────────────┘
-   13pt inkSoft       THE SHELF: 5 slots, 32-44pt square,       gate dot,
-   mode title         6pt gap. Filled = the photograph he       32pt,
-   (leak detector)    found, 2pt rewardEdge ring (3.08:1).      neutralFace
-                      Empty = 1.5pt inkSoft ring at 40%.        @30%, 3.02:1
-                      Tapping a filled slot replays that word.
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │ ┌────────┐                                                           │
+ │ │ ▓▓▓▓▓▓ │        [img][img][  ][  ][  ]            ┌──────────┐     │
+ │ │ ┌────┐ │           Ghép Chữ                       │  Cha mẹ  │     │
+ │ │ └────┘ │                                          └──────────┘     │
+ │ └────────┘                                                           │
+ └──────────────────────────────────────────────────────────────────────┘
+   LANGUAGE          THE SHELF: 5 slots, 29-41pt square,      THE PARENT DOOR
+   72 x 72           6pt gap. Filled = the photograph he      65 x 32, 1.5pt
+   the CHILD'S       found, 2pt rewardEdge ring (3.08:1).     neutralFace outline,
+   §9.4a             Empty = 1.5pt inkSoft ring at 40%.       label 13pt inkSoft
+                     Tapping a filled slot replays it.        §9.4b
+                     MODE TITLE under it, 13pt inkSoft,
+                     centred (F19: the shelf row is its box)
 ```
+
+**Three children, and each belongs to a different person.** The left is the child's, the
+centre is his progress, the right is his parents'. The bar is `space-between`; nothing claims
+flex-grow; the title may shrink and nothing else may (the defect that shipped `Word Blo…` for
+three revisions lives in `test/topbar.test.mjs`, which now also has to measure the title
+against the **shelf row** rather than against the left edge).
 
 The shelf replaces revision 1's five-dot page rail, in the same place, doing the same job. It
 is **a shape, not a score**: nothing accumulates across shelves, no number is shown, and it
-resets when it tips into the album.
+resets when it tips into the album. **Revision 6 costs it 3 pt** — 32–44 becomes 29–41 — which
+is the shelf's share of the two doors (§0D.3).
 
-The gate dot is the **only** non-play affordance on the board, the smallest target in the app,
-and on a flat tablet the point furthest from a seated child's hands. All three are deliberate.
+The **mode title moved under the shelf** and is otherwise untouched: 13 pt `inkSoft`, one
+line, `Ghép Chữ` or `Word Blocks`, the leak detector that puts a label on every screenshot
+(§3.1). It costs no width there, which is the whole reason it moved (§4.2, F19).
+
+### 9.4a The language control — the child's, and it is not a tile
+
+**This is the owner's correction (§0D.1): his son chooses his own language.** No gate, no
+hold, no multiplication, no confirmation he cannot read.
+
+```
+  72 x 72, surface face, 18pt radius, 2pt neutralFace outline
+ ┌──────────────┐      ┌──────────────┐
+ │  ▓▓▓▓▓▓▓▓▓▓  │      │  ┌────────┐  │       TOP BAR  = Vietnamese, ALWAYS
+ │              │      │  └────────┘  │       BOTTOM   = English,    ALWAYS
+ │  ┌────────┐  │      │  ▓▓▓▓▓▓▓▓▓▓  │       in BOTH languages, in the
+ │  └────────┘  │      │              │       chooser's own order (§9.6)
+ └──────────────┘      └──────────────┘
+   on a Vietnamese        on an English        each bar 44 x 20, 6pt radius, 8pt apart
+   board                  board                FILLED `ink`  = the language you are in
+                                               1.5pt `neutralFace` outline = the other
+```
+
+**Every decision in that figure, and why:**
+
+| Decision | Why |
+|---|---|
+| **No glyph, no letter, no word** | A letter would be read as something to add to his word — it is a board full of letters. A word is the one channel he cannot use. So the control carries neither |
+| **Filled vs outlined** | It is the live-tile / flat-tile distinction, which is the first thing he learns in this app and the only visual grammar he already has. "The full one is where I am; press the empty one" needs no explanation and no sound |
+| **Two bars, stacked, in a fixed order** | It is a **picture of the destination**: the chooser is two stacked panels in exactly this order, so the transition explains itself. Position, not colour, carries which language is which — it survives greyscale, all three dichromacies and the theme picker |
+| **Vietnamese on top, in both languages** | The order never flips, so the shape is learnable. It is also a **leak detector a tester can read at a glance**: on a Vietnamese screenshot the top bar is filled |
+| **It is not a tile** | 18 pt radius against the tile's, a neutral outline instead of a role outline, **no identity bar** and no glyph. The one thing it must never be is the sixty-first character |
+| **72 × 72** | §4.5's floor, unlowered. It is what made `TOP_BAR` 56 → 72 and it is the only thing this revision actually costs (§0D.3) |
+| **Top-left** | Furthest from the parent door (opposite corner), on the opposite side from the page rail, and **above the word strip**: the shortest distance from its bottom edge to the nearest tile is `GAP_STRIP + stripH` = **89 pt at the 360 × 640 floor, 116 pt on the owner's iPhone, 134 pt on an iPad**. A finger reaching for a tile does not arrive here |
+| **Hidden during the announcement and the reveal** | Switching language in the middle of a reveal is the messiest teardown in the app, and the reveal is over in about three seconds. The parent door stays, because a parent may need out |
+| **One UI tap sound, never speech** | The language *names* are spoken on the chooser, where both are present and he can compare them. A name spoken on the board would be the outgoing language announcing the incoming one, which is a sentence with no meaning |
+
+**Decision: it opens the chooser. It is not a toggle.** The orchestrator offered both; this is
+the ruling and the reason.
+
+1. **A toggle cannot be previewed, and he cannot read.** The only way he can know what he is
+   choosing is to **hear it** — and hearing both names requires a screen that has both on it.
+   The chooser is that screen, it is the only one `R3` permits to carry both titles, and
+   revision 6 makes its panels speak their own names (§9.6, A2). Item 2 of this revision is
+   what makes item 1 usable.
+2. **The chooser makes an accidental press free.** Tapping the language he is *already in*
+   returns him to the board with **the strip, the shelf, the session and the audio untouched**
+   — no teardown, no reload, nothing abandoned. A toggle charges one part-built word for every
+   stray press, and he will press everything.
+3. **It is a screen he has already seen**, at first launch, unchanged, same code path.
+
+**Decision: no confirmation dialog, and the chooser is the confirmation.** A confirmation he
+cannot read is worse than the thing it guards. The chooser already asks twice — tap a panel,
+it expands and speaks its name; tap the ▶ to commit — and the second touch is *after* he has
+heard what he is choosing, which is the only confirmation that carries information for him.
+
+**A switch mid-word costs one word, and that is the whole cost.** The teardown is exactly
+revision 3's and is not weakened by any of this: audio hard-stops within 120 ms, the strip
+clears, a running chant or reveal is abandoned, the shelf empties, **the album is kept per
+pack**, the theme is untouched, and the board unmounts before any handle of the new language
+is opened. **No instant has two packs loaded** (`R4`), so the no-mixing guarantee is
+structural and unchanged.
+
+### 9.4b The parent door — a visible door, and the lock stays exactly as it was
+
+```
+       ┌─────────────────┐                     ┌─────────────────┐
+       │     Cha mẹ      │   press and hold    │ ▓▓▓▓▓▓▓▓░░░░░░░ │  ... 1200ms
+       └─────────────────┘                     └─────────────────┘
+         65 x 32, 16pt radius                    the fill sweeps LEFT -> RIGHT
+         1.5pt neutralFace outline (3.02:1)      behind the label: scaleX only,
+         label 13pt BeVietnamPro-Medium,         `neutralFace` at 22%, and it
+         inkSoft (4.5 gate, 5.8-6.1:1)           says "this is filling up"
+         8pt padding either side
+```
+
+**Why a word and not an icon.** A gear, a cog, a person, three dots — every one of them is a
+*picture*, and pictures are the child's channel in this app. A gear is interesting to a
+4-year-old. A word is furniture. **The door is deliberately made of the one material this app
+denies him**, which is the same instrument the lock behind it uses and the reason `gameplay.md`
+§7.2 says *"text is allowed here and on every screen behind it; the no-text rule protects the
+child, not the mother."*
+
+It is also **the only object in the app that never makes a sound when it is touched.** Every
+tile talks, live or flat; the shelf replays a word; the rail clicks. He will find this once,
+get a grey word and silence, and go back to the board.
+
+**Ruling: the lock does not change, and only the door becomes visible.**
+
+The orchestrator asked whether a visible door needs a different lock. It does not, and the
+reason is that **hiding the door never was the lock**:
+
+- A child who taps everything finds a 32 pt dot in a corner within a minute, and **1.2 s is
+  nothing to a child who holds a tile for thirty seconds** (`acceptance-criteria.md` T-series
+  is built on exactly that behaviour). The hold has never been the barrier.
+- The barrier is, and remains, **reading a multiplication written out in words and answering
+  it in digits** — the cleanest separation there is between a 4-year-old and a literate
+  adult, and it needs nothing remembered in three months.
+- So obscurity bought **nothing measurable**, and it cost the whole editor. Trading it away
+  costs nothing.
+
+What the visible door *does* change is that the child will now open the gate **screen** more
+often, so the gate screen must be a free dead end: a large picture-only way back, the board
+restored **with his part-built word still in the strip**, no sound, and a cooldown that is not
+a reaction he can play with (`acceptance-criteria.md` Y14–Y17).
+
+**And a tap stops being nothing.** Revision 5's `I2` said *"when the door is tapped, nothing
+happens"*. **"Nothing happens" is a failure for an adult exactly as it is for a child** — it
+is what the owner did, and it is why he concluded there was no button. A tap now shows the
+**hold hint** for 1.6 s: the word `Giữ` / `Hold` and a 1.2 s ring, drawn under the door,
+silent, in `inkSoft`. Repeated taps inside the 1.6 s do not restart it.
+
+**And it is shown once, unprompted, to someone who is provably an adult.** The first board
+after a language is committed shows the hold hint for 3 s, **once per install**, persisted as
+a setting. At that instant the person holding the phone has just committed a language on a
+two-touch screen, so they are an adult. That is the *"visible to an adult who is looking for
+it, without instruction"* requirement met literally, for one boolean.
 
 ### 9.5 The reveal — the payoff, full screen
 
 ```
- BOARD                        →  REVEAL (full screen, no chrome except the gate dot)
+ BOARD                        →  REVEAL (full screen, no chrome except the PARENT DOOR;
+                                          the language control is hidden -- §9.4a)
  ┌──────────────────┐            ┌──────────────────────────────┐
  │ ▔▔▔ [shelf]  ◔   │            │                          ◔   │
  │  ┌────┬────┬───┐ │            │                              │
@@ -2145,19 +2434,46 @@ collection and it grows without bound. Tapping a card replays its word, bounces 
 **turns to that word's next photograph**. No count, no number, no percentage.
 
 ```
- FIRST-LAUNCH CHOOSER  (the one screen showing both languages)
+ THE CHOOSER  (the one screen showing both languages) -- REVISION 6
  ┌──────────────────────────────────────┐
  │   ┌──────────────────────────────┐   │  Each panel: that mode's role1 as a
- │   │        Ghép Chữ              │   │  wide band, the title in Baloo 2 32pt.
- │   │   Tiếng Việt                 │   │  Tap -> expands, speaks `mèo`, reveals
- │   └──────────────────────────────┘   │  a confirm button. TWO touches, seconds
- │   ┌──────────────────────────────┐   │  apart, so a toddler cannot commit by
- │   │        Word Blocks           │   │  accident.
- │   │   English                    │   │
- │   └──────────────────────────────┘   │
+ │   │        Ghép Chữ          ●   │   │  wide band, the title in the tile face
+ │   │   Tiếng Việt                 │   │  at 32pt.  VIETNAMESE IS ALWAYS THE
+ │   └──────────────────────────────┘   │  TOP PANEL -- §9.4a's control is a
+ │   ┌──────────────────────────────┐   │  picture of this screen.
+ │   │        Word Blocks           │   │
+ │   │   English         ┌────┐     │   │  Tap -> expands, SPEAKS THE LANGUAGE'S
+ │   │                   │ ▶  │     │   │  OWN NAME (`Tiếng Việt` / `English`,
+ │   └───────────────────└────┘─────┘   │  A2), reveals the 72pt ▶ confirm.
  │          ◐      ◑      ◒             │  three 56pt theme buttons, unlabelled
  └──────────────────────────────────────┘
+   ● = "you are here", 12pt rewardEdge dot, drawn only when the chooser was
+       opened from the board.  Confirming THAT panel is a free return: no
+       teardown, the strip and the shelf survive (§9.4a).
 ```
+
+**Revision 6 changes two things here and nothing else.**
+
+1. **The panel speaks the language's own name, not a sample word.** It said `mèo` and `cat`.
+   The owner: *"for `mèo`, it should probably be `Tiếng Việt` and `English` then"*, and he is
+   right for a reason worth writing down: **a sample word identifies a language only to
+   someone who already knows that word and has connected it to a language.** A 4-year-old
+   who knows `mèo` knows it is a cat, not that it is Vietnamese. The language's own name, in
+   its own voice, is the direct signal — and it is what a parent would actually say. Now that
+   the child chooses for himself (§9.4a), this is not a nicety: **it is the only channel that
+   tells him what he is picking.** The two clips do not exist yet — handed to the
+   content-engineer as **E23**, and because they are *speech*, `content-pipeline.md`'s rule
+   applies and **the owner has to hear them before they ship**.
+2. **The confirm control is a 72 pt ▶**, not a labelled button, because the child now uses
+   this screen. `▶` is already the album's play control (the same figure, two blocks up), so
+   it is a symbol he has met. The two-touch commit returns for a better reason than it had
+   at first launch: **the first touch is the preview.** He taps, he hears `English`, and
+   then he decides.
+
+**When the chooser is opened from the board**, the current language's panel carries a
+`rewardEdge` "you are here" dot, and confirming it is a **free return** — the session is not
+torn down, the strip still holds what he had built, the shelf is intact and no audio stops.
+Confirming the *other* panel is the full teardown of §9.4a.
 
 ### 9.7 Ruling: **B9 versus F2** (correction U10)
 
@@ -2355,10 +2671,28 @@ are unchanged.
 | M17 shimmer | a single 900 ms α pulse across the live tiles, no sweep |
 | M18 breathe | α only, no scale |
 | M21 gate ring | a static ring that fills in 4 steps |
+| **M25 the door's hold fill** | **two steps, not a sweep**: 50 % at 600 ms, 100 % at 1200 ms. A hold with no feedback at all is worse than one that moves, so this one keeps information rather than being flattened to a fade |
+| **M26 the language control's swap** | the two bars **cross-fade** between filled and outlined over 260 ms. There is no movement to lose: it is already a state change in place |
+| **M27 the hold hint** | α only, 160 ms in and out, no rise. Unchanged in both modes |
 
 **Audio is identical in both modes**, including the motif and the cheer. That is the point: the
 audio carries the whole game, so a child who has turned away, or whose parent has reduce-motion
 on, loses nothing.
+
+### 10.6 The two doors — new in revision 6
+
+Three motions, and each one has a sentence it has to say.
+
+| # | What | Duration / easing | What it communicates |
+|---|---|---|---|
+| **M25** | The **parent door's hold fill** sweeps left → right behind the label: a `neutralFace` rectangle at 22 %, `scaleX` 0 → 1 from the left edge | **1200 ms, linear** | *This is filling up, and it will be full when it opens.* Linear because a progress indicator that eases is lying about the time left. Releasing early runs it back to 0 in **160 ms, `exit`**, which says *it emptied* rather than *it vanished* |
+| **M26** | The **language control's two bars swap**: the filled one becomes an outline and the outline becomes filled, cross-faded in place | **260 ms, `calm`** | *You are now the other one.* It runs **on return from the chooser**, on the new board, so it is the first thing that happens in the new language — the board's own confirmation that the tap did what he asked |
+| **M27** | The **hold hint** — the word `Giữ` / `Hold` and a 1.2 s ring — fades in under the door and out again | **160 ms in, 1600 ms hold, 160 ms out, `enter` / `exit`** | *It is not broken; it wants a longer press.* Opacity only, no rise, no bounce: it is information for an adult, not a flourish, and it must not read as something to play with |
+
+**Nothing here is on the reward channel and nothing here makes a sound.** The door is silent
+by design (§9.4b); the language control plays the one UI tap sound the app already has and no
+speech (§9.4a). The celebration vocabulary — gold, scale, the motif — is untouched, because
+none of this is an achievement.
 
 ---
 
@@ -2426,6 +2760,17 @@ oldest devices plausibly in this house.
 
 Achieved by: **every clip the board can produce is decoded and resident.** The table is
 constant, so this is a one-time cost at pack load rather than a per-tap concern.
+
+> **CORRECTION, 2026-09-24 — that sentence is what made the app silent on a real iPhone.**
+> "Every clip the board can produce" is **100** native players for `vi-seed` and **121** for
+> `en-seed`, and iOS refuses somewhere below that: every construction past its ceiling threw,
+> the failure was swallowed, and the whole audio system — the bundled seat click included —
+> went quiet the moment a pack loaded. What is resident now is **every clip the *current
+> board state* can ask for, inside a bound of 24 native players**, live cells first, with the
+> touch-immediate UI sounds pinned and everything else built on demand and evicted
+> least-recently-used. The table above is unchanged **for a warm clip**; a cold one costs one
+> player construction first. `acceptance-criteria.md` **§0E** carries the arithmetic, the
+> deviation and the diagnostic that reports it from the device.
 
 **Revision 5 changes what "every clip" means, and it is more clips, not fewer** — stated here
 because the instinct is that a 35-cell board is cheaper audio than a 67-cell one, and it is
@@ -2549,7 +2894,8 @@ optionally.
 | **Dynamic Type** | Parent surfaces scale to 2.0×. **Child surfaces do not** — the tile is a motor constant and the glyph must fill it. Deliberate exception, recorded. |
 | **Uppercase and screen readers** | The casing flag (§8.2) cannot make a screen reader announce *"capital S"*, because **individual tiles are `accessibilityElementsHidden`** and the board is one element describing the state. The one element's text is authored, not read off the glyphs, so it says *"s, h — one sound"* whatever the tiles are drawn in. Recorded because "uppercase is only a glyph" has to survive contact with assistive tech to be true. |
 | **VoiceOver / TalkBack** | The **board exposes one accessibility element** describing the state — revision 5 makes it describe **spans and the fork**: *"Building a word. c, h — one sound. Three letters can follow. A mark can also finish it, on page 3."* **The page rail is a second element**, describing pages and which hold something live. Individual tiles are `accessibilityElementsHidden`: letting a screen reader speak letter *names* over a game whose entire thesis is letter *sounds* would teach the opposite of the app. **Parent surfaces are fully and conventionally labelled.** |
-| **Handedness** | The table is centred, so handedness does not matter. The gate dot is top-right and the editor's `+` bottom-right, both adult targets. No mirror mode in v1. |
+| **The two doors, revision 6** | The **language control carries no text and no colour that matters**: position (top bar = Vietnamese, always) and fill-vs-outline carry it, so it survives greyscale, all three dichromacies and every theme. The **parent door is the opposite and deliberately so** — it is text, and it is invisible to the person it is hiding from. Both are conventionally labelled for VoiceOver / TalkBack, the door as a button that says it needs a long press; a screen reader is an adult's tool. Under **reduce motion** the door's hold fill does not sweep: it appears at 50 % after 600 ms and full at 1200 ms, in two steps, because a progress indicator that gives no feedback is worse than one that moves. |
+| **Handedness** | The table is centred, so handedness does not matter. **The parent door is top-right and the child's language control top-left** (revision 6) — opposite corners, so neither hand reaches both, and the door is the harder one for a left-handed child to brush. The editor's `+` is bottom-right, an adult target. No mirror mode in v1. |
 | **Screen too small** | Below 360 × 600 pt, or any viewport that cannot build a page plan **or lay out the six-cell word strip** for the chosen pack (F7, F15, F16), a parent-facing card. No half-broken game. Every served device still reaches every word. **Revision 5 makes the per-language case rarer, not commoner**: the 360 × 640 floor now serves Vietnamese in 3 pages where revision 4 needed 7. The card names the language when only one is served, and language is switchable (§0A, U17). |
 | **Audio with the screen ignored** | Revision 5's new information — *these two letters are one sound* — is carried on the speech channel **for free**, because the superseding clip *is* the statement: he hears `chờ` where two separate sounds would have said `cờ` `hờ`. A child looking away loses the bar and the divider and loses **nothing of the lesson**. That is the test §12 sets, and it is the reason `literacy-vi.md` §0.9's rule is the right one rather than merely a tidy one. |
 
@@ -2557,7 +2903,9 @@ optionally.
 
 ## 13. The editor — his mother's product
 
-Reached by: gate dot → 1.2 s hold → gate → parent menu → **Add a word** (row 1) or **Words**.
+Reached by: **the parent door** (`Cha mẹ` / `Parent`, top-right, §9.4b) → 1.2 s hold → the
+multiplication → parent menu → **`Words`, row 1**. **Revision 6 changes only how she finds
+it**; nothing inside the editor moves.
 **Optimised for a phone held in one hand.** On a tablet it renders as a centred **520 pt
 column** on `groundAlt`, not a stretched form.
 
@@ -2848,6 +3196,7 @@ changed in revision 2.**
 | **E19** | **NEW in revision 5 — a derived `letters` array and `onsetLetterCount` per syllable**, written by the editor, **never composed at runtime**. The engine walks `letters`; it reads the parse from the stored `(onset, rime, tone)`. §13.3a is the one screen where she confirms it |
 | **E20** | **NEW in revision 5 — `letters.length ≤ 6`.** The word strip holds six cells on the smallest supported phone (§4.2, F17); seven drops the glyph to 31 pt against a 34 pt floor. The validator enforces it at save time and §13.3a draws it |
 | **E21** | **NEW in revision 5 — tile audio is keyed by unit-STATE, not by tile.** Vietnamese needs 28 onset states + 43 rime states + 6 tones = 77 clips, **9 of them new** (`literacy-vi.md` §0.12); English needs none added and none retired, with the ten digraph clips re-keyed (`literacy-en.md` §0.9). Every rime-prefix clip needs a **human listening check** before it ships, because several are not real Vietnamese syllables read level. **Nobody on this team can hear** (`CLAUDE.md`) |
+| **E23** | **NEW in revision 6 — one clip per pack carrying the LANGUAGE'S OWN NAME**, spoken in that language: `Tiếng Việt` in `vi-seed`, `English` in `en-seed`. It plays on the chooser when its panel is tapped (**A2**), and it is now **the only thing that tells a non-reading child which language he is choosing** (§9.4a, §9.6). Neither clip exists today. It is **speech**, so `content-pipeline.md`'s rule applies in full: **the owner must hear both before they ship** — nobody on this team can hear (`CLAUDE.md`). Same budget shape as a word clip; it is not a tile clip and no tile ever plays it. Absent → the panel expands silently and the chooser still works, which is the documented degradation, not a crash |
 | **E17** | **NEW in revision 3 — the Vietnamese rime entry's `toned` map is now read for *illegal* tones too.** All six tone cells are always drawn; a rime's illegal tones are rendered flat, showing the marked form the orthography would produce, and falling back to the bare mark where the map holds `null` (§7.2) |
 
 ---
@@ -2856,16 +3205,16 @@ changed in revision 2.**
 
 | # | Screen | Audience | Text? | Reached from |
 |---|---|---|---|---|
-| S1 | Language chooser (+ theme buttons) | parent | yes — **the one screen with both languages** | first launch, **and parent menu → Language at any time (revision 3)**. Same screen, same code path; the confirm step is dropped behind the gate |
+| S1 | Language chooser (+ theme buttons) | **the child**, and the parent | yes — **the one screen with both languages**, but nothing on it must be read: each panel **speaks its own name** (A2, E23) | **the language control on the board, revision 6** (§9.4a) — one tap, no gate; first launch; and parent menu → *Language*. One screen, one code path, and **the two-touch commit is back on all three routes**, because the first touch is the preview |
 | S2 | **Board — Ghép Chữ** (strip + character table) | child | the letters only | launch, after a reveal |
 | S3 | **Board — Word Blocks** | child | the letters only, **uppercase** (§8.2) | launch, after a reveal |
 | S4 | **Announcement + reveal** (a full-screen overlay on S2/S3) | child | the word, large; the sentence if `Show the word` is on | a word forms |
 | S5 | Album — the collection | child | none | the shelf fills; or the album card |
 | S6 | End screen | both | none | parent menu → Finish session |
-| S7 | Parental gate | parent | yes | 1.2 s hold on the gate dot, anywhere |
+| S7 | Parental gate | parent | yes | **1.2 s hold on the parent door** (§9.4b) — the lock is revision 5's, unchanged; only the door is legible |
 | S8 | Parent menu | parent | yes | through S7 |
-| S9 | Word list | parent | yes | S8 → Words |
-| S10 | Add/edit word, steps 1–5 | parent | yes | S9 → `+`, or S8 → Add a word |
+| S9 | Word list | parent | yes | S8 → **`Words`, row 1** — the editor's one door, named for add, edit and delete (revision 6) |
+| S10 | Add/edit word, steps 1–5 | parent | yes | S9 → `+`. *(Revision 6 removes the parent menu's *Add a word* shortcut: it is S8 → `Words` → `+`, one tap further and in the place she looks.)* |
 | S11 | Decomposition help | parent | yes | S10 step 3, on failure |
 | S12 | Add-a-rime | parent | yes | S11 |
 | S13 | **Not on the board yet** (revision 5: only for a character outside the alphabet) | parent | yes | S9, S10 step 3 |
@@ -2877,7 +3226,10 @@ changed in revision 2.**
 | S17 | About & attributions | parent | yes | S8 |
 | S18 | Screen-too-small card | parent | yes | viewport < 360 × 600, no page plan (F7), or no six-cell strip (F15/F16) |
 
-**Twenty screens. Three of them are the child's, and he never navigates between them.**
+**Twenty screens. Four of them are the child's now** — S2, S3, S5 and, new in revision 6,
+**S1**, which he reaches himself from the board and which must therefore work with nothing
+read. S4 is an overlay on his board rather than a screen he goes to, and he still never
+navigates between S2, S3 and S5.
 
 **Revision 3 removed none and added none. Revision 5 adds two, both his mother's**, both
 one-screen, both drawn as the strip the child will see rather than described in words. It also

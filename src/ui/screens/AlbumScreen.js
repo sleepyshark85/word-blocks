@@ -92,7 +92,7 @@ function PlayCard({ size, onPress }) {
 }
 
 export function AlbumScreen({
-  entries, photos, strings, themeId, onSelectTheme, onPlay, onTapEntry, onOpenGate,
+  entries, photos, strings, themeId, onSelectTheme, onPlay, onTapEntry, doors,
   reduced, sourceFor,
 }) {
   const theme = useTheme();
@@ -120,13 +120,17 @@ export function AlbumScreen({
     >
       <View style={{ height: 4, backgroundColor: theme.role1 }} />
       <View style={{ alignItems: 'center' }}>
+        {/* The album is not a board, so it carries the parent door and **not** the
+            language control (`ui.md` §9.4a is about the board). The 72 pt lane is still
+            reserved, so nothing in the bar moves between the two screens. */}
         <TopBar
           width={width - insets.left - insets.right - 32}
           title={strings.modeTitle}
           shelf={null}
           sourceFor={sourceFor}
           reduced={reduced}
-          onOpenGate={onOpenGate}
+          {...doors}
+          hideLanguage
         />
       </View>
 

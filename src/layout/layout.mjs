@@ -1,5 +1,5 @@
 // The layout law (`ui.md` §4.2), the fit rule (§4.3) and the page plan (§7.1) —
-// **revision 5**.
+// **revision 6**.
 //
 // This is a transcription of `tools/layout-sweep.mjs`, which is the Tier-4 artefact and
 // the authority. It is transcribed rather than imported because `tools/` is a build-time
@@ -29,6 +29,11 @@
 // because three cells always fitted; six do not, and that is what made per-cell undo
 // impossible at the 360 dp floor (`ui.md` §7.2.6).
 //
+// **Revision 6 — the top bar carries two doors.** `TOP_BAR` 56 → 72, `CHROME` 80 → 96,
+// the shelf's reservation becomes the language control plus the parent door, and F18–F22
+// arrive (`ui.md` §0D, §4.2, §4.3). The constants and the rules are below, each with the
+// injection that made it a check rather than a decoration.
+//
 // There is **no caption-strip term**, because there is no caption strip
 // (`acceptance-criteria.md` P16). There is **no `stage` term**, because there are no
 // stages (`gameplay.md` §3.6).
@@ -42,10 +47,68 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 /** Below this the app shows a parent-facing card and mounts no board (AC A8, §4.1). */
 export const MIN_VIEWPORT = { width: 360, height: 600 };
 
-export const TOP_BAR = 56;
+/**
+ * **Design revision 6 — the top bar carries two doors** (`ui.md` §0D, §9.4, §9.4a, §9.4b).
+ *
+ * The owner ran the app on a real iPhone and could not find the language switch or the
+ * editor: both lived behind a 1.2 s hold on a 32 pt dot at 30 % opacity, so hiding the
+ * **gate** had also hidden the **door**. He then overruled the half of the remedy that was
+ * an assumption — *"I think he should be able to change the language himself"* — so the
+ * board gains two controls, in opposite corners:
+ *
+ *   LEFT   a 72 pt **language control**, the child's: no gate, no hold. It is a child
+ *          target, so `TILE_MIN` applies to it exactly as it does to a page-rail button
+ *          (§4.5). That is what forces `TOP_BAR` 56 → 72 and `CHROME` 80 → 96.
+ *   RIGHT  a 65 × 32 **parent door**, a word in a thin outline. The lock behind it is
+ *          byte-identical; only the door became legible.
+ *
+ * The **mode title leaves the left edge** and is drawn *under* the shelf inside the same
+ * 72 pt bar (44 pt shelf + 18 pt line = 62 ≤ 72), which costs **no width at all** because
+ * the shelf row is always wider than the title — **F19** is the rule that says so.
+ */
+export const TOP_BAR = 72;
 export const GAP_STRIP = 12;
 export const PAD_BOTTOM = 12;
-export const CHROME = TOP_BAR + GAP_STRIP + PAD_BOTTOM; // 80
+export const CHROME = TOP_BAR + GAP_STRIP + PAD_BOTTOM; // 96
+
+/**
+ * The two doors, as widths. `TITLE_PT` and `DOOR_LABEL_PT` are **advance widths measured
+ * from the shipped font file** (`assets/fonts/BeVietnamPro-Medium.ttf` at 13 pt, the type
+ * scale's `modeTitle` size):
+ *
+ *   `Word Blocks`  6.265 em → 81.4 pt   the wider of the two mode titles
+ *   `Ghép Chữ`     4.837 em → 62.9 pt
+ *   `Cha mẹ`       3.751 em → 48.8 pt   the wider of the two door labels
+ *   `Parent`       3.324 em → 43.2 pt
+ *
+ * They are constants here for the same reason they are constants in the tool: neither the
+ * law nor the app may grow a font dependency. The gate that **does** read the file is
+ * `test/topbar.test.mjs`.
+ */
+export const LANG_W = 72; // the child's language control: one motor-floor square
+export const DOOR_PAD = 8; // horizontal padding inside the parent door's outline
+export const DOOR_LABEL_PT = 48.8;
+/**
+ * **`DOOR_W` is a literal, and that is the point.** In the tool it was first written as
+ * `ceil(DOOR_LABEL_PT + 2 * DOOR_PAD)` — derived from the label — and the fault injection
+ * that lengthened the label to `Người lớn` then **passed**: raising the label raised the
+ * reservation with it, the shelf shrank to pay, and F18 never noticed. A check whose input
+ * moves with the thing it checks cannot fail. The layout reserves a fixed 65 pt; **F22**
+ * asks whether the label fits inside it.
+ */
+export const DOOR_W = 65;
+export const TITLE_PT = 81.4;
+/**
+ * `BAR_PAD` is **slop**, and 24 was not enough of it. The shelf's `/5.4` divisor models
+ * five slots plus four gaps as 5.4 slot-widths — a gap of a tenth of a slot, true at the
+ * 44 pt ceiling and false at 23, where the four real 6 pt gaps cost 24 pt and the model
+ * reserves 9. At 24 the worst F18 air over the whole sweep was 0.2 pt; at 32 it is 6.2 pt.
+ * It costs the shelf slot 3 pt: 44 → 41 on the owner's phone, 32 → 29 at the floor.
+ */
+export const BAR_PAD = 32;
+export const BAR_AIR = 12; // two 6 pt separations between the bar's three children
+export const SLOT_GAP = 6; // between shelf slots (`src/ui/TopBar.js` draws this one)
+export const shelfRowW = (shelf) => 5 * shelf + 4 * SLOT_GAP;
 
 export const TILE_MIN = 72;
 export const TILE_MAX = 116;
@@ -171,8 +234,11 @@ export function layout({
   const stripRowW = STRIP_CELLS * stripCellW + (STRIP_CELLS - 1) * STRIP_GAP;
   const stripFont = Math.floor(Math.min(stripCellH / 1.55, stripCellW * 0.82));
   const tileFont = Math.floor(Math.min(tile * 0.52, (tile - 16) / 1.55));
-  // top bar: mode title (~96) + five shelf slots + gate dot (32) + padding (24)
-  const shelf = clamp(Math.floor((CW - 96 - 32 - 24) / 5.4), 0, 44);
+  // **The top bar, revision 6:** the language control (72) + five shelf slots + the
+  // parent door (65) + slop. Revision 5 reserved 96 pt for the mode title at the left
+  // edge and 32 for the gate dot; the title is drawn under the shelf now and costs no
+  // width, and the dot is the door.
+  const shelf = clamp(Math.floor((CW - LANG_W - DOOR_W - BAR_PAD) / 5.4), 0, 44);
 
   return {
     W,
@@ -237,6 +303,45 @@ export const PLAN_RULES = [
   // adding `nghiêng` (seven letters) in the editor.
   ['F17  the pack\'s longest word fits the strip',
     (P, runs, maxLetters) => maxLetters <= P.L.stripCells && P.L.stripFont >= 34],
+  /* ---- REVISION 6. THE TOP BAR, WHICH WAS NEVER CHECKED AGAINST THE TEXT IT DRAWS ----
+   * That omission is how `Word Blo…` shipped on the owner's phone for three revisions.
+   *
+   * **These are PLAN rules and not fit rules, and that is not a detail.** A rule in
+   * `RULES` also *decides the cell budget*, so it can never be observed failing: a
+   * viewport it rejects simply becomes unserved and the sweep still prints "0 failing
+   * layouts". That is the F0 tautology, and both of these were first written into `RULES`,
+   * where poisoning `TITLE_PT` to 200 pt silently deleted every 360 dp phone and exited 0.
+   * A plan rule is asked only of viewports that ARE served, so it can fail out loud.
+   *
+   * F18 is not tautological in the other direction either: the shelf formula reserves the
+   * **literal** `DOOR_W`, while F18 spends `DOOR_LABEL_PT + 2 * DOOR_PAD` — the width the
+   * label actually needs in the shipped face.
+   */
+  ['F18  the top bar\'s three children fit the content width',
+    (P) => LANG_W + Math.max(shelfRowW(P.L.shelf), TITLE_PT)
+      + (DOOR_LABEL_PT + 2 * DOOR_PAD) + BAR_AIR <= P.L.CW],
+  /* F19: the mode title is drawn UNDER the shelf, so the shelf row is its box. This is
+   * the rule that replaces the 96 pt the title held at the left edge. */
+  ['F19  the mode title fits under the shelf', (P) => TITLE_PT <= shelfRowW(P.L.shelf)],
+];
+
+/**
+ * **Revision 6 — the constant law.** F20–F22 are facts about *constants*, not about a
+ * viewport, so they are checked once rather than swept. They are not in `RULES` for the
+ * reason F18/F19 are not, and not in `PLAN_RULES` because a constant that is wrong should
+ * not be reported 982,000 times. `tools/layout-sweep.mjs` checks the same three before it
+ * sweeps, and `test/layout-parity.test.mjs` compares the two lists name for name.
+ */
+export const LAW = [
+  // The language control is a CHILD target and is held to the same floor as a tile and a
+  // page-rail button. It reads `TILE_MIN`, so lowering either one fails here.
+  ['F20 the language control meets the motor floor (LANG_W >= TILE_MIN)', () => LANG_W >= TILE_MIN],
+  // ...and the bar is tall enough to DRAW it. Without this, `TOP_BAR` could quietly go
+  // back to 56 and the control would be a 72 pt hit rect around 56 pt of ink, which
+  // `ui.md` §4.5 refuses in as many words: a child aims at ink, not at hit rects.
+  ['F21 the top bar is tall enough to draw it (TOP_BAR >= LANG_W)', () => TOP_BAR >= LANG_W],
+  // ...and the door's reserved width really does hold its label.
+  ['F22 the parent door holds its label', () => DOOR_LABEL_PT + 2 * DOOR_PAD <= DOOR_W],
 ];
 
 export const planFits = (P, runs, maxLetters = 1) => P !== null

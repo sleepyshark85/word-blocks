@@ -1,11 +1,19 @@
 // Screen: the parent menu, and the settings screens behind it. `gameplay.md` §7.3.
 //
-// Exactly seven rows: Add a word · Words · Finish session · Language · Voice & pace ·
-// Motion & sound · About. **No analytics, no account, no sync, no rating prompt**
-// (`acceptance-criteria.md` I9), and no network call anywhere in the app including here.
+// **Exactly six rows in revision 6** (was seven): Words · Language · Finish session ·
+// Voice & pace · Motion & sound · About. **No analytics, no account, no sync, no rating
+// prompt** (`acceptance-criteria.md` I9), and no network call anywhere in the app.
 //
-// **Slice 4 filled in the two rows this menu used to apologise for.** *Add a word* and
-// *Words* open `src/ui/screens/editor/`; *Voice & pace* gained the cheer (**I12**).
+// **Revision 6 folds `Add a word` into row 1** (I8, I9, `gameplay.md` §7.3). The owner's
+// second finding was *"where is the screen for me to add/edit/delete words/images/audio?"*
+// and revision 5's answer was **two rows, three apart, that both led to the editor** —
+// which makes neither of them the editor. One row now, and it names the three verbs he
+// asked about.
+//
+// **Row 2, `Language`, is no longer a parent-only control** (`gameplay.md` §7.3): the
+// child's copy is on the board (`ui.md` §9.4a). The row stays because it costs nothing and
+// it is where an adult who has not noticed the board control will look — same screen, same
+// code path.
 
 import { useState } from 'react';
 import { StyleSheet, Switch, View } from 'react-native';
@@ -31,11 +39,36 @@ function Toggle({ label, value, onChange }) {
   );
 }
 
-function AboutScreen({ strings, attributions, version, onBack }) {
+/**
+ * `acceptance-criteria.md` **N11a / E10a** — the audio diagnostic, on the About screen.
+ *
+ * The app went silent on the owner's iPhone after the language chooser and the only
+ * evidence anyone had was the word "silent": every failure to build a native player was
+ * swallowed by a `catch` that returned `null`. The counts are now carried out to a
+ * surface an adult can read, because nobody on this team has an iPhone and the owner is
+ * the only instrument this project has.
+ */
+function AudioDiagnostic({ strings, audio }) {
+  const theme = useTheme();
+  if (!audio) return null;
+  const failing = audio.failed > 0 || audio.silenced > 0;
+  return (
+    <>
+      <AppText role="screenTitle" style={styles.section}>{strings.aboutAudioTitle}</AppText>
+      <AppText role="secondary" colour={theme.inkSoft}>{strings.aboutAudio(audio)}</AppText>
+      <AppText role="secondary" colour={failing ? theme.ink : theme.inkSoft}>
+        {failing ? strings.aboutAudioFailing(audio) : strings.aboutAudioHealthy}
+      </AppText>
+    </>
+  );
+}
+
+function AboutScreen({ strings, attributions, version, audio, onBack }) {
   const theme = useTheme();
   return (
     <ParentScreen title={strings.aboutTitle} modeTitle={strings.modeTitle} onBack={onBack}>
       <AppText role="body">{strings.aboutVersion(version)}</AppText>
+      <AudioDiagnostic strings={strings} audio={audio} />
       <AppText role="screenTitle" style={styles.section}>{strings.aboutAttributionTitle}</AppText>
       {attributions.map((line) => (
         <AppText key={line} role="secondary" colour={theme.inkSoft} style={styles.attr}>{line}</AppText>
@@ -77,10 +110,14 @@ function LanguageScreen({ strings, current, onBack, onConfirm }) {
 
 export function ParentMenu({
   strings, settings, onSetting, themeId, onSelectTheme, attributions, version,
-  onBack, onFinishSession, onSwitchLanguage, language,
-  onOpenWords, onOpenAddWord, onOpenCheer,
+  onBack, onFinishSession, onSwitchLanguage, language, audioStats,
+  onOpenWords, onOpenCheer,
 }) {
   const [screen, setScreen] = useState('menu');
+  // N11a — read when the screen is opened, never during a render: the counters live in
+  // the audio engine and a render path that reads mutable state is a render path that
+  // can tear.
+  const [audio, setAudio] = useState(null);
   const theme = useTheme();
 
   if (screen === 'about') {
@@ -89,6 +126,7 @@ export function ParentMenu({
         strings={strings}
         attributions={attributions}
         version={version}
+        audio={audio}
         onBack={() => setScreen('menu')}
       />
     );
@@ -155,16 +193,16 @@ export function ParentMenu({
 
   return (
     <ParentScreen title={strings.menuTitle} modeTitle={strings.modeTitle} onBack={onBack}>
-      {/* `gameplay.md` §7.3 — seven rows, and **Language is row 2**, directly under
-          *Add a word* (A12). It was row 4 in revision 2; the owner asked to switch
-          whenever he likes, and the row he reaches for should be where he looks first. */}
-      <Row first label={strings.menuAddWord} onPress={onOpenAddWord} />
+      {/* `gameplay.md` §7.3 — **six rows, and row 1 is the question he asked.** */}
+      <Row first label={strings.menuWords} detail={strings.menuWordsDetail} onPress={onOpenWords} />
       <Row label={strings.menuLanguage} onPress={() => setScreen('language')} />
-      <Row label={strings.menuWords} onPress={onOpenWords} />
       <Row label={strings.menuFinish} onPress={onFinishSession} />
       <Row label={strings.menuVoice} onPress={() => setScreen('voice')} />
       <Row label={strings.menuMotion} onPress={() => setScreen('motion')} />
-      <Row label={strings.menuAbout} onPress={() => setScreen('about')} />
+      <Row
+        label={strings.menuAbout}
+        onPress={() => { setAudio(audioStats ? audioStats() : null); setScreen('about'); }}
+      />
     </ParentScreen>
   );
 }

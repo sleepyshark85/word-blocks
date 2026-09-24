@@ -11,7 +11,12 @@ wrong — say so rather than pass it.
 **Tier** column maps to `development-process.md` §5: 1 engine · 2 content · 3 E2E · 4 layout ·
 5 on-device.
 
-**Revision 5, 2026-09-23 — read §0D first.** The board became the standard alphabet and a
+**Revision 6, 2026-09-24 — read §0F first.** The owner ran the app on a real iPhone and could
+not find the language switch or the editor. **The new group is §Y, the two doors**, and the
+restated ids are listed in **§W6**. The language switch is now **the child's**, and the
+parent door is visible while its lock is untouched.
+
+**Revision 5, 2026-09-23 — then §0D.** The board became the standard alphabet and a
 digraph became two taps. **The new group is §X, the word strip**, and the restated ids are
 listed in **§W5** — those are the ones that still compile and now mean something else.
 
@@ -41,6 +46,111 @@ UI and closes six document defects.
 
 ~~**Count: 269 numbered criteria in §A–§T, 14 Tier-5 questions in §U, and 24 withdrawn groups
 in §W.**~~ *(revision 2's count; see §0A for revision 3's)*
+
+---
+
+## 0E. CORRECTION, 2026-09-24 — N11 was unbuildable on a real device
+
+**The owner ran the app on an iPhone for the first time.** *"I can hear sound when I start the
+game (it said `mèo` when I start choosing Vietnamese menu). But after that, forming a word
+doesn't have any sound."* Asked whether the wooden seat click still played: **"No — completely
+silent."** The seat click is `assets/audio/seat.wav`, bundled in the binary, so this was never
+media resolution or a missing file: **the whole audio system stopped at pack load.**
+
+**Cause.** N11 as written — *every clip the constant table can produce is decoded and resident
+before the first tap* — made `preloadForTable` call `createAudioPlayer` **100 times for
+`vi-seed` and 121 times for `en-seed`** in one synchronous pass. On iOS each one is an
+`AVPlayer` with a live `AVPlayerItem`, a periodic time observer and a KVO subscription
+(`node_modules/expo-audio/ios/AudioPlayer.swift`); AVFoundation allocates playback pipelines
+**per process** and refuses past its ceiling. Every construction past that threw, and
+`channels.mjs` caught it and returned `null` with no signal, so every later `play()` was a
+no-op and nothing anywhere said so. Chromium creates all 157 happily, which is why no browser
+run in three slices ever saw it, and why a browser run is not evidence for this criterion.
+
+**The bound is 24, and here is the arithmetic.** It is the interactive working set on the
+device that failed, and it was measured against both seed packs rather than picked:
+
+| | `vi-seed` | `en-seed` |
+|---|---|---|
+| touch-immediate UI sounds, pinned | 7 | 7 |
+| tap clips of the visible page, the owner's phone plan | 14 | 13 |
+| the undo's clip | 1 | 1 |
+| **resident warm set** | **22** | **21** |
+| spare, for the announcement's blend, word and sentence | 2 | 3 |
+| **bound** | **24** | **24** |
+
+The chant's beats are the same `short` clips the tiles play, so they are already warm; only
+the blend, the word and the sentence are new, they are asked for at t = 0 of the announcement
+(`REVEAL.chantAt` before the first beat needs them), and if they displace a tile's clip the
+board's whole warm set is rebuilt when the reveal ends — a full three-second hold before he
+can tap anything again.
+
+On a **one-page tablet** the whole table is visible and the reachable set is larger (33 tap
+clips for `vi-seed`, 26 for `en-seed`). The priority order is what makes 24 the right
+truncation there too: 7 pinned + **all 17 live** `vi-seed` tap clips = exactly 24, and 7 + all
+15 live `en-seed` ones = 22. **Every tile that leads to a word is warm on every target
+device**; on a tablet a first tap on a *flat* tile beyond the budget costs one player
+construction, and so does the first tap on a clip evicted by LRU.
+
+**Worst-case first-tap latency, stated honestly.** A warm clip is a `seekTo(0)` and a
+`play()` — unchanged, and that is what N1's 60 ms is bought with. A cold clip is one
+`createAudioPlayer` on a **bundled local file** plus that same `play()`. Nobody on this team
+has an iPhone and nobody has measured it; the expectation is tens of milliseconds and it is
+**not guaranteed** to be inside N1's 60 ms. **This is a deviation and it is deliberate:** N1's
+60 ms for the tail of a tablet's flat tiles is worth less than an app that makes any sound at
+all. If the owner reports a lag on a first tap on a tablet, the lever is the bound.
+
+**The bound's *value* is guarded, not just its use.** Every assertion of the form
+`live <= MAX_PLAYERS` is vacuous with respect to the number, because both sides move
+together: the orchestrator injected `MAX_PLAYERS = 100000` and the whole audio suite stayed
+green. `test/audio-channels.test.mjs` and `test/game-controller.test.mjs` now also assert
+**against literals the tests own** — `PLAYER_FLOOR <= MAX_PLAYERS <= 32`, and a default
+engine driven through the real warm path holding no more than 32 native players whatever the
+constant says. The failure messages carry the reason, so **raising this constant means
+arguing with the device**: the evidence required is a real iPhone playing a round with
+`failed 0` on the About screen at the higher number. A green suite is not permission.
+
+**24 is a judgement, not a measurement.** The only number anyone has measured is the one that
+fails. So N11a makes the app self-correcting and self-reporting: a construction that throws
+lowers the ceiling a step (24 → 20 → 16 → 12 → 8, floor 8), hands players back, retries once,
+and is **counted where the owner can read it** — parent menu → About. The next device report
+carries numbers instead of "still silent".
+
+---
+
+## 0F. REVISION 6 — the owner could not find either door, and one of them is his son's
+
+**2026-09-24, the first real-device run.** Two findings, verbatim:
+
+> - After going to either English or Vietnamese, I don't see any button or anything that can
+>   let me go back to choose another language.
+> - Where is the screen for me to add/edit/delete words/images/audio?
+
+One cause: the language switch was parent-menu row 2, the editor was rows 1 and 3, and the
+parent menu was behind a 1.2 s hold on a **32 pt dot at 30 % opacity**. **Hiding the gate had
+also hidden the door.**
+
+**And then the owner overturned the first half of the remedy.** It was put to him that the
+switch must stay behind the gate because a 4-year-old must not be able to change the language.
+He rejected it: *"This is not true, I think he should be able to change the language
+himself."* **That reasoning was never his.** Revision 3's §7.1 argument is withdrawn, and the
+two findings now have two different answers: the language switch comes **out** from behind the
+gate entirely; the editor **stays** behind it and gets a legible door.
+
+| Area | What changed |
+|---|---|
+| **§Y, new** | 30 criteria: the child's language control, the chooser as his screen, the parent door, the hold hint, and what a toddler does to both |
+| **A2, A3** | the chooser panel speaks **the language's own name**, not `mèo` / `cat`; the confirm control is a 72 pt `▶` |
+| **A9, A12** | the language switch is reached **from the board in one tap**, with no gate; the parent-menu row survives as a second route |
+| **I1, I2, I3, I8, I9** | the gate dot becomes the **parent door**; a tap shows the hold hint instead of doing nothing; the menu is six rows and row 1 is **`Words`** |
+| **P-series** | `TOP_BAR` 56 → 72, `CHROME` 80 → 96, shelf 29–41; **F18–F22** are new rules in `tools/layout-sweep.mjs` |
+| **E23** | two new **speech** clips, one per pack, carrying the language's own name. `content-pipeline.md`'s rule applies: **the owner hears them before they ship** |
+| **Not weakened** | **R1–R5.** A switch is still a full teardown; no instant has two packs loaded. The switch being cheap and frequent is exactly why they stay as they are |
+
+**What the design did NOT change, and the ruling behind it.** The lock is identical: 1.2 s
+hold, the spelled-out multiplication, 3 wrong → 30 s, the 180 s grace. Hiding the door was
+never the lock — a child who taps everything finds a 32 pt dot in a minute and holds it for
+thirty seconds without trying. The lock is reading plus arithmetic, and it is untouched.
 
 ---
 
@@ -127,16 +237,18 @@ count; see §0B for revision 4's)*
 
 | # | Given / When / Then | Tier |
 |---|---|---|
-| A1 | **Given** a first install, **when** the app opens, **then** the language chooser is shown with both `Ghép Chữ` and `Word Blocks` panels and three unlabelled theme buttons. | 3 |
-| A2 | **Given** the chooser, **when** a panel is tapped once, **then** it expands, a sample word is spoken in that language, a confirm control appears, and **no language is committed**. | 3 |
-| A3 | **Given** an expanded panel, **when** the confirm control is tapped, **then** the language is committed and the board of that language is shown. Committing therefore requires **two** touches. | 3 |
+| A1 | **Given** a first install, **when** the app opens, **then** the language chooser is shown with both `Ghép Chữ` and `Word Blocks` panels and three unlabelled theme buttons, **`Ghép Chữ` above `Word Blocks`**. | 3 |
+| A2 | **Given** the chooser, **when** a panel is tapped once, **then** it expands, **that language's own name is spoken in that language — `Tiếng Việt` or `English`**, a confirm control appears, and **no language is committed**. *(RESTATED in revision 6: it spoke a sample word, `mèo` / `cat`. A sample word identifies a language only to someone who already knows that word and has connected it to a language; the name is the direct signal, and it is now the only thing that tells a non-reading child what he is choosing — `ui.md` §9.6.)* | 3 |
+| A2a | **Given** the chooser and a pack whose language-name clip is **absent**, **when** its panel is tapped, **then** the panel still expands and the confirm control still appears, silently. A missing clip degrades; it does not break the one screen both languages share. | 3 |
+| A2b | **Given** the chooser, **when** a panel is tapped, **then** the clip played is the one from **that panel's** pack and **no other pack is loaded** to play it (R4). | 1 |
+| A3 | **Given** an expanded panel, **when** the confirm control — **a 72 pt `▶`, no text** — is tapped, **then** the language is committed and the board of that language is shown. Committing therefore requires **two** touches, **on every route into the chooser**. *(RESTATED in revision 6: revision 3 dropped the second touch when the chooser was opened behind the gate. The child uses this screen now, and the first touch is what lets him hear what he is choosing — `gameplay.md` §7.1.)* | 3 |
 | A4 | **Given** the chooser, **when** any theme button is tapped, **then** the chooser and both panels immediately re-render in that theme and no language is committed. | 3 |
 | A5 | **Given** a committed language, **when** the app is relaunched, **then** it opens directly onto the board and the chooser is **not** shown. | 3 |
 | A6 | **Given** any state, **when** the app is relaunched, **then** the previously chosen theme is active, read from AsyncStorage. | 3 |
 | A7 | **Given** the app is running, **when** the content pack is inspected, **then** no pack data has been written to AsyncStorage. AsyncStorage holds settings only. | 2 |
 | A8 | **Given** a viewport smaller than 360 × 600 pt, **when** the app opens, **then** the screen-too-small card is shown and no board is mounted. | 4 |
-| A9 | **Given** parent menu → **Language (row 2)**, **when** the other language is tapped **once**, **then** the language switches immediately — no second confirm — the game unmounts, the pack reloads, the prefix tree rebuilds, and the board of the new language is shown. *(RESTATED: revision 2 required a two-touch confirm here.)* | 3 |
-| A12 | **Given** the parent menu, **then** **Language is the second row**, directly under *Add a word*, and opens the same chooser screen the first launch shows. | 3 |
+| A9 | **Given** the chooser opened from **the board's language control**, **when** the *other* language's panel is tapped and then its `▶`, **then** the game unmounts, the pack reloads, the prefix tree rebuilds, and the board of the new language is shown — **with no gate, no hold and no multiplication anywhere in the sequence**. *(RESTATED in revision 6: the switch was parent-menu row 2 behind the gate. The owner: "I think he should be able to change the language himself.")* | 3 |
+| A12 | **Given** the parent menu, **then** **`Language` is the second row**, directly under `Words`, and opens **the same chooser screen, by the same code path**, that the first launch and the board's language control both show. *(RESTATED in revision 6: it sat under *Add a word*, which no longer exists as a row, and it was then the only route.)* | 3 |
 | A13 | **Given** a correct gate answer, **when** the gate dot is held again within **180 s**, **then** the parent menu opens **without** a multiplication; **when** it is held after 180 s, **then** the multiplication is asked. | 3 |
 | A14 | **Given** an open gate grace, **when** the board is returned to or the app is backgrounded, **then** the grace **ends immediately** and the next hold asks the multiplication. | 3 |
 | A15 | **Given** a language switch, **then** all audio stops **within 120 ms** — a hard stop, **not** the 800 ms *Finish session* fade — and no clip of the previous language is audible after the new board appears. | 3 |
@@ -180,7 +292,7 @@ count; see §0B for revision 4's)*
 | B12 | **Given** the same seed and the same sequence of taps, **when** the engine is replayed, **then** the identical sequence of tables, live sets, words and images is produced. | 1 |
 | B13 | **Given** the whole table, **then** every symbol it contains is fully visible on screen. **Nothing scrolls and nothing is clipped.** | 4 |
 | B14 | **Given** a word withheld for a missing asset, **then** it is absent from the prefix tree, so no live symbol ever leads to it. | 1 |
-| B15 | **Given** the board, **then** the only non-play control on it is the 32 pt gate dot. | 3 |
+| B15 | **Given** the board, **then** the top bar holds exactly **two** controls — the **language control** at the left, which is **play** and is the child's, and the **parent door** at the right, which is the only **non-play** control on the board. Nothing else on the board is a control. *(RESTATED in revision 6: "the only non-play control is the 32 pt gate dot" — there are two objects now and they belong to different people, `ui.md` §9.4.)* | 3 |
 
 ## C · Vietnamese assembly
 
@@ -347,15 +459,15 @@ cell; C2, C3, C4, C5, C10, C11 and C16 are withdrawn or restated — see §W3.
 
 | # | Given / When / Then | Tier |
 |---|---|---|
-| I1 | **Given** the board, **then** the gate dot is 32 pt at 30% opacity in the top-right of the top bar. | 3 |
-| I2 | **Given** the gate dot, **when** it is **tapped**, **then** nothing happens. | 3 |
-| I3 | **Given** the gate dot, **when** it is held, **then** a ring fills over 1200 ms and the gate opens at 1200 ms. | 3 |
-| I4 | **Given** the hold is released before 1200 ms, **then** the ring resets and the gate does not open. | 3 |
+| I1 | **Given** the board, **then** the **parent door** is a **65 × 32 pt** pill in the **top-right** of the top bar, with a 1.5 pt `neutralFace` outline and the label `Cha mẹ` (Vietnamese) or `Parent` (English) at 13 pt in `inkSoft`, **not truncated**. *(RESTATED in revision 6: it was a 32 pt dot at 30 % opacity with no label, and the owner could not find it — `ui.md` §9.4b.)* | 3 |
+| I2 | **Given** the parent door, **when** it is **tapped**, **then** the gate does **not** open, **no sound is played**, and the **hold hint** — `Giữ` / `Hold` with a 1.2 s ring — fades in under the door for 1.6 s and fades out. *(RESTATED in revision 6: it said "nothing happens", and "nothing happens" is why the owner concluded there was no button.)* | 3 |
+| I3 | **Given** the parent door, **when** it is held, **then** a fill sweeps left → right behind the label over **1200 ms** and the gate opens at 1200 ms. **The duration and the lock behind it are unchanged from revision 5** — only the door is legible. | 3 |
+| I4 | **Given** the hold is released before 1200 ms, **then** the fill runs back to empty over 160 ms and the gate does not open. | 3 |
 | I5 | **Given** the gate, **then** it shows a multiplication with both operands **spelled in words** in the app's language, operands in 3–9. | 3 |
 | I6 | **Given** the gate is opened twice, **then** the operands differ between openings (over 20 openings, at least 10 distinct pairs). | 3 |
 | I7 | **Given** three wrong answers, **then** the keypad is disabled for 30 s with a visible countdown. | 3 |
-| I8 | **Given** the correct answer, **then** the parent menu opens with **Add a word** as its first row. | 3 |
-| I9 | **Given** the parent menu, **then** it contains exactly: Add a word · Words · Finish session · Language · Voice & pace · Motion & sound · About. No analytics, no account, no sync, no rating prompt. | 3 |
+| I8 | **Given** the correct answer, **then** the parent menu opens with **`Words`** as its first row, and that row's label names **add, edit and delete**. *(RESTATED in revision 6: row 1 was *Add a word* and *Words* was row 3 — two rows that both led to the editor, which is why the owner asked where the editor was.)* | 3 |
+| I9 | **Given** the parent menu, **then** it contains exactly **six rows**: `Words` · `Language` · `Finish session` · `Voice & pace` · `Motion & sound` · `About`. No `Add a word` row, no analytics, no account, no sync, no rating prompt. *(RESTATED in revision 6: seven rows, with the editor split across two of them.)* | 3 |
 | I10 | **Given** any parent screen, **then** a back chevron and a screen title are present and the mode title is shown. | 3 |
 | I11 | **Given** the app is running, **when** network traffic is captured for a full session including editor use, **then** **zero outbound requests** are made. | 3 |
 | I12 | **Given** parent menu → Voice & pace, **then** it offers recording, replacing and removing **the cheer** (`ui.md` §13.6). | 3 |
@@ -443,7 +555,8 @@ cell; C2, C3, C4, C5, C10, C11 and C16 are withdrawn or restated — see §W3.
 | N8 | **Given** the announcement or the chant is playing, **then** tile taps do not interrupt it and tiles are not tappable, so no tap can cut a chant beat. | 3 |
 | N9 | **Given** the device ringer switch is set to silent, **then** the game still speaks. | 5 |
 | N10 | **Given** parent menu → mute, **then** all game audio is silenced and the game remains playable — the table still stands and lies, and the idle ladder still fires. | 3 |
-| N11 | **Given** the pack is loaded, **then** every clip the constant table can produce is decoded and resident before the first tap is possible. *(RESTATED: there is no morph to hide a load in, and there does not need to be — the table never changes.)* | 1 |
+| N11 | **Given** the pack is loaded or the board state has changed, **then** every clip **the current board state can ask for** is decoded and resident before the next tap is possible, **and at most 24 native players exist in the process at any instant**. The warm set, in priority order: the touch-immediate UI sounds (seat, knock, unclick, page, the two motifs, the cheer), then the tap clip of every **live** cell on the **visible page**, then of every flat cell on it, then the undo's clip — truncated to the bound. Everything else is built on demand and released least-recently-used. *(**RESTATED 2026-09-24 — §0E.** The previous wording, "every clip the constant table can produce", is **100** native players for `vi-seed` and **121** for `en-seed`; it is what made the app silent on the owner's iPhone.)* | 1 |
+| N11a | **Given** a native audio player that cannot be constructed, **then** the failure is **counted, remembered and shown** on the parent menu's About screen (live players, the ceiling, how many failed, how many requests made no sound, and the last error), the ceiling **lowers itself** by a step and the construction is retried once, and the app keeps playing everything it still can. *(No failure may be swallowed. A `catch` that returned `null` with no signal is why N11's defect needed a device to find.)* | 1 |
 | N14 | **Given** any tile tap in either language, **then** the clip played is the tile's **`short`** clip. The **`long`** clip is played **only** by the parts hint (M2) and the editor preview. | 1 |
 | N15 | **Given** the shipped packs, **when** each tile's `short` clip is measured, **then** it is **≤ 700 ms** of audio with ≤ 40 ms of leading silence and ≤ 120 ms of tail. *(**PARTIAL, 2026-09-23, content-engineer.** The cause was ~1.6 s of engine padding on every clip; `tools/audio-trim.mjs` cut it losslessly and `en-seed` `short` is now **576–1392 ms, median 768** — 11 of 35 meet 700 ms, 24 do not. What remains is the sound itself, and the only levers are the TTS **rate** and the **text**, both of which are the owner's and the literacy-designer's. Lead is 45–70 ms, not ≤ 40: a lossless MP3 frame cut needs priming frames to carry Layer III's bit-reservoir history, and they are silence. Enforced from now on by `pack-validate.mjs` against the bytes — `content-pipeline.md` §9.3a–c.)* | 2 |
 | N16 | **Given** six tiles touched in 400 ms, **then** six clip **onsets** are audible and each is intelligible as a letter sound. *(Tier 5, and only the owner can judge it — `ui.md` §11.0's closing caveat.)* | 5 |
@@ -472,7 +585,7 @@ cell; C2, C3, C4, C5, C10, C11 and C16 are withdrawn or restated — see §W3.
 
 | # | Given / When / Then | Tier |
 |---|---|---|
-| P1 | **Given** `node tools/layout-sweep.mjs`, **when** it is run, **then** it exits 0 over viewports 360–1400 × 600–1440 in steps of 4, × 9 safe-area shapes, × table sizes 1–`budget`, against **10 layout rules and 6 plan rules**. **Measured 2026-09-23, revision 5: 34,463,217 layouts + 982,566 page plans, 491,283 served combinations, 0 failures.** *(RESTATED — the numbers are revision 5's.)* | 4 |
+| P1 | **Given** `node tools/layout-sweep.mjs`, **when** it is run, **then** it exits 0 over viewports 360–1400 × 600–1440 in steps of 4, × 9 safe-area shapes, × table sizes 1–`budget`, against **10 layout rules, 8 plan rules and 3 constant laws**. **Measured 2026-09-24, revision 6: 34,023,720 layouts + 982,122 page plans, 491,251 served combinations, 0 failures.** *(RESTATED in revision 6 — `TOP_BAR` 56 → 72 changed every number, and F18–F22 are new.)* | 4 |
 | P1a | **Given** the sweep, **when** `maxCells` is made to overclaim by one (`cells <= budget + 1`), **then** it exits **1** naming **F0**. *(Never trust a green check you have not seen fail — and note the other rules **cannot** fail for a served size, because they also decide the budget. `ui.md` §4.3.)* | 4 |
 | P1b | **Given** the sweep, **when** `VI_MAX_LETTERS` is raised from 5 to 7 — his mother adding `nghiêng` — **then** it exits **1** naming **F17**. *(Verified 2026-09-23: 12 failures, first at `360×600 pages 15,14,6`. F17 is the only strip rule that is not circular.)* | 4 |
 | P1c | **Given** the sweep, **when** the strip cell's width cap is removed from `stripCellW`, **then** it exits **1** naming **F15**. *(Verified 2026-09-23: 12 failures, first at `368×604 cells=1`.)* | 4 |
@@ -482,9 +595,14 @@ cell; C2, C3, C4, C5, C10, C11 and C16 are withdrawn or restated — see §W3.
 | P5 | **Given** an iPad 11" in portrait with `vi-seed`, **then** the table is the **whole 35-cell inventory at 116 pt in a 5 × 7 grid**, **with no page rail**, and nothing scrolls or pages; **with `en-seed`**, all 26 letters at 116 pt in 5 × 6. *(RESTATED in revision 5 — measured, `ui.md` §4.4.)* | 4 |
 | P6 | **Given** a 360 × 640 Android phone, **then** it holds **16 cells per page** at 73 pt and plays Vietnamese across **3 pages `[15 ¦ 14 ¦ 6]`** with **one** rail row, and English across **2 pages `[13 ¦ 13]`**. *(RESTATED in revision 5 — revision 4 gave it 12 cells and 7 Vietnamese pages.)* | 4 |
 | P6a | **Given** an iPhone SE 3 (375 × 667), **then** it holds **20 cells per page**, 4 × 4 at 76 pt, and plays Vietnamese across **3 pages** and English across **2**. *(RESTATED in revision 5 — was 16 cells and 6 pages.)* | 4 |
-| P6c | **Given** an **iPhone 17 Plus** at either 430 × 932 or 440 × 956 with `vi-seed`, **then** the board is **3 pages `[15 ¦ 14 ¦ 6]`, 3 × 5 at 101 pt (A) or 104 pt (B), one rail row of 3 buttons**, and the word strip is six cells of 58 × 90 (A) or 60 × 93 (B) with a 47 pt (A) or 49 pt (B) glyph. | 4 |
+| P6c | **Given** an **iPhone 17 Plus** at either 430 × 932 or 440 × 956 with `vi-seed`, **then** the board is **3 pages `[15 ¦ 14 ¦ 6]`, 3 × 5 at 99 pt (A) or 102 pt (B), one rail row of 3 buttons**, and the word strip is six cells of 58 × 88 (A) or 60 × 91 (B) with a 47 pt (A) or 49 pt (B) glyph. *(RESTATED in revision 6: the tile was 101 / 104 and the strip cell 58 × 90 / 60 × 93. The 2 pt is the 72 pt top bar, and it costs no page and no row — `ui.md` §0D.3.)* | 4 |
+| P6d2 | **Given** a **360 × 800 Android** with `en-seed`, **then** the board is **2 pages `[13 ¦ 13]` with a rail**. *(RESTATED in revision 6: it was one page and no rail. This is the only device shape revision 6 demotes, and it is recorded rather than smuggled.)* | 4 |
+| P6h | **Given** an **iPad 11″ at 834 × 1194** with `vi-seed`, **then** all **35 cells are on one page, 5 × 7 at 116 pt, with no rail** — **unchanged by revision 6**, which is the reason the 72 pt control was put in the top bar rather than in a row of its own (a row costs 84 pt and takes this board to two pages). | 4 |
 | P6d | **Given** the layout law, **then** the Vietnamese page split is **`a`…`m` ¦ `n`…`y` ¦ the six tones** on every paged device — 15, 14, 6 — because `pagePlan` is balanced and the capacity of every served phone is ≥ 15 and < 29. | 4 |
-| P6b | **Given** the layout law, **then** `TOP_BAR + GAP_STRIP + PAD_BOTTOM = 56 + 12 + 12 = 80`, `TILE_MIN` is **72**, and `gap ≥ 10` — **all three unchanged for the fifth revision running**, and none of them shaved to buy back the one cell by which 29 letters miss a single page. | 4 |
+| P6b | **Given** the layout law, **then** `TOP_BAR + GAP_STRIP + PAD_BOTTOM = 72 + 12 + 12 = 96`, `TILE_MIN` is **72**, and `gap ≥ 10`. *(RESTATED in revision 6: `TOP_BAR` was 56. It grew by 16 to hold a **72 pt child control** at the motor floor, and `TILE_MIN` was **not** shaved to pay for it — for the fifth revision running. Priced in `ui.md` §0D.3.)* | 4 |
+| P6g | **Given** the layout law, **then** `LANG_W = 72 ≥ TILE_MIN` (**F20**), `TOP_BAR = 72 ≥ LANG_W` (**F21**) and `DOOR_LABEL_PT + 2·DOOR_PAD ≤ DOOR_W = 65` (**F22**); **when** any one of the three is violated, **then** `layout-sweep.mjs` prints `THE CONSTANT LAW FAILS` and exits 1 **without running the sweep**. | 4 |
+| P6e | **Given** any served viewport, **then** `LANG_W + max(shelfRowW, TITLE_PT) + DOOR_LABEL_PT + 2·DOOR_PAD + 12 ≤ CW` (**F18**) and `TITLE_PT ≤ shelfRowW` (**F19**), where `TITLE_PT` and `DOOR_LABEL_PT` are **advance widths measured from the shipped font file**. Measured worst air: **18.2 pt** at 440 × 684; measured worst title slack: **57.6 pt**. | 4 |
+| P6f | **Given** F18 and F19, **then** they are **plan rules and not fit rules**. *(A fit rule also decides the cell budget, so it can never be observed failing — it silently makes a viewport unserved. Poisoning `TITLE_PT` to 200 pt with F19 in `RULES` deleted every 360 dp phone from the sweep and still printed `PASS — 0 failing layouts`. This criterion exists because that happened.)* | 4 |
 | P17 | **Given** the layout law, **then** `STRIP_CELLS = 6`, `STRIP_GAP = 8`, `STRIP_PAD = 8`, `STRIP_CELL_MIN = 40`, and the strip is laid out for six cells **on every device and in both languages**, whatever word is being built. | 4 |
 | P18 | **Given** any served viewport, **then** `stripRowW ≤ tableW` (F15), `stripCellW ≥ 40` (F16) and `stripFont ≥ 34` (F4). **Measured tightest: 48 × 61 cells and a 39 pt glyph at the 360 × 600 floor** — 8 pt of margin on F16, 5 pt on F4. | 4 |
 | P19 | **Given** the sweep, **then** requiring the six-cell strip costs **970 viewport/inset combinations of 492,253 (0.20%)**, **every one of which has 118 pt of combined left+right safe-area inset**. No real portrait phone is un-served, and the net served count **rises** 489,675 → **491,283**. | 4 |
@@ -497,7 +615,7 @@ cell; C2, C3, C4, C5, C10, C11 and C16 are withdrawn or restated — see §W3.
 | P12 | **Given** a tablet, **then** the table is horizontally centred and no tile is within 40 pt of a screen corner. | 4 |
 | P13 | **Given** any viewport, **then** the mode title is rendered in the top bar. | 3 |
 | P14 | **Given** a rotation that changes the grid (e.g. an iPad's Vietnamese table from 7 × 10 to 12 × 6), **then** the **reading order of the table is unchanged** — row-major over the same fixed sequence — and the run order is unchanged. Cell positions do move, which is inherent to rotating. | 4 |
-| P15 | **Given** any served viewport, **then** five shelf slots of at least 22 pt fit the top bar. | 4 |
+| P15 | **Given** any served viewport, **then** five shelf slots of at least 22 pt fit the top bar **alongside the 72 pt language control and the 65 pt parent door**. Measured range after revision 6: **29–41 pt** (was 32–44). | 4 |
 | P16 | **Given** the layout law, **then** it contains **no caption-strip term**, because the board has no caption strip. *(Closes the Slice-3 defect; see §W.)* | 4 |
 
 ## Q · Typography and Vietnamese rendering
@@ -579,7 +697,7 @@ cell; C2, C3, C4, C5, C10, C11 and C16 are withdrawn or restated — see §W3.
 | T9 | **Given** an incoming call during the reveal, **when** it ends, **then** the app is on a valid screen and the reveal is either held or exited, never blank. | 5 |
 | T10 | **Given** the device is locked and unlocked mid-build, **then** the strip and the live set are unchanged and the idle ladder resumes. | 3 |
 | T11 | **Given** 200 random taps at random screen coordinates over 60 s, **then** the app does not crash, does not leave the game, and does not reach the parent menu. | 3 |
-| T12 | **Given** the gate dot is tapped 50 times rapidly, **then** the gate does not open. | 3 |
+| T12 | **Given** the parent door is tapped 50 times rapidly, **then** the gate does not open, **no sound is played**, and the hold hint is shown at most once per 1.6 s. *(RESTATED in revision 6: the door answers a tap now — Y22.)* | 3 |
 | T13 | **Given** the reveal is tapped 30 times, **then** the word replays each time, the photograph advances each time, there is no audio pile-up, and the board returns 3000 ms after the last tap. | 3 |
 | T14 | **Given** the device is rotated repeatedly during a chant on a tablet, **then** no audio restarts and no symbol is lost. | 3 |
 | T15 | **Given** the app is force-killed mid-build, **when** relaunched, **then** it opens on an empty strip with the stage, the album and the shelf intact. No corrupt board is restored. | 2 |
@@ -630,6 +748,12 @@ this app fails is that it is **boring**, which no harness detects.
 | **U25** | Does the **alphabet order** fix what he complained about — does his son now have "a sense of character order"? | the owner's own question, and the reason for this revision. Ask him after a week |
 | **U26** | Is a **101 pt tile in a 3-wide grid** better or worse for him than revision 4's 75 pt in a 4-wide one? The law maximises the tile; it does not know which he prefers. | he has played both. Ask |
 | **U27** | On a paged board, does the **cross-page digraph** (`t` on page 2, `h` on page 1) stop him? | watch him build `thỏ`. If it stops him, the answer is not a smaller gap — it is a different page split, and that is the owner's call |
+| **U28** | **The question revision 6 turns on.** Does his son understand the **two-bar language control** — *"the full one is where I am, press the empty one"* — and does he work it out himself, or does it take one demonstration? | hand him the phone and say nothing. One demonstration is a pass; two is a redesign |
+| **U29** | Hearing **`Tiếng Việt`** and **`English`** spoken on the chooser: does that tell him what he is picking, or does he still need the photographs to find out where he landed? | watch whether he ever taps a panel, listens, and then taps the *other* one before confirming |
+| **U30** | Does he switch language **constantly** now that he can, and is that fine or is it a problem? The design says the cost is one abandoned word and that is acceptable. | count the switches in a session. If he never finishes a word, the design is wrong and the owner decides what replaces it |
+| **U31** | Does the word **`Cha mẹ`** in the corner read to the owner's wife as a button she should press, without anybody telling her? | show her the board, ask her to add a word, say nothing else. This is the finding that produced the revision, so it is the one that closes it |
+| **U32** | Does the **hold hint on first launch** actually get read, or does it come and go while she is still looking at the board? | 3 s was chosen, not measured. If it is missed, the lever is the duration or a second showing |
+| **U33** | Is a **99 pt tile** (down from 101) perceptibly worse on his phone? The law says it is the price of a 72 pt control in the top bar. | he has played 101. Ask |
 
 ---
 
@@ -754,6 +878,108 @@ sound, and there are exactly two ways something can be missing.*
 | X38 | **Given** `c` `h` is in the strip and the strip is tapped once, **then** the clip played is **`cờ`** — the unit that remains — not `hờ`. | 3 |
 | X39 | **Given** a five-letter word being built, **then** at no point does a filled cell move, and the sixth slot is never drawn until a sixth letter or a dashed cell occupies it. | 3 |
 | X40 | **Given** reduce-motion is on, **then** M22 becomes a **220 ms opacity cross-fade** to the longer bar, M23 becomes an **α 1 → 0.75 → 1 pulse on both cells together**, M24 and the mark-slot are unchanged (already opacity), and M10 becomes a 240 ms cross-fade. **All durations are unchanged, so audio sync and every criterion above still hold.** | 3 |
+
+---
+
+## Y · The two doors — the child's language control and the parent door (revision 6)
+
+`ui.md` §9.4, §9.4a, §9.4b, §9.6; `gameplay.md` §0D, §7.1, §7.2, §7.3.
+
+### Y1–Y10 · The language control — the child's, and it is not a tile
+
+| # | Given / When / Then | Tier |
+|---|---|---|
+| Y1 | **Given** any board, **then** a **72 × 72 pt** language control is drawn in the **top-left of the top bar**, on every page, in both languages, and its ink is 72 × 72 — **not a 72 pt hit rect around something smaller**. | 4 |
+| Y2 | **Given** the language control, **then** it carries **two stacked bars and no glyph, no letter and no word**, with the **top bar Vietnamese and the bottom bar English in both languages**, and the bar for the language currently loaded is **filled** while the other is an **outline**. | 3 |
+| Y3 | **Given** the language control, **when** it is rendered in greyscale, **then** filled and outlined remain distinguishable — the control carries no information in hue. | 4 |
+| Y4 | **Given** the language control, **when** it is tapped **once**, **then** the chooser is shown, **no gate is asked**, no hold is required, no multiplication appears, and **no language has been committed**. | 3 |
+| Y5 | **Given** the language control is tapped, **then** exactly **one** UI tap sound is played and **no speech clip is played** — the language names are spoken on the chooser, not on the board. | 3 |
+| Y6 | **Given** a board on any served viewport, **then** the shortest distance from the language control's bottom edge to the nearest tile's hit rect is **≥ 72 pt** (measured: 89 pt at the 360 × 640 floor, 116 pt at 430 × 932, 134 pt on an iPad). | 4 |
+| Y7 | **Given** a board, **then** the language control and the parent door are in **opposite corners** of the top bar and no other control's hit rect comes within 12 pt of either. | 4 |
+| Y8 | **Given** the announcement or the reveal is on screen, **then** the language control is **not** drawn; **given** the reveal ends, **then** it is drawn again. The parent door is drawn throughout. | 3 |
+| Y9 | **Given** a language switch completes, **when** the new board first appears, **then** the language control's two bars have swapped over **260 ms**, so the board itself confirms what his tap did. | 3 |
+| Y10 | **Given** the language control, **when** it is inspected as a component, **then** it has **no role identity bar**, a different corner radius from a tile, and **is not an instance of the tile component** — it can never be mistaken for a character. | 1 |
+
+### Y11–Y18 · The chooser as the child's screen
+
+| # | Given / When / Then | Tier |
+|---|---|---|
+| Y11 | **Given** the chooser opened from the board, **then** the **currently loaded language's panel carries a "you are here" mark**, and the chooser opened at **first launch** carries no such mark on either panel. | 3 |
+| Y12 | **Given** the chooser opened from the board, **when** the **current** language's panel is confirmed, **then** the board returns with **the word strip exactly as it was, the shelf exactly as it was, no audio stopped and no pack reloaded**. An accidental press costs nothing. | 3 |
+| Y13 | **Given** the chooser opened from the board with three letters in the strip, **when** the **other** language is confirmed, **then** all audio stops within **120 ms**, the strip is empty, the shelf is empty, the album of the previous language is unchanged, and the theme is unchanged (A15–A19 hold on this route too). | 3 |
+| Y14 | **Given** the chooser, **then** every tappable thing on it — both panels, the confirm `▶` and the three theme buttons — is **≥ 72 pt** in its smallest dimension. | 4 |
+| Y15 | **Given** the chooser opened from the board, **when** the device back gesture or button is used (Android), **then** the board returns unchanged and no language is committed. | 3 |
+| Y16 | **Given** the chooser, **then** **no instruction text is required to operate it**: covering every string on the screen still leaves two panels, a marked current one, a `▶` and three theme buttons. | 4 |
+| Y17 | **Given** the chooser is opened and closed 20 times in a row without confirming, **then** no pack is loaded or unloaded, memory does not grow monotonically, and the board's session is identical at the end. | 1 |
+| Y18 | **Given** a language switch, **when** memory is inspected at every instant of the transition, **then** **at no point are two packs loaded** — R4 is unchanged and is now exercised on a route a 4-year-old can take twenty times in a minute. | 1 |
+
+### Y19–Y26 · The parent door
+
+| # | Given / When / Then | Tier |
+|---|---|---|
+| Y19 | **Given** the board, **then** the parent door's label is **a word in the app's language**, never an icon, never a glyph, and it is rendered in the bundled face without truncation on **every served viewport** (measured against the shipped font file, as `test/topbar.test.mjs` does for the mode title). | 4 |
+| Y20 | **Given** the parent door, **when** it is touched, held, released, double-tapped or long-pressed for 30 s, **then** **no sound is ever played** by it. It is the only control in the app with this property, and it is deliberate. | 3 |
+| Y21 | **Given** a fresh install, **when** the first board is shown after a language is committed, **then** the hold hint is displayed for **3 s, once**; **when** the app is relaunched, **then** it is not shown again. The flag is a persisted setting, not component state. | 3 |
+| Y22 | **Given** the parent door is tapped **six times in 400 ms**, **then** the hint is shown once, the gate does not open, no sound is played, and nothing is queued. | 3 |
+| Y23 | **Given** the parent door is held for **30 s**, **then** the gate opens at 1200 ms and the remaining 28.8 s of contact changes nothing — no repeat, no second gate, no keypad input. | 3 |
+| Y24 | **Given** the gate screen is open, **then** a **picture-only** way back to the board is present and is **≥ 72 pt**; **when** it is used, **then** the board returns with **the part-built word still in the strip**. | 3 |
+| Y25 | **Given** the gate screen, **when** digits are tapped, **then** **no sound is played** and no letter sound of either language can be triggered from it. | 3 |
+| Y26 | **Given** three wrong answers, **then** the keypad is disabled for 30 s with a visible countdown **and no sound, no animation beyond the countdown, and no colour change a child would read as a reaction** (I7's cooldown, restated so it is not a toy). | 3 |
+
+### Y31–Y34 · The language-name clips — handed to the content-engineer
+
+**These are `ui.md` §13.7's E23 as numbered criteria.** They are the content-engineer's to
+build and the **owner's to approve by ear**; nobody on this team can hear (`CLAUDE.md`).
+
+| # | Given / When / Then | Tier |
+|---|---|---|
+| Y31 | **Given** `packs/vi-seed`, **then** it carries one clip whose content is the spoken phrase **`Tiếng Việt`**; **given** `packs/en-seed`, **then** it carries one clip whose content is the spoken word **`English`**. Each lives in its own pack and neither is a tile clip. | 2 |
+| Y32 | **Given** either clip, **then** it is validated by the same duration and decoder gates every other clip in the pack passes, and the pack validator exits 0. | 2 |
+| Y33 | **Given** a pack in which the clip is **missing**, **then** the validator reports it as a **warning and not an error**, the pack stays valid, and the chooser degrades to A2a — the panel expands silently. A pack must not become unloadable because one chooser clip is absent. | 2 |
+| Y34 | **Given** both clips, **when** the owner has listened to them, **then** he has said so. **Until he has, this criterion is open and the clips are not shipped.** A duration is a proxy; intelligibility is the property, and it is verifiable only above this team. | 5 |
+
+### Y27–Y30 · What a toddler does to both
+
+| # | Given / When / Then | Tier |
+|---|---|---|
+| Y27 | **Given** the board, **when** the language control and the parent door are pressed **simultaneously**, **then** exactly one of the two responds and the other is cancelled — never both. | 3 |
+| Y28 | **Given** the language control is tapped **eight times in one second**, **then** the chooser is shown **once**, no transition is queued, and no pack is loaded. | 3 |
+| Y29 | **Given** the language is switched, **when** it is switched back and forth **ten times in two minutes**, **then** every switch completes, no audio handle leaks, no clip of a previous language is ever audible, and the app does not slow measurably. | 3 |
+| Y30 | **Given** a language switch is in flight, **when** the language control is tapped again during the teardown, **then** the tap is ignored until the new board is mounted — a switch can never be re-entered. | 1 |
+
+---
+
+## W6 · Revision 6 — what the two doors did to revision 5's ids
+
+**Restated — same id, different assertion.** These still compile and now mean something else,
+so a test asserting the old behaviour passes for the wrong reason:
+
+| id | Was | **Is** |
+|---|---|---|
+| **A2** | the panel speaks a sample word, `mèo` / `cat` | the panel speaks **the language's own name**, `Tiếng Việt` / `English` |
+| **A3** | two touches **at first launch only** | two touches **on every route**, because the first touch is the child's preview |
+| **A9** | parent menu → Language (row 2), one tap, behind the gate | **the board's language control**, one tap, **no gate at all** |
+| **A12** | Language is row 2 under *Add a word* | Language is row 2 under **`Words`**, and is a *second* route rather than the only one |
+| **I1** | a 32 pt dot at 30 % opacity | a **65 × 32 labelled door** |
+| **I2** | a tap does nothing | a tap shows the **hold hint**, silently, for 1.6 s |
+| **I3** | a ring fills over 1200 ms | a fill **sweeps left → right** over the same 1200 ms |
+| **I4** | the ring resets | the fill **runs back to empty over 160 ms** |
+| **I8** | row 1 is *Add a word* | row 1 is **`Words`**, naming add, edit and delete |
+| **I9** | seven rows including *Add a word* | **six rows**, no *Add a word* |
+| **P6b** | `TOP_BAR` 56, `CHROME` 80 | **`TOP_BAR` 72, `CHROME` 96** |
+| **F8 / the shelf** | slot 32–44 pt | slot **29–41 pt** |
+| **B15** | the gate dot is the only non-play affordance on the board | **two** controls in the top bar: the door is the only non-play one, **the language control is play** |
+
+**Withdrawn outright:**
+
+| id | Why |
+|---|---|
+| — | none. Revision 6 restates and adds; it retires no criterion. |
+
+**Ids revision 6 does NOT touch, and that is the point:** **R1–R5** (language isolation),
+**A15–A20** (what a switch does to in-flight state), **I5, I6, I7, I10–I12** (the lock and the
+parent screens), and every criterion in §B–§H and §X. The switch became cheap and frequent;
+the guarantees around it did not move a word.
 
 ---
 

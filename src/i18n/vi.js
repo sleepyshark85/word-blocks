@@ -26,10 +26,23 @@ export default {
     : `Trang ${page} trên ${total}. Có ô để bấm ở trang ${livePages.join(', ')}.`),
 
   languageName: 'Tiếng Việt',
-  sampleWord: 'mèo',
 
   start: 'Bắt đầu',
   back: 'Quay lại',
+
+  /**
+   * **Revision 6, `ui.md` §9.4b.** The parent door's label. **A word, not an icon**: an
+   * icon is a picture and pictures are the child's channel in this app — a gear is
+   * interesting to a 4-year-old and a word is furniture. It is the one material the app
+   * deliberately denies him, which is the same instrument the lock behind it uses.
+   *
+   * Its advance width is a layout constant (`DOOR_LABEL_PT`), and `test/topbar.test.mjs`
+   * measures **this string** against the door's reserved 65 pt from the shipped font file.
+   * Lengthening it is not free: F22 fails.
+   */
+  parentDoor: 'Cha mẹ',
+  /** §9.4b / I2 — what the silent hold hint says when the door is *tapped*. */
+  holdHint: 'Giữ',
 
   gateTitle: 'Nhập kết quả',
   gateTimes: 'nhân',
@@ -38,8 +51,14 @@ export default {
   numberWords: { 3: 'ba', 4: 'bốn', 5: 'năm', 6: 'sáu', 7: 'bảy', 8: 'tám', 9: 'chín' },
 
   menuTitle: 'Cài đặt',
-  menuAddWord: 'Thêm từ',
+  /**
+   * **Revision 6 folds `Thêm từ` into this row** (I8, I9, `gameplay.md` §7.3). Revision
+   * 5's answer to *"where is the screen for me to add/edit/delete words?"* was two rows,
+   * three apart, that both led to the editor — which makes neither of them the editor.
+   * One row now, and the detail line names the three verbs he asked about.
+   */
   menuWords: 'Từ vựng',
+  menuWordsDetail: 'thêm, sửa, xoá',
   menuFinish: 'Kết thúc',
   menuLanguage: 'Ngôn ngữ',
   menuVoice: 'Giọng nói và tốc độ',
@@ -167,4 +186,13 @@ export default {
   aboutTitle: 'Giới thiệu',
   aboutVersion: (v) => `Phiên bản ${v}`,
   aboutAttributionTitle: 'Nguồn hình ảnh và âm thanh',
+  /**
+   * **N11a / E10a — dòng chẩn đoán âm thanh.** Không ai trong nhóm có iPhone, nên đây là
+   * bằng chứng thay cho câu "vẫn im lặng": số bộ phát đang giữ, mức trần hiện tại, và số
+   * lần máy không tạo được bộ phát. `lỗi 0` nghĩa là hệ thống âm thanh vẫn còn nguyên.
+   */
+  aboutAudioTitle: 'Âm thanh (dành cho người sửa lỗi)',
+  aboutAudio: (s) => `Bộ phát: ${s.live}/${s.max} · đã tạo ${s.created} · lỗi ${s.failed} · câm ${s.silenced}`,
+  aboutAudioHealthy: 'Không có lỗi bộ phát nào.',
+  aboutAudioFailing: (s) => `Có ${s.failed} lần không tạo được bộ phát. Máy đã hạ mức trần xuống ${s.max}. Báo lại con số này.`,
 };

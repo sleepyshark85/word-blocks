@@ -9,6 +9,13 @@ export const EASING = {
   enter: Easing.bezier(0.22, 1, 0.36, 1),
   exit: Easing.bezier(0.55, 0, 1, 0.45),
   calm: Easing.inOut(Easing.ease),
+  /**
+   * `ui.md` §10.6 M25 — the parent door's hold fill, and the hold hint's ring. **Linear,
+   * because a progress indicator that eases is lying about the time left.** It is the
+   * only linear curve in the app, and it is the only one that is a measurement rather
+   * than a feeling.
+   */
+  linear: Easing.linear,
 };
 
 export const SPRING = {

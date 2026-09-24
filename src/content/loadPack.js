@@ -101,18 +101,32 @@ export function loadPack(language) {
 }
 
 /**
- * The chooser's sample word (`acceptance-criteria.md` A2): a tap on a panel speaks `mèo`
- * or `cat` in that language before anything is committed.
+ * **The chooser's language-name clip — `acceptance-criteria.md` A2 (restated in revision
+ * 6), E23, Y31–Y34.** A tap on a panel speaks **the language's own name** — `Tiếng Việt`
+ * or `English` — before anything is committed.
+ *
+ * It used to speak a sample word, `mèo` / `cat`. The owner: *"for `mèo`, it should
+ * probably be `Tiếng Việt` and `English` then"*, and he is right for a reason worth
+ * writing down: **a sample word identifies a language only to someone who already knows
+ * that word and has connected it to a language.** Now that the child chooses for himself
+ * (`ui.md` §9.4a) this is the only channel that tells him what he is picking.
  *
  * This is the **one** place the app touches a pack for a language it has not chosen, and
  * `acceptance-criteria.md` R3 names the chooser as the single exemption to the no-mixing
  * rule. It is deliberately not `loadPack`: nothing is resolved, no session is created, no
- * handle is kept — one clip reference is looked up in the bundle and handed back.
+ * handle is kept — one manifest reference is looked up in the bundle and handed back.
+ *
+ * **Neither clip exists yet.** They are the content-engineer's (E23), they are *speech*,
+ * and the owner has to hear them before they ship (Y34). **Y33 is what this function is
+ * built to satisfy:** a missing clip is a warning and not an error, the pack stays valid,
+ * and the chooser **degrades silently** — `null` here means the panel expands and says
+ * nothing (A2a). A pack must not become unloadable because one chooser clip is absent.
  */
-export function sampleWordSource(language, wordId) {
+export function languageNameSource(language) {
   const bundle = BUNDLED_PACKS[seedPackIdFor(language)];
   if (!bundle) return null;
-  const file = bundle.words[`${wordId}.json`];
-  const ref = file && file.audio && file.audio.word ? file.audio.word.src : null;
+  const manifest = bundle.manifest;
+  const clip = manifest && manifest.languageName;
+  const ref = clip && typeof clip === 'object' && typeof clip.src === 'string' ? clip.src : null;
   return ref ? bundle.media[ref] ?? null : null;
 }

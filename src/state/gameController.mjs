@@ -278,6 +278,18 @@ export function createGameController(options) {
     const plan = planAnnouncement(chantSteps(game, engine));
     const notes = motifNotes(engine);
 
+    // N11 (BOUNDED) — the announcement's own clips, warmed at t = 0. The chant's first
+    // beat is `REVEAL.chantAt` away and the word is a second behind it, so this is the
+    // one place in the app where a decode has time to happen out of earshot.
+    audio.prepare(
+      [
+        ...plan.timeline.map((entry) => clip(entry.step.audio)),
+        plan.word ? clip(plan.word.audio) : null,
+        plan.sentence && opts.saySentence ? clip(plan.sentence.audio) : null,
+      ].filter(Boolean),
+      { pin: pinnedUi() },
+    );
+
     // F19 (RESTATED) — **speech is stopped, not ducked.** `playMotif` cuts the speech
     // channel before it starts; ducking was the specification that guaranteed two voices
     // at the loudest moment in the app (`ui.md` §11.0 item 2).
@@ -397,36 +409,64 @@ export function createGameController(options) {
   }
 
   /**
-   * `acceptance-criteria.md` N11 (RESTATED) — **every clip the constant table can produce
-   * is decoded and resident before the first tap is possible.** The table never changes,
-   * so this is a one-time cost at pack load rather than a per-tap concern: 77 Vietnamese
-   * unit states × 2 variants, 36 English. The word clips go with them, because the reveal
-   * speaks a word about a second after the tap that makes it and a decode in that window
-   * is audible.
+   * `acceptance-criteria.md` **N11 (BOUNDED)** — **every clip the CURRENT BOARD STATE
+   * can ask for is resident before it can be tapped**, and nothing else is.
+   *
+   * N11 used to say *every clip the constant table can produce*, which is 100 native
+   * players for `vi-seed` and 121 for `en-seed`. That is buildable in Chromium and
+   * **not on an iPhone**: the owner's device ran out of AVFoundation players somewhere
+   * above the chooser's one, every later construction failed, and the whole game went
+   * silent — the seat click included. The bound is `MAX_PLAYERS` (24) in
+   * `audio/channels.mjs`, and what is warmed inside it is, in priority order:
+   *
+   *   1. the **touch-immediate UI sounds**, pinned: seat, knock, unclick, page, the two
+   *      motifs, and her cheer if she recorded one. Each one fires on a touch or on the
+   *      tap that completes a word, so none of them can afford a decode.
+   *   2. the tap clip of every **live** cell on the **visible page**, then of every flat
+   *      one (L7 — a flat tile still speaks), then the undo's clip, which is the clip of
+   *      what would be left (E8, C11).
+   *
+   * Everything else — the chant's anchored clips, the word, the blend, the sentence, and
+   * on a one-page tablet the tail of the table beyond the budget — is acquired on demand
+   * and released by LRU. The announcement warms its own clips at t = 0, which is
+   * `REVEAL.chantAt` ahead of the first beat that needs them.
    */
-  function preloadForTable() {
-    const sources = [];
-    const push = (s) => { if (s) sources.push(s); };
-    // **Every clip the board can produce**, which after revision 5 is every *unit state*
-    // — 26 onsets and the two onset steps, 35 rimes and the eight pass-through prefixes,
-    // the six tones (`content-pipeline.md` §3.7) — rather than one per cell. A tap on `h`
-    // can say `chờ`, `ghờ`, `khờ`, `ngờ`, `nhờ`, `phờ`, `thờ` or `hờ`, and a decode inside
-    // the 60 ms budget is not available (N11).
-    for (const table of Object.values(pack.unitAudio)) {
-      for (const a of Object.values(table)) {
-        push(clip(a.long));
-        push(clip(a.short));
-      }
+  const PINNED_UI = ['seat', 'knock', 'unclick', 'page', 'motif3', 'motif4', 'cheer'];
+
+  function pinnedUi() {
+    return PINNED_UI.map((key) => ui[key] ?? null).filter(Boolean);
+  }
+
+  function warmForBoard() {
+    const warm = [];
+    const seen = new Set();
+    const push = (s) => { if (s && !seen.has(s)) { seen.add(s); warm.push(s); } };
+    if (engine.phase === 'playing') {
+      const cells = tableView(game, engine).cells.filter((c) => c.page === engine.page);
+      const tapClip = (cell) => {
+        const spoken = tapAudio(game, engine, cell.id);
+        return clip(spoken && spoken.short);
+      };
+      for (const cell of cells) if (cell.live) push(tapClip(cell));
+      for (const cell of cells) if (!cell.live) push(tapClip(cell));
+      const remains = undoAudio(game, engine);
+      push(clip(remains && remains.short));
     }
-    for (const key of ['motif3', 'motif4', 'cheer', 'seat', 'knock', 'unclick', 'page', 'shelfBell', 'shelfTip']) {
-      push(ui[key] ?? null);
-    }
-    for (const word of game.tree.eligible) {
-      push(clip(word.audio.word));
-      push(clip(word.audio.blend));
-      if (opts.saySentence) push(clip(word.audio.sentence));
-    }
-    audio.prepare(sources);
+    audio.prepare(warm, { pin: pinnedUi() });
+  }
+
+  /** The board signature the warm set is a function of: the prefix and the page. */
+  function boardKey() {
+    return `${engine.page}|${engine.phase}|${engine.status}|${engine.prefix.join('\u0000')}`;
+  }
+  let lastBoardKey = null;
+
+  function warmIfBoardChanged() {
+    if (destroyed) return;
+    const key = boardKey();
+    if (key === lastBoardKey) return;
+    lastBoardKey = key;
+    if (engine.phase === 'playing' && engine.status === 'building') warmForBoard();
   }
 
   /* ------------------------------------------------- reacting to the engine state */
@@ -470,6 +510,11 @@ export function createGameController(options) {
       }
       if (engine.phase === 'album') audio.playUi(ui.shelfTip ?? null);
     }
+
+    // N11 (BOUNDED) — the warm set follows the board. A tap changes the prefix, which
+    // changes what the next tap can ask for; this is where the new set is made resident,
+    // a whole human tap interval before it is needed.
+    warmIfBoardChanged();
   }
 
   function dispatch(action) {
@@ -635,6 +680,24 @@ export function createGameController(options) {
       view.pressedId = null;
       timers.clear('hold');
       dispatch({ type: 'tapPage', index });
+    },
+
+    /**
+     * **`ui.md` §9.4a / AC Y5 — the child's language control plays exactly ONE UI tap
+     * sound, and never speech.**
+     *
+     * The language *names* are spoken on the chooser, where both are present and he can
+     * compare them. A name spoken here would be the outgoing language announcing the
+     * incoming one, which is a sentence with no meaning — and it would be the one place in
+     * the app where a clip of the other language could be heard over this board (R2).
+     *
+     * It lives in the controller rather than in the component for the reason every other
+     * sound does: the state layer owns the audio engine, and a component that reaches past
+     * it is a component that can be given the wrong one.
+     */
+    languageTap() {
+      if (destroyed) return;
+      audio.playUi(ui.page ?? null, -6);
     },
 
     /* ---- the word strip: tap is undo, hold is the parts hint ---------------- */
@@ -819,10 +882,11 @@ export function createGameController(options) {
     timers.set(`${name}End`, () => { view.chant = null; emit(); }, at);
   }
 
-  // Prime the audio and the ladder. The table is constant, so this is the only preload.
+  // Prime the audio and the ladder. The warm set is a function of the board state, so it
+  // is refreshed by `syncToEngine` whenever the prefix or the page changes (N11 rev 6).
   audio.setMuted(opts.mute);
   audio.setRate(opts.rate);
-  preloadForTable();
+  warmIfBoardChanged();
   resetLadder();
 
   return controller;

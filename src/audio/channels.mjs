@@ -39,8 +39,134 @@ function keyOf(source) {
   return null;
 }
 
-export function createChannels({ createPlayer }) {
-  /** @type {Map<string, {player: object, source: any}>} */
+/**
+ * **The ceiling on native players, and where the number comes from.**
+ *
+ * A player here is one `expo-audio` `AudioPlayer`, which on iOS is one `AVPlayer` plus a
+ * live `AVPlayerItem`, a periodic time observer and a KVO subscription
+ * (`node_modules/expo-audio/ios/AudioPlayer.swift`). Those are **process** resources, not
+ * per-object ones: AVFoundation allocates a playback pipeline per ready item and refuses
+ * once the process has too many. The old code held one player per clip for the whole
+ * table — **100 for `vi-seed`, 121 for `en-seed`** — and on the owner's iPhone every
+ * construction after the chooser's failed, silently, so the game went mute the moment a
+ * pack loaded. Chromium survives it, which is why no browser run ever saw it.
+ *
+ * **24**, derived from what the app must be able to play *without waiting*, on the device
+ * that failed:
+ *
+ * | | |
+ * |---|---|
+ * | the touch-immediate UI sounds, pinned | 6, + her cheer if she recorded one = **7** |
+ * | the tap clips of the visible page, the owner's phone plan | **14** (`vi-seed`; 13 for `en-seed`) |
+ * | the undo's clip — what would be left (E8) | **1** |
+ * | *resident warm set* | *22* |
+ * | spare, for the announcement's blend, word and sentence | **2** |
+ * | | **24** |
+ *
+ * On a one-page tablet the whole table is visible and the reachable set is larger — 33 tap
+ * clips for `vi-seed` — so the warm set is truncated. The priority order is what makes 24
+ * the right truncation there too: 7 pinned + **all 17 live** `vi-seed` tap clips is exactly
+ * 24, so every tile that leads to a word is warm on every target device, and only a flat
+ * tile beyond the budget can cost a construction.
+ *
+ * It is a judgement and not a measurement: nobody on this team has an iPhone, and the
+ * only number anyone has measured is the one that fails. So the ceiling **lowers itself**
+ * — every construction that throws drops it a step (`recordFailure`) — and every failure
+ * is counted and shown on the About screen, so the next device report is evidence rather
+ * than "still silent".
+ */
+export const MAX_PLAYERS = 24;
+
+/** The ceiling never drops below this: one per channel, plus the seat click and a tile. */
+export const PLAYER_FLOOR = 8;
+
+/**
+ * The process-wide budget. It is an object rather than a module global so a test can make
+ * its own, but `audio/engine.js` makes exactly one: the chooser's engine and the game's
+ * engine draw on the same iOS resource and must be counted together (the chooser's player
+ * is the one clip that still worked on the owner's phone, precisely because it was made
+ * before the pack's hundred).
+ */
+export function createPlayerBudget(max = MAX_PLAYERS) {
+  /** @type {Set<{evictOne: () => boolean}>} */
+  const pools = new Set();
+  const budget = {
+    max,
+    live: 0,
+    created: 0,
+    evicted: 0,
+    /** Constructions that threw. On iOS this is the resource exhaustion, reported. */
+    failed: 0,
+    /** Requests that were asked to make a sound and could not. N11a. */
+    silenced: 0,
+    /** How many times the ceiling lowered itself after a failure. */
+    shrinks: 0,
+    lastError: null,
+
+    join(pool) {
+      pools.add(pool);
+      return () => pools.delete(pool);
+    },
+
+    /** Room for one more player: the asking pool's own LRU first, then everyone else's. */
+    makeRoom(self) {
+      while (budget.live >= budget.max) {
+        if (self && self.evictOne()) continue;
+        let freed = false;
+        for (const pool of pools) {
+          if (pool === self) continue;
+          if (pool.evictOne()) { freed = true; break; }
+        }
+        if (!freed) return false;
+      }
+      return true;
+    },
+
+    /**
+     * **A construction that threw is the ceiling telling us it is lower than 24.** The
+     * old code caught this and returned `null`, which is why finding it needed a device.
+     * Here it is counted, remembered, and *acted on*: the ceiling drops a step, the pools
+     * are asked to give players back, and the caller retries once at the lower ceiling.
+     * An app that recovers into a quieter mode is worth more than one that is silent.
+     */
+    recordFailure(error, self) {
+      budget.failed += 1;
+      budget.lastError = String((error && error.message) || error || 'unknown');
+      const next = Math.max(PLAYER_FLOOR, Math.min(budget.max - 4, budget.live - 1));
+      if (next < budget.max) {
+        budget.max = next;
+        budget.shrinks += 1;
+      }
+      while (budget.live > budget.max) {
+        if (self && self.evictOne()) continue;
+        let freed = false;
+        for (const pool of pools) {
+          if (pool === self) continue;
+          if (pool.evictOne()) { freed = true; break; }
+        }
+        if (!freed) break;
+      }
+    },
+
+    /** What the About screen shows the owner (`acceptance-criteria.md` N11a, E10a). */
+    stats() {
+      return {
+        live: budget.live,
+        max: budget.max,
+        created: budget.created,
+        evicted: budget.evicted,
+        failed: budget.failed,
+        silenced: budget.silenced,
+        shrinks: budget.shrinks,
+        lastError: budget.lastError,
+      };
+    },
+  };
+  return budget;
+}
+
+export function createChannels({ createPlayer, budget = createPlayerBudget() }) {
+  /** @type {Map<string, {player: object, source: any, pinned: boolean, used: number, warmedAt: number}>} */
   const pool = new Map();
   // One slot per channel. `cheer` is the second half of channel 3: it layers over the
   // motif deliberately (it is her voice, and that is the point), so it needs a player of
@@ -50,19 +176,67 @@ export function createChannels({ createPlayer }) {
   let rate = 1;
   let disposed = false;
   let fadeTimer = null;
+  let clock = 0;
+  /** Non-zero only inside `prepare`, so one warm pass cannot evict its own clips. */
+  let warming = 0;
 
-  function acquire(source) {
+  function drop(key, entry) {
+    try { entry.player.remove(); } catch { /* already gone */ }
+    pool.delete(key);
+    budget.live -= 1;
+  }
+
+  /** The least-recently-used player this pool can give back, or false if it has none. */
+  const self = {
+    evictOne() {
+      let victimKey = null;
+      let victim = null;
+      for (const [key, entry] of pool) {
+        if (entry.pinned) continue;
+        if (warming !== 0 && entry.warmedAt === warming) continue;
+        if (Object.values(current).includes(key)) continue;
+        if (victim === null || entry.used < victim.used) { victimKey = key; victim = entry; }
+      }
+      if (victim === null) return false;
+      drop(victimKey, victim);
+      budget.evicted += 1;
+      return true;
+    },
+  };
+  const leave = budget.join(self);
+
+  /**
+   * A player for this source, from the pool or newly built, **or `null` — and a `null`
+   * is now counted rather than swallowed** (N11a).
+   */
+  function acquire(source, pin = false) {
     const key = keyOf(source);
     if (key === null) return null;
-    let entry = pool.get(key);
-    if (!entry) {
+    const held = pool.get(key);
+    if (held) {
+      held.used = ++clock;
+      held.warmedAt = warming;
+      if (pin) held.pinned = true;
+      return held;
+    }
+    if (!budget.makeRoom(self)) return null;
+    let player = null;
+    try {
+      player = createPlayer(source);
+    } catch (error) {
+      // The ceiling is lower than we thought. Drop it, hand players back, try once more.
+      budget.recordFailure(error, self);
       try {
-        entry = { player: createPlayer(source), source };
-      } catch {
+        player = createPlayer(source);
+      } catch (retry) {
+        budget.recordFailure(retry, self);
         return null;
       }
-      pool.set(key, entry);
     }
+    const entry = { player, source, pinned: pin, used: ++clock, warmedAt: warming };
+    pool.set(key, entry);
+    budget.live += 1;
+    budget.created += 1;
     return entry;
   }
 
@@ -82,7 +256,9 @@ export function createChannels({ createPlayer }) {
     current[channel] = null;
     if (muted || source == null) return 0;
     const entry = acquire(source);
-    if (!entry) return 0;
+    // **N11a — a request that makes no sound is counted.** This is the exact line that
+    // hid the iPhone failure: it used to be `return 0` and nothing else.
+    if (!entry) { budget.silenced += 1; return 0; }
     try {
       entry.player.seekTo(0);
       entry.player.volume = volume;
@@ -102,7 +278,9 @@ export function createChannels({ createPlayer }) {
       const started = entry.player.play();
       if (started && typeof started.catch === 'function') started.catch(() => {});
       current[channel] = keyOf(source);
-    } catch {
+    } catch (error) {
+      budget.silenced += 1;
+      budget.lastError = String((error && error.message) || error || 'play failed');
       return 0;
     }
     return 1;
@@ -115,26 +293,33 @@ export function createChannels({ createPlayer }) {
 
   return {
     /**
-     * `acceptance-criteria.md` N11 (RESTATED) — every clip the **constant table** can
-     * produce is decoded and resident before the first tap is possible. The table never
-     * changes, so this runs once at pack load. Anything not in the list is released,
-     * which is also how an hour of play does not grow without bound (T19).
+     * `acceptance-criteria.md` **N11 (BOUNDED)** — the **bounded** warm set. `sources`
+     * is what the current board state can ask for, in priority order; `pin` is the
+     * touch-immediate UI, which is never evicted. Everything reachable is held up to the
+     * budget and no further, and anything beyond it is built on demand and released by
+     * LRU (T19: an hour of play cannot grow the pool past `MAX_PLAYERS`).
+     *
+     * The pre-correction N11 — *every* clip the constant table can produce — is what made the
+     * app silent on an iPhone: 100 players for `vi-seed`, 121 for `en-seed`.
      */
-    prepare(sources) {
+    prepare(sources, { pin = [] } = {}) {
       if (disposed) return;
-      const wanted = new Set();
-      for (const s of sources) {
-        const key = keyOf(s);
-        if (key === null) continue;
-        wanted.add(key);
-        acquire(s);
+      warming = ++clock;
+      try {
+        for (const s of pin) acquire(s, true);
+        for (const s of sources) {
+          // `null` here means the budget is full of this pass's own clips, or a player
+          // would not build: either way there is nothing to gain from asking again.
+          if (!acquire(s, false)) break;
+        }
+      } finally {
+        warming = 0;
       }
-      for (const [key, entry] of [...pool.entries()]) {
-        if (wanted.has(key)) continue;
-        if (Object.values(current).includes(key)) continue;
-        try { entry.player.remove(); } catch { /* already gone */ }
-        pool.delete(key);
-      }
+    },
+
+    /** What the parent menu shows: the bound, the pool, and every failure (N11a). */
+    stats() {
+      return { ...budget.stats(), pool: pool.size };
     },
 
     /**
@@ -231,10 +416,9 @@ export function createChannels({ createPlayer }) {
     dispose() {
       disposed = true;
       this.cancelFade();
-      for (const entry of pool.values()) {
-        try { entry.player.remove(); } catch { /* already gone */ }
-      }
+      for (const [key, entry] of [...pool.entries()]) drop(key, entry);
       pool.clear();
+      leave();
       current = { speech: null, motif: null, cheer: null, ui: null };
     },
   };

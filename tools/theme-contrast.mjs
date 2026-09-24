@@ -233,7 +233,23 @@ const PAIRS = [
   ['component','ground','role2Edge','VOWEL tile outline, and disabled underbar, on the ground'],
   ['component','ground','role3Edge','tone tile outline, and disabled underbar, on the ground'],
   ['component','ground','inkSoft','assembled-word strip outline on the ground'],
-  ['component','ground','neutralFace','gate dot on the ground'],
+  // ---- DESIGN REVISION 6: the two doors on the board (ui.md 9.4a, 9.4b) ----
+  // The 32 pt gate dot at 30% opacity is GONE.  In its place, at the right, a PARENT DOOR
+  // that is a word in a thin outline; at the left, the CHILD's 72 pt LANGUAGE CONTROL.
+  //
+  // Worth stating plainly, because it is the reason this block is short: NEITHER CONTROL
+  // INTRODUCES A NEW COLOUR.  Every pair below is a token pair this sweep already
+  // measures somewhere else -- `neutralFace` on `ground` is the old dot, `inkSoft` on
+  // `ground` is the gate's helper text, `ink`/`neutralFace` on `surface` are the strip.
+  // They are listed separately so the tool's output NAMES the new objects, and so the
+  // door's label is gated as TEXT (4.5) rather than as a component silhouette (3.0) --
+  // which is the one thing here that can actually fail.  Drawing the label in
+  // `neutralFace`, the grey of the dot it replaces, measures 3.02-3.42:1 and fails.
+  ['component','ground','neutralFace','the PARENT DOOR\'s outline on the board ground (revision 6, replaces the gate dot)'],
+  ['bodyText','ground','inkSoft','the PARENT DOOR\'s label -- `Cha me` / `Parent` -- on the board ground (revision 6)'],
+  ['component','ground','neutralFace','the LANGUAGE CONTROL\'s outline on the board ground (revision 6)'],
+  ['component','surface','ink','the LANGUAGE CONTROL: the CURRENT language\'s filled bar, on the control\'s face'],
+  ['component','surface','neutralFace','the LANGUAGE CONTROL: the OTHER language\'s outlined bar, on the control\'s face'],
   ['component','ground','inkSoft','shelf slot ring, empty, on the ground'],
   ['component','ground','rewardEdge','announcement burst / just-filled shelf slot, on the ground'],
   ['component','surface','neutralFace','empty strip cell, dashed outline -- and the dashed MARK-SLOT drawn above a carrier vowel when a tone is what is missing (ui.md §7.2, revision 5)'],

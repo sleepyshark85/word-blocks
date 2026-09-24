@@ -375,8 +375,11 @@ test('the audio test double has exactly the real engine’s surface', () => {
   };
   // The four the double adds are observation only — a test has to be able to read what
   // was played. Everything else must exist on both sides.
-  const OBSERVERS = ['log', 'prepared', 'isDisposed', 'drain'];
-  const realMethods = methods(real, '  return {');
+  const OBSERVERS = ['log', 'prepared', 'pinned', 'isDisposed', 'drain'];
+  // Anchored on `createChannels`'s own return block: `channels.mjs` also builds the
+  // player budget, whose `stats()` has a `return {` of its own, and an anchor that can
+  // match the wrong block is an audit that can pass for the wrong reason.
+  const realMethods = methods(real.slice(real.indexOf('export function createChannels')), '  return {');
   const fakeMethods = methods(fake, 'export function createFakeAudio').filter((m) => !OBSERVERS.includes(m));
   assert.deepEqual(fakeMethods, realMethods);
 });

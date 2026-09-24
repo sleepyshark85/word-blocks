@@ -62,8 +62,70 @@ const clamp = (v,lo,hi) => Math.max(lo, Math.min(hi, v));
  * The tile is the largest size in [72,116] at which the whole stack fits, maximised
  * over the legal column counts.  Nothing scrolls, nothing is off-screen: every
  * character in the pack's inventory that the device can hold is visible at once.     */
-export const TOP_BAR = 56, GAP_STRIP = 12, PAD_BOTTOM = 12;
-export const CHROME  = TOP_BAR + GAP_STRIP + PAD_BOTTOM;   // 80
+/* ---------------- DESIGN REVISION 6: the top bar carries two doors ----------------
+ * The owner ran the app on a real iPhone and could not find the language switch or the
+ * editor.  Both lived behind a 1.2 s hold on a 32 pt dot at 30% opacity: hiding the GATE
+ * had also hidden the DOOR.  Revision 6 separates them, and the owner then overruled the
+ * half of the remedy that was an assumption -- "I think he should be able to change the
+ * language himself" -- so the board gains TWO controls, in opposite corners:
+ *
+ *   LEFT   a 72 pt LANGUAGE CONTROL -- the CHILD'S, no gate, no hold.  It is a child
+ *          target, so TILE_MIN applies to it exactly as it does to a page-rail button
+ *          (ui.md 4.5: "the floor is about his hand, not about the importance of the
+ *          control").  That is what forces TOP_BAR 56 -> 72.
+ *   RIGHT  a 65 pt PARENT DOOR -- a WORD in a thin outline, 32 pt tall.  Same lock as the
+ *          old dot (1.2 s hold, then the multiplication); the only change is that it is
+ *          legible.  A word is the perfect child-proof label: it is the one channel this
+ *          app deliberately denies the child.
+ *
+ * The mode title leaves the left edge -- the 72 pt control needs that room -- and is drawn
+ * UNDER the shelf inside the same 72 pt bar (44 pt shelf + 18 pt line = 62 <= 72), which
+ * costs NO width at all, because the shelf row is always wider than the title.  F19 is the
+ * rule that says so, measured against the shipped font rather than against a budget.
+ *
+ * MEASURED COST of TOP_BAR 56 -> 72 (CHROME 80 -> 96), from this tool:
+ *   iPhone 17 Plus 430x932   VI 3 pages [15|14|6], tile 101 -> 99.  EN 1 page, no rail.
+ *   360x640 floor            UNCHANGED: VI 3 pages [15|14|6] tile 73, EN 2 pages.
+ *   iPad 834x1194            UNCHANGED: 35 cells, one page, no rail, tile 116.
+ *   360x800 Android          EN 1 page -> 2 pages.  That is the whole regression.
+ *   served combinations      491,283 -> 491,251.  Thirty-two shapes lost.
+ * A 72 pt row of its OWN would have cost 84 pt and taken the iPad's Vietnamese board from
+ * one page to two (measured); putting the control in the word-strip row drops the 360 dp
+ * strip glyph to 27 pt against F4's 34 pt floor (measured).  Both were rejected.        */
+export const TOP_BAR = 72, GAP_STRIP = 12, PAD_BOTTOM = 12;
+export const CHROME  = TOP_BAR + GAP_STRIP + PAD_BOTTOM;   // 96
+
+/* ---------------- the two doors, as widths ----------------
+ * TITLE_PT and DOOR_LABEL_PT are ADVANCE WIDTHS MEASURED FROM THE SHIPPED FONT FILE
+ * (assets/fonts/BeVietnamPro-Medium.ttf at 13 pt, the type scale's `modeTitle` size):
+ *
+ *   'Word Blocks'  6.265 em -> 81.4 pt   the wider of the two mode titles
+ *   'Ghep Chu'     4.837 em -> 62.9 pt
+ *   'Cha me'       3.751 em -> 48.8 pt   the wider of the two door labels
+ *   'Parent'       3.324 em -> 43.2 pt
+ *
+ * They are constants here for the same reason VI_MAX_LETTERS is: this tool must not grow a
+ * font dependency, and the app-side gate that DOES read the file is test/topbar.test.mjs. */
+export const LANG_W = 72;          // the child's language control: one motor-floor square
+export const DOOR_PAD = 8;         // horizontal padding inside the parent door's outline
+export const DOOR_LABEL_PT = 48.8;
+/* DOOR_W IS A LITERAL, AND THAT IS THE POINT.  It was first written as
+ * `ceil(DOOR_LABEL_PT + 2*DOOR_PAD)` -- derived from the label -- and the fault injection
+ * that lengthened the label to `Nguoi lon` (60.2 pt) then PASSED, exit 0: raising the label
+ * raised the reservation, the shelf shrank to pay for it, and F18 never noticed.  A check
+ * whose input moves with the thing it checks cannot fail.  The layout RESERVES a fixed
+ * 65 pt; F18 asks whether the label fits inside it.                                      */
+export const DOOR_W = 65;
+export const TITLE_PT = 81.4;
+/* BAR_PAD is SLOP, and 24 was not enough of it.  The shelf's `/5.4` divisor models five
+ * slots plus four gaps as 5.4 slot-widths -- a gap of 0.1 x slot, true at the 44 pt ceiling
+ * and false at 23, where the four real 6 pt gaps cost 24 pt and the model reserves 9.  At
+ * 24 the worst F18 air over the whole sweep was 0.2 pt; at 32 it is 6.2 pt.  Costs the
+ * shelf slot 3 pt: 44 -> 41 on the owner's phone, 32 -> 29 at the floor.                 */
+export const BAR_PAD = 32;
+export const BAR_AIR = 12;         // two 6 pt separations between the bar's three children
+export const SLOT_GAP = 6;         // between shelf slots (src/ui/TopBar.js)
+export const shelfRowW = shelf => 5 * shelf + 4 * SLOT_GAP;
 export const TILE_MIN = 72, TILE_MAX = 116;
 export const COLS_MIN = 3, COLS_MAX = 12;
 export const MIN_TABLE = 12;   // a served viewport holds at least this many cells PER PAGE (F7)
@@ -177,7 +239,10 @@ export function layout({ Wv, Hv, insetT = 0, insetB = 0, insetL = 0, insetR = 0,
   const stripFont  = Math.floor(Math.min(stripCellH / 1.55, stripCellW * 0.82));
   const tileFont  = Math.floor(Math.min(tile * 0.52, (tile - 16) / 1.55));
   // top bar: mode title (~96) + five shelf slots + gate dot (32) + padding (24)
-  const shelf = clamp(Math.floor((CW - 96 - 32 - 24) / 5.4), 0, 44);
+  // top bar, REVISION 6: language control (72) + shelf of five + parent door (65) + slop.
+  // Revision 5 reserved 96 for the mode title at the left edge and 32 for the gate dot;
+  // the title is now drawn under the shelf and costs no width, and the dot is the door.
+  const shelf = clamp(Math.floor((CW - LANG_W - DOOR_W - BAR_PAD) / 5.4), 0, 44);
 
   return { W,H,gutter,CW,tableW,cols,rows,cells,tile,gap,gapY,stripH,tableH:tableHy,
            slack:slackY,rowW,stripFont,tileFont,shelf,railRows,railH:railH(railRows),
@@ -222,6 +287,26 @@ export const PLAN_RULES = [
   // `nghiêng` (n-g-h-i-ê-n-g, seven letters) in the editor.
   ['F17  the pack\'s longest word fits the strip', (P, runs, maxLetters) =>
       maxLetters <= P.L.stripCells && P.L.stripFont >= 34],
+  /* ---- REVISION 6.  THE TOP BAR, WHICH WAS NEVER CHECKED AGAINST THE TEXT IT DRAWS ----
+   * That omission is how `Word Blo...` shipped on the owner's phone for three revisions.
+   *
+   * THESE ARE PLAN RULES AND NOT FIT RULES, AND THAT IS NOT A DETAIL.  A rule in RULES
+   * also DECIDES the cell budget, so it can never be observed failing: a viewport it
+   * rejects simply becomes unserved and the sweep still prints "0 failing layouts".  That
+   * is the F0 tautology, and both of these rules were first written into RULES, where
+   * poisoning TITLE_PT to 200 pt silently deleted every 360 dp phone from the sweep and
+   * exited 0.  A PLAN rule is asked only of viewports that ARE served, so it can fail.
+   *
+   * F18 is not tautological in the other direction either: the shelf formula reserves the
+   * LITERAL DOOR_W, while F18 spends DOOR_LABEL_PT + 2*DOOR_PAD -- the width the label
+   * actually needs in the shipped face.  Translate `Cha me` as `Nguoi lon` (60.2 pt at
+   * 13 pt) and F18 fails while every other rule stays green.                             */
+  ['F18  the top bar\'s three children fit the content width', (P) =>
+      LANG_W + Math.max(shelfRowW(P.L.shelf), TITLE_PT)
+             + (DOOR_LABEL_PT + 2 * DOOR_PAD) + BAR_AIR <= P.L.CW],
+  /* F19: the mode title is drawn UNDER the shelf, so the shelf row is its box.  This is
+   * the rule that replaces the 96 pt budget the title held at the left edge.             */
+  ['F19  the mode title fits under the shelf', (P) => TITLE_PT <= shelfRowW(P.L.shelf)],
 ];
 export const planFits = (P, runs, maxLetters = 1) =>
   P !== null && PLAN_RULES.every(([,f]) => f(P, runs, maxLetters));
@@ -309,6 +394,22 @@ export const orientationOK = v =>
    holds them all, on every served device, so nothing is truncated and there is nothing
    to allocate.  Recorded here rather than silently removed. */
 
+/* ---------------- REVISION 6: the constant law, checked before the sweep ----------------
+ * F20-F22 are facts about CONSTANTS, not about a viewport, so they are checked once and
+ * they stop the run.  They are not in RULES for the reason given above, and not in
+ * PLAN_RULES because a constant that is wrong should not be reported 982,000 times.      */
+export const LAW = [
+  // The language control is a CHILD target and is held to the same floor as a tile and a
+  // page-rail button.  It reads TILE_MIN, so lowering either one fails here.
+  ['F20 the language control meets the motor floor (LANG_W >= TILE_MIN)', () => LANG_W >= TILE_MIN],
+  // ...and the bar is tall enough to DRAW it.  Without this, TOP_BAR could quietly go back
+  // to 56 and the control would be a 72 pt hit rect around 56 pt of ink, which ui.md 4.5
+  // refuses in as many words: "a child aims at ink, not at hit rects".
+  ['F21 the top bar is tall enough to draw it (TOP_BAR >= LANG_W)', () => TOP_BAR >= LANG_W],
+  // ...and the door's reserved width really does hold its label.
+  ['F22 the parent door holds its label', () => DOOR_LABEL_PT + 2 * DOOR_PAD <= DOOR_W],
+];
+
 /* ---------------- the sweep ---------------- */
 const INSETS = [                         // representative safe-area shapes, pt/dp
   { insetT:  0, insetB:  0 },            // Android, no cutout, buttons nav
@@ -364,6 +465,11 @@ function sweep() {
           for (const [name, f] of RULES) {
             if (!f(L)) { if (fail.length < 12) fail.push({ name, Wv, Hv, ins, cells, L }); }
           }
+          const air = L.CW - (LANG_W + Math.max(shelfRowW(L.shelf), TITLE_PT)
+                              + DOOR_LABEL_PT + 2 * DOOR_PAD);
+          if (!worst.has('bar') || air < worst.get('bar').air) {
+            worst.set('bar', { air, at: `${Wv}x${Hv} CW=${L.CW} shelf=${L.shelf}` });
+          }
           const margin = Math.min(L.tableW - L.rowW, L.slack, L.tile - TILE_MIN,
                                   L.stripFont - 34, L.tileFont - 24, L.shelf - 22,
                                   L.tableW - L.stripRowW, L.stripCellW - STRIP_CELL_MIN);
@@ -373,7 +479,8 @@ function sweep() {
       }
     }
   }
-  return { fail, tested, rejected, served, planned, unpaged, maxSteps, pageHist, worst };
+  return { fail, tested, rejected, served, planned, unpaged, maxSteps, pageHist, worst,
+           worstBar: worst.get('bar') };
 }
 
 const DEVICES = [
@@ -439,6 +546,15 @@ if (process.argv.includes('--pages')) {
 }
 
 /* ---------------- the sweep ---------------- */
+const lawFail = LAW.filter(([, f]) => !f());
+if (lawFail.length) {
+  console.log('THE CONSTANT LAW FAILS -- the sweep was NOT run:');
+  for (const [name] of lawFail) console.log(`  ${name}`);
+  console.log(`  TOP_BAR ${TOP_BAR}  LANG_W ${LANG_W}  TILE_MIN ${TILE_MIN}  ` +
+              `DOOR_W ${DOOR_W}  DOOR_LABEL_PT ${DOOR_LABEL_PT}  DOOR_PAD ${DOOR_PAD}`);
+  console.log(`\nFAIL - ${lawFail.length} failing law(s).`);
+  process.exit(1);
+}
 const r = sweep();
 console.log(`swept viewports 360..1400 x 600..1440 step 4, x ${INSETS.length} safe-area shapes`);
 console.log(`  ${r.served} viewport/inset combinations served`);
@@ -449,7 +565,9 @@ for (const k of [...r.pageHist.keys()].sort((a,b)=>a-b)) {
   console.log(`      ${String(k).padStart(2)} page(s)  ${r.pageHist.get(k)}`);
 }
 console.log(`  ${r.rejected} rejected (F7: no page plan for both packs, or landscape phone)`);
-console.log(`  ${r.tested} layouts checked against ${RULES.length} rules, plus ${PLAN_RULES.length} plan rules`);
+console.log(`  ${r.tested} layouts checked against ${RULES.length} rules, plus ${PLAN_RULES.length} plan rules and ${LAW.length} constant laws`);
+console.log(`  top bar (revision 6): language ${LANG_W} + shelf + door ${DOOR_W} in a ${TOP_BAR} pt bar` +
+            (r.worstBar ? `; worst air ${r.worstBar.air.toFixed(1)} pt (F18 gate ${BAR_AIR}) at ${r.worstBar.at}` : ''));
 const w = r.worst.get('tightest');
 console.log(`\ntightest served layout: ${w.Wv}x${w.Hv} insets ${JSON.stringify(w.ins)} cells=${w.cells}`);
 console.log(`  tile ${w.L.tile}  grid ${w.L.cols}x${w.L.rows}  row ${w.L.rowW}/${w.L.tableW}  strip ${w.L.stripH}` +

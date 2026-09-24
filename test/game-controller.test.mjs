@@ -12,7 +12,8 @@ import assert from 'node:assert/strict';
 import {
   createGameController, planAnnouncement, stepDurationMs,
 } from '../src/state/gameController.mjs';
-import { createGame, tableView } from '../src/engine/index.mjs';
+import { createGame, tableView, tapAudio } from '../src/engine/index.mjs';
+import { createChannels, createPlayerBudget, MAX_PLAYERS } from '../src/audio/channels.mjs';
 import { REVEAL, LADDER, HOLD, TAP, M, MOTIF } from '../src/motion/durations.mjs';
 import { viPack, enPack } from './helpers/load.mjs';
 import { createFakeClock, createFakeAudio, identityMedia } from './helpers/harness.mjs';
@@ -220,22 +221,169 @@ test('T5 — two fingers on two tiles seat one symbol and play one sound', () =>
   assert.deepEqual(r.ctl.getSnapshot().engine.prefix, ['m']);
 });
 
-test('N11 (RESTATED) — every clip the CONSTANT table can produce is resident at the start', () => {
-  // There is no morph to hide a load in, and there does not need to be: the table never
-  // changes, so this is a one-time cost at pack load — 67 symbols × 2 variants.
-  const r = rig(viPack());
-  const resident = r.audio.prepared();
-  for (const cell of r.ctl.getSnapshot().table.cells) {
-    for (const which of ['long', 'short']) {
-      const ref = cell.audio[which];
-      if (!ref) continue;
-      assert.ok(resident.includes(identityMedia(ref.src)), `${cell.id}.${which} is not resident`);
+/** The literal this file owns, so the bound's *value* is guarded and not just its use. */
+const SAFE_CEILING = 32;
+
+/**
+ * A controller wired to the **real** pool (`src/audio/channels.mjs`), over a player that
+ * counts instead of playing. The fake audio engine in `helpers/harness.mjs` has no pool
+ * at all, which is exactly why it could not see the defect this replaces: it recorded
+ * `prepare(100 sources)` as happily as `prepare(22)`.
+ */
+function pooledRig(pack, over = {}) {
+  const clock = createFakeClock();
+  const live = new Set();
+  let peak = 0;
+  const budget = createPlayerBudget(over.max ?? MAX_PLAYERS);
+  const createPlayer = (source) => {
+    live.add(source);
+    peak = Math.max(peak, live.size);
+    return {
+      volume: 1,
+      pause() {}, seekTo() {}, setPlaybackRate() {}, play() {},
+      remove() { live.delete(source); },
+    };
+  };
+  const audio = createChannels({ createPlayer, budget });
+  const game = over.game ?? createGame(pack, { pages: over.pages ?? null });
+  const ctl = createGameController({
+    game,
+    seed: 'pooled',
+    mediaSource: identityMedia,
+    ui: UI,
+    audio,
+    settings: { ...SETTINGS, ...(over.settings ?? {}) },
+    timers: clock.timers,
+    now: clock.now,
+  });
+  return { ctl, clock, audio, game, live, peak: () => peak, budget };
+}
+
+/** What a tap on each cell of the page he is looking at would ask the audio engine for. */
+function reachableClips(game, ctl) {
+  const state = ctl._engine();
+  const cells = tableView(game, state).cells.filter((c) => c.page === state.page);
+  const out = [];
+  for (const cell of cells) {
+    const spoken = tapAudio(game, state, cell.id);
+    if (spoken && spoken.short) out.push({ cell, source: identityMedia(spoken.short.src ?? spoken.short) });
+  }
+  return out;
+}
+
+test('N11 (BOUNDED) — the pool NEVER exceeds its bound, for either seed pack', () => {
+  // **The bug this replaces.** N11 as written in revision 5 — *every clip the constant
+  // table can produce is resident before the first tap* — meant `preloadForTable` asked
+  // for **100** native players for `vi-seed` and **121** for `en-seed` in one call. iOS
+  // runs out; every construction after that threw; `acquire` swallowed it and returned
+  // `null`; `start` returned 0; the app went **completely silent** on the owner's iPhone,
+  // the bundled seat click included. Chromium survives 157 players, which is why no
+  // browser run ever saw it. This is the check, driven through the real warm path.
+  for (const [name, pack] of [['vi-seed', viPack()], ['en-seed', enPack()]]) {
+    for (const plan of ['tablet', 'phone']) {
+      const pages = plan === 'phone' ? phonePages(pack.language) : null;
+      const r = pooledRig(pack, { pages });
+      const bound = (where) => {
+        assert.ok(
+          r.live.size <= MAX_PLAYERS,
+          `${name}/${plan}: ${r.live.size} native players ${where}, over the bound of ${MAX_PLAYERS}`,
+        );
+        // **And absolutely, against a literal this test owns.** The line above compares
+        // `live` with the very constant it is guarding, so the two move together and a
+        // `MAX_PLAYERS` of 100000 would pass it. 100 native players were MEASURED to
+        // silence the owner's iPhone; 32 is the most this test will pass on the word of a
+        // team that has no device (`acceptance-criteria.md` §0E).
+        assert.ok(
+          r.live.size <= SAFE_CEILING,
+          `${name}/${plan}: ${r.live.size} native players ${where}. The owner's iPhone went `
+          + `completely silent at 100; this test allows ${SAFE_CEILING} without a device.`,
+        );
+      };
+      bound('after the pack loaded');
+
+      // A session's worth of taps: a word, its announcement, its reveal, and the pages.
+      const cells = tableView(r.game, r.ctl._engine()).cells;
+      for (const cell of cells.filter((c) => c.page === r.ctl._engine().page)) {
+        r.ctl.symbolDown(cell.id, 10, 10);
+        r.ctl.symbolUp(cell.id, 10, 10);
+        bound(`after tapping ${cell.id}`);
+        r.clock.advance(4000);
+        bound(`after the reveal that followed ${cell.id}`);
+      }
+      for (let page = 0; page < r.game.pageCount; page += 1) {
+        r.ctl.tapPage(page);
+        r.clock.advance(1000);
+        bound(`after paging to ${page}`);
+      }
+      assert.equal(r.audio.stats().failed, 0, `${name}/${plan}: a player failed to build`);
+      assert.equal(r.audio.stats().silenced, 0, `${name}/${plan}: a request made no sound`);
     }
   }
-  assert.ok(resident.length > 60, `only ${resident.length} clips preloaded for a 67-cell table`);
-  // And a tap loads nothing, because there is nothing left to load.
-  tap(r, 'm');
-  assert.deepEqual(r.audio.prepared(), resident, 'a tap triggered a decode');
+});
+
+test('N11 (BOUNDED) — every clip the CURRENT BOARD STATE can ask for is resident', () => {
+  // The bounded guarantee that replaces "the whole table". On the owner's phone plan the
+  // whole reachable set fits inside the budget: 7 pinned UI sounds + 14 tap clips on a
+  // `vi-seed` page + the undo's = 22 of 24. So a tap on anything he can see is a
+  // `seekTo(0)` and a `play()`, which is what N1's 60 ms is bought with.
+  for (const [name, pack] of [['vi-seed', viPack()], ['en-seed', enPack()]]) {
+    const r = pooledRig(pack, { pages: phonePages(pack.language) });
+    const check = (where) => {
+      for (const { cell, source } of reachableClips(r.game, r.ctl)) {
+        assert.ok(r.live.has(source), `${name}: ${cell.id} is not resident ${where}`);
+      }
+      for (const key of ['seat', 'knock', 'unclick', 'page', 'motif3', 'motif4']) {
+        assert.ok(r.live.has(UI[key]), `${name}: the ${key} sound is not resident ${where}`);
+      }
+    };
+    check('at the start');
+    // And after a tap, when the board state — and therefore the reachable set — changed.
+    const first = tableView(r.game, r.ctl._engine()).cells.find((c) => c.live && c.page === 0);
+    r.ctl.symbolDown(first.id, 10, 10);
+    r.ctl.symbolUp(first.id, 10, 10);
+    check(`after tapping ${first.id}`);
+    // And after a page change, which is the other thing that moves the reachable set.
+    r.ctl.tapPage(r.game.pageCount - 1);
+    r.clock.advance(1000);
+    check('after a page change');
+  }
+});
+
+test('N11a — the app REPORTS a device that will not build players; it does not just go quiet', () => {
+  // The owner has an iPhone and this team does not. If 24 is still too many, the About
+  // screen has to say so in numbers he can read back, because "completely silent" is what
+  // the last report had to be and it cost a device to interpret.
+  const pack = viPack();
+  let allowed = 12;
+  const clock = createFakeClock();
+  let live = 0;
+  const audio = createChannels({
+    createPlayer: () => {
+      if (live >= allowed) throw new Error('AVPlayer: failed to allocate rendering resources');
+      live += 1;
+      return { volume: 1, pause() {}, seekTo() {}, setPlaybackRate() {}, play() {}, remove() { live -= 1; } };
+    },
+    budget: createPlayerBudget(MAX_PLAYERS),
+  });
+  createGameController({
+    game: createGame(pack, { pages: phonePages('vi') }),
+    seed: 'starved',
+    mediaSource: identityMedia,
+    ui: UI,
+    audio,
+    settings: SETTINGS,
+    timers: clock.timers,
+    now: clock.now,
+  });
+  const stats = audio.stats();
+  assert.ok(stats.failed > 0, 'a starved device produced no reported failure at all');
+  // Absolute, against what this fake device allows — not against `MAX_PLAYERS`, which
+  // would make the assertion move with the constant it is supposed to be guarding.
+  assert.ok(stats.max <= allowed,
+    `the ceiling settled at ${stats.max} on a device that allows ${allowed}: it did not come down`);
+  assert.match(String(stats.lastError), /rendering resources/,
+    'the failure the owner would report is not carried out to a surface he can read');
+  assert.ok(live <= allowed, `${live} players live on a device that allows ${allowed}`);
 });
 
 /* ------------------------------------------------- §F the announcement timeline */
@@ -751,6 +899,43 @@ test('B2c — the table never morphs: one page bump per slide, and none per repa
   assert.equal(atTone, atRime + 1);
   r.clock.advance(50);
   assert.equal(r.ctl.getSnapshot().pageSeq, atTone);
+});
+
+/* ------------------------------------------- §Y the child's language control (rev 6) */
+
+test('Y5 — the language control plays exactly ONE UI tap sound, and never speech', () => {
+  // `ui.md` §9.4a: *"The language names are spoken on the chooser, where both are present
+  // and he can compare them. A name spoken on the board would be the outgoing language
+  // announcing the incoming one, which is a sentence with no meaning."* It would also be
+  // the one place in the app where a clip of the other language could be heard over this
+  // board, which is R2.
+  const r = phoneRig();
+  tap(r, 'm'); // he is mid-word when he presses it, because he will be
+  r.audio.drain();
+  r.ctl.languageTap();
+  const log = r.audio.drain();
+  assert.equal(log.length, 1, 'the language control made more or less than one sound');
+  assert.equal(log[0].ch, 'ui');
+  assert.equal(log[0].source, UI.page);
+  assert.ok(!log.some((e) => e.ch === 'speech'), 'the language control spoke');
+  assert.ok(!log.some((e) => e.ch === 'cut'), 'the language control cut a speech clip');
+  // Y12 — and it changes nothing: opening the chooser is not a teardown, so the strip he
+  // had built is still there when he confirms the language he is already in.
+  assert.deepEqual(r.ctl.getSnapshot().engine.prefix.length, 1);
+  assert.deepEqual(r.clock.timers.pending().filter((n) => n.startsWith('lang')), []);
+});
+
+test('Y5 — eight taps in one second make eight UI sounds and no speech, and nothing queues', () => {
+  // T-series behaviour: he will press it repeatedly. The *chooser* is shown once (Y28,
+  // guarded in the shell), and the control itself must stay a sound and nothing else.
+  const r = phoneRig();
+  r.audio.drain();
+  for (let i = 0; i < 8; i += 1) { r.ctl.languageTap(); r.clock.advance(125); }
+  const log = r.audio.drain();
+  assert.equal(log.length, 8);
+  assert.ok(log.every((e) => e.ch === 'ui' && e.source === UI.page));
+  assert.deepEqual(r.clock.timers.pending().filter((n) => !n.startsWith('ladder')), [],
+    'the language control left a timer behind');
 });
 
 /* ----------------------------------------------------------------- §V the rail */

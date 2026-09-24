@@ -5,7 +5,12 @@
 Owner: game-designer. Companions: `ui.md` (how it looks and moves),
 `acceptance-criteria.md` (what "done" means), `open-questions-ui.md` (what needs the owner).
 
-**Revision 5, 2026-09-23 — read §0C first, then §0B, then §0A.** §0C is the alphabet
+**Revision 6, 2026-09-24 — read §0D first, then §0C, §0B, §0A.** §0D is the owner's first
+real-device run: **the language switch becomes his son's** and the parent door becomes
+visible while its lock stays exactly as it was. §7.1 is rewritten and revision 3's argument
+for keeping the switch away from the child is **withdrawn by the owner**.
+
+**Revision 5, 2026-09-23 — then §0C, then §0B, then §0A.** §0C is the alphabet
 correction and the one contradiction it closed: **undo is the whole strip, not the cell**
 (§4.4). §0B is the owner's own remedy for the one cost revision 3 could not design away: he
 named his device and proposed paging. §0A records the four findings he reported from playing
@@ -23,6 +28,53 @@ Platform constraints handed down by the orchestrator and treated as settled:
 iOS + Android, phone + tablet; responsive across a continuous range, not named devices;
 a bundled Vietnamese-capable font; React Native's built-in `Animated`, no Reanimated, no
 gesture-handler.
+
+---
+
+## 0D. CORRECTION — revision 6. He ran it on a phone, and could not find either door.
+
+**2026-09-24, the first real-device run.** Two findings, verbatim:
+
+> - After going to either English or Vietnamese, I don't see any button or anything that can
+>   let me go back to choose another language.
+> - Where is the screen for me to add/edit/delete words/images/audio?
+
+Both have the same cause: the language switch was parent-menu row 2, the editor was parent-menu
+rows 1 and 3, and the parent menu was behind a 1.2 s hold on a 32 pt dot at 30 % opacity
+followed by a multiplication. **The gate was correct. Hiding the gate had also hidden the door,
+and those are separable.**
+
+### 0D.1 The correction to the correction, and it is the owner's
+
+The first remedy proposed to him kept the language switch behind the gate: *a 4-year-old must
+not be able to change the language.* **He rejected it:**
+
+> This is not true, I think he should be able to change the language himself
+
+**That reasoning was never his, and revision 3 should not have written it as though it were.**
+§7.1's *"a 4-year-old who can flip languages will flip them — repeatedly, in the middle of a
+word"* is **withdrawn**. It was true of a chooser made entirely of words he could not read;
+it is not an argument for locking a boy who is four and bilingual out of deciding which of
+his two languages he is playing in. **That is a fact about this child's life, not a risk to
+be managed.**
+
+### 0D.2 So the two findings get two different answers
+
+| | Answer |
+|---|---|
+| **The language switch** | **The child's.** A 72 pt control at the board's top-left, no gate, no hold, no multiplication. One tap opens the chooser, whose panels now **speak their own names** (`ui.md` §9.4a, §9.6) |
+| **The editor** | **Stays behind the gate, and the door becomes legible.** Deleting his mother's words and re-recording her voice is genuinely destructive and genuinely hers. The lock is unchanged; the 32 pt dot becomes a **labelled door** reading `Cha mẹ` / `Parent` (`ui.md` §9.4b) |
+
+### 0D.3 What revision 6 does not touch
+
+**The no-mixing guarantee, in full.** A switch is still a teardown; no instant has two packs
+loaded; no code path reads the other language's pack; the chooser is still the one screen that
+shows both titles. **R1, R2, R3, R4 and R5 are unchanged** and the fact that the switch is now
+cheap and frequent is exactly why they stay unchanged.
+
+**The mechanic.** Discovery, liveness, the constant table, đánh vần, the strip, the shelf, the
+album, the idle ladder, the announcement and the absence of any fail state are all as revision
+5 left them. Revision 6 adds two controls to the top bar and moves the mode title 40 pt.
 
 ---
 
@@ -363,7 +415,8 @@ which is inherent to rotating and was already true in revision 2.
 ### 3.1 What is on screen
 
 ```
-   top bar      ── mode title · the shelf (5 slots) · the gate dot
+   top bar      ── the LANGUAGE CONTROL (72pt, his)  ·  the shelf (5 slots),
+                   with the mode title under it  ·  the PARENT DOOR (65x32)
    word strip   ── what he has assembled so far, and the next empty cell
    the TABLE    ── the characters. Live ones stand up; the rest lie flat.
    the RAIL     ── one button per page, only when the table is paged (§3.7).
@@ -371,9 +424,14 @@ which is inherent to rotating and was already true in revision 2.
 ```
 
 Nothing else. No menu, no back, no skip, no settings, no help button, no mascot, no
-instruction, **and no picture**. The rail is not a menu — it is more of the same board. The only non-play affordance is a 32 pt gate dot at 30%
-opacity in the top-right — deliberately the hardest thing on screen for a small arm to reach
-on a flat tablet, which is a feature (§7.2).
+instruction, **and no picture**. The rail is not a menu — it is more of the same board.
+
+**Revision 6 puts exactly two controls in the top bar, and they belong to different people**
+(§0D). On the left, the **language control** — 72 pt, his, no gate, one tap to the chooser
+(§7.1). On the right, the **parent door** — a 65 × 32 pill carrying the word `Cha mẹ` /
+`Parent`, the smallest thing on the board, the only object in the app that makes no sound
+when it is touched, and still the hardest thing on screen for a small arm to reach on a flat
+tablet (§7.2). Neither is within 89 pt of a tile on any served device.
 
 ### 3.2 Decision (revision 3): **one constant table. It never changes.**
 
@@ -1052,93 +1110,138 @@ himself, which is one less number in a game that has no numbers.
 
 ## 7. Language, and the surfaces that are not play
 
-### 7.1 Decision (revision 3): the language is switchable at any time, by an adult
+### 7.1 Decision (revision 6): the language is the CHILD's, and it is on the board
 
-Revision 2: *"Language is chosen once, deliberately, and it restarts everything… changing
-language later is behind the gate, takes the same two-touch confirm."* It was argued as "the
-setting with the worst blast radius". The owner: **"I want to be able to change between
-English/Vietnamese whenever I want."**
+**Revision 3** put the switch behind the gate and argued it at length: *"a 4-year-old who can
+flip languages will flip them… a wrong flip is unrecoverable by him."* **The owner overruled
+it** (§0D.1): *"I think he should be able to change the language himself."* The whole of §7.1
+is rewritten; the old argument is withdrawn, not merely superseded, because it attributed a
+judgement to him that was never his.
 
-**Whose switch it is: his, or his mother's — not the child's.** Decided, with the reason,
-because the brief asked:
+**Why the old argument failed, kept because it is instructive.** Every clause of it was really
+a complaint about the *chooser*, not about the child. *"He cannot read his way back"* is true
+only of a screen made of words. Revision 6 fixes the screen — the panels **speak their own
+names** (`ui.md` §9.6, A2) and the board's control is **a picture of that screen** — and once
+the screen is legible to him there is nothing left to protect him from. The unrecoverable
+state was the app's fault, not his.
 
-- The child never needs it. He does not know the two modes are the same app, he cannot read
-  either title, and a 4-year-old who can flip languages will flip them — repeatedly, in the
-  middle of a word, at the exact moment he is about to finish one.
-- A wrong flip is **unrecoverable by him**. Both panels of the chooser are words. If he lands
-  in English by accident he cannot read his way back, and the app has become a thing that
-  broke.
-- The blast radius is real: the pack, every clip, the table, the album and the shelf all
-  change. That is an adult's decision even when the adult wants to make it often.
-
-**So it stays behind the gate — and the gate gets out of the way.** What changes from
-revision 2:
-
-| | Revision 2 | **Revision 3** |
+| | Revision 5 | **Revision 6** |
 |---|---|---|
-| Where | parent menu → Language | parent menu → **Language, row 2**, directly under *Add a word* |
-| Confirm | two deliberate touches, seconds apart, with "this restarts the game" stated | **one tap on the other language.** The gate already proved an adult is holding the phone; asking twice is theatre |
-| Repeat cost | a full gate every time | **the gate stays open for 180 s** after a correct answer, so a second or third switch in one sitting needs no arithmetic |
-| The screen | a bespoke confirm | **the first-launch chooser, reused**, which is already the one documented both-languages screen |
+| Whose it is | the adult's | **the child's**, and his parents' too |
+| Where | parent menu, row 2 | **the board**, top-left, a 72 pt control, always visible |
+| What it costs to reach | a 1.2 s hold + a multiplication, or a 180 s grace | **one tap** |
+| What it opens | the chooser, committing on one tap | **the chooser, exactly as at first launch** — tap a panel, hear its name, tap ▶ |
+| Cancelling | there was nothing to cancel | **confirming the language he is already in is a free return**: the board comes back with the strip, the shelf and the session untouched |
 
-**What happens to in-flight state**, specified so there is nothing to interpret:
+**Decision: the control opens the chooser. It is not a toggle.** A toggle is one tap and
+unambiguous with two languages, and it was the obvious answer. It is wrong here for two
+reasons. **He cannot read, so the only way he can know what he is choosing is to hear it** —
+and hearing both names requires a screen that carries both, which is the chooser and only the
+chooser. And **a toggle charges a part-built word for every stray press**, where the chooser
+charges nothing: the current language is marked, and choosing it is a return rather than a
+reload. He will press everything; the accidental case has to be free.
+
+**Decision: no confirmation, because the chooser is the confirmation.** A confirmation he
+cannot read is worse than the thing it guards. The chooser's two touches already do the job,
+and the first of them is the part that carries information for him: he taps `English`, he
+*hears* `English`, and then he decides.
+
+**Decision: a switch mid-word costs one word, and that is acceptable.** He will press it with
+three letters in the strip, on purpose, repeatedly. The teardown is revision 3's, unchanged
+and now routine:
 
 1. **All audio stops immediately** — a hard stop on every channel, not the 800 ms fade
    *Finish session* uses. A fade would play the outgoing language's voice over the incoming
    language's board, which is a leak.
-2. **A part-built word is discarded.** The strip clears. Nothing is lost: a part-built word
-   is two or three taps he can make again, and there is no progress to preserve.
-3. **A running chant or reveal is abandoned**, not queued or resumed. The picture does not
-   fly to the shelf; the shelf is about to be emptied anyway.
+2. **A part-built word is discarded.** The strip clears. It is two or three taps he can make
+   again, and he chose to spend them.
+3. **A running chant or reveal is abandoned**, not queued or resumed. (The control is hidden
+   for the few seconds a reveal is on screen, so this is the rare case, not the common one.)
 4. **The board unmounts and every audio handle is released before any handle of the new
-   language is opened** (AC R6, unchanged and now load-bearing far more often).
-5. **The shelf empties.** It is per-session and per-language and it has no meaning in the
-   other pack.
-6. **The album does not.** It is per-pack. His Vietnamese album is exactly as he left it when
-   he comes back to Vietnamese, including the encounter counts that choose which photograph
-   he sees next (B9).
+   language is opened** (AC R6, unchanged and now load-bearing constantly).
+5. **The shelf empties.** It is per-session and per-language and has no meaning in the other
+   pack.
+6. **The album does not.** It is per-pack. His Vietnamese album is exactly as he left it,
+   including the encounter counts that choose which photograph he sees next (B9).
 7. **The theme is untouched.** It is a setting, not content.
 8. **The chosen language is persisted immediately**, so a crash or a relaunch opens where he
    was.
 
-**Switching is not mixing, and the no-mixing rule is not weakened.** The guarantee is
-structural and unchanged: the switch is a **teardown**, so there is no instant at which two
-languages are loaded, and no code path reads the other language's pack (**R4 stands, exactly
-as written**). One session shows one language; revision 3 only says that a session can be
-ended by an adult and a new one started in the other language, which is what the owner asked
-for. The chooser remains the single documented screen on which both titles appear (**R3**).
+**Decision: it must not be a target he hits reaching for a tile.** It is above the word strip,
+in the opposite corner from the parent door and on the opposite side from the page rail. The
+shortest distance from its bottom edge to the nearest tile is `GAP_STRIP + stripH`: **89 pt at
+the 360 × 640 floor, 116 pt on the owner's iPhone, 134 pt on an iPad** (`ui.md` §9.4a). It
+also holds the full **72 pt motor floor** — it is a thing a 4-year-old presses, so §4.5's
+number applies to it exactly as it does to a page-rail button, and paying for that is what
+took the top bar from 56 pt to 72 (`ui.md` §0D.3 prices it).
 
-### 7.2 The parental gate
+**Switching is not mixing, and the no-mixing rule is not weakened by any of this.** The switch
+is a **teardown**, so there is no instant at which two languages are loaded, and no code path
+reads the other language's pack (**R4 stands, exactly as written**). One session shows one
+language. The chooser remains the single documented screen on which both titles appear
+(**R3**) — it is simply reachable in one tap now instead of five.
 
-A 32 pt circle in the top-right at 30% opacity, **press and hold 1.2 s** to open. The gate is
-a multiplication written out in words, in the app's language, answered in digits on a keypad;
-operands 3–9 × 3–9, re-randomised on every open; three wrong answers → 30 s cooldown.
+### 7.2 The parental gate — a visible door, and an unchanged lock
 
-**New in revision 3: a 180-second grace.** After a correct answer the gate does not re-ask
-for 180 s, so the hold on the dot goes straight to the parent menu. It exists because the
-owner wants to switch language freely (§7.1) and a multiplication per switch is a tax on the
-thing he asked for. It is bounded, it expires on its own, and it expires immediately when the
-app is backgrounded or the board is handed back — a child alone with an unlocked gate for
-three minutes is the failure this must not have, so the grace ends the moment play resumes.
+**Revision 6 changes the door and not the lock** (`ui.md` §9.4b), and the separation is the
+point. What the owner could not find was the **door**; what keeps his son out is the **lock**;
+obscurity was doing none of the second job.
 
-It needs **reading and multiplication**, which is the cleanest separation between a 4-year-old
-and a literate adult, and it needs **nothing remembered** — a PIN set today is a PIN forgotten
-in three months.
+**The door.** A **65 × 32 pill in the top-right of the board**, 1.5 pt `neutralFace` outline,
+carrying the word `Cha mẹ` / `Parent` at 13 pt in `inkSoft`. **A word, not an icon**: an icon
+is a picture, and pictures are the child's channel here — a gear is interesting to a
+4-year-old and a word is furniture. It is the only object in the app that makes **no sound**
+when it is touched, while every tile talks. Those two properties are the child-proofing of the
+door itself, and they cost nothing.
 
-**Text is allowed here and on every screen behind it.** The no-text rule protects the child, not
-the mother.
+**A tap is no longer nothing.** Revision 5 said a tap does nothing, and *"nothing happens"* is
+a failure for an adult exactly as it is for a child — it is precisely what the owner did.
+A tap now shows the **hold hint** — `Giữ` / `Hold` and a 1.2 s ring, silent, for 1.6 s. And
+the hint is shown **once, unprompted**, on the first board after a language is committed,
+because at that moment the person holding the phone has just completed a two-touch screen and
+is provably an adult.
+
+**The lock is unchanged, and this is the ruling the orchestrator asked for.** Press and hold
+**1.2 s** to open; a multiplication written out in words, in the app's language, answered in
+digits on a keypad; operands 3–9 × 3–9, re-randomised on every open; three wrong answers →
+30 s cooldown; **a 180-second grace** after a correct answer.
+
+Why the visible door does not need a different lock:
+
+- **Hiding the door never was the lock.** A child who taps everything finds a 32 pt dot in a
+  corner in under a minute, and 1.2 s is nothing to a child who holds a tile for thirty
+  seconds. The hold has never been the barrier.
+- **The barrier is reading and multiplication**, which is the cleanest separation available
+  between a 4-year-old and a literate adult, and it needs **nothing remembered** — a PIN set
+  today is a PIN forgotten in three months.
+- So obscurity bought nothing measurable and cost the entire editor. Giving it up is free.
+
+**What does change is the consequence of him opening the gate screen, which will now happen.**
+The gate must be a dead end that costs nothing: a large picture-only way back, the board
+restored **with his part-built word still in the strip**, no sound, and a cooldown that is not
+a reaction he can play with.
+
+**The 180 s grace keeps its life but changes its reason.** It existed so that switching
+language repeatedly did not cost a multiplication each time; the language switch has left the
+gate, so that reason is gone. It stays for a better one: **his mother adds four words in one
+sitting**, and asking her to multiply between each is a tax on the only surface this app has
+for her. It is still bounded, it still expires on its own, and it still **ends the instant the
+board is returned to or the app is backgrounded** — a child alone with an unlocked gate for
+three minutes is the failure this must not have.
+
+**Text is allowed here and on every screen behind it.** The no-text rule protects the child,
+not the mother.
 
 ### 7.3 The parent menu
 
-Behind the gate. Seven rows, never nested deeper than two levels. **The gate stays open
-for 180 s after a correct answer** (§7.2), so a parent doing two things in a row — switch the
-language, then add a word — answers one multiplication, not two.
+Behind the gate. **Six rows in revision 6** (was seven), never nested deeper than two levels.
+**The gate stays open for 180 s after a correct answer** (§7.2), so his mother adding three
+words in a sitting answers one multiplication, not three.
 
 | Row | What |
 |---|---|
-| **Add a word** | straight into the editor's add flow, camera step first |
-| **Language** | §7.1 — **promoted to row 2 in revision 3**, one tap, reusing the chooser. The gate's 180 s grace makes a second switch free |
-| **Words** | the content editor (`ui.md` §13) |
+| **Words — add, edit, delete** | **Revision 6 folds `Add a word` into this row.** The owner's second finding was *"where is the screen for me to add/edit/delete words/images/audio?"* and revision 5's answer was two rows, three apart, that both led to the editor — which makes neither of them the editor. One row now, and it **names the three verbs he asked about**. It opens the word list (`ui.md` §13.1), whose primary control is the `+`; the camera-first add flow is one tap further and it is in the place she will look for it |
+| **Language** | §7.1 — **no longer a parent-only control.** The child's copy is on the board; this row stays because it costs nothing and it is where an adult who has not noticed the board control will look. Same screen, same code path |
 | **Finish session** | §6.3 |
 | **Voice & pace** | playback rate 0.8× / 1.0×; "say the sentence after the word" on/off; **the cheer** (record / replace / remove, §5.2); volume |
 | **Motion & sound** | reduce motion (defaults to the OS setting, overridable); mute; theme |
@@ -1146,6 +1249,10 @@ language, then add a word — answers one multiplication, not two.
 
 No analytics, no account, no sync, no rating prompt, **and no network call anywhere in the app,
 including the editor.**
+
+**Reached by:** the **parent door** (`Cha mẹ` / `Parent`, top-right of the board) → hold 1.2 s
+→ the multiplication → here. Revision 6 changed only the first of those four steps, and it is
+the one that had defeated the owner.
 
 ### 7.4 What revision 2 adds to the editor
 
@@ -1176,8 +1283,20 @@ The editor is otherwise unchanged (`ui.md` §13). Three additions, all small:
 Revision-3 decisions are marked **r3**; revision-2 ones **new**; the rest carried forward and
 were re-checked rather than inherited.
 
+Revision-6 decisions are marked **r6**.
+
 | Decision | Why |
 |---|---|
+| **r6** · The language switch is the **child's**, on the board, with no gate | The owner's instruction, overturning an assumption that was put to him as though it were his. He is four and bilingual; choosing which of his languages he is playing in is a feature of his life. |
+| **r6** · It opens the chooser rather than toggling | He cannot read, so the only way he can know what he is choosing is to **hear** it, and both names live on one screen. A toggle also charges a part-built word for every stray press; the chooser charges nothing, because choosing the language he is already in is a free return. |
+| **r6** · No confirmation on the switch | A confirmation he cannot read is worse than the thing it guards. The chooser's two touches already are one, and the first touch is the preview. |
+| **r6** · The control holds the full 72 pt motor floor, and the top bar grows to pay for it | §4.5's floor is about his hand, not about the control's importance — the same sentence that holds the page-rail buttons at 72. Measured price: 2 pt of tile on the owner's phone, 3 pt of shelf slot, one Android shape's single-page English board, 32 of 491,283 viewport shapes. Nothing at the floor and nothing on a tablet. |
+| **r6** · The parent door becomes a **word**, and the lock does not change | Hiding the door was never the lock: a child finds a 32 pt dot in a minute and holds it for thirty seconds without trying. The lock is reading plus multiplication, and it is untouched. A word is the one material this app denies him, so the label is the child-proofing. |
+| **r6** · A tap on the door shows the hold hint instead of doing nothing | "Nothing happens" is a failure for an adult exactly as it is for a child — it is what the owner did, and it is why he concluded there was no button. |
+| **r6** · The door's hint is shown once, unprompted, after the language is committed | At that instant the person holding the phone has just completed a two-touch screen and is provably an adult. It is the *"discoverable without instruction"* requirement met literally, for one boolean setting. |
+| **r6** · Parent-menu row 1 is `Words — add, edit, delete` | Two rows that both lead to the editor make neither of them the editor. The row now names the three verbs the owner asked about in his own question. |
+| **r6** · The chooser panel speaks the **language's name**, not a sample word | A sample word identifies a language only to someone who already knows that word *and* has connected it to a language. The name, in its own voice, is the direct signal — and it is now the only thing that tells a non-reading child what he is picking. |
+| ~~**r3** · The language switch is the adult's, behind the gate, with a 180 s grace~~ **WITHDRAWN BY THE OWNER, revision 6.** | *"I think he should be able to change the language himself."* Every clause of the old argument was really a complaint about the chooser being made of words. Fix the screen and there is nothing left to protect him from. |
 | **r4** · The table pages when it does not fit; a page is a window, never a rearrangement | The owner's own proposal, and it is strictly better than revision 3's truncation: every served device now shows every character and reaches every word. Page and slot are pure functions, so the constancy he demanded is preserved exactly. |
 | **r4** · Runs never share a page | "Letters page, sounds pages, hats page" is a rule a 4-year-old can hold. It costs one page and a sparse tone page, and the sparse tone page turns out to be the clearest final step in the design. |
 | **r4** · One grid for every page, top-aligned | A tile that resized or reflowed between pages would reintroduce the instability the constant table was built to remove. |
@@ -1195,7 +1314,7 @@ were re-checked rather than inherited.
 | **r3** · The chant accumulates: `b` → `b o` → `bo` → `bò` | It is what đánh vần actually is, the blend clip was already in the packs, and revision 2 lit three static cells instead of building a word. |
 | **r3** · A tile tap always plays the `short` clip; the anchored form is demoted to the parts hint | Measured: the shipped `short` clips are 2.0–2.8 s and `long` 2.9–3.5 s. A 3-second two-word utterance fired on a tap is always cut mid-word, which is what "voices mixed up" is. |
 | **r3** · The motif **stops** speech instead of ducking it | Ducked speech under a mallet motif is two voices at once by construction. F19 is withdrawn. |
-| **r3** · The language switch is the adult's, behind the gate, with a 180 s grace | He asked to switch whenever he likes; a 4-year-old who can switch will, mid-word, and cannot read his way back. The grace removes the tax without giving him the key. |
+| ~~**r3** · The language switch is the adult's, behind the gate, with a 180 s grace~~ **SUPERSEDED, revision 6** — see the r6 rows at the top of this table. | The grace survives with a different reason: his mother adding several words in one sitting. |
 | **new** · Discovery replaces guided completion | The owner's instruction, twice stated. Disabling by prefix constrains the board without choosing for him, which is what revision 1's palette was trying and failing to do. |
 | ~~**new** · The table is the stage's inventory~~ **SUPERSEDED, revision 3.** | The instinct was right and the execution was not: it was still three tables and five sizes. It is now one table, one size, forever. |
 | **new** · Disabled = the tile lies flat, keeps its letter, and still speaks | It must not read as punishment, it must stay visible because the live set is the lesson, and "nothing happens" is a failure. A flat tile that talks is a physical rule a 4-year-old reads in one tap. |
@@ -1216,7 +1335,7 @@ were re-checked rather than inherited.
 | Tap only, no drag | A 4-year-old cannot drag. It also removes gesture-handler. |
 | One game, no child-facing mode picker | Choosing is a reading, memory and decision task. He fails all three. |
 | ~~Global stage never decreases, and is never announced~~ **DELETED, revision 3.** | There is no stage. The best version of "a number that can go up can fail to go up" is not having the number (§3.6). |
-| Gate = spelled-out multiplication, 1.2 s hold to open | Needs reading and arithmetic; needs nothing remembered in three months. |
-| Language chooser needs two touches seconds apart — **at first launch only** | A toddler cannot commit by accident. **Revision 3 drops it behind the gate**, where an adult has already been proved and asking twice is theatre (§7.1). |
+| Gate = spelled-out multiplication, 1.2 s hold to open | Needs reading and arithmetic; needs nothing remembered in three months. **Unchanged in revision 6, deliberately** — only the door in front of it became legible. |
+| Language chooser needs two touches — **on every route, restored in revision 6** | Revision 3 dropped it behind the gate as theatre, because an adult had already been proved. **The child uses this screen now**, and the two touches stopped being theatre the moment the first one became the preview: he taps, he hears `Tiếng Việt`, he decides (§7.1). |
 | Parent surfaces look nothing like the game | Two products, one binary; they must not be confusable, by anyone, including the tester. |
 | No two-player mechanic | The ask was warmth, not a mode. The cheer is the warmth, and it costs no mechanics. |

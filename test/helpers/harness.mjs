@@ -57,16 +57,21 @@ export function createFakeClock() {
 export function createFakeAudio() {
   const log = [];
   let prepared = [];
+  let pinned = [];
   let muted = false;
   let disposed = false;
   let speaking = null;
   return {
     log,
     prepared: () => prepared,
+    pinned: () => pinned,
     isDisposed: () => disposed,
     // The same surface as `src/audio/engine.js`, method for method: a double with extra
     // methods is a double that can drift from the thing it stands in for.
-    prepare(sources) { prepared = sources.slice(); },
+    prepare(sources, { pin = [] } = {}) { prepared = sources.slice(); pinned = pin.slice(); },
+    // N11a — the real engine counts every player it could not build; the double reports a
+    // clean bill, so a test that wants a failure has to use the real pool (`channels.mjs`).
+    stats() { return { live: prepared.length, max: 24, failed: 0, silenced: 0, pool: prepared.length }; },
     // One SPEECH channel, and the double records the cut so a test can assert it
     // (`ui.md` §11.2, AC N3/N3a): a new speech request stops the one before it.
     playSpeech(source) {

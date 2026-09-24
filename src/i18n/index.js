@@ -16,10 +16,18 @@ export function stringsFor(language) {
   return s;
 }
 
-/** The chooser only. Ordered so Vietnamese leads, as `ui.md` §9.6 draws it. */
+/**
+ * The chooser, and — **new in revision 6** — the board's language control, which is a
+ * *picture* of the chooser (`ui.md` §9.4a). **Vietnamese leads, in both languages, always**
+ * (Y2): the order never flips, so the shape is learnable and a tester can read which
+ * language a screenshot is in from which bar is filled.
+ *
+ * The control gets its row order from **this same function**, so "top is Vietnamese" is
+ * one fact in one place rather than two that can drift apart.
+ */
 export function chooserPanels() {
   return [
-    { language: 'vi', title: vi.modeTitle, subtitle: vi.languageName, sampleWord: vi.sampleWord, start: vi.start },
-    { language: 'en', title: en.modeTitle, subtitle: en.languageName, sampleWord: en.sampleWord, start: en.start },
+    { language: 'vi', title: vi.modeTitle, subtitle: vi.languageName, start: vi.start },
+    { language: 'en', title: en.modeTitle, subtitle: en.languageName, start: en.start },
   ];
 }

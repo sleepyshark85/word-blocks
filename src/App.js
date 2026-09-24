@@ -1,11 +1,20 @@
-// The app shell: fonts, settings, the language gate, and which screen is on.
+// The app shell: fonts, settings, the language chooser, and which screen is on.
 //
-// **`gameplay.md` §7.1, revision 3 — the language is switchable at any time by an adult,
-// and a switch is a TEARDOWN.** Parent menu → Language (row 2) → one tap on the other
-// language. The pack is unloaded, every audio handle released, the engine thrown away and
-// rebuilt; no screen, cache or in-memory object of the outgoing language survives. That
-// is bought here with a React `key` on the game subtree, which is the cheapest correct way
-// to say *unmount everything* (`acceptance-criteria.md` A9, A10, A15–A17, R4, R6).
+// **`gameplay.md` §7.1, revision 6 — the language is the CHILD's, and a switch is still a
+// TEARDOWN.** The board's top-left control opens the chooser in one tap, with no gate, no
+// hold and no multiplication (`ui.md` §9.4a); the parent menu's *Language* row survives as
+// a second route to the same screen and the same code path.
+//
+// **R1–R5 are not weakened by the switch becoming cheap, and that is the ruling** (§0D.3).
+// The pack is unloaded, every audio handle released, the engine thrown away and rebuilt;
+// no screen, cache or in-memory object of the outgoing language survives. That is bought
+// here with a React `key` on the game subtree, which is the cheapest correct way to say
+// *unmount everything* (`acceptance-criteria.md` A9, A10, A15–A17, R4, R6, Y13, Y18).
+//
+// **Confirming the language he is already in is a free return** (Y12): the chooser is an
+// overlay over a board that stays mounted, so the strip, the shelf and the session are
+// untouched and no audio is stopped. A toggle would have charged a part-built word for
+// every stray press, and he will press everything.
 //
 // The **album survives a switch** and nothing else does (A18): it is per-pack, and his
 // Vietnamese album is exactly as he left it when he comes back to Vietnamese, including
@@ -13,7 +22,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  AccessibilityInfo, ActivityIndicator, AppState, Platform, StyleSheet, View,
+  AccessibilityInfo, ActivityIndicator, AppState, BackHandler, Platform, StyleSheet, View,
 } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -25,13 +34,13 @@ import { ThemeProvider, themeTokens, DEFAULT_THEME } from './theme';
 import { CasingProvider } from './ui/Text';
 import { FONT_ASSETS } from './ui/typography';
 import { stringsFor, chooserPanels } from './i18n';
-import { loadPack, emojiSource, sampleWordSource } from './content/loadPack';
+import { loadPack, emojiSource, languageNameSource } from './content/loadPack';
 import { UI_AUDIO } from '../assets/audio';
 import { readSettings, writeSettings } from './settings/settings';
-import { createAudioEngine, configureAudioSession } from './audio/engine';
+import { createAudioEngine, configureAudioSession, audioStats } from './audio/engine';
 import { useGame } from './state/useGame';
 import { createGame, langFor } from './engine/index.mjs';
-import { GATE_GRACE } from './motion/durations.mjs';
+import { GATE_GRACE, M } from './motion/durations.mjs';
 import { applyOrientationPolicy } from './layout/orientation';
 import { useViewport, usePagePlan } from './ui/useBoardLayout';
 import { boardFor } from './ui/screens/boardFor';
@@ -72,12 +81,19 @@ function Game(props) {
 
 function GameBoard({
   pack, packId, mediaSource, audio, settings, setSettings, themeId, setThemeId,
-  onSwitchLanguage, onReloadPack, seed, progress, onProgress, graceUntil,
+  onSwitchLanguage, onReloadPack, onSpeakLanguageName, seed, progress, onProgress, graceUntil,
 }) {
   const strings = stringsFor(pack.language);
-  // 'gate' | 'menu' | 'words' | 'addWord' | 'cheer' | null
+  // 'chooser' | 'gate' | 'menu' | 'words' | 'cheer' | null
   const [overlay, setOverlay] = useState(null);
   const [systemReduceMotion, setSystemReduceMotion] = useState(false);
+  /**
+   * **The parent door's hold hint** (`ui.md` §9.4b, AC I2, Y21, Y22). `seq` is a counter
+   * rather than a boolean so a second tap after the hint has faded shows it again, while
+   * a second tap *during* it does not restart it — the component ignores a new `seq`
+   * while it is running.
+   */
+  const [hint, setHint] = useState({ seq: 0, ms: M.hintHold });
 
   useEffect(() => {
     let alive = true;
@@ -157,17 +173,72 @@ function GameBoard({
     return () => sub.remove();
   }, []);
 
+  /**
+   * **Y21 — the hint is shown once, unprompted, to someone who is provably an adult.**
+   * This component mounts exactly when a language has just been committed on a two-touch
+   * screen, so at this instant the person holding the phone is an adult. `holdHintShown`
+   * is a persisted **setting**, not component state: *once per install* has to outlive a
+   * mount, and a language switch unmounts this whole subtree.
+   */
+  useEffect(() => {
+    if (settings.holdHintShown) return;
+    setHint({ seq: 1, ms: M.hintHoldFirst });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the first board, once
+  }, []);
+
   const openGate = useCallback(() => {
     // A13 — within 180 s of a correct answer the hold goes straight to the menu, so a
     // parent switching language twice in one sitting does one multiplication, not two.
     setOverlay(Date.now() < graceUntil.current ? 'menu' : 'gate');
   }, [graceUntil]);
 
+  /**
+   * **Y15 — the Android back gesture closes the chooser and commits nothing.** Only for
+   * the chooser: the gate and the parent menu have their own visible way back, and
+   * `react-native-web`'s `BackHandler` logs an error rather than doing nothing, so the
+   * subscription is native-only.
+   */
+  useEffect(() => {
+    if (overlay !== 'chooser' || Platform.OS === 'web') return undefined;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      setOverlay(null);
+      return true;
+    });
+    return () => sub.remove();
+  }, [overlay]);
+
   const sourceFor = useMemo(() => {
     const fn = (ref) => (ref ? mediaSource(ref.src ?? ref) : null);
     fn.emoji = emojiSource;
     return fn;
   }, [mediaSource]);
+
+  /**
+   * **The two doors of the top bar** (`ui.md` §9.4a, §9.4b), assembled here because both
+   * of them are the *shell's* business: one opens the chooser and one opens the gate, and
+   * neither board screen may know anything about either.
+   *
+   *   * **Y4 / Y28** — one tap opens the chooser, no gate is asked, nothing is committed,
+   *     and a second tap while it is open does nothing: the guard is `overlay !== null`,
+   *     so eight taps in a second show it once.
+   *   * **Y5** — exactly one UI tap sound, and **no speech**. The language names are
+   *     spoken on the chooser, where both are present and he can compare them; a name
+   *     spoken on the board would be the outgoing language announcing the incoming one.
+   *   * **Y20** — the door is the only control in the app that never makes a sound, so
+   *     `onTapDoor` plays nothing at all. It asks for the hint (I2) and that is all.
+   */
+  const doors = {
+    language: pack.language,
+    doorLabel: strings.parentDoor,
+    hintLabel: strings.holdHint,
+    hintSeq: hint.seq,
+    hintHoldMs: hint.ms,
+    onHintShown: () => {
+      if (!settings.holdHintShown) setSettings((st) => ({ ...st, holdHintShown: true }));
+    },
+    onTapDoor: () => setHint((h) => ({ seq: h.seq + 1, ms: M.hintHold })),
+    onOpenGate: openGate,
+  };
 
   // **V35** — this viewport can build a page plan for the other language but not for this
   // one. The card names the language, and the gate is on it, so the parent can switch
@@ -187,6 +258,31 @@ function GameBoard({
     return <View style={styles.centre}><ActivityIndicator /></View>;
   }
 
+  if (overlay === 'chooser') {
+    /**
+     * **The chooser, opened from the board** (`ui.md` §9.4a, §9.6, AC Y11–Y13).
+     * The same screen, the same component and the same code path as first launch — the
+     * only difference is that the current language's panel carries a *you are here* mark
+     * and confirming it is a **free return**.
+     */
+    return (
+      <ChooserScreen
+        current={pack.language}
+        themeId={themeId}
+        onSelectTheme={setThemeId}
+        onSample={onSpeakLanguageName}
+        onConfirm={(lang) => {
+          if (lang === pack.language) { setOverlay(null); return; } // Y12 — free
+          // Y13 / A15 — **a hard stop, not the 800 ms fade.** A fade would play the
+          // outgoing language's voice over the incoming language's board: a leak.
+          controller.stopForLanguageSwitch();
+          setOverlay(null);
+          onSwitchLanguage(lang);
+        }}
+      />
+    );
+  }
+
   if (overlay === 'gate') {
     return (
       <GateScreen
@@ -197,7 +293,7 @@ function GameBoard({
     );
   }
 
-  if (overlay === 'words' || overlay === 'addWord' || overlay === 'cheer') {
+  if (overlay === 'words' || overlay === 'cheer') {
     // **Slice 4.** The editor is mounted *beside* the board rather than instead of it:
     // `useGame` above is still holding the session, so J11's *"the app returns to that
     // same board with the strip still assembled"* costs nothing but the tree rebuild,
@@ -211,7 +307,7 @@ function GameBoard({
         audio={audio}
         settings={settings}
         onSetting={(patch) => setSettings((s) => ({ ...s, ...patch }))}
-        startAt={overlay === 'addWord' ? 'add' : overlay === 'cheer' ? 'cheer' : 'list'}
+        startAt={overlay === 'cheer' ? 'cheer' : 'list'}
         onPackChanged={onReloadPack}
         onBack={() => setOverlay('menu')}
       />
@@ -229,8 +325,10 @@ function GameBoard({
         onSelectTheme={setThemeId}
         attributions={attributionsOf(pack)}
         version={VERSION}
+        // N11a — the audio diagnostic on the About screen. It is the process-wide budget,
+        // so it counts the chooser's player as well as the board's.
+        audioStats={audioStats}
         onOpenWords={() => setOverlay('words')}
-        onOpenAddWord={() => setOverlay('addWord')}
         onOpenCheer={() => setOverlay('cheer')}
         onBack={() => setOverlay(null)}
         onFinishSession={() => { controller.finishSession(); setOverlay(null); }}
@@ -269,7 +367,10 @@ function GameBoard({
         onSelectTheme={ended ? null : setThemeId}
         onPlay={ended ? null : () => controller.leaveAlbum()}
         onTapEntry={ended ? null : (entry) => controller.tapAlbum(entry)}
-        onOpenGate={openGate}
+        // The album is not a board, so it carries the parent door and **not** the
+        // language control (Y1 is about the board). The 72 pt lane stays reserved, so
+        // the shelf column does not move between the two screens.
+        doors={doors}
         reduced={reduced}
         sourceFor={sourceFor}
       />
@@ -287,7 +388,20 @@ function GameBoard({
       sourceFor={sourceFor}
       layout={plan.L}
       insets={insets}
-      onOpenGate={openGate}
+      doors={{
+        ...doors,
+        // Y4 — one tap, no gate. Y30 — a tap is ignored while anything is over the board,
+        // so a switch can never be re-entered.
+        onOpenChooser: overlay === null ? () => {
+          controller.languageTap();
+          setOverlay('chooser');
+        } : null,
+        // **Y8** — the control is not drawn during the announcement or the reveal.
+        // Switching language in the middle of a reveal is the messiest teardown in the
+        // app and the reveal is over in about three seconds. The door stays, because a
+        // parent may need out.
+        hideLanguage: snapshot.status === 'announcing' || Boolean(snapshot.reveal),
+      }}
     />
   );
 }
@@ -384,14 +498,21 @@ function Shell() {
     if (fontsLoaded || fontError) SplashScreen.hideAsync().catch(() => {});
   }, [fontsLoaded, fontError]);
 
-  // A2 — a tap on a chooser panel speaks a sample word in that language. One clip, one
-  // player, released as soon as the chooser is gone.
+  /**
+   * **A2, restated in revision 6** — a tap on a chooser panel speaks **the language's own
+   * name**, `Tiếng Việt` or `English` (E23, Y31–Y34). It used to speak a sample word; a
+   * sample word identifies a language only to someone who already knows that word *and*
+   * has connected it to a language, and the child now chooses for himself.
+   *
+   * One clip, one player, released as soon as the chooser is gone. **Y33 — neither clip
+   * exists yet, and the degradation is silence, not a failure**: `languageNameSource`
+   * returns `null`, `playSpeech(null)` plays nothing, the panel expands and the chooser
+   * still works.
+   */
   const chooserAudio = useMemo(() => createAudioEngine(), []);
   useEffect(() => () => chooserAudio.dispose(), [chooserAudio]);
-  const speakSample = useCallback((lang) => {
-    const strings = stringsFor(lang);
-    const source = sampleWordSource(lang, strings.sampleWord === 'cat' ? 'cat' : 'meo');
-    chooserAudio.playSpeech(source);
+  const speakLanguageName = useCallback((lang) => {
+    chooserAudio.playSpeech(languageNameSource(lang));
   }, [chooserAudio]);
 
   const switchLanguage = useCallback((next) => {
@@ -431,9 +552,12 @@ function Shell() {
     if (!language) {
       return (
         <ChooserScreen
+          // **Y11** — at first launch neither panel carries the *you are here* mark,
+          // because there is no here yet.
+          current={null}
           themeId={themeId}
           onSelectTheme={(id) => setSettings((s) => ({ ...s, theme: id }))}
-          onSample={speakSample}
+          onSample={speakLanguageName}
           onConfirm={(lang) => setSettings((s) => ({ ...s, language: lang }))}
         />
       );
@@ -458,6 +582,7 @@ function Shell() {
         themeId={themeId}
         setThemeId={(id) => setSettings((s) => ({ ...s, theme: id }))}
         onSwitchLanguage={switchLanguage}
+        onSpeakLanguageName={speakLanguageName}
         seed={`${language}-${settings.theme}`}
         progress={progressByPack.current.get(packId) ?? null}
         onProgress={(p) => progressByPack.current.set(packId, p)}

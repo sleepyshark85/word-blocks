@@ -106,7 +106,21 @@ export function PreviewBoard({ language, packId, draft, looked, strings, setting
           sourceFor={sourceFor}
           layout={plan.L}
           insets={insets}
-          onOpenGate={() => {}}
+          /**
+           * **The preview is a board she looks at, not one she operates.** It draws both
+           * doors, because J9 says she sees what he will see, and neither does anything:
+           * a chooser opened from inside the editor would tear down the pack she is
+           * editing, and the gate is already behind her.
+           */
+          doors={{
+            language,
+            doorLabel: strings.parentDoor,
+            hintLabel: strings.holdHint,
+            hintSeq: 0,
+            onOpenGate: () => {},
+            onOpenChooser: null,
+            onTapDoor: null,
+          }}
         />
       </CasingProvider>
       {/* A hairline in the word's own state: green once the board can build it, amber

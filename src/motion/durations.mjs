@@ -55,6 +55,25 @@ export const M = {
   shelfFly: 520, // M15 — the picture flies into the shelf
   shelfTip: 380, // M16 — the shelf tips into the album
   gateHold: 1200, // M21 / I3
+  /* ---- REVISION 6, `ui.md` §10.6 — the two doors. Three motions, each with a sentence
+     it has to say. Nothing here is on the reward channel and nothing here makes a
+     sound: the door is silent by design (§9.4b) and the language control plays the one
+     UI tap the app already has (§9.4a). ---- */
+  // **M25 — the door's hold fill.** Linear, because a progress indicator that eases is
+  // lying about the time left. It is `M.gateHold` long, by construction: the same 1200 ms
+  // the lock has always used, drawn instead of hidden.
+  doorFillBack: 160, // M25 — releasing early runs it back to empty: *it emptied*
+  // **M26 — the language control's two bars swap**, cross-faded in place, on the new
+  // board. The board's own confirmation that the tap did what he asked (Y9).
+  langSwap: 260,
+  // **M27 — the hold hint.** Opacity only, no rise, no bounce: it is information for an
+  // adult, not a flourish, and it must not read as something to play with.
+  hintIn: 160,
+  hintHold: 1600, // I2 — a *tap* on the door shows it for this long
+  hintOut: 160,
+  // **Y21** — the once-per-install unprompted showing, on the first board after a
+  // language is committed. Longer, because nobody was looking for it.
+  hintHoldFirst: 3000,
 };
 
 /** `ui.md` §10.4 — the announcement and the reveal, frame by frame. `§F`. */

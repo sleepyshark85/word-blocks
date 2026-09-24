@@ -20,10 +20,14 @@ export default {
     : `Page ${page} of ${total}. Something to press on page ${livePages.join(', ')}.`),
 
   languageName: 'English',
-  sampleWord: 'cat',
 
   start: 'Start',
   back: 'Back',
+
+  /** **Revision 6, `ui.md` §9.4b.** The parent door's label. See the note in `vi.js`. */
+  parentDoor: 'Parent',
+  /** §9.4b / I2 — what the silent hold hint says when the door is *tapped*. */
+  holdHint: 'Hold',
 
   gateTitle: 'Enter the answer',
   gateTimes: 'times',
@@ -32,8 +36,9 @@ export default {
   numberWords: { 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine' },
 
   menuTitle: 'Settings',
-  menuAddWord: 'Add a word',
+  /** **Revision 6 folds `Add a word` into this row** (I8, I9). See the note in `vi.js`. */
   menuWords: 'Words',
+  menuWordsDetail: 'add, edit, delete',
   menuFinish: 'Finish session',
   menuLanguage: 'Language',
   menuVoice: 'Voice & pace',
@@ -159,4 +164,13 @@ export default {
   aboutTitle: 'About',
   aboutVersion: (v) => `Version ${v}`,
   aboutAttributionTitle: 'Picture and sound credits',
+  /**
+   * **N11a / E10a — the audio diagnostic.** Nobody on this team has an iPhone, so this
+   * line is what makes the next device report evidence rather than "still silent": how
+   * many native players are held, what the ceiling is now, and how many failed to build.
+   */
+  aboutAudioTitle: 'Sound (for fixing problems)',
+  aboutAudio: (s) => `Players: ${s.live}/${s.max} · built ${s.created} · failed ${s.failed} · silent ${s.silenced}`,
+  aboutAudioHealthy: 'No player has failed to open.',
+  aboutAudioFailing: (s) => `${s.failed} player(s) failed to open. The ceiling has been lowered to ${s.max}. Please report these numbers.`,
 };

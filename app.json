@@ -19,7 +19,7 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.sleepyshark.ghepchu",
-      "buildNumber": "1"
+      "buildNumber": "3"
     },
     "android": {
       "package": "com.sleepyshark.ghepchu",

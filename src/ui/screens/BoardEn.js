@@ -31,7 +31,7 @@ import {
 const ROLE_OF = { consonant: 'role1', vowel: 'role2' };
 
 export function BoardEn({
-  snapshot, controller, strings, settings, reduced, sourceFor, layout: L, insets, onOpenGate,
+  snapshot, controller, strings, settings, reduced, sourceFor, layout: L, insets, doors,
 }) {
   const theme = useTheme();
 
@@ -57,6 +57,10 @@ export function BoardEn({
       <View style={{ height: 4, backgroundColor: theme.role1 }} />
 
       <View style={{ alignItems: 'center' }}>
+        {/* `ui.md` §9.4 — three children, each belonging to a different person: the
+            child's language control, his shelf, his parents' door. `doors` is assembled
+            in the shell, because both doors are the shell's business and this screen
+            must know nothing about either language. */}
         <TopBar
           width={L.CW}
           title={strings.modeTitle}
@@ -64,8 +68,8 @@ export function BoardEn({
           slotSize={L.shelf}
           sourceFor={sourceFor}
           reduced={reduced}
-          onOpenGate={onOpenGate}
           onTapSlot={controller.tapShelf}
+          {...doors}
         />
       </View>
 

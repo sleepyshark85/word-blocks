@@ -36,6 +36,18 @@ export const SETTINGS_SCHEMA = {
    * content: the clip itself is one field in `pack.json` (E14).
    */
   cheerOffered: { type: 'boolean', dflt: false },
+  /**
+   * `acceptance-criteria.md` **Y21** / `ui.md` §9.4b — the parent door's hold hint is
+   * shown **once, unprompted**, on the first board after a language is committed, and
+   * never again on that install. At that instant the person holding the phone has just
+   * completed a two-touch screen, so they are provably an adult: it is the *"visible to
+   * an adult who is looking for it, without instruction"* requirement met literally, for
+   * one boolean.
+   *
+   * It is a **setting** for the same reason `cheerOffered` is: "once per install" has to
+   * outlive the mount it was shown in, and a language switch unmounts the whole board.
+   */
+  holdHintShown: { type: 'boolean', dflt: false },
 };
 
 export const DEFAULT_SETTINGS = Object.fromEntries(

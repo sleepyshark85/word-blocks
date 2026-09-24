@@ -25,8 +25,12 @@ export function Editor({
   onBack, onPackChanged, startAt = 'list',
 }) {
   const editor = useEditor({ pack, packId, onPackChanged });
-  const [screen, setScreen] = useState(startAt === 'add' ? 'add' : startAt);
-  const [draft, setDraft] = useState(() => (startAt === 'add' ? editor.newDraft() : null));
+  // `'list'` or `'cheer'`. **Revision 6 retired the third value.** The parent menu used to
+  // carry an *Add a word* row that opened the flow directly, and folding it into row 1
+  // (I8, I9) removed the only caller: the `+` on the word list is the way in now, and it
+  // is one tap further, in the place she will look for it.
+  const [screen, setScreen] = useState(startAt);
+  const [draft, setDraft] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const close = useCallback(() => { editor.close(); onBack(); }, [editor, onBack]);
