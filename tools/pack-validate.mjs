@@ -681,6 +681,16 @@ function checkLetters(word, rel, dErr, expectJoined, onsetLen) {
       dErr(rel, `letters[${i}] is "${k}", which is not on this pack's board (inventoryOrder.letter). There is no cell for it, so this word could never be built.`);
     }
   }
+  // **X7 / E20 — the strip holds six cells and a seventh is not a smaller glyph, it is a
+  // letter clipped off the end of the word he is building.** `tools/layout-sweep.mjs`
+  // F17 is the geometry; this is the pack's half, and it is an error rather than a
+  // warning because the app withholds the word outright (`src/engine/pack.mjs`
+  // `readLetters`), so passing it here would mean the pack validates and the word
+  // silently never appears.
+  if (letters.length > R.MAX_WORD_LETTERS) {
+    dErr(rel, `has ${letters.length} letters and the word strip holds ${R.MAX_WORD_LETTERS}. On the smallest supported phone a seventh cell drops the strip glyph to 31 pt against a 34 pt floor (ui.md §4.2 F17, AC X6/E20), so this word cannot be shown while it is being built. The editor offers the "Too long for the board" screen (ui.md §13.3a) and keeps the picture and the recording.`);
+    return;
+  }
   const joined = letters.join('').normalize('NFC');
   if (onsetLen !== null) {
     if (!Number.isInteger(word.onsetLetterCount) || word.onsetLetterCount < 0 || word.onsetLetterCount > letters.length) {

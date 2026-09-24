@@ -42,11 +42,25 @@ export function useViewport() {
  * (V35): the other mode may still be served, and the language is switchable, so nobody is
  * stuck.
  */
-export function usePagePlan(runLengths) {
+export function usePagePlan(runLengths, reserveBottom = 0) {
   const v = useViewport();
   const key = runLengths.join(',');
   return useMemo(() => {
-    const plan = v.tooSmall ? null : planFor(v, key.split(',').map(Number));
-    return { viewport: v, plan, insets: { top: v.insetT, bottom: v.insetB, left: v.insetL, right: v.insetR } };
-  }, [v, key]);
+    // `reserveBottom` is the editor's preview (J9): a strip of the screen that belongs to
+    // the *Đúng rồi* / *Sửa* bar rather than to the board. It is charged as a **safe-area
+    // inset**, which is exactly what it is — space the board may not draw in — so the
+    // board is laid out by the same law against a slightly shorter screen rather than
+    // being squeezed into a container it does not know about. Measured in a browser: a
+    // bar that took height from a board already sized for the full viewport clipped the
+    // table's first and last rows.
+    const viewport = reserveBottom > 0 ? { ...v, insetB: v.insetB + reserveBottom } : v;
+    const plan = viewport.tooSmall ? null : planFor(viewport, key.split(',').map(Number));
+    return {
+      viewport,
+      plan,
+      insets: {
+        top: viewport.insetT, bottom: viewport.insetB, left: viewport.insetL, right: viewport.insetR,
+      },
+    };
+  }, [v, key, reserveBottom]);
 }

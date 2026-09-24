@@ -46,10 +46,17 @@ function makeMediaSource(packId, bundle) {
 }
 
 /**
+ * Everything `resolvePack` needs for one language, read once: the manifest on disk (or
+ * the bundled one), the raw word files, and the media probe.
+ *
+ * It is separate from `loadPack` because **the editor's preview step needs to resolve a
+ * pack that is not the one on disk** (`acceptance-criteria.md` J9: *a fully playable
+ * board with her word live in the real table*) and building a second reader for that
+ * would be a second thing that could disagree with the first about what a pack is.
+ *
  * @param {'vi'|'en'} language chosen at launch and never discovered from the data
- * @returns {{ pack, packId, mediaSource }}
  */
-export function loadPack(language) {
+export function packInputs(language) {
   const packId = seedPackIdFor(language);
   const bundle = BUNDLED_PACKS[packId];
   if (!bundle) throw new Error(`the ${packId} pack is not in this build`);
@@ -80,8 +87,17 @@ export function loadPack(language) {
     || (SUPPORTS_LOCAL_PACKS && hasLocalMedia(packId, ref))
   );
 
+  return { packId, manifest, words, unreadable, hasMedia, mediaSource: makeMediaSource(packId, bundle) };
+}
+
+/**
+ * @param {'vi'|'en'} language
+ * @returns {{ pack, packId, mediaSource }}
+ */
+export function loadPack(language) {
+  const { packId, manifest, words, unreadable, hasMedia, mediaSource } = packInputs(language);
   const pack = resolvePack({ language, manifest, words, unreadable, hasMedia });
-  return { pack, packId, mediaSource: makeMediaSource(packId, bundle) };
+  return { pack, packId, mediaSource };
 }
 
 /**

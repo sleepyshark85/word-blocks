@@ -11,6 +11,41 @@ squad works), `spike-results.md` (what was measured).
 
 ## Status
 
+> ### 2026-09-24 — **SLICE 4 IS BUILT. SHE CAN ADD, EDIT AND DELETE A WORD, AND AN INTERRUPTED SAVE CANNOT COST HER ONE.**
+>
+> `ui.md` §13, `acceptance-criteria.md` §J / §K / §L, X7 / X8 and I12, against revision 5.
+> **She types a word and the app derives the rest**: `letters` and `onsetLetterCount` are
+> written by the editor and never composed at runtime (`content-pipeline.md` §3.7, E19).
+>
+> | | State |
+> |---|---|
+> | `bash scripts/check.sh` | **ALL GREEN.** `npm test` **385/385** (was 320) |
+> | The editor's model | `src/editor/` — pure, Node-tested, no React and no filesystem. `model.mjs` is the **only** file in it that names both languages; `vi.mjs` and `en.mjs` each see one (R4) |
+> | The fixture nobody can weaken | **all 47 `vi-seed` and all 40 `en-seed` decompositions are re-derived from the spelling alone** — the triple, the letters *and* the stored boundary — by a module written months after the content. Weakening the test means changing the content |
+> | The parse never places a mark | a candidate is an onset's **stored** glyph beside a rime's **stored** `toned[tone]`. `tone.mjs`'s placer is reached only when that fails, to write §13.3's sentence and to seed the six forms she then corrects (K3, K4, K5) |
+> | `gì` | **works, and carries `build.spellingException`.** The onset `gi` and the rime `i` share one `i`; the letters are `g` `i` and the rime is not visible in them, which is exactly why the boundary is stored. The same rule reads `giêng` |
+> | Atomic writes | `packStore.mjs` is written against a **nine-function port** so the guarantee can be executed. `test/editor-store.test.mjs` **kills the write halfway, kills it between the write and the rename, and kills the second save with the first on disk** — the previous words survive every one, byte for byte |
+> | L5 | the trash entry is written **before** the live word is removed, so a kill mid-delete leaves the word *fully present*; the stale entry is not offered and is swept at editor open |
+> | X7 | **new — the validator now enforces the six-letter cap.** A pack carrying a seven-letter word used to validate clean while the app withheld the word, so the only signal she got was a word that stopped appearing. Poisoned: **1 error, exit 1**; with the rule deleted, **exit 0** |
+> | X8 | the *Too long for the board* screen draws the strip **to scale with the seventh letter past the board's edge**, and the word is saved with its picture and recording under *Chưa chơi được* |
+> | Driven in Chromium | 430 × 932, 360 × 640 and 834 × 1194: the list with 47 thumbnails and decompositions, the confirm-the-taps screen (`c h │ o │ ◌́` — **4 lần bấm**), too-long, two-syllable, unknown-rime, off-alphabet, add-a-rime, delete → toast → undo, and the **preview board** with her word live. `Word Blocks` reads in full in the top bar |
+> | **J11 + J14 together** | she saved and deleted and restored a word mid-build and **came back to the same board with `c` `h` still on the strip**. `createSession({ build })` walks the prefix through the **new** tree and keeps the part it can |
+> | Fault injections | **19, every one exit 1**, and **three were MISSED on the first pass**: an `over` flag that had become dead code and proved nothing, a second tone-mark placer written with `'\u0301'` as an **escape** that the combining-character audit walked straight past, and a top-bar test whose arithmetic modelled a stylesheet it never read. All three gates were fixed and then bit |
+> | Two defects the browser found that no test could | the **undo toast rendered inside the scroll view**, 4,359 pt down a 47-word list — a toast she would never see; and `undoRemove` **restored the word inside a `setToast` updater**, which is the exact anti-pattern `development-process.md` §3 names. Updaters stay pure |
+> | `acceptance-criteria.md` C12 | **arithmetic corrected.** It said `chó` is six taps and `bò` four; under revision 5 they are **four** and **three**. The point it makes is untouched |
+> | The top bar | **`Word Blocks` no longer truncates.** The title had `flex: 1` and the 32 pt gate-dot column had `flex: 1`, so the slack was split in two and the title got **74 pt** against the **81.4 pt** the text measures at 13 pt in Be Vietnam Pro Medium. `test/topbar.test.mjs` measures both mode titles from the shipped font file against the box the component gives them, on every served viewport |
+> | Stale criteria found, **reported not absorbed** | **J1** names Baloo 2, which is not the shipped face; **K11 / K11a / §13.5 are unbuildable as written** — see below; **J5**'s "real game tiles" are no longer board cells |
+> | **K11 is blocked** | *"one tap appends the character to its run in `inventoryOrder` and the word becomes playable on every device"* cannot hold in revision 5. §13.5 says the screen fires **only** for a character outside the alphabet (`f j w z`, a digit, punctuation) — and `content-pipeline.md` §3.7 makes `inventoryOrder.letter` an **error** for exactly those. The alphabet is a code constant in `src/engine/rules.mjs` and `tools/lib/rules.mjs`, not pack data. **Built: the screen names the character, draws it flat, and saves the word under *Chưa chơi được*.** The add is not offered, because it cannot work. Recommendation: restate K11 as informational for revision 5, or make the alphabet pack data — which is a content-engineer decision, not this slice's |
+> | **Not verified** | **still never run on a real device.** The camera, the photo library and the microphone are `expo-image-picker` and `expo-audio` on native and are **stubbed in the browser build** — J3's picker and J7's recording are the two things Tier 3 cannot say anything true about |
+> | Recorded limitation | a rime she adds has **no đánh vần clip**, so the state it creates is silent until one exists (`content-pipeline.md` §5's documented degradation). `ui.md` §13 does not ask the editor to record tile audio |
+>
+> **One deviation, recorded rather than smuggled.** The editor **folds the typed word to
+> lower case** at the boundary, once (`src/editor/shared.mjs`). `letters`, `tiles` and the
+> English `letters.join('') === text` identity are all lower case and all hard errors in
+> the loader, so a capital she types would make her own word unplayable. D24 forbids
+> *upper*-casing what she typed and is untouched; she sees the folded form on the very next
+> screen.
+
 > ### 2026-09-24 — **`src/` IS REBUILT TO DESIGN REVISION 5. THE BOARD IS THE ALPHABET AND IT PLAYS.**
 >
 > The app half of revision 5, against `literacy-vi.md` §0, `literacy-en.md` §0, `ui.md` §0C
@@ -187,7 +222,7 @@ below and was verified by execution, not trusted.*
 | **1** | Content pack: format, validator, seed pack with real assets | **In progress** — packs built and audio generated; **no images yet** |
 | **2** | Engine: **prefix tree, live-set computation** | **Rebuilt for revision 4** (one tree, one constant table, pages in the reducer). `npm test` 291/291; 400 fuzzed sessions per language across **both** board shapes with `checkInvariants` after every action, plus a 4,000-action soak; 0 violations. Previously: **rebuilt for revision 2.** `npm test` 230/230; 800 fuzzed sessions per language with `checkInvariants` after **every** action, plus a 4,000-action soak; 0 violations. Awaiting independent verification |
 | **3** | The game plays, both languages, on a real device | **Rebuilt for revision 5 and driven** in Chromium at 430×932 (both languages), 360×640 (paged, rail of 3) and 834×1194 (35 cells, no rail): the letter board, the span bar, the marked boundary, whole-strip undo, the superseding tap sound, uppercase English glyphs and the photograph. `npm test` 317/317; 14 fault injections, all caught. **Still not run on a real device — Tier 5 is owed.** Previously: **rebuilt for revision 4 and driven** in Chromium at 430×932, 440×956, 834×1194 and 360×640, both languages, including the language switch and the gate grace. Previously: **rebuilt for revision 2.** Chrome at iPad portrait + landscape, iPhone 393×852 and the 360×640 Android floor, both languages; five words to the album; the gate opens on a 1.2 s hold. **Not yet run on a real device — Tier 5 is owed.** Awaiting independent verification |
-| **4** | The editor — add / edit / delete a word | Not started |
+| **4** | The editor — add / edit / delete a word | **Built and driven in Chromium**, 430×932 / 360×640 / 834×1194, both languages: the list, the five-step add flow, the four help screens, add-a-rime, delete → 6 s toast → undo → Recently deleted, the preview board, and the cheer. `npm test` 385/385; **19 fault injections, all exit 1, three of them missed on the first pass and fixed**; the atomic-write law proved by killing a write halfway. **Not run on a real device — J3's picker and J7's recording are stubbed in the browser and Tier 5 is owed.** K11 reported blocked |
 | **5** | Polish: motion, sound, accessibility | Not started |
 | **6** | Store readiness, iOS + Android | Not started |
 
@@ -395,7 +430,7 @@ Both Slice 1 and Slice 2 are provable headless, so neither hides behind a render
 | 1 | The validator rejects a pack it should reject (proven by feeding it a broken one), and 45 VI + 40 EN words have real curated assets |
 | 2 | Same seed and taps replay identically; thousands of fuzzed **sessions** violate no invariant; **every live path ends in a word and no reachable state is stuck** |
 | 3 | **The game plays.** Tap letters, watch the board answer, make a word, see the picture — on a real iPad |
-| 4 | His mother adds a word with her own photo and her own voice, and it survives an app restart |
+| 4 | His mother adds a word with her own photo and her own voice, and it survives an app restart — **the restart half is proved in Node by killing the write; the photo and the voice are owed a device** |
 | 5 | The reveal reads as a reward; audio carries the game with the screen ignored |
 | 6 | Submittable to both stores |
 

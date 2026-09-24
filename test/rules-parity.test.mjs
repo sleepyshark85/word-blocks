@@ -70,6 +70,10 @@ test('the strip cap is the same number in the engine and in the layout law', () 
   // that must be one (`ui.md` §4.2, AC X6, E20, F17).
   assert.equal(engine.MAX_WORD_LETTERS, STRIP_CELLS);
   assert.equal(engine.MAX_WORD_LETTERS, 6);
+  // **Three copies now, not two.** Slice 4 gave the validator the same cap (X7), because
+  // a pack carrying a seven-letter word used to validate clean while the app withheld the
+  // word — so the only signal his mother ever got was a word that stopped appearing.
+  assert.equal(tools.MAX_WORD_LETTERS, engine.MAX_WORD_LETTERS);
 });
 
 test('the tone inventory is identical', () => {

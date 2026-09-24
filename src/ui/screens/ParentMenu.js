@@ -4,8 +4,8 @@
 // Motion & sound · About. **No analytics, no account, no sync, no rating prompt**
 // (`acceptance-criteria.md` I9), and no network call anywhere in the app including here.
 //
-// Slice 3 builds the menu because navigation needs it; the editor screens behind
-// *Add a word* and *Words* are Slice 4 and say so rather than pretending.
+// **Slice 4 filled in the two rows this menu used to apologise for.** *Add a word* and
+// *Words* open `src/ui/screens/editor/`; *Voice & pace* gained the cheer (**I12**).
 
 import { useState } from 'react';
 import { StyleSheet, Switch, View } from 'react-native';
@@ -78,6 +78,7 @@ function LanguageScreen({ strings, current, onBack, onConfirm }) {
 export function ParentMenu({
   strings, settings, onSetting, themeId, onSelectTheme, attributions, version,
   onBack, onFinishSession, onSwitchLanguage, language,
+  onOpenWords, onOpenAddWord, onOpenCheer,
 }) {
   const [screen, setScreen] = useState('menu');
   const theme = useTheme();
@@ -107,6 +108,9 @@ export function ParentMenu({
   if (screen === 'voice') {
     return (
       <ParentScreen title={strings.menuVoice} modeTitle={strings.modeTitle} onBack={() => setScreen('menu')}>
+        {/* **I12** — the cheer lives here after the one time it is offered on its own
+            (J15). Recording, replacing and removing it are all on the screen behind. */}
+        <Row first label={strings.editorCheerTitle} onPress={onOpenCheer} />
         <Toggle
           label={strings.settingShowWord}
           value={settings.showWord}
@@ -149,22 +153,14 @@ export function ParentMenu({
     );
   }
 
-  if (screen === 'editor') {
-    return (
-      <ParentScreen title={strings.menuWords} modeTitle={strings.modeTitle} onBack={() => setScreen('menu')}>
-        <AppText role="body">{strings.comingInLaterSlice}</AppText>
-      </ParentScreen>
-    );
-  }
-
   return (
     <ParentScreen title={strings.menuTitle} modeTitle={strings.modeTitle} onBack={onBack}>
       {/* `gameplay.md` §7.3 — seven rows, and **Language is row 2**, directly under
           *Add a word* (A12). It was row 4 in revision 2; the owner asked to switch
           whenever he likes, and the row he reaches for should be where he looks first. */}
-      <Row first label={strings.menuAddWord} onPress={() => setScreen('editor')} />
+      <Row first label={strings.menuAddWord} onPress={onOpenAddWord} />
       <Row label={strings.menuLanguage} onPress={() => setScreen('language')} />
-      <Row label={strings.menuWords} onPress={() => setScreen('editor')} />
+      <Row label={strings.menuWords} onPress={onOpenWords} />
       <Row label={strings.menuFinish} onPress={onFinishSession} />
       <Row label={strings.menuVoice} onPress={() => setScreen('voice')} />
       <Row label={strings.menuMotion} onPress={() => setScreen('motion')} />

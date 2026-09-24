@@ -22,9 +22,10 @@ import { createGameController } from './gameController.mjs';
  * @param {object}  args.audio         an engine from `audio/engine.js`
  * @param {object}  args.settings
  * @param {Function} [args.onSessionEnd]
+ * @param {string[]} [args.build]      J11 — the strip to carry across a tree rebuild
  */
 export function useGame({
-  game, seed, mediaSource, ui, audio, settings, onSessionEnd, progress, onProgress,
+  game, seed, mediaSource, ui, audio, settings, onSessionEnd, progress, onProgress, build,
 }) {
   const [controller, setController] = useState(null);
   const endRef = useRef(onSessionEnd);
@@ -35,6 +36,12 @@ export function useGame({
   const progressRef = useRef(progress);
   const onProgressRef = useRef(onProgress);
   onProgressRef.current = onProgress;
+  // Read **once**, when the controller is built, for exactly the same reason `progress`
+  // is: it is where the strip was when the tree was last rebuilt (J11), not a live input.
+  // A ref rather than a dependency, so a re-render cannot restart the board under a
+  // child's finger.
+  const buildRef = useRef(build);
+  buildRef.current = build;
 
   useEffect(() => {
     // A viewport that cannot build a page plan for this pack has no board to drive
@@ -48,6 +55,7 @@ export function useGame({
       audio,
       settings,
       progress: progressRef.current,
+      build: buildRef.current,
       onProgress: (p) => { if (onProgressRef.current) onProgressRef.current(p); },
       onSessionEnd: (...a) => { if (endRef.current) endRef.current(...a); },
     });

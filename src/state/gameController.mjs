@@ -90,10 +90,16 @@ export function createGameController(options) {
     /** A18 — this pack's album and encounter counts, from the last time it was played. */
     progress = null,
     onProgress = null,
+    /**
+     * J11 — the strip as it was before the tree was rebuilt under it, when his mother
+     * saved a word mid-build. Validated against the new tree by `createSession`; a
+     * prefix the new pack cannot build degrades to the part it can.
+     */
+    build = null,
   } = options;
 
   const pack = game.pack;
-  let engine = createSession(game, { seed, progress });
+  let engine = createSession(game, { seed, progress, build });
   let opts = { ...settings };
   let destroyed = false;
 

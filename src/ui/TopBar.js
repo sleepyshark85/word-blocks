@@ -225,9 +225,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  title: { flex: 1 },
+  /**
+   * **The mode title takes the width its own text needs, and the free space is shared
+   * between the three, not between two of them.**
+   *
+   * It read `flex: 1` on the title and `flex: 1` on the (32 pt) gate-dot column, which
+   * split the space either side of the shelf equally — so on the owner's 430 pt phone the
+   * title box was **74 pt** against the 81.4 pt `Word Blocks` measures at 13 pt in Be
+   * Vietnam Pro Medium, and every English screenshot he has ever seen says `Word Blo…`.
+   * The gate-dot column asked for half the slack and used none of it.
+   *
+   * `flexShrink: 1` keeps the old behaviour as the *failure* mode rather than the normal
+   * one: at a 2× font scale the title still truncates to one line instead of pushing the
+   * shelf out of the bar. `test/topbar.test.mjs` measures both mode titles against the
+   * layout law's own box on every served viewport, from the shipped font file.
+   */
+  title: { flexShrink: 1 },
   shelf: { flexDirection: 'row', alignItems: 'center' },
-  right: { flex: 1, alignItems: 'flex-end' },
+  right: { alignItems: 'flex-end' },
   gateDot: {
     width: GATE_DOT,
     height: GATE_DOT,

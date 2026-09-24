@@ -523,6 +523,13 @@ function resolveArt(raw, hasMedia) {
 
 /* ------------------------------------------------------------------ the pack */
 
+function resolveCheer(manifest, hasMedia) {
+  const raw = manifest ? manifest.cheer : null;
+  if (!raw || typeof raw !== 'object' || !isNonEmptyString(raw.src)) return null;
+  if (!hasMedia(raw.src)) return null;
+  return { src: raw.src, ms: Number.isFinite(raw.ms) ? raw.ms : null };
+}
+
 function keyOfVi(syllable) {
   return `${syllable.onset ?? ''}\u0000${syllable.rime}\u0000${syllable.tone}`;
 }
@@ -897,6 +904,14 @@ export function resolvePack({ language, manifest, words = [], unreadable = [], h
     dialect,
     neverTogether,
     glyphCase,
+    /**
+     * `ui.md` §13.6 / §13.7 **E14** — **one optional cheer clip per pack**, hers, ≤ 2 s,
+     * removable, and **not** per word. The editor writes it into the manifest (§13.6) and
+     * `gameController` layers it over the announcement motif if it is there
+     * (`gameplay.md` §5.2). A dangling reference degrades to *no cheer*, which is the
+     * app's complete state: F6 says the game is whole without one.
+     */
+    cheer: resolveCheer(m, hasMedia),
     chant: m && m.chant && typeof m.chant === 'object' ? m.chant : {},
     tiles,
     tileById,

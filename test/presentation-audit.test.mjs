@@ -207,9 +207,11 @@ test('R4 — only `i18n/index.js` and `content/packIds.js` name both languages',
     if (namesVi && namesEn) offenders.push(path.relative(SRC, f));
   }
   assert.deepEqual(offenders.sort(), [
-    // The app shell picks the board, which is the moment the choice is made — once.
-    'App.js',
-    // The two lookup tables, each of which throws rather than defaulting.
+    // The three lookup tables, each of which **throws** rather than defaulting. Slice 4
+    // added the third: the editor's preview mounts the real board (J9), so the app shell
+    // was no longer the only place that chose one, and two ternaries would have been two
+    // chances to get it wrong. `App.js` left this list when the choice moved out of it.
+    path.join('ui', 'screens', 'boardFor.js'),
     path.join('content', 'packIds.js'),
     path.join('i18n', 'index.js'),
     // The settings schema, whose whole job is to declare the two values a parent may

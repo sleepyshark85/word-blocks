@@ -222,6 +222,20 @@ export const VI_ALPHABET = [
 /** `literacy-en.md` §0.3 — a-z, one run, no digraphs. */
 export const EN_ALPHABET = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
+/**
+ * `ui.md` §4.2 / §7.2.1, `acceptance-criteria.md` **X6, X7, E20** — **six letters is the
+ * longest word the smallest supported phone can draw legibly.** It is `STRIP_CELLS` in
+ * the layout law and `MAX_WORD_LETTERS` in `src/engine/rules.mjs`, and
+ * `test/rules-parity.test.mjs` asserts all three are the same number.
+ *
+ * X7 asks the **validator** to reject a seven-letter word with a renderable reason. It
+ * did not until Slice 4: `tools/layout-sweep.mjs`'s F17 held the geometry and
+ * `src/engine/pack.mjs` withheld the word at load, but a pack carrying one still
+ * validated clean — so the only warning his mother would ever have had was a word that
+ * silently stopped appearing.
+ */
+export const MAX_WORD_LETTERS = 6;
+
 const VI_LETTER_RANK = new Map(VI_ALPHABET.map((c, i) => [c, i]));
 
 /**

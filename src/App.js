@@ -34,13 +34,13 @@ import { createGame, langFor } from './engine/index.mjs';
 import { GATE_GRACE } from './motion/durations.mjs';
 import { applyOrientationPolicy } from './layout/orientation';
 import { useViewport, usePagePlan } from './ui/useBoardLayout';
-import { BoardVi } from './ui/screens/BoardVi';
-import { BoardEn } from './ui/screens/BoardEn';
+import { boardFor } from './ui/screens/boardFor';
 import { AlbumScreen } from './ui/screens/AlbumScreen';
 import { ChooserScreen } from './ui/screens/ChooserScreen';
 import { GateScreen } from './ui/screens/GateScreen';
 import { ParentMenu } from './ui/screens/ParentMenu';
 import { CardScreen } from './ui/screens/CardScreen';
+import { Editor } from './ui/screens/editor';
 
 const VERSION = '0.1.0';
 
@@ -71,11 +71,12 @@ function Game(props) {
 }
 
 function GameBoard({
-  pack, mediaSource, audio, settings, setSettings, themeId, setThemeId,
-  onSwitchLanguage, seed, progress, onProgress, graceUntil,
+  pack, packId, mediaSource, audio, settings, setSettings, themeId, setThemeId,
+  onSwitchLanguage, onReloadPack, seed, progress, onProgress, graceUntil,
 }) {
   const strings = stringsFor(pack.language);
-  const [overlay, setOverlay] = useState(null); // 'gate' | 'menu' | null
+  // 'gate' | 'menu' | 'words' | 'addWord' | 'cheer' | null
+  const [overlay, setOverlay] = useState(null);
   const [systemReduceMotion, setSystemReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -111,9 +112,28 @@ function GameBoard({
     [pack, pagesKey],
   );
 
+  /**
+   * `gameplay.md` §5.2 / AC **F6, E14** — his mother's voice over the announcement motif,
+   * if she recorded one. It is one clip per pack, resolved at pack load like every other
+   * media reference, and its absence is the app's complete state rather than a gap.
+   */
+  const ui = useMemo(
+    () => (pack.cheer ? { ...UI_AUDIO, cheer: mediaSource(pack.cheer.src) } : UI_AUDIO),
+    [pack, mediaSource],
+  );
+
+  /**
+   * **J11 — the strip survives the tree being rebuilt under it.** A word she saves makes a
+   * new pack, a new tree and a new session (J14, E13); this ref is where the strip she
+   * left behind is held across that, and `createSession` walks it through the new tree
+   * before trusting a symbol of it.
+   */
+  const buildRef = useRef([]);
+
   const { controller, snapshot } = useGame({
-    game, seed, mediaSource, ui: UI_AUDIO, audio, settings, progress, onProgress,
+    game, seed, mediaSource, ui, audio, settings, progress, onProgress, build: buildRef.current,
   });
+  if (snapshot && snapshot.engine) buildRef.current = snapshot.engine.prefix;
 
   // **A14 — the grace ends the moment play resumes**, and on backgrounding. `touchSeq`
   // is the engine's own count of *he touched the board*, so this needs no plumbing
@@ -177,6 +197,26 @@ function GameBoard({
     );
   }
 
+  if (overlay === 'words' || overlay === 'addWord' || overlay === 'cheer') {
+    // **Slice 4.** The editor is mounted *beside* the board rather than instead of it:
+    // `useGame` above is still holding the session, so J11's *"the app returns to that
+    // same board with the strip still assembled"* costs nothing but the tree rebuild,
+    // which is J14's.
+    return (
+      <Editor
+        strings={strings}
+        pack={pack}
+        packId={packId}
+        sourceFor={sourceFor}
+        audio={audio}
+        settings={settings}
+        startAt={overlay === 'addWord' ? 'add' : overlay === 'cheer' ? 'cheer' : 'list'}
+        onPackChanged={onReloadPack}
+        onBack={() => setOverlay('menu')}
+      />
+    );
+  }
+
   if (overlay === 'menu') {
     return (
       <ParentMenu
@@ -188,6 +228,9 @@ function GameBoard({
         onSelectTheme={setThemeId}
         attributions={attributionsOf(pack)}
         version={VERSION}
+        onOpenWords={() => setOverlay('words')}
+        onOpenAddWord={() => setOverlay('addWord')}
+        onOpenCheer={() => setOverlay('cheer')}
         onBack={() => setOverlay(null)}
         onFinishSession={() => { controller.finishSession(); setOverlay(null); }}
         onSwitchLanguage={(lang) => {
@@ -232,7 +275,7 @@ function GameBoard({
     );
   }
 
-  const Board = pack.language === 'vi' ? BoardVi : BoardEn;
+  const Board = boardFor(pack.language);
   return (
     <Board
       snapshot={snapshot}
@@ -253,6 +296,14 @@ function Shell() {
   const [settings, setSettings] = useState(null);
   const [loaded, setLoaded] = useState(null); // { pack, mediaSource, audio } | { error }
   const [generation, setGeneration] = useState(0);
+  /**
+   * **J14 — a word she saved is discoverable without an app restart.** Bumping this
+   * re-reads the pack directory and resolves it again, which rebuilds the prefix tree
+   * atomically (E13). It is deliberately **not** `generation`: that one is the language
+   * switch's key and tears the whole subtree down, which would lose the strip J11 asks
+   * to keep.
+   */
+  const [packRev, setPackRev] = useState(0);
   const viewport = useViewport();
 
   /**
@@ -326,7 +377,7 @@ function Shell() {
       if (engine) engine.dispose();
       setLoaded(null);
     };
-  }, [language, generation]);
+  }, [language, generation, packRev]);
 
   useEffect(() => {
     if (fontsLoaded || fontError) SplashScreen.hideAsync().catch(() => {});
@@ -397,6 +448,8 @@ function Shell() {
         // The key is the teardown: a language switch unmounts the whole subtree.
         key={`${language}:${generation}`}
         pack={loaded.pack}
+        packId={packId}
+        onReloadPack={() => setPackRev((r) => r + 1)}
         mediaSource={loaded.mediaSource}
         audio={loaded.audio}
         settings={settings}

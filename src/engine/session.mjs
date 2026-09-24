@@ -27,6 +27,7 @@
 import { nextInt, deriveSeed, seedFrom } from './rng.mjs';
 import { langFor } from './lang/index.mjs';
 import { nodeAt, continues } from './tree.mjs';
+import { MAX_WORD_LETTERS } from './rules.mjs';
 
 export const STATE_VERSION = 3;
 
@@ -155,16 +156,17 @@ export function shelfView(state) {
  * §7.1 says switching it is a **teardown**, which at this layer means throwing this
  * object away and calling `createSession` again — never blending two packs.
  */
-export function createSession(game, { seed = 'ghep-chu', progress = null } = {}) {
+export function createSession(game, { seed = 'ghep-chu', progress = null, build = null } = {}) {
   const anyEligible = game.tree.eligible.length > 0;
   const restored = restoreProgress(game, progress);
+  const prefix = restoreBuild(game, build);
   const state = {
     version: STATE_VERSION,
     language: game.language,
     packId: game.pack.id,
     seed: seedFrom(seed),
     rng: seedFrom(seed),
-    prefix: [],
+    prefix,
     /** V12–V14 — which window onto the constant table is on screen. */
     page: 0,
     /** Why the page last changed: 'self' (he tapped) or 'auto' (the app slid). */
@@ -184,6 +186,37 @@ export function createSession(game, { seed = 'ghep-chu', progress = null } = {})
     idle: { touchSeq: 0, resetSeq: 0 },
   };
   return state.phase === 'playing' ? settlePage(game, state) : state;
+}
+
+/**
+ * **J11 and J14 at the same time.** A word his mother saves rebuilds the prefix tree
+ * atomically (E13), which means a whole new game object and a whole new session — and
+ * J11 says the board she came from must still be there, *with the strip still
+ * assembled*, when she is done.
+ *
+ * So the state layer hands the strip back across the rebuild, and this is the door it
+ * comes in through. Hostile like every other restore: the prefix is **walked through the
+ * new tree**, and the moment a symbol is not a child of the node before it the restore
+ * stops there. A prefix that is no longer buildable — she deleted the only word behind it
+ * — degrades to the longest part that still is, which is never an illegal state, because
+ * every node on the walk is a node the tree actually has.
+ */
+function restoreBuild(game, build) {
+  if (!Array.isArray(build) || build.length === 0) return [];
+  const prefix = [];
+  let node = game.tree.root;
+  for (const symbol of build) {
+    if (typeof symbol !== 'string') break;
+    const next = node.children.get(symbol);
+    if (!next) break;
+    node = next;
+    prefix.push(symbol);
+    if (prefix.length >= MAX_WORD_LETTERS + 1) break;
+  }
+  // A restored prefix that already spells a word would drop the child straight into an
+  // announcement he did not ask for, so the last symbol is left off in that case.
+  while (prefix.length > 0 && nodeAt(game.tree, prefix).wordId !== null) prefix.pop();
+  return prefix;
 }
 
 /**
