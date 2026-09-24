@@ -210,6 +210,7 @@ function GameBoard({
         sourceFor={sourceFor}
         audio={audio}
         settings={settings}
+        onSetting={(patch) => setSettings((s) => ({ ...s, ...patch }))}
         startAt={overlay === 'addWord' ? 'add' : overlay === 'cheer' ? 'cheer' : 'list'}
         onPackChanged={onReloadPack}
         onBack={() => setOverlay('menu')}

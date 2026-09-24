@@ -21,24 +21,26 @@ import { AddWordFlow } from './AddWordFlow';
 import { CheerScreen } from './CheerScreen';
 
 export function Editor({
-  strings, pack, packId, sourceFor, audio, settings, onBack, onPackChanged, startAt = 'list',
+  strings, pack, packId, sourceFor, audio, settings, onSetting,
+  onBack, onPackChanged, startAt = 'list',
 }) {
   const editor = useEditor({ pack, packId, onPackChanged });
   const [screen, setScreen] = useState(startAt === 'add' ? 'add' : startAt);
   const [draft, setDraft] = useState(() => (startAt === 'add' ? editor.newDraft() : null));
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [everSaved, setEverSaved] = useState(false);
 
   const close = useCallback(() => { editor.close(); onBack(); }, [editor, onBack]);
 
   const save = useCallback((current, options) => {
     editor.saveDraft(current, options);
     if (options && options.final) {
-      // J15 — the cheer is offered exactly **once**, after her first save.
-      if (!everSaved) { setEverSaved(true); setScreen('cheer'); } else setScreen('list');
+      // **J15 — offered exactly once, and never offered again automatically.** The flag
+      // is a setting rather than component state, because *never again* has to outlive
+      // the session she declined it in.
+      if (!settings.cheerOffered) { onSetting({ cheerOffered: true }); setScreen('cheer'); } else setScreen('list');
       setDraft(null);
     }
-  }, [editor, everSaved]);
+  }, [editor, settings.cheerOffered, onSetting]);
 
   if (screen === 'cheer') {
     return (

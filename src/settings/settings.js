@@ -3,8 +3,11 @@
 // `ui.md` §5.7 and `acceptance-criteria.md` A7: "Persisted in AsyncStorage — settings
 // only. Content goes to the filesystem, never here." The defence is that this module
 // declares the complete set of keys and their shapes, refuses to persist anything else,
-// and is the only importer of AsyncStorage in the app —
-// `test/settings-shape.test.mjs` audits both.
+// and is the only importer of AsyncStorage in the app. Both are audited by
+// `test/presentation-audit.test.mjs` (*AsyncStorage is reachable from exactly one
+// module, and holds settings only*) — the comment used to cite
+// `test/settings-shape.test.mjs`, which does not exist. A pointer to a check that was
+// never written reads exactly like a check that passes.
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -25,6 +28,14 @@ export const SETTINGS_SCHEMA = {
   saySentence: { type: 'boolean', dflt: true },
   // `gameplay.md` §7.3 — playback rate 0.8x / 1.0x.
   rate: { type: 'enum', values: [0.8, 1], dflt: 1 },
+  /**
+   * `acceptance-criteria.md` **J15** — the cheer screen is offered **exactly once**,
+   * after she saves her first word, *"and it is never offered again automatically"*.
+   * "Never again" outlives the session she declined it in, so it is a setting rather
+   * than a piece of component state. It is a boolean about the app's own behaviour, not
+   * content: the clip itself is one field in `pack.json` (E14).
+   */
+  cheerOffered: { type: 'boolean', dflt: false },
 };
 
 export const DEFAULT_SETTINGS = Object.fromEntries(
